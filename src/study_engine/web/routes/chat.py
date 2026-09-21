@@ -767,6 +767,45 @@ async def get_session_briefing(
     }
 
 
+def _kc_search_terms(kc: Dict[str, Any]) -> List[str]:
+    """Extract matchable terms from a KC entry: title + display_name + subtopics."""
+    from study_engine.storage.lexical_index import SPANISH_STOPWORDS
+
+    raw_parts: List[str] = [str(kc.get("title") or ""), str(kc.get("display_name") or "")]
+    raw_parts.extend(str(s) for s in (kc.get("subtopics") or []))
+    words = re.findall(r"\w+", " ".join(raw_parts).lower())
+    return sorted({w for w in words if len(w) > 3 and w not in SPANISH_STOPWORDS})
+
+
+def _match_kc_id(kcs_list: List[Dict[str, Any]], prompt_text: str) -> Optional[str]:
+    """Best-effort KC matching for a chat query (F3: honest matching, no fallback).
+
+    Returns the ``kc_id`` with the most term hits in the query, or ``None``
+    when no KC matches. A KC qualifies when either:
+    - its exact ``kc_id`` appears in the query, or
+    - >= 2 of its terms appear, or
+    - exactly 1 term appears and it is specific (>= 6 chars, whole word).
+
+    F3 contract: when this returns ``None`` the turn is NOT attributed to any
+    KC. ``phase_complete`` then emits ``bkt_context.fallback=True`` with
+    neutral values (p_L=0.5, context_mode='intermediate') instead of silently
+    reporting the turn as ``kcs_list[0]``.
+    """
+    q = (prompt_text or "").lower()
+    best_kc: Optional[str] = None
+    best_hits = 0
+    for kc in kcs_list:
+        kid = str(kc.get("kc_id") or "")
+        if kid and kid.lower() in q:
+            return kid
+        hit_terms = [t for t in _kc_search_terms(kc) if re.search(rf"\b{re.escape(t)}\b", q)]
+        hits = len(hit_terms)
+        qualifies = hits >= 2 or (hits == 1 and len(hit_terms[0]) >= 6)
+        if qualifies and hits > best_hits:
+            best_kc, best_hits = kid, hits
+    return best_kc
+
+
 def _prepare_chat_context(
     *,
     store: Any,
@@ -782,6 +821,11 @@ def _prepare_chat_context(
     Always returns ``PREPARE_CONTEXT_ARITY`` (11) items. Folder and
     conversational fast-path pack ``matched_kc_id`` / ``bkt_meta`` as None
     by design (non-technical routes do not run BKT).
+
+    F3: on the notebook path, ``matched_kc_id`` is None when no KC of the
+    notebook catalog matches the query (see ``_match_kc_id``). The SSE
+    ``phase_complete`` payload then reports ``bkt_context.fallback=True``
+    with neutral values instead of attributing the turn to an arbitrary KC.
     """
     if target_scope_id == "folder_root" and hasattr(store, "contains_folder") and not store.contains_folder("folder_root"):
         from datetime import datetime, timezone
@@ -840,25 +884,13 @@ def _prepare_chat_context(
     style_result = ConversationStyleRouter.detect_style(prompt_text)
 
     # BKT Adaptation determination (Fix S4.2)
+    # F3: matching honesto — si ningún KC coincide, matched_kc_id queda None y
+    # el phase_complete lo declara con bkt_context.fallback=True + p_L neutral.
     orch = getattr(container, "pedagogical_orchestrator", None)
     kc_catalog = getattr(orch, "_kc_catalog", {}) if orch is not None else {}
     nb_catalog = kc_catalog.get(target_notebook_id, {}) if isinstance(kc_catalog, dict) else {}
     kcs_list = nb_catalog.get("kcs", []) if isinstance(nb_catalog, dict) else []
-    matched_kc_id = None
-    q_lower = prompt_text.lower()
-    for kc in kcs_list:
-        kid = kc.get("kc_id", "")
-        ktitle = (kc.get("title") or "").lower()
-        title_words = [w for w in ktitle.replace(",", " ").replace(":", " ").split() if len(w) > 3]
-        if kid.lower() in q_lower or any(w in q_lower for w in title_words):
-            matched_kc_id = kid
-            break
-
-    # Fix 3: si ningún KC matchea por texto, usar el primer KC del catálogo como fallback.
-    # Esto garantiza que BKT siempre tenga un kc_id válido para derivar adaptación pedagógica
-    # (en lugar de asumir p_L=0.0 sin contexto por matched_kc_id=None).
-    if matched_kc_id is None and kcs_list:
-        matched_kc_id = kcs_list[0].get("kc_id")
+    matched_kc_id = _match_kc_id(kcs_list, prompt_text) if kcs_list else None
 
     from study_engine.pedagogy.student_context import (
         determine_pedagogical_context_mode,
@@ -1148,6 +1180,10 @@ async def chat_query(
                             "context_mode": context_mode,
                             "p_L": safe_bkt.get("p_L", 0.5),
                             "unmet_prerequisites": safe_bkt.get("unmet_prerequisites", []),
+                            # F3: True cuando ningún KC matcheó la query; los
+                            # valores son neutrales (p_L=0.5) y NO corresponden
+                            # a un KC real del catálogo.
+                            "fallback": matched_kc_id is None,
                         }
 
                     _update_curriculum_progress(

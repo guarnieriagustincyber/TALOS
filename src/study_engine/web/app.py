@@ -1,9 +1,11 @@
 """FastAPI Application Factory for KASIU Web Engine (Hito 10)."""
 
+import logging
 from pathlib import Path
 import os
 import signal
 import time
+from typing import Any, List
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -27,6 +29,34 @@ from study_engine.web.routes.study_session import router as study_session_router
 from study_engine.web.routes.notebook import router as notebook_router
 from study_engine.web.routes.student_exercises import router as student_exercises_router
 
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    # El proyecto no configura logging y el root queda en WARNING: sin esto,
+    # los markers operativos de startup (p.ej. warmup de retrieval) quedan
+    # invisibles aunque sean la única señal de readiness.
+    _h = logging.StreamHandler()
+    _h.setFormatter(logging.Formatter("%(levelname)s: %(name)s: %(message)s"))
+    logger.addHandler(_h)
+    logger.setLevel(logging.INFO)
+
+
+def _warmup_notebooks(store: Any) -> List[str]:
+    """Notebooks con embeddings disponibles (best-effort; vacío si no hay vector store)."""
+    import sqlite3
+
+    repo_root = Path(__file__).resolve().parents[3]
+    db_path = repo_root / "data" / "web_state" / "vector_store.db"
+    if not db_path.exists():
+        return []
+    try:
+        con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+        try:
+            rows = con.execute("SELECT DISTINCT notebook_id FROM chunk_embeddings").fetchall()
+        finally:
+            con.close()
+        return [r[0] for r in rows]
+    except Exception:
+        return []
 
 
 def create_app() -> FastAPI:
@@ -61,7 +91,38 @@ def create_app() -> FastAPI:
     def on_startup() -> None:
         """Eagerly initialize singleton container to ensure zero cold-start latency for UI requests."""
         from study_engine.web.dependencies import get_container
-        get_container()
+        container = get_container()
+        _schedule_retrieval_warmup(container)
+
+    def _schedule_retrieval_warmup(container: Any) -> None:
+        """Warm the ONNX embedder + vector store in a background daemon thread.
+
+        Does not block boot: the server accepts requests immediately, and if a
+        query arrives before warmup completes it pays the synchronous load cost
+        (pre-existing behavior). Only the first query after boot benefits.
+        """
+        import threading
+
+        def _warm() -> None:
+            t0 = time.perf_counter()
+            try:
+                store = getattr(container, "knowledge_store", None)
+                if store is None:
+                    return
+                # Resolver cachea _vector_store y _embedder en el store tras el
+                # primer uso; una query simbólica por cuaderno con embeddings
+                # calienta ambos (modelo ONNX + lectura de la matriz).
+                warming = getattr(store, "vector_search", None)
+                if warming is None:
+                    return
+                for notebook_id in _warmup_notebooks(store):
+                    store.vector_search(query="warmup", notebook_id=notebook_id, limit=1)
+                elapsed_ms = (time.perf_counter() - t0) * 1000
+                logger.info("Warmup de retrieval completado en %.0f ms", elapsed_ms)
+            except Exception as exc:  # warmup nunca debe tirar el server
+                logger.warning("Warmup de retrieval falló (no fatal): %s", exc)
+
+        threading.Thread(target=_warm, name="retrieval-warmup", daemon=True).start()
 
     # Register API Routers
     app.include_router(health_router)
