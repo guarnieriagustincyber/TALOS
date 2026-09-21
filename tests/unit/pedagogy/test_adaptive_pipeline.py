@@ -94,7 +94,7 @@ def test_build_phase_prompt_adapts_to_response_modes():
         pedagogical_mode="compare",
     )
     assert "COMPARACIÓN ESTRUCTURADA (FORMATO TABLA)" in prompt_compare
-    assert "Extensión máxima de 300 palabras" in prompt_compare
+    assert "Extensión pedagógica objetivo: hasta 300 palabras" in prompt_compare
     assert "pregunta socrática" in prompt_compare
 
     # Mode: Give example -> Code format, 500 words, no forced socratic
@@ -104,7 +104,7 @@ def test_build_phase_prompt_adapts_to_response_modes():
         pedagogical_mode="give_example",
     )
     assert "EJEMPLO PRÁCTICO (FORMATO CÓDIGO IDIOMÁTICO)" in prompt_example
-    assert "Extensión máxima de 500 palabras" in prompt_example
+    assert "Extensión pedagógica objetivo: hasta 500 palabras" in prompt_example
     assert "sin pregunta socrática forzada" in prompt_example
 
     # Mode: Simplify -> 1 layer, 200 words, no forced socratic
@@ -114,7 +114,7 @@ def test_build_phase_prompt_adapts_to_response_modes():
         pedagogical_mode="simplify",
     )
     assert "SÍNTESIS SIMPLIFICADA (ESTILO FEYNMAN ACCESIBLE)" in prompt_simplify
-    assert "Extensión máxima de 200 palabras" in prompt_simplify
+    assert "Extensión pedagógica objetivo: hasta 200 palabras" in prompt_simplify
 
     # Mode: Quick answer -> 100 words, concise
     prompt_quick = pipeline.build_phase_prompt(
@@ -123,7 +123,7 @@ def test_build_phase_prompt_adapts_to_response_modes():
         pedagogical_mode="quick_answer",
     )
     assert "RESPUESTA RÁPIDA Y CONCISA" in prompt_quick
-    assert "Extensión máxima de 100 palabras" in prompt_quick
+    assert "Extensión pedagógica objetivo: hasta 100 palabras" in prompt_quick
 
     # Mode: Evaluate code / Forensic audit -> 2500 words, bug-by-bug forensic protocol
     prompt_audit = pipeline.build_phase_prompt(
@@ -147,7 +147,7 @@ def test_build_phase_prompt_adapts_to_response_modes():
     assert "Validación Cognitiva y Desarme de la Frustración" in prompt_misconception
     assert "Regla de Oro: Modelar el Mecanismo, No Metáforas Vacías" in prompt_misconception
     assert "Parser Differential / CVE-2021-29921" in prompt_misconception
-    assert "Extensión máxima de 1500 palabras" in prompt_misconception
+    assert "Extensión pedagógica objetivo: hasta 1500 palabras" in prompt_misconception
 
 
 def test_bkt_influences_pedagogical_context_mode():

@@ -724,6 +724,7 @@ class StructuredResponsePipeline:
         pedagogical_mode: Optional[str] = None,
         bkt_directive: Optional[str] = None,
         style_directive: Optional[str] = None,
+        recent_turns: Optional[List[dict]] = None,
     ) -> str:
         """Assemble the specialized prompt for this phase with PhaseHistory, intent routing, and BKT adaptation."""
         predecessor_context = self.history.format_predecessors_context()
@@ -767,6 +768,27 @@ class StructuredResponsePipeline:
 
         if predecessor_context:
             parts.append(f"=== CONTEXTO DE FASES PREVIAS (COHERENCIA PEDAGÓGICA) ===\n{predecessor_context}")
+
+        # Memoria conversacional de corto plazo (Fase 2):
+        # Los últimos N turnos del diálogo se inyectan para que el LLM mantenga
+        # coherencia sin necesidad de que el estudiante repita el contexto.
+        if recent_turns:
+            turns_block_lines: List[str] = []
+            for turn in recent_turns[-4:]:  # máximo 4 turnos (2 pares Q/A)
+                role = turn.get("role", "user")
+                content = (turn.get("content") or "").strip()
+                if not content:
+                    continue
+                label = "Estudiante" if role == "user" else "TALOS"
+                # Truncar turnos largos para no inflar el contexto
+                truncated = content[:600] + ("…" if len(content) > 600 else "")
+                turns_block_lines.append(f"[{label}]: {truncated}")
+            if turns_block_lines:
+                parts.append(
+                    "=== HISTORIAL CONVERSACIONAL RECIENTE (últimos turnos) ===\n"
+                    + "\n".join(turns_block_lines)
+                    + "\n[Fin del historial reciente — respondé en continuidad con lo anterior]"
+                )
 
         if style_directive:
             parts.append(f"=== DIRECTIVA DE ESTILO Y CONVERSACIÓN (OLA 5, E24) ===\n{style_directive}")
@@ -841,9 +863,9 @@ class StructuredResponsePipeline:
                 else f"en formato '{mode_config.get('format', 'directo')}'"
             )
             extension_clause = (
-                f"- Extensión máxima de {max_words} palabras por respuesta conversacional, {fmt_desc}. (Desarrollá exhaustivamente cada capa con un total integral de hasta 1200 palabras; los diagramas y código no cuentan en este límite)."
+                f"- Extensión pedagógica objetivo: hasta {max_words} palabras por respuesta conversacional, {fmt_desc}. (Desarrollá con profundidad sólida; los diagramas, esquemas Unicode y bloques de código no computan dentro de este límite de prosa)."
                 if mode_config.get("layers", 0) == 3
-                else f"- Extensión máxima de {max_words} palabras por respuesta conversacional, {fmt_desc}."
+                else f"- Extensión pedagógica objetivo: hasta {max_words} palabras por respuesta conversacional, {fmt_desc}."
             )
             diagram_fmt = (
                 "diagramas de flujo obligatorios en ```mermaid con sintaxis válida (graph TD)"
@@ -970,10 +992,12 @@ class StructuredResponsePipeline:
         bkt_directive: Optional[str] = None,
         style_directive: Optional[str] = None,
         override_max_tokens: Optional[int] = None,
+        recent_turns: Optional[List[dict]] = None,
     ) -> AsyncGenerator[StreamEvent, None]:
         """Generate response for a specific phase with streaming, guards, intent routing, and BKT adaptation.
-        
+
         Refinamiento 3: Handles asyncio.CancelledError cleanly without corrupting PhaseHistory.
+        Fase 2: Acepta recent_turns para memoria conversacional de corto plazo.
         """
         target_phase_id = requested_phase or "conceptual"
         phase = self.get_phase(target_phase_id)
@@ -1036,6 +1060,7 @@ class StructuredResponsePipeline:
             pedagogical_mode=active_mode,
             bkt_directive=bkt_directive,
             style_directive=style_directive,
+            recent_turns=recent_turns,
         )
 
         yield StreamEvent(

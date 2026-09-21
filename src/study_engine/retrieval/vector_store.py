@@ -66,15 +66,19 @@ class SQLiteVectorStore:
         self._initialize_schema()
 
     def _initialize_schema(self) -> None:
+        # PK compuesta (chunk_id, notebook_id): una misma fuente puede pertenecer
+        # a múltiples notebooks, y cada chunk debe ser recuperable semánticamente
+        # en todos ellos sin colisiones de clave.
         sql = """
         CREATE TABLE IF NOT EXISTS chunk_embeddings (
-            chunk_id TEXT PRIMARY KEY,
+            chunk_id TEXT NOT NULL,
             notebook_id TEXT NOT NULL,
             source_id TEXT NOT NULL,
             provider_id TEXT NOT NULL,
             model_id TEXT NOT NULL,
             dimensions INTEGER NOT NULL,
-            vector BLOB NOT NULL
+            vector BLOB NOT NULL,
+            PRIMARY KEY (chunk_id, notebook_id)
         );
         CREATE INDEX IF NOT EXISTS idx_vec_notebook
             ON chunk_embeddings(notebook_id);

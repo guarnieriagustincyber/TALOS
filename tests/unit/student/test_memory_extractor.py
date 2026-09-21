@@ -193,6 +193,7 @@ def test_chat_query_background_pedagogical_memory_integration(tmp_path):
         active_kc="KC-STACK-01",
         pedagogical_mode="resolve_misconception",
         llm_backend=None,
+        notebook_id="nb_prog_1",
     )
 
     # Allow background asyncio task to execute

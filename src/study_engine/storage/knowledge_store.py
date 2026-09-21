@@ -3,6 +3,8 @@
 from datetime import datetime, timezone
 import json
 import logging
+import os
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
@@ -27,6 +29,13 @@ from study_engine.storage.repositories import (
     SQLiteSourceRepository,
 )
 from study_engine.storage.sqlite_engine import SQLiteStorageEngine
+
+# Umbral provisional de similitud coseno para aceptar evidencia vectorial
+# (gate de abstención E25 / INV-W5-1). Medido sobre el corpus FADENA
+# (multilingual-e5-small): consultas in-scope top-1 >= 0.88; consultas fuera de
+# alcance top-1 <= 0.86. e5-small es anisotrópico: TODO chunk supera ~0.83, así
+# que el piso es deliberadamente alto. Ajustar en calibración (P1) o vía env.
+MIN_VECTOR_SIMILARITY = float(os.environ.get("TALOS_MIN_VECTOR_SIMILARITY", "0.87"))
 
 
 class FolderNotFoundError(Exception):
@@ -544,8 +553,11 @@ class KnowledgeStore:
                     if len(raw_terms) >= 3:
                         filtered_rows = []
                         for r in fallback_rows:
-                            c_text = r[5].lower()
-                            hits = sum(1 for term in raw_terms if term in c_text)
+                            # Match por palabra completa, no substring: "ajo" no
+                            # debe matchear "abajo" ni "mejor" a "mejorarla"
+                            # (el FTS usa prefijos "term"* pero el guard no).
+                            chunk_words = frozenset(re.findall(r"\w+", r[5].lower()))
+                            hits = sum(1 for term in raw_terms if term in chunk_words)
                             if hits >= 2 or (hits / len(raw_terms)) >= 0.35:
                                 filtered_rows.append(r)
                         rows = filtered_rows
@@ -819,6 +831,11 @@ class KnowledgeStore:
             vector_store=vector_store,
             embedder=embedder,
         )
+
+        # Gate anti-ruido: descartar evidencia vectorial bajo el umbral de
+        # similitud; sin esto, cualquier consulta (incluso fuera de alcance)
+        # devuelve top-N por orden relativo y salta la abstención del chat.
+        vector_results = [r for r in vector_results if r.score >= MIN_VECTOR_SIMILARITY]
 
         # Enmienda E1: Limitar disyunciones a top-50 por BM25 para evitar ruido
         fts_results = self.fts_search(

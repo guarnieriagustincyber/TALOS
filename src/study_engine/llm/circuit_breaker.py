@@ -12,8 +12,9 @@ import asyncio
 from datetime import datetime, timezone
 from enum import Enum
 import logging
+import re
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -183,3 +184,106 @@ class CircuitBreakerBackend:
             self.circuit_breaker.record_failure()
             logger.warning(f"[CIRCUIT BREAKER] Execution failed: {exc}. Routing to fallback.")
             return self.fallback_backend.complete(prompt_bundle)
+
+    async def _stream_word_replay(
+        self,
+        backend: Any,
+        system_prompt: str,
+        user_prompt: str,
+        max_tokens: int,
+    ) -> AsyncGenerator[str, None]:
+        """Replay complete() output as word chunks for backends without native streaming."""
+        from study_engine.contracts.generation import GenerationParameters
+        from study_engine.generation.prompts import PromptBundle, PromptMessage, PromptRole
+
+        bundle = PromptBundle(
+            system_prompt=system_prompt,
+            messages=(PromptMessage(role=PromptRole.USER, content=user_prompt),),
+            parameters=GenerationParameters(max_output_tokens=max_tokens),
+            prompt_hash="0" * 64,
+        )
+        completion = await asyncio.to_thread(backend.complete, bundle)
+        full_text = getattr(completion, "text", None) or str(completion)
+        for word in re.split(r"(\s+)", full_text):
+            if word:
+                yield word
+
+    async def stream(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        max_tokens: int = 1500,
+        phase_id: Optional[str] = None,
+        context: Optional[str] = None,
+    ) -> AsyncGenerator[str, None]:
+        """Real-time token streaming with circuit protection and provider fallback.
+
+        Semantics:
+        - If the circuit allows the request, stream from the primary backend.
+        - If the primary fails BEFORE any token was emitted, fall back cleanly
+          (native stream if available, else complete() + word replay).
+        - If the primary fails AFTER tokens were already emitted, the exception
+          propagates: restarting mid-stream would duplicate content in the SSE.
+        - Success on the primary closes/resets the breaker; failure counts
+          towards the failure threshold and can trip the circuit to OPEN.
+        """
+        estimated_tokens = max_tokens or 1500
+        use_primary = self.circuit_breaker.can_proceed(estimated_tokens=estimated_tokens)
+        if not use_primary:
+            logger.warning("[CIRCUIT BREAKER] Circuit OPEN or quota exceeded. Streaming from fallback.")
+
+        candidates: List[Any] = []
+        if use_primary and self.primary_backend is not None:
+            candidates.append(self.primary_backend)
+        if self.fallback_backend is not None:
+            candidates.append(self.fallback_backend)
+
+        last_exc: Optional[Exception] = None
+        for backend in candidates:
+            is_primary = backend is self.primary_backend and use_primary
+            emitted_chars = 0
+            emitted_any = False
+            try:
+                if hasattr(backend, "stream") and callable(getattr(backend, "stream")):
+                    async for token in backend.stream(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        max_tokens=max_tokens,
+                        phase_id=phase_id,
+                        context=context,
+                    ):
+                        emitted_any = True
+                        emitted_chars += len(token)
+                        yield token
+                else:
+                    async for word in self._stream_word_replay(
+                        backend, system_prompt, user_prompt, max_tokens
+                    ):
+                        emitted_any = True
+                        emitted_chars += len(word)
+                        yield word
+
+                if is_primary:
+                    self.circuit_breaker.record_usage(max(1, emitted_chars // 4))
+                    self.circuit_breaker.record_success()
+                return
+            except Exception as exc:
+                if emitted_any:
+                    # Ya se entregaron tokens al consumidor: reiniciar el stream
+                    # duplicaría contenido en el SSE. Propagar el error.
+                    raise
+                last_exc = exc
+                if is_primary:
+                    self.circuit_breaker.record_failure()
+                    logger.warning(
+                        "[CIRCUIT BREAKER] Primary stream failed (%s: %s). Falling back.",
+                        type(exc).__name__, exc,
+                    )
+                else:
+                    logger.error(
+                        "[CIRCUIT BREAKER] Fallback stream failed: %s: %s",
+                        type(exc).__name__, exc,
+                    )
+
+        if last_exc is not None:
+            raise last_exc

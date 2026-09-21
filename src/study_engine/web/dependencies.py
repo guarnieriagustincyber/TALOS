@@ -284,10 +284,32 @@ class AppContainer:
         self.pedagogical_memory_tracker = PedagogicalMemoryTracker(self.student_storage)
         self.pedagogical_memory_extractor = PedagogicalMemoryExtractor(self.pedagogical_memory_tracker)
 
+        from study_engine.student.preference_tracker import PreferenceTracker
+        from study_engine.student.learning_patterns import LearningPatternsTracker
+        from study_engine.memory.session_memory import SessionMemoryManager
+        from study_engine.memory.mem0_manager import Mem0Manager
+
+        self.preference_tracker = PreferenceTracker(self.student_storage)
+        self.learning_patterns = LearningPatternsTracker(self.student_storage)
+
         from study_engine.memory.session_history import SessionHistory
         from study_engine.memory.session_briefing import SessionBriefingGenerator
 
+        # SessionHistory persistente (archivo, no :memory:) compartido por el
+        # briefing y por la capa episódica de Mem0; si SessionMemoryManager no
+        # recibe uno, cae a un SessionHistory() en :memory: y los turnos se
+        # pierden al reiniciar el backend.
         self.session_history = SessionHistory(db_path)
+        self.session_memory = SessionMemoryManager(
+            student_storage=self.student_storage,
+            session_history=self.session_history,
+        )
+        self.mem0_manager = Mem0Manager(
+            student_storage=self.student_storage,
+            preference_tracker=self.preference_tracker,
+            learning_patterns=self.learning_patterns,
+            session_memory=self.session_memory,
+        )
         self.session_briefing_generator = SessionBriefingGenerator(
             bkt_tracker=self.bkt_tracker,
             sm2_scheduler=self.spaced_scheduler,

@@ -62,14 +62,30 @@ logs/*
 !logs/.gitkeep
 state/*
 !state/.gitkeep
+backend.log
+frontend.log
+
+# Artefactos accidentales de runtime (mala resolución de paths sqlite)
+:memory:.*
+sqlite:/
 
 # User data / study data
 data/user_*
+data/student/
 *.pdf
 *.db
+*.db-shm
+*.db-wal
 data/benchmark/db/
 
 models/
+
+data/web_state/*.db
+data/web_state/*-shm
+data/web_state/*-wal
+node_modules/
+*.log
+/tmp/opencode/
 
 kasiu-lab/ui/bin/tailwindcss
 kasiu-lab/ui/bin/tailwindcss

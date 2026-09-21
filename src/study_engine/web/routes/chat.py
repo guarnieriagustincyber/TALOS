@@ -23,6 +23,53 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/chat", tags=["Chat"])
 
+# Fixed arity for `_prepare_chat_context` / `chat_query` unpacking (P0).
+# 0 resolved_scope, 1 contract, 2 context_pack, 3 raw_chunks, 4 folder_decision,
+# 5 context_mode, 6 bkt_directive, 7 style_result, 8 conv_payload,
+# 9 matched_kc_id, 10 bkt_meta
+PREPARE_CONTEXT_ARITY = 11
+
+
+def _pack_prepare_context(
+    resolved_scope: Any,
+    *,
+    contract: Any = None,
+    context_pack: Any = None,
+    raw_chunks: Optional[List[Any]] = None,
+    folder_decision: Any = None,
+    context_mode: Any = None,
+    bkt_directive: Any = None,
+    style_result: Any = None,
+    conv_payload: Any = None,
+    matched_kc_id: Any = None,
+    bkt_meta: Any = None,
+) -> Tuple[Any, Any, Any, List[Any], Any, Any, Any, Any, Any, Any, Any]:
+    """Pack chat context-prep as a stable 11-tuple.
+
+    Folder routing and conversational fast-path leave ``matched_kc_id`` and
+    ``bkt_meta`` as ``None`` by design: greetings, follow-ups and folder
+    organisational queries are not technical KC turns, so BKT is not computed.
+    Those Nones are not a pending bug.
+    """
+    packed = (
+        resolved_scope,
+        contract,
+        context_pack,
+        [] if raw_chunks is None else raw_chunks,
+        folder_decision,
+        context_mode,
+        bkt_directive,
+        style_result,
+        conv_payload,
+        matched_kc_id,
+        bkt_meta,
+    )
+    if len(packed) != PREPARE_CONTEXT_ARITY:
+        raise RuntimeError(
+            f"prepare-context contract broken: expected {PREPARE_CONTEXT_ARITY}, got {len(packed)}"
+        )
+    return packed
+
 
 class ChatQueryRequest(BaseModel):
     """Payload for multi-phase streaming chat queries."""
@@ -79,6 +126,11 @@ class ChatQueryRequest(BaseModel):
 
 # In-memory turn accumulator map with TTL eviction: (session_id or scope_id) -> PhaseHistory
 _ACTIVE_TURN_HISTORIES: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
+
+# Buffer de turnos conversacionales de corto plazo (Fase 2):
+# Almacena los últimos 4 turnos {role, content} por history_key para inyectar
+# continuidad conversacional real en el prompt sin inflar el contexto global.
+_CONV_TURN_BUFFER: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
 
 class EpistemicContextPack:
@@ -379,6 +431,31 @@ def _resolve_chat_backend(container: AppContainer) -> Any:
     return OfflineKnowledgeBackend(knowledge_store=getattr(container, "knowledge_store", None))
 
 
+# Heurística de amplitud de consulta (Semana 1 - Calibración Chat):
+# preguntas específicas (un concepto puntual) -> contexto chico y preciso;
+# preguntas amplias (resúmenes, unidades, mapas, repasos) -> contexto ancho
+# al estilo NotebookLM (más fuentes y chunks recuperados).
+_BROAD_QUERY_PATTERN = re.compile(
+    r"\b(resumen|resumime|resumime|sinte[sz]is|sintetiz[áa]|unidad|cap[íi]tulo|mapa|"
+    r"repaso|repas[ée]o|temario|programa|[íi]ndice|overview|repasemos|"
+    r"todos? los temas|temas principales|puntos clave|ideas principales|"
+    r"qu[ée] vimos|de qu[ée] trata|recorrido|panorama|compar[áa] todo)\b",
+    re.IGNORECASE,
+)
+
+
+def _resolve_retrieval_depth(prompt_text: str) -> Tuple[int, int]:
+    """Return (limit, min_sources) for retrieval according to query breadth.
+
+    - Consulta amplia (resumen, repaso de unidad, panorama): 14 chunks, >=4 fuentes.
+    - Consulta específica (déficit de un concepto, cómo se hace X): 6 chunks, >=3 fuentes.
+    """
+    q = (prompt_text or "").strip()
+    if len(q) >= 220 or _BROAD_QUERY_PATTERN.search(q):
+        return 14, 4
+    return 6, 3
+
+
 def _assemble_epistemic_context(
     store: Any,
     container: AppContainer,
@@ -411,14 +488,15 @@ def _assemble_epistemic_context(
         except Exception as meta_err:
             logger.warning("Fallo al consultar metadatos de fuentes: %s", meta_err)
 
+        retrieval_limit, min_sources = _resolve_retrieval_depth(search_query)
         search_results = []
         if hasattr(store, "search_hybrid"):
             try:
                 search_results = store.search_hybrid(
                     query=search_query,
                     notebook_id=target_notebook_id,
-                    limit=6,
-                    min_sources=3,
+                    limit=retrieval_limit,
+                    min_sources=min_sources,
                 )
             except Exception as hybrid_err:
                 logger.debug("Fallo en search_hybrid, fallback a search(): %s", hybrid_err)
@@ -429,7 +507,7 @@ def _assemble_epistemic_context(
                 search_results = store.search(
                     query=search_query,
                     notebook_id=target_notebook_id,
-                    limit=6,
+                    limit=retrieval_limit,
                 )
             except Exception as search_err:
                 logger.warning("Fallo en búsqueda de cuaderno %s: %s", target_notebook_id, search_err)
@@ -437,7 +515,7 @@ def _assemble_epistemic_context(
 
         if not search_results and not target_notebook_id and hasattr(store, "search"):
             try:
-                search_results = store.search(query=search_query, limit=6)
+                search_results = store.search(query=search_query, limit=retrieval_limit)
             except Exception as fallback_err:
                 logger.warning("Fallo en búsqueda global fallback: %s", fallback_err)
                 search_results = []
@@ -607,6 +685,7 @@ def _trigger_background_memory_extraction(
     active_kc: Optional[str],
     pedagogical_mode: Optional[str],
     llm_backend: Optional[Any],
+    notebook_id: str,
 ) -> None:
     """Asynchronously extract and persist misconceptions or preferences in background."""
     extractor = getattr(container, "pedagogical_memory_extractor", None)
@@ -616,8 +695,12 @@ def _trigger_background_memory_extraction(
         tracker = PedagogicalMemoryTracker(container.student_storage)
         extractor = PedagogicalMemoryExtractor(tracker)
 
-    if extractor:
-        async def _run_bg() -> None:
+    mem0 = getattr(container, "mem0_manager", None)
+    if not extractor and not mem0:
+        return
+
+    async def _run_bg() -> None:
+        if extractor:
             try:
                 await extractor.process_turn_and_persist(
                     student_id=student_id,
@@ -629,39 +712,23 @@ def _trigger_background_memory_extraction(
                 )
             except Exception as exc:
                 logger.debug("Background pedagogical memory extraction error: %s", exc)
+        if mem0:
+            try:
+                mem0.process_turn_memories(
+                    student_id=student_id,
+                    user_query=prompt_text,
+                    response_text=response_text,
+                    notebook_id=notebook_id,
+                    active_kc=active_kc,
+                )
+            except Exception as exc:
+                logger.debug("Background Mem0 process_turn_memories error: %s", exc)
 
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(_run_bg())
-        except RuntimeError:
-            asyncio.run(_run_bg())
-
-
-def _record_session_history_turn(
-    container: Any,
-    student_id: str,
-    notebook_id: str,
-    topic: str,
-    next_topic: str = "",
-) -> None:
-    """Record turn in SessionHistory for cross-session episodic memory."""
-    history = getattr(container, "session_history", None)
-    if history and hasattr(history, "record_session"):
-        try:
-            from study_engine.memory.session_history import SessionRecord
-            from datetime import datetime, timezone
-            rec = SessionRecord(
-                session_id=f"sess_{student_id}_{notebook_id}",
-                notebook_id=notebook_id,
-                student_id=student_id,
-                topic=topic or "Sesión de estudio",
-                next_topic=next_topic or "el siguiente tema del roadmap",
-                timestamp=datetime.now(timezone.utc),
-                turn_count=1,
-            )
-            history.record_session(rec)
-        except Exception as exc:
-            logger.debug("Error recording session history: %s", exc)
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(_run_bg())
+    except RuntimeError:
+        asyncio.run(_run_bg())
 
 
 @router.get("/briefing")
@@ -698,6 +765,151 @@ async def get_session_briefing(
         "due_reviews_count": len(due_reviews),
         "notebook_id": target_nb,
     }
+
+
+def _prepare_chat_context(
+    *,
+    store: Any,
+    resolver: Any,
+    container: Any,
+    prompt_text: str,
+    request: "ChatQueryRequest",
+    target_scope_type: str,
+    target_scope_id: str,
+) -> Tuple[Any, Any, Any, List[Any], Any, Any, Any, Any, Any, Any, Any]:
+    """Resolve scope, retrieval, BKT and Mem0 for a chat turn.
+
+    Always returns ``PREPARE_CONTEXT_ARITY`` (11) items. Folder and
+    conversational fast-path pack ``matched_kc_id`` / ``bkt_meta`` as None
+    by design (non-technical routes do not run BKT).
+    """
+    if target_scope_id == "folder_root" and hasattr(store, "contains_folder") and not store.contains_folder("folder_root"):
+        from datetime import datetime, timezone
+        from study_engine.hierarchy.folder import Folder
+        now = datetime.now(timezone.utc)
+        store.create_folder(
+            Folder(
+                id="folder_root",
+                name="Root Workspace",
+                parent_folder_id=None,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+
+    resolved_scope = resolver.resolve(
+        scope_type=ScopeType(target_scope_type),
+        scope_id=target_scope_id,
+    )
+
+    if resolved_scope.scope_type == ScopeType.FOLDER:
+        from study_engine.hierarchy.folder_orchestrator import FolderOrchestrator
+        target_folder_id = resolved_scope.folder_id or target_scope_id
+        orch = FolderOrchestrator(
+            folder_id=target_folder_id,
+            knowledge_store=store,
+            ledger=getattr(container, "ledger", None),
+        )
+        decision = orch.route_query(prompt_text)
+        return _pack_prepare_context(resolved_scope, folder_decision=decision)
+
+    target_notebook_id = resolved_scope.notebook_id or target_scope_id
+
+    # FAST-PATH CONVERSACIONAL (Fase 1: Sub-100ms Gatekeeping)
+    from study_engine.tutor.fastpath_service import FastPathConversationalService
+    is_conv, route_kind = FastPathConversationalService.detect_conversational_route(prompt_text)
+    if is_conv and route_kind is not None:
+        fastpath = FastPathConversationalService()
+        context = fastpath.extract_student_context(container, target_notebook_id)
+        return _pack_prepare_context(
+            resolved_scope,
+            conv_payload=(fastpath, route_kind, context),
+        )
+
+    contract = store.get_pedagogical_contract(target_notebook_id)
+    context_pack, raw_chunks = _assemble_epistemic_context(
+        store=store,
+        container=container,
+        prompt_text=prompt_text,
+        target_notebook_id=target_notebook_id,
+        active_sources=request.active_sources,
+    )
+
+    # ConversationStyleRouter (Ola 5, E24)
+    from study_engine.pedagogy.style_router import ConversationStyleRouter
+    style_result = ConversationStyleRouter.detect_style(prompt_text)
+
+    # BKT Adaptation determination (Fix S4.2)
+    orch = getattr(container, "pedagogical_orchestrator", None)
+    kc_catalog = getattr(orch, "_kc_catalog", {}) if orch is not None else {}
+    nb_catalog = kc_catalog.get(target_notebook_id, {}) if isinstance(kc_catalog, dict) else {}
+    kcs_list = nb_catalog.get("kcs", []) if isinstance(nb_catalog, dict) else []
+    matched_kc_id = None
+    q_lower = prompt_text.lower()
+    for kc in kcs_list:
+        kid = kc.get("kc_id", "")
+        ktitle = (kc.get("title") or "").lower()
+        title_words = [w for w in ktitle.replace(",", " ").replace(":", " ").split() if len(w) > 3]
+        if kid.lower() in q_lower or any(w in q_lower for w in title_words):
+            matched_kc_id = kid
+            break
+
+    # Fix 3: si ningún KC matchea por texto, usar el primer KC del catálogo como fallback.
+    # Esto garantiza que BKT siempre tenga un kc_id válido para derivar adaptación pedagógica
+    # (en lugar de asumir p_L=0.0 sin contexto por matched_kc_id=None).
+    if matched_kc_id is None and kcs_list:
+        matched_kc_id = kcs_list[0].get("kc_id")
+
+    from study_engine.pedagogy.student_context import (
+        determine_pedagogical_context_mode,
+        build_bkt_adaptation_directive,
+    )
+    context_mode, bkt_meta = determine_pedagogical_context_mode(
+        target_kc_id=matched_kc_id,
+        bkt_tracker=getattr(container, "bkt_tracker", None),
+        kc_catalog=kc_catalog,
+        notebook_id=target_notebook_id,
+    )
+    bkt_directive = build_bkt_adaptation_directive(context_mode, bkt_meta)
+
+    # Inyectar memoria soberana de largo plazo (Fase 6 - Mem0 Soberano)
+    mem0_directive = ""
+    try:
+        mem0 = getattr(container, "mem0_manager", None)
+        if mem0:
+            mem0_directive = mem0.assemble_long_term_directive(
+                student_id=CANONICAL_STUDENT_ID,
+                active_kc=matched_kc_id,
+                notebook_id=target_notebook_id,
+            )
+        else:
+            tracker = getattr(container, "pedagogical_memory_tracker", None)
+            if tracker is None and hasattr(container, "student_storage") and container.student_storage:
+                from study_engine.student.pedagogical_memory import PedagogicalMemoryTracker
+                tracker = PedagogicalMemoryTracker(container.student_storage)
+            if tracker:
+                mem0_directive = tracker.format_tutor_directive(
+                    student_id=CANONICAL_STUDENT_ID,
+                    kc_id=matched_kc_id,
+                    limit=3,
+                )
+    except Exception as e:
+        logger.debug("Chat route: unable to format mem0 directive: %s", e)
+
+    if mem0_directive:
+        bkt_directive = f"{bkt_directive}\n\n{mem0_directive}" if bkt_directive else mem0_directive
+
+    return _pack_prepare_context(
+        resolved_scope,
+        contract=contract,
+        context_pack=context_pack,
+        raw_chunks=raw_chunks,
+        context_mode=context_mode,
+        bkt_directive=bkt_directive,
+        style_result=style_result,
+        matched_kc_id=matched_kc_id,
+        bkt_meta=bkt_meta,
+    )
 
 
 @router.post("/query")
@@ -770,115 +982,17 @@ async def chat_query(
     target_scope_id = request.effective_scope_id
 
     # Sincronización I/O en threadpool para no bloquear el event loop (Fix 1.2)
-    def _prepare_context_sync():
-        if target_scope_id == "folder_root" and hasattr(store, "contains_folder") and not store.contains_folder("folder_root"):
-            from datetime import datetime, timezone
-            from study_engine.hierarchy.folder import Folder
-            now = datetime.now(timezone.utc)
-            store.create_folder(
-                Folder(
-                    id="folder_root",
-                    name="Root Workspace",
-                    parent_folder_id=None,
-                    created_at=now,
-                    updated_at=now,
-                )
-            )
-
-        resolved_scope = resolver.resolve(
-            scope_type=ScopeType(target_scope_type),
-            scope_id=target_scope_id,
-        )
-
-        if resolved_scope.scope_type == ScopeType.FOLDER:
-            from study_engine.hierarchy.folder_orchestrator import FolderOrchestrator
-            target_folder_id = resolved_scope.folder_id or target_scope_id
-            orch = FolderOrchestrator(
-                folder_id=target_folder_id,
-                knowledge_store=store,
-                ledger=getattr(container, "ledger", None),
-            )
-            decision = orch.route_query(prompt_text)
-            return resolved_scope, None, None, [], decision, None, None, None, None
-
-        target_notebook_id = resolved_scope.notebook_id or target_scope_id
-
-        # FAST-PATH CONVERSACIONAL (Fase 1: Sub-100ms Gatekeeping)
-        from study_engine.tutor.fastpath_service import FastPathConversationalService
-        is_conv, route_kind = FastPathConversationalService.detect_conversational_route(prompt_text)
-        if is_conv and route_kind is not None:
-            fastpath = FastPathConversationalService()
-            context = fastpath.extract_student_context(container, target_notebook_id)
-            return resolved_scope, None, None, [], None, None, None, None, (fastpath, route_kind, context)
-
-        contract = store.get_pedagogical_contract(target_notebook_id)
-        context_pack, raw_chunks = _assemble_epistemic_context(
+    try:
+        resolved_scope, contract, context_pack, raw_chunks, folder_decision, context_mode, bkt_directive, style_result, conv_payload, matched_kc_id, bkt_meta = await asyncio.to_thread(
+            _prepare_chat_context,
             store=store,
+            resolver=resolver,
             container=container,
             prompt_text=prompt_text,
-            target_notebook_id=target_notebook_id,
-            active_sources=request.active_sources,
+            request=request,
+            target_scope_type=target_scope_type,
+            target_scope_id=target_scope_id,
         )
-
-        # ConversationStyleRouter (Ola 5, E24)
-        from study_engine.pedagogy.style_router import ConversationStyleRouter
-        style_result = ConversationStyleRouter.detect_style(prompt_text)
-
-        # BKT Adaptation determination (Fix S4.2)
-        kc_catalog = getattr(container.pedagogical_orchestrator, "_kc_catalog", {})
-        nb_catalog = kc_catalog.get(target_notebook_id, {})
-        kcs_list = nb_catalog.get("kcs", [])
-        matched_kc_id = None
-        q_lower = prompt_text.lower()
-        for kc in kcs_list:
-            kid = kc.get("kc_id", "")
-            ktitle = (kc.get("title") or "").lower()
-            title_words = [w for w in ktitle.replace(",", " ").replace(":", " ").split() if len(w) > 3]
-            if kid.lower() in q_lower or any(w in q_lower for w in title_words):
-                matched_kc_id = kid
-                break
-
-        # Fix 3: si ningún KC matchea por texto, usar el primer KC del catálogo como fallback.
-        # Esto garantiza que BKT siempre tenga un kc_id válido para derivar adaptación pedagógica
-        # (en lugar de asumir p_L=0.0 sin contexto por matched_kc_id=None).
-        if matched_kc_id is None and kcs_list:
-            matched_kc_id = kcs_list[0].get("kc_id")
-
-        from study_engine.pedagogy.student_context import (
-            determine_pedagogical_context_mode,
-            build_bkt_adaptation_directive,
-        )
-        context_mode, bkt_meta = determine_pedagogical_context_mode(
-            target_kc_id=matched_kc_id,
-            bkt_tracker=getattr(container, "bkt_tracker", None),
-            kc_catalog=kc_catalog,
-            notebook_id=target_notebook_id,
-        )
-        bkt_directive = build_bkt_adaptation_directive(context_mode, bkt_meta)
-
-        # Inyectar memoria pedagógica soberana del alumno si está disponible (Fase 3)
-        ped_memory_directive = ""
-        try:
-            tracker = getattr(container, "pedagogical_memory_tracker", None)
-            if tracker is None and hasattr(container, "student_storage") and container.student_storage:
-                from study_engine.student.pedagogical_memory import PedagogicalMemoryTracker
-                tracker = PedagogicalMemoryTracker(container.student_storage)
-            if tracker:
-                ped_memory_directive = tracker.format_tutor_directive(
-                    student_id=CANONICAL_STUDENT_ID,
-                    kc_id=matched_kc_id,
-                    limit=3,
-                )
-        except Exception as e:
-            logger.debug("Chat route: unable to format pedagogical memory: %s", e)
-
-        if ped_memory_directive:
-            bkt_directive = f"{bkt_directive}\n\n{ped_memory_directive}" if bkt_directive else ped_memory_directive
-
-        return resolved_scope, contract, context_pack, raw_chunks, None, context_mode, bkt_directive, style_result, None
-
-    try:
-        resolved_scope, contract, context_pack, raw_chunks, folder_decision, context_mode, bkt_directive, style_result, conv_payload = await asyncio.to_thread(_prepare_context_sync)
     except ScopeNotFoundError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -909,6 +1023,11 @@ async def chat_query(
 
     phase_history = _ACTIVE_TURN_HISTORIES.setdefault(history_key, PhaseHistory())
     llm_backend = _resolve_chat_backend(container)
+
+    # Memoria de corto plazo (Fase 2): recuperar buffer de turnos y registrar el turno actual del usuario.
+    conv_turns: list = list(_CONV_TURN_BUFFER.get(history_key) or [])
+    # Registrar el turno del usuario en el buffer (se completa con la respuesta al finalizar)
+    conv_turns.append({"role": "user", "content": prompt_text})
 
     pipeline = StructuredResponsePipeline(
         contract=contract,
@@ -978,6 +1097,7 @@ async def chat_query(
                 bkt_directive=bkt_directive,
                 style_directive=style_dir,
                 override_max_tokens=live_max_tokens,
+                recent_turns=conv_turns,
             ):
                 payload = {
                     "event_type": event.event_type,
@@ -988,6 +1108,48 @@ async def chat_query(
                     accumulated_response_text += event.payload.get("token", "")
 
                 if event.event_type == "phase_complete":
+                    # Validador de citas post-generación (Fase 2)
+                    from study_engine.pedagogy.citation_validator import CitationValidator
+                    validator = CitationValidator()
+                    valid_citations, invalid_citations = validator.audit_only(
+                        text=accumulated_response_text,
+                        chunks=raw_chunks,
+                    )
+                    if invalid_citations:
+                        logger.warning(
+                            "Auditoría de citas detectó referencias no verificadas: %s (válidas: %s)",
+                            invalid_citations,
+                            valid_citations,
+                        )
+                        audit_payload = {
+                            "event_type": "citation_audit",
+                            "payload": {
+                                "valid_citations": valid_citations,
+                                "invalid_citations": invalid_citations,
+                                "citation_count": len(valid_citations),
+                            },
+                        }
+                        yield f"data: {json.dumps(audit_payload)}\n\n"
+
+                    # Guardar historial conversacional (últimos 4 turnos) en _CONV_TURN_BUFFER
+                    conv_turns.append({"role": "assistant", "content": accumulated_response_text})
+                    _CONV_TURN_BUFFER[history_key] = conv_turns[-4:]
+
+                    # Enriquecer payload de phase_complete con telemetría cognitiva BKT (Fase 3)
+                    if isinstance(payload.get("payload"), dict):
+                        if bkt_meta is None:
+                            logger.warning(
+                                "bkt_meta is None on notebook path (%s); using empty BKT fallback",
+                                target_notebook_id,
+                            )
+                        safe_bkt = bkt_meta if isinstance(bkt_meta, dict) else {}
+                        payload["payload"]["bkt_context"] = {
+                            "kc_id": matched_kc_id,
+                            "context_mode": context_mode,
+                            "p_L": safe_bkt.get("p_L", 0.5),
+                            "unmet_prerequisites": safe_bkt.get("unmet_prerequisites", []),
+                        }
+
                     _update_curriculum_progress(
                         container=container,
                         target_notebook_id=target_notebook_id,
@@ -1002,12 +1164,7 @@ async def chat_query(
                         active_kc=matched_kc_id,
                         pedagogical_mode=conv_intent,
                         llm_backend=llm_backend,
-                    )
-                    _record_session_history_turn(
-                        container=container,
-                        student_id=CANONICAL_STUDENT_ID,
                         notebook_id=target_notebook_id,
-                        topic=prompt_text[:80],
                     )
 
                 yield f"data: {json.dumps(payload)}\n\n"

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import re
 from typing import Any, Dict, List, Optional
 
@@ -103,10 +104,25 @@ class PedagogicalMemoryExtractor:
         """Distill underlying misconception into 1 concise sentence via Micro-LLM in background."""
         from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
 
+        # Priorizar Groq para destilación ultrarrápida (<50ms) si está configurado en .env
+        active_backend = llm_backend
+        groq_key = os.environ.get("GROQ_API_KEY", "")
+        if groq_key and groq_key.startswith("gsk_"):
+            try:
+                from study_engine.llm.backends import HttpOpenAIBackend
+                active_backend = HttpOpenAIBackend(
+                    api_key=groq_key,
+                    base_url="https://api.groq.com/openai/v1",
+                    default_model=os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile"),
+                    timeout_seconds=5.0,
+                )
+            except Exception as e:
+                logger.debug("No se pudo instanciar Groq para extracción de misconceptions: %s", e)
+
         if (
-            llm_backend is None
-            or isinstance(llm_backend, OfflinePedagogicalBackend)
-            or not hasattr(llm_backend, "complete")
+            active_backend is None
+            or isinstance(active_backend, OfflinePedagogicalBackend)
+            or not hasattr(active_backend, "complete")
         ):
             return None
 
@@ -131,13 +147,13 @@ class PedagogicalMemoryExtractor:
         )
 
         def _sync_call() -> str:
-            comp = llm_backend.complete(bundle)
+            comp = active_backend.complete(bundle)
             return getattr(comp, "text", "").strip()
 
         try:
             raw_text = await asyncio.wait_for(
                 asyncio.to_thread(_sync_call),
-                timeout=2.0,
+                timeout=3.5,
             )
             cleaned = raw_text.strip().strip("'\"")
             if not cleaned or "NONE" in cleaned.upper() or len(cleaned) < 10:

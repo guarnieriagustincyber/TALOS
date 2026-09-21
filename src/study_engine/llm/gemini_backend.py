@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 import random
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 import httpx
 
@@ -63,8 +63,8 @@ class GeminiBackend(ProviderBackend):
         api_key: Optional[str] = None,
         model_name: str = DEFAULT_GEMINI_MODEL,
         base_url: str = GEMINI_OPENAI_BASE_URL,
-        timeout_seconds: float = 15.0,
-        connect_timeout_seconds: float = 2.0,
+        timeout_seconds: float = 45.0,
+        connect_timeout_seconds: float = 5.0,
         client: Optional[httpx.Client] = None,
     ) -> None:
         self._model_name = model_name
@@ -225,3 +225,72 @@ class GeminiBackend(ProviderBackend):
             model=returned_model,
             generator_abstained=False,
         )
+
+    async def stream(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        max_tokens: int = 1500,
+        phase_id: Optional[str] = None,
+        context: Optional[str] = None,
+    ) -> AsyncGenerator[str, None]:
+        """Stream completion tokens in real-time using OpenAI-compatible SSE."""
+        if not self._api_key:
+            raise LLMConnectionError(
+                "No GEMINI_API_KEY available for streaming. Configure .env."
+            )
+
+        url = f"{self._base_url}/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {self._api_key}",
+            "x-goog-api-key": self._api_key,
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream",
+        }
+
+        messages: List[Dict[str, str]] = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+
+        target_model = MODEL_ALIAS_MAP.get(self._model_name, self._model_name)
+        payload: Dict[str, Any] = {
+            "model": target_model,
+            "messages": messages,
+            "temperature": 0.2,
+            "max_tokens": max_tokens,
+            "stream": True,
+        }
+
+        timeout = httpx.Timeout(
+            timeout=self._timeout_seconds,
+            connect=self._connect_timeout_seconds,
+        )
+
+        async with httpx.AsyncClient(timeout=timeout) as async_client:
+            async with async_client.stream("POST", url, headers=headers, json=payload) as response:
+                if response.status_code != 200:
+                    error_text = await response.aread()
+                    raise LLMBackendError(
+                        f"Gemini streaming error HTTP {response.status_code}: {error_text.decode('utf-8', errors='replace')}"
+                    )
+
+                async for line in response.aiter_lines():
+                    line = line.strip()
+                    if not line or not line.startswith("data:"):
+                        continue
+                    data_str = line[5:].strip()
+                    if data_str == "[DONE]":
+                        break
+                    try:
+                        chunk_data = json.loads(data_str)
+                        choices = chunk_data.get("choices", [])
+                        if not choices:
+                            continue
+                        delta = choices[0].get("delta", {})
+                        content_piece = delta.get("content", "")
+                        if content_piece:
+                            yield content_piece
+                    except json.JSONDecodeError:
+                        continue
+

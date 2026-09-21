@@ -63,6 +63,8 @@ study-engine/
 
 ## Documentación
 
+Nomenclatura de fases (evitar confundir Golden Set con red team): [`PHASES.md`](PHASES.md).
+
 Consultar el directorio [`docs/`](docs/) para especificaciones completas:
 - [`docs/01-SPEC-V1.0.md`](docs/01-SPEC-V1.0.md): Especificación técnica V1.0.
 - [`docs/02-ADVERSARIAL-AUDIT.md`](docs/02-ADVERSARIAL-AUDIT.md): Auditoría adversarial.
