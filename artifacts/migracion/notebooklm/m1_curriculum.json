@@ -1,0 +1,445 @@
+{
+  "curriculum": {
+    "notebook_slug": "fase0_programacion",
+    "unidades": [
+      {
+        "unidad_id": "U01",
+        "titulo": "Tramo 1: Fundamentos y Pensamiento Algorítmico",
+        "topicos": [
+          {
+            "topico_id": "U01-T01",
+            "titulo": "Metodología de Resolución de Problemas",
+            "descripcion": "Definición estricta de las 4 fases de desarrollo de software: Análisis del problema, Diseño del algoritmo, Codificación y Verificación.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "spraul_think_like_a_programmer",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": []
+          },
+          {
+            "topico_id": "U01-T02",
+            "titulo": "Análisis del Problema (Entradas, Salidas y Restricciones)",
+            "descripcion": "Identificación previa de los datos de entrada, los resultados esperados y los límites lógicos antes de escribir código.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "guia_utn_2025",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U01-T01"
+            ]
+          },
+          {
+            "topico_id": "U01-T03",
+            "titulo": "Diseño Algorítmico en Pseudocódigo y Top-Down",
+            "descripcion": "Estructuración de algoritmos en lenguaje algorítmico independiente mediante refinamiento sucesivo y descomposición modular.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "segundo_cuatrimestre_fadena",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U01-T02"
+            ]
+          },
+          {
+            "topico_id": "U01-T04",
+            "titulo": "Diagramas de Flujo y Salidas de Escape (Mermaid)",
+            "descripcion": "Representación gráfica de flujos de control con estructura de autopista vertical y salidas de escape tempranas.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "segundo_cuatrimestre_fadena",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U01-T03"
+            ]
+          }
+        ]
+      },
+      {
+        "unidad_id": "U02",
+        "titulo": "Tramo 2: Lógica Formal, Sintaxis y Asignación Segura",
+        "topicos": [
+          {
+            "topico_id": "U02-T01",
+            "titulo": "Física de la RAM y Asignación Destructiva",
+            "descripcion": "Modelado del estado de la memoria RAM, variables como celdas con dirección/contenido y sobreescritura destructiva.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "goodrich_dsa_python",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U01-T04"
+            ]
+          },
+          {
+            "topico_id": "U02-T02",
+            "titulo": "Lógica Proposicional, Tablas de Verdad y Evaluación por ALU",
+            "descripcion": "Evaluación formal de proposiciones compuestas mediante operadores lógicos AND, OR, NOT y XOR con rigor algebraico.",
+            "fuentes_que_lo_cubren": [
+              "rosen_matematicas_discretas",
+              "joyanes_fundamentos",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U02-T01"
+            ]
+          },
+          {
+            "topico_id": "U02-T03",
+            "titulo": "Clean Code: Bautismo de Variables y Expresiones Afirmativas",
+            "descripcion": "Selección de nombres autodescriptivos y refactorización de condicionales dobles negativas para reducir carga cognitiva.",
+            "fuentes_que_lo_cubren": [
+              "martin_clean_code",
+              "sweigart_automate_boring_stuff",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U02-T02"
+            ]
+          },
+          {
+            "topico_id": "U02-T04",
+            "titulo": "Type Hints y Declaración Segura en Python",
+            "descripcion": "Anotación explícita de tipos en variables y firmas de funciones para prevenir incoherencias de tipos en tiempo de ejecución.",
+            "fuentes_que_lo_cubren": [
+              "ramalho_fluent_python",
+              "goodrich_dsa_python",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U02-T03"
+            ]
+          }
+        ]
+      },
+      {
+        "unidad_id": "U03",
+        "titulo": "Tramo 3: Control de Flujo y Bucles Seguros",
+        "topicos": [
+          {
+            "topico_id": "U03-T01",
+            "titulo": "Física del Program Counter e Instrucciones de Salto (Jump)",
+            "descripcion": "Comportamiento del registro de instrucción de la CPU al ejecutar bifurcaciones condicionales e incondicionales en la RAM.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "stallings_computer_security",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U02-T04"
+            ]
+          },
+          {
+            "topico_id": "U03-T02",
+            "titulo": "Estructuras Selectivas y else de Resguardo (Aduana por Defecto)",
+            "descripcion": "Implementación de ramas condicionales con aduanas por defecto para capturar y neutralizar estados no previstos en la RAM.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "martin_clean_code",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U03-T01"
+            ]
+          },
+          {
+            "topico_id": "U03-T03",
+            "titulo": "Estructuras Repetitivas (Pre-test, Post-test, Conteo) y Acumuladores",
+            "descripcion": "Ciclos iterativos controlados por condición o contador, acumuladores de estado y barrido de secuencias de datos.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "sweigart_automate_boring_stuff",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U03-T02"
+            ]
+          },
+          {
+            "topico_id": "U03-T04",
+            "titulo": "Anatomía del Bucle Infinito y Ataques de Denegación de Servicio (DoS)",
+            "descripcion": "Análisis del impacto en la CPU y consumo de ciclos cuando las condiciones de salida no se modifican dentro de un ciclo.",
+            "fuentes_que_lo_cubren": [
+              "stallings_computer_security",
+              "joyanes_fundamentos",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U03-T03"
+            ]
+          }
+        ]
+      },
+      {
+        "unidad_id": "U04",
+        "titulo": "Tramo 4: Modularidad y Paso de Parámetros",
+        "topicos": [
+          {
+            "topico_id": "U04-T01",
+            "titulo": "Física del Stack Frame (Registro de Activación) y Dirección de Retorno",
+            "descripcion": "Reserva y destrucción de marcos de memoria en la pila (Stack) durante las llamadas a funciones y retornos.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "stallings_computer_security",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U03-T04"
+            ]
+          },
+          {
+            "topico_id": "U04-T02",
+            "titulo": "Paso de Parámetros por Valor vs. Referencia e Inmutabilidad en Python",
+            "descripcion": "Diferenciación entre copias locales en el Stack y referencias a objetos en el Heap según la mutabilidad del tipo de dato.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "ramalho_fluent_python",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U04-T01"
+            ]
+          },
+          {
+            "topico_id": "U04-T03",
+            "titulo": "Cláusulas de Guardia (Guard Clauses / Early Return) vs. Pirámide de Ifs",
+            "descripcion": "Refactorización de condicionales anidados sustituyéndolos por retornos anticipados planos que destruyen el Stack Frame de inmediato.",
+            "fuentes_que_lo_cubren": [
+              "martin_clean_code",
+              "spraul_think_like_a_programmer",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U04-T02"
+            ]
+          },
+          {
+            "topico_id": "U04-T04",
+            "titulo": "Contratos Formales de Ingeniería (Precondición y Postcondición)",
+            "descripcion": "Documentación explícita de requisitos previos garantizados y estados finales asegurados en los docstrings de funciones.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "martin_clean_code",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U04-T03"
+            ]
+          },
+          {
+            "topico_id": "U04-T05",
+            "titulo": "Caso Integrador: Descomponedor y Validador de IPv4",
+            "descripcion": "Implementación completa de un orquestador modular con aduanas independientes para validación de direcciones IPv4.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "sweigart_automate_boring_stuff",
+              "chat_notebook_lm"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U04-T04"
+            ]
+          }
+        ]
+      },
+      {
+        "unidad_id": "U05",
+        "titulo": "Tramo 5: Algoritmos, Estructuras de Datos y Complejidad - Big O",
+        "topicos": [
+          {
+            "topico_id": "U05-T01",
+            "titulo": "Direccionamiento Contiguo y Aritmética de Punteros en Arrays Estáticos",
+            "descripcion": "Cálculo físico de direcciones de memoria en RAM para acceso instantáneo O(1) mediante fórmula base + desplazamiento.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "goodrich_dsa_python"
+            ],
+            "estado_segun_historial": "en_curso",
+            "prerequisitos": [
+              "U04-T05"
+            ]
+          },
+          {
+            "topico_id": "U05-T02",
+            "titulo": "Arrays Dinámicos, Heap y Sobreasignación en Listas de Python",
+            "descripcion": "Mecanismo interno de reasignación de capacidad amortizada en arreglos referenciales del interprete de Python.",
+            "fuentes_que_lo_cubren": [
+              "goodrich_dsa_python",
+              "ramalho_fluent_python"
+            ],
+            "estado_segun_historial": "pendiente",
+            "prerequisitos": [
+              "U05-T01"
+            ]
+          },
+          {
+            "topico_id": "U05-T03",
+            "titulo": "Crecimiento Asintótico y Complejidad Algorítmica (Notación Big O)",
+            "descripcion": "Medición matemática del consumo de tiempo y espacio de un algoritmo en su peor escenario de ejecución.",
+            "fuentes_que_lo_cubren": [
+              "rosen_matematicas_discretas",
+              "goodrich_dsa_python",
+              "bel_algoritmos_estructuras_python"
+            ],
+            "estado_segun_historial": "pendiente",
+            "prerequisitos": [
+              "U05-T02"
+            ]
+          },
+          {
+            "topico_id": "U05-T04",
+            "titulo": "Algoritmos de Búsqueda (Secuencial vs. Búsqueda Binaria)",
+            "descripcion": "Comparación táctica entre búsqueda lineal O(n) y técnica de Dividir y Conquistar O(log n) sobre secuencias ordenadas.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "goodrich_dsa_python",
+              "bel_algoritmos_estructuras_python",
+              "spraul_think_like_a_programmer"
+            ],
+            "estado_segun_historial": "pendiente",
+            "prerequisitos": [
+              "U05-T03"
+            ]
+          },
+          {
+            "topico_id": "U05-T05",
+            "titulo": "Algoritmos de Ordenamiento (Burbuja Optimizado y Selección)",
+            "descripcion": "Reorganización física de elementos en RAM mediante swaps e implementación de banderas de interrupción anticipada.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "goodrich_dsa_python",
+              "bel_algoritmos_estructuras_python"
+            ],
+            "estado_segun_historial": "pendiente",
+            "prerequisitos": [
+              "U05-T04"
+            ]
+          },
+          {
+            "topico_id": "U05-T06",
+            "titulo": "Proyecto Integrador: Analizador de Logs de Firewall de Alta Velocidad",
+            "descripcion": "Procesamiento y búsqueda de alto rendimiento sobre registros masivos de IP utilizando búsqueda binaria y código determinista.",
+            "fuentes_que_lo_cubren": [
+              "goodrich_dsa_python",
+              "stallings_computer_security",
+              "roadmap_nuevo_horizonte"
+            ],
+            "estado_segun_historial": "pendiente",
+            "prerequisitos": [
+              "U05-T05"
+            ]
+          }
+        ]
+      },
+      {
+        "unidad_id": "U06",
+        "titulo": "Tramo 6: Orientación a Objetos, Volatilidad y Ciberdefensa",
+        "topicos": [
+          {
+            "topico_id": "U06-T01",
+            "titulo": "Abstracción y Encapsulamiento (Clases y Objetos en la RAM)",
+            "descripcion": "Modelado del estado, comportamiento e identidad física de objetos mediante ocultamiento de datos e interfaces públicas.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "ramalho_fluent_python",
+              "clases_plantillas_ejemplos"
+            ],
+            "estado_segun_historial": "dominado",
+            "prerequisitos": [
+              "U05-T06"
+            ]
+          },
+          {
+            "topico_id": "U06-T02",
+            "titulo": "Polimorfismo, Ligadura Dinámica y Tablas Virtuales (Vtables)",
+            "descripcion": "Mecanismo de resolución dinámica de métodos en tiempo de ejecución sin modificar la interfaz invocadora.",
+            "fuentes_que_lo_cubren": [
+              "joyanes_fundamentos",
+              "ramalho_fluent_python",
+              "goodrich_dsa_python"
+            ],
+            "estado_segun_historial": "no_tocado",
+            "prerequisitos": [
+              "U06-T01"
+            ]
+          },
+          {
+            "topico_id": "U06-T03",
+            "titulo": "Forense de Memoria, Orden de Volatilidad y Tríada CIA Avanzada",
+            "descripcion": "Preservación de evidencia volátil en RAM y evaluación de impacto en confidencialidad, integridad y disponibilidad.",
+            "fuentes_que_lo_cubren": [
+              "stallings_computer_security",
+              "segundo_cuatrimestre_fadena"
+            ],
+            "estado_segun_historial": "no_tocado",
+            "prerequisitos": [
+              "U06-T02"
+            ]
+          },
+          {
+            "topico_id": "U06-T04",
+            "titulo": "Gobernanza de IA: Supervisión Humana, Auditabilidad y Rollback Determinista",
+            "descripcion": "Marco de control para la integración defensiva de IA bajo el principio 'Deterministic code first, AI second'.",
+            "fuentes_que_lo_cubren": [
+              "roadmap_nuevo_horizonte"
+            ],
+            "estado_segun_historial": "en_curso",
+            "prerequisitos": [
+              "U06-T03"
+            ]
+          }
+        ]
+      }
+    ],
+    "camino_critico": [
+      "U01-T01",
+      "U01-T02",
+      "U01-T03",
+      "U01-T04",
+      "U02-T01",
+      "U02-T02",
+      "U02-T03",
+      "U02-T04",
+      "U03-T01",
+      "U03-T02",
+      "U03-T03",
+      "U03-T04",
+      "U04-T01",
+      "U04-T02",
+      "U04-T03",
+      "U04-T04",
+      "U04-T05",
+      "U05-T01",
+      "U05-T02",
+      "U05-T03",
+      "U05-T04",
+      "U05-T05",
+      "U05-T06",
+      "U06-T01",
+      "U06-T02",
+      "U06-T03",
+      "U06-T04"
+    ],
+    "posicion_actual": "U05-T01"
+  }
+}

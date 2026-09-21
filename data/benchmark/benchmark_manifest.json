@@ -1,0 +1,113 @@
+{
+  "benchmark_version": "S3.6.1",
+  "build_timestamp": "2026-09-03T04:40:37.328601+00:00",
+  "chunk_config": {
+    "chunk_size": 450,
+    "chunk_overlap": 50,
+    "is_experimental_benchmark": true,
+    "disclaimer": "Experimental benchmark configuration, not a validated pedagogical optimum."
+  },
+  "total_source_files": 8,
+  "total_documents": 8,
+  "total_chunks": 59,
+  "notebook_chunk_counts": {
+    "fadena-so": 34,
+    "fadena-prog": 25
+  },
+  "thematic_breakdown": {
+    "fadena-so": {
+      "concurrency": 9,
+      "virtual_memory": 10,
+      "scheduling": 8,
+      "processes": 7
+    },
+    "fadena-prog": {
+      "trees": 7,
+      "file_io": 7,
+      "linear_structs": 5,
+      "pointers": 6
+    }
+  },
+  "sources": [
+    {
+      "source_id": "src-prog-arboles",
+      "filename": "prog_arboles.pdf",
+      "sha256": "241af51b9e0b65944911513384563aca9d2623d7b30e6fa2eb04cc4946d65f4f",
+      "byte_size": 253214,
+      "document_id": "doc-prog-arboles",
+      "notebook_id": "fadena-prog",
+      "topic": "trees",
+      "chunk_count": 7
+    },
+    {
+      "source_id": "src-prog-archivos",
+      "filename": "prog_archivos.pdf",
+      "sha256": "ead0e969f47d966b7d39ac2c3c814bfd78b0134589b386f427898259eff1b56e",
+      "byte_size": 246177,
+      "document_id": "doc-prog-archivos",
+      "notebook_id": "fadena-prog",
+      "topic": "file_io",
+      "chunk_count": 7
+    },
+    {
+      "source_id": "src-prog-lineales",
+      "filename": "prog_lineales.pdf",
+      "sha256": "d03d7669e19abaccdd331067ddf61d38f3113fe684458cf828a14f4553051145",
+      "byte_size": 47298,
+      "document_id": "doc-prog-lineales",
+      "notebook_id": "fadena-prog",
+      "topic": "linear_structs",
+      "chunk_count": 5
+    },
+    {
+      "source_id": "src-prog-punteros",
+      "filename": "prog_punteros.pdf",
+      "sha256": "4ece5c39d64e25953bac8df1f096f43df90662970f5e6225a2e7d6daa8dcaf9d",
+      "byte_size": 61912,
+      "document_id": "doc-prog-punteros",
+      "notebook_id": "fadena-prog",
+      "topic": "pointers",
+      "chunk_count": 6
+    },
+    {
+      "source_id": "src-so-concurrencia",
+      "filename": "so_concurrencia.pdf",
+      "sha256": "4c38c87d686dcc7d03fcd81f0d75d3b2ed5541e7ca9c95635a786ebdef686d85",
+      "byte_size": 6122,
+      "document_id": "doc-so-concurrencia",
+      "notebook_id": "fadena-so",
+      "topic": "concurrency",
+      "chunk_count": 9
+    },
+    {
+      "source_id": "src-so-memoria",
+      "filename": "so_memoria.pdf",
+      "sha256": "869c24589732b4392c8ae70be552d0e139cbb408e78400a75e186bb2dff574b2",
+      "byte_size": 7182,
+      "document_id": "doc-so-memoria",
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory",
+      "chunk_count": 10
+    },
+    {
+      "source_id": "src-so-planificacion",
+      "filename": "so_planificacion.pdf",
+      "sha256": "26cfba6fe46943b6bc0a054a8e82537a90a0aba2dcab302c27bc09b7b9341744",
+      "byte_size": 4962,
+      "document_id": "doc-so-planificacion",
+      "notebook_id": "fadena-so",
+      "topic": "scheduling",
+      "chunk_count": 8
+    },
+    {
+      "source_id": "src-so-procesos",
+      "filename": "so_procesos.pdf",
+      "sha256": "4f9413043a5e562d43f59db634d9cae5de231c2c1fdd08d3242c5f76cc4eae20",
+      "byte_size": 8666,
+      "document_id": "doc-so-procesos",
+      "notebook_id": "fadena-so",
+      "topic": "processes",
+      "chunk_count": 7
+    }
+  ]
+}

@@ -1,0 +1,3424 @@
+{
+  "timestamp_utc": "2026-09-06T18:12:46.478363+00:00",
+  "benchmark_title": "Hito 6 Relevance Gate Calibration Benchmark",
+  "providers": {
+    "local_onnx": {
+      "provider_id": "local_onnx",
+      "model_id": "multilingual-e5-small",
+      "dimensions": 384,
+      "dataset_summary": {
+        "legitimate_queries_count": 14,
+        "ood_queries_count": 12,
+        "legitimate_candidates_retrieved": 70,
+        "ood_candidates_retrieved": 60,
+        "legitimate_lexical_hits_count": 2,
+        "legitimate_lexical_hit_rate": 0.0286,
+        "ood_lexical_hits_count": 0,
+        "ood_lexical_hit_rate": 0.0
+      },
+      "distributions": {
+        "dense_scores_all_candidates": {
+          "legitimate": {
+            "count": 70,
+            "min": 0.775,
+            "p10": 0.78,
+            "p25": 0.7904,
+            "p50": 0.8129,
+            "mean": 0.8222,
+            "p75": 0.8515,
+            "p90": 0.8729,
+            "p95": 0.8761,
+            "max": 0.8826,
+            "std": 0.034
+          },
+          "out_of_domain": {
+            "count": 60,
+            "min": 0.7714,
+            "p10": 0.7876,
+            "p25": 0.7915,
+            "p50": 0.8002,
+            "mean": 0.8013,
+            "p75": 0.8063,
+            "p90": 0.8248,
+            "p95": 0.8273,
+            "max": 0.8351,
+            "std": 0.0134
+          }
+        },
+        "dense_scores_top1": {
+          "legitimate": {
+            "count": 14,
+            "min": 0.7886,
+            "p10": 0.7909,
+            "p25": 0.808,
+            "p50": 0.8486,
+            "mean": 0.838,
+            "p75": 0.861,
+            "p90": 0.8748,
+            "p95": 0.8788,
+            "max": 0.8826,
+            "std": 0.0322
+          },
+          "out_of_domain": {
+            "count": 12,
+            "min": 0.7887,
+            "p10": 0.7968,
+            "p25": 0.8005,
+            "p50": 0.8071,
+            "mean": 0.8106,
+            "p75": 0.8184,
+            "p90": 0.8319,
+            "p95": 0.8337,
+            "max": 0.8351,
+            "std": 0.0141
+          }
+        },
+        "lexical_scores_all": {
+          "legitimate": {
+            "count": 70,
+            "min": 0.0,
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "mean": 0.1612,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p95": 0.0,
+            "max": 5.6757,
+            "std": 0.9402
+          },
+          "out_of_domain": {
+            "count": 60,
+            "min": 0.0,
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "mean": 0.0,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "std": 0.0
+          }
+        },
+        "fused_scores_all": {
+          "legitimate": {
+            "count": 70,
+            "min": 0.0147,
+            "p10": 0.0154,
+            "p25": 0.0156,
+            "p50": 0.0159,
+            "mean": 0.0163,
+            "p75": 0.0161,
+            "p90": 0.0164,
+            "p95": 0.0164,
+            "max": 0.0325,
+            "std": 0.0028
+          },
+          "out_of_domain": {
+            "count": 60,
+            "min": 0.0145,
+            "p10": 0.0154,
+            "p25": 0.0156,
+            "p50": 0.0159,
+            "mean": 0.0158,
+            "p75": 0.0161,
+            "p90": 0.0164,
+            "p95": 0.0164,
+            "max": 0.0164,
+            "std": 0.0004
+          }
+        }
+      },
+      "pure_dense_separability": {
+        "separation_criteria_met": false,
+        "best_threshold": 0.7725,
+        "best_f1": 0.7035175879396984,
+        "best_fpr": 0.9833,
+        "best_fnr": 0.0
+      },
+      "compound_gate_separability": {
+        "separation_criteria_met": false,
+        "best_dense_threshold_no_lexical": 0.7714,
+        "best_f1": 0.7035175879396984,
+        "best_fpr": 0.9833,
+        "best_fnr": 0.0
+      },
+      "ascii_histogram_dense_all": "Rango              | LEGÍTIMAS                  | FUERA DE DOMINIO          \n---------------------------------------------------------------------------\n[0.771 - 0.783] | #############             (12) | =                         ( 1)\n[0.783 - 0.794] | ########                  ( 8) | ====================      (19)\n[0.794 - 0.805] | ########                  ( 8) | ========================= (23)\n[0.805 - 0.816] | ########                  ( 8) | =========                 ( 9)\n[0.816 - 0.827] | ####                      ( 4) | ===                       ( 3)\n[0.827 - 0.838] | ##                        ( 2) | =====                     ( 5)\n[0.838 - 0.849] | #######                   ( 7) |                           ( 0)\n[0.849 - 0.860] | ########                  ( 8) |                           ( 0)\n[0.860 - 0.871] | #####                     ( 5) |                           ( 0)\n[0.871 - 0.883] | ########                  ( 8) |                           ( 0)",
+      "ascii_histogram_dense_top1": "Rango              | LEGÍTIMAS                  | FUERA DE DOMINIO          \n---------------------------------------------------------------------------\n[0.789 - 0.798] | ##################        ( 3) | ============              ( 2)\n[0.798 - 0.807] | ######                    ( 1) | ========================= ( 4)\n[0.807 - 0.817] |                           ( 0) | ==================        ( 3)\n[0.817 - 0.826] | ######                    ( 1) |                           ( 0)\n[0.826 - 0.836] | ######                    ( 1) | ==================        ( 3)\n[0.836 - 0.845] | ######                    ( 1) |                           ( 0)\n[0.845 - 0.854] |                           ( 0) |                           ( 0)\n[0.854 - 0.864] | ######################### ( 4) |                           ( 0)\n[0.864 - 0.873] | ######                    ( 1) |                           ( 0)\n[0.873 - 0.883] | ############              ( 2) |                           ( 0)",
+      "raw_queries_legitimate": [
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Qué es una condición de carrera?",
+          "note": "Pregunta conceptual directa",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8618,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8618,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8397,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7801,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7787,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7759,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "condiciones de carrera",
+          "note": "Keyword canónico",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8546,
+          "top1_lexical_score": 5.6757,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8546,
+              "lexical_score": 5.6757,
+              "fused_score": 0.0325,
+              "in_lexical": true,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8756,
+              "lexical_score": 5.6115,
+              "fused_score": 0.0325,
+              "in_lexical": true,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8079,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8069,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8057,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cómo funcionan los mutexes?",
+          "note": "Pregunta de sincronización",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.7925,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7925,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7909,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7825,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7809,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7801,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Qué es un deadlock?",
+          "note": "Pregunta de interbloqueo",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.7886,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7886,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7767,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7766,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7753,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.775,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "comunicación entre procesos y concurrencia",
+          "note": "Frase temática canónica",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8826,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8826,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8767,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8753,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8729,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8699,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "sección crítica y exclusión mutua",
+          "note": "Concepto nuclear concurrencia",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8312,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8312,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8178,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8154,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8104,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8095,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "¿Qué es un puntero en C?",
+          "note": "Pregunta conceptual punteros",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8425,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0002",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8425,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8269,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0000",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8245,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0004",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7881,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0003",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7855,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "¿Cómo se declara int *p?",
+          "note": "Sintaxis C punteros",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8222,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0003",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8222,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0000",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8064,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0004",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8035,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0002",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8017,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7979,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "punteros y direcciones de memoria en C",
+          "note": "Frase temática punteros",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8574,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8574,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0002",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8561,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0000",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8401,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0004",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.828,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0003",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.8096,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-03-MEM-MGMT",
+          "query": "¿Qué es malloc?",
+          "note": "Función de memoria dinámica",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.7902,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0000",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7902,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0005",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7878,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0008",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7864,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0009",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7815,
+              "lexical_score": 0.0,
+              "fused_score": 0.0149,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0001",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7796,
+              "lexical_score": 0.0,
+              "fused_score": 0.0147,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-03-MEM-MGMT",
+          "query": "¿Cómo funciona el stack?",
+          "note": "Estructura de memoria stack",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8032,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0006",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.8032,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0000",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.8017,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0003",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.8013,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0005",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.8005,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0009",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.8,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-03-MEM-MGMT",
+          "query": "gestión de memoria dinámica heap y stack",
+          "note": "Frase temática memoria",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8586,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0006",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.8586,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0000",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.8517,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0009",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.8511,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0003",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.8464,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0002",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.84,
+              "lexical_score": 0.0,
+              "fused_score": 0.0152,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-02-OS-PROC",
+          "query": "¿Qué es un proceso en sistemas operativos?",
+          "note": "Concepto de proceso",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8704,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0006",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8704,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0000",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8626,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0002",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8503,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0005",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8454,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0001",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.843,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-02-OS-PROC",
+          "query": "estados de un proceso y PCB",
+          "note": "Frase temática procesos",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8767,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0000",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8767,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0004",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8765,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0005",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8734,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0006",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8657,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0002",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8506,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        }
+      ],
+      "raw_queries_ood": [
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cómo explotar vulnerabilidades zero-day en enclaves SGX?",
+          "note": "Hardware security OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.81,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.81,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8048,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7952,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.789,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.783,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cuáles son las vulnerabilidades en curvas elípticas Ed25519?",
+          "note": "P1-CURR-04: Criptografía OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8033,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8033,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8021,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8014,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7922,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7922,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cómo funciona la paginación multinivel y tablas de páginas invertidas?",
+          "note": "P1-CURR-05: Paginación fuera de rango",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8139,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8139,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8034,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8009,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7952,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7919,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cómo explotar enclaves SGX usando algoritmos cuánticos de Shor?",
+          "note": "P1-CURR-06-A: Cuántica SGX OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8009,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8009,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7991,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.798,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7929,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7911,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "seguridad de procesos en infraestructuras cloud y criptografía asimétrica",
+          "note": "P1-CURR-06-B: Cloud/Crypto OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8325,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8325,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8308,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8271,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8259,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8246,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "algoritmos cuánticos de factorización",
+          "note": "Computación cuántica pura OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.827,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.827,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8212,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8118,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8102,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8061,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "criptografía asimétrica y firmas digitales RSA",
+          "note": "Criptografía pura OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8155,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8155,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8098,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.8072,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.802,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.7965,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "¿Cómo funciona la paginación invertida?",
+          "note": "Arquitectura SO OOD para punteros",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.7995,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7995,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0002",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7916,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0000",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7879,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0004",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7877,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0003",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7714,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "¿Qué es la computación cuántica?",
+          "note": "Computación cuántica OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.7887,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0000",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7887,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0004",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7885,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7876,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0002",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.786,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0003",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.7847,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-03-MEM-MGMT",
+          "query": "¿Cómo funciona el algoritmo de Shor?",
+          "note": "Algoritmos cuánticos OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.7965,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0000",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7965,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0006",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7914,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0007",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7881,
+              "lexical_score": 0.0,
+              "fused_score": 0.0152,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0009",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7873,
+              "lexical_score": 0.0,
+              "fused_score": 0.0147,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0008",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.7857,
+              "lexical_score": 0.0,
+              "fused_score": 0.0145,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-02-OS-PROC",
+          "query": "redes neuronales convolucionales y visión por computadora",
+          "note": "Machine Learning OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8351,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0003",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8351,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0005",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8038,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0002",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8008,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0004",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.7996,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0006",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.7972,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-02-OS-PROC",
+          "query": "bioinformática y secuenciación de ADN con CRISPR",
+          "note": "Biotecnología OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.8042,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0005",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8042,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0003",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8029,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0002",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8011,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0001",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8003,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0006",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.8001,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        }
+      ]
+    },
+    "deterministic_hash": {
+      "provider_id": "deterministic_hash",
+      "model_id": "sha256-128d-v1",
+      "dimensions": 128,
+      "dataset_summary": {
+        "legitimate_queries_count": 14,
+        "ood_queries_count": 12,
+        "legitimate_candidates_retrieved": 70,
+        "ood_candidates_retrieved": 60,
+        "legitimate_lexical_hits_count": 2,
+        "legitimate_lexical_hit_rate": 0.0286,
+        "ood_lexical_hits_count": 0,
+        "ood_lexical_hit_rate": 0.0
+      },
+      "distributions": {
+        "dense_scores_all_candidates": {
+          "legitimate": {
+            "count": 70,
+            "min": -0.1175,
+            "p10": -0.0558,
+            "p25": -0.0008,
+            "p50": 0.0433,
+            "mean": 0.0463,
+            "p75": 0.091,
+            "p90": 0.1434,
+            "p95": 0.1635,
+            "max": 0.2714,
+            "std": 0.0736
+          },
+          "out_of_domain": {
+            "count": 60,
+            "min": -0.0811,
+            "p10": -0.0426,
+            "p25": -0.0031,
+            "p50": 0.0494,
+            "mean": 0.0468,
+            "p75": 0.0903,
+            "p90": 0.1158,
+            "p95": 0.1764,
+            "max": 0.2325,
+            "std": 0.0673
+          }
+        },
+        "dense_scores_top1": {
+          "legitimate": {
+            "count": 14,
+            "min": 0.0453,
+            "p10": 0.0775,
+            "p25": 0.1055,
+            "p50": 0.1432,
+            "mean": 0.1427,
+            "p75": 0.1645,
+            "p90": 0.2157,
+            "p95": 0.2459,
+            "max": 0.2714,
+            "std": 0.0578
+          },
+          "out_of_domain": {
+            "count": 12,
+            "min": 0.0725,
+            "p10": 0.0741,
+            "p25": 0.0897,
+            "p50": 0.1101,
+            "mean": 0.1276,
+            "p75": 0.1773,
+            "p90": 0.183,
+            "p95": 0.2054,
+            "max": 0.2325,
+            "std": 0.0501
+          }
+        },
+        "lexical_scores_all": {
+          "legitimate": {
+            "count": 70,
+            "min": 0.0,
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "mean": 0.1612,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p95": 0.0,
+            "max": 5.6757,
+            "std": 0.9402
+          },
+          "out_of_domain": {
+            "count": 60,
+            "min": 0.0,
+            "p10": 0.0,
+            "p25": 0.0,
+            "p50": 0.0,
+            "mean": 0.0,
+            "p75": 0.0,
+            "p90": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "std": 0.0
+          }
+        },
+        "fused_scores_all": {
+          "legitimate": {
+            "count": 70,
+            "min": 0.0145,
+            "p10": 0.0154,
+            "p25": 0.0156,
+            "p50": 0.0159,
+            "mean": 0.0163,
+            "p75": 0.0161,
+            "p90": 0.0164,
+            "p95": 0.0164,
+            "max": 0.0328,
+            "std": 0.0028
+          },
+          "out_of_domain": {
+            "count": 60,
+            "min": 0.0145,
+            "p10": 0.0154,
+            "p25": 0.0156,
+            "p50": 0.0159,
+            "mean": 0.0158,
+            "p75": 0.0161,
+            "p90": 0.0164,
+            "p95": 0.0164,
+            "max": 0.0164,
+            "std": 0.0004
+          }
+        }
+      },
+      "pure_dense_separability": {
+        "separation_criteria_met": false,
+        "best_threshold": -0.0669,
+        "best_f1": 0.7040816326530612,
+        "best_fpr": 0.95,
+        "best_fnr": 0.0143
+      },
+      "compound_gate_separability": {
+        "separation_criteria_met": false,
+        "best_dense_threshold_no_lexical": -0.0669,
+        "best_f1": 0.7040816326530612,
+        "best_fpr": 0.95,
+        "best_fnr": 0.0143
+      },
+      "ascii_histogram_dense_all": "Rango              | LEGÍTIMAS                  | FUERA DE DOMINIO          \n---------------------------------------------------------------------------\n[-0.117 - -0.079] | #                         ( 1) | =                         ( 1)\n[-0.079 - -0.040] | ##########                ( 8) | =======                   ( 6)\n[-0.040 - -0.001] | ###########               ( 9) | ===========               ( 9)\n[-0.001 - 0.038] | ###################       (15) | ==========                ( 8)\n[0.038 - 0.077] | #####################     (16) | ========================= (19)\n[0.077 - 0.116] | #############             (10) | ==============            (11)\n[0.116 - 0.155] | #######                   ( 6) | ==                        ( 2)\n[0.155 - 0.194] | ###                       ( 3) | ===                       ( 3)\n[0.194 - 0.233] | #                         ( 1) | =                         ( 1)\n[0.233 - 0.271] | #                         ( 1) |                           ( 0)",
+      "ascii_histogram_dense_top1": "Rango              | LEGÍTIMAS                  | FUERA DE DOMINIO          \n---------------------------------------------------------------------------\n[0.045 - 0.068] | ######                    ( 1) |                           ( 0)\n[0.068 - 0.091] | ############              ( 2) | ==================        ( 3)\n[0.091 - 0.113] | ############              ( 2) | ========================= ( 4)\n[0.113 - 0.136] | ######                    ( 1) | ======                    ( 1)\n[0.136 - 0.158] | ##################        ( 3) |                           ( 0)\n[0.158 - 0.181] | ##################        ( 3) | ============              ( 2)\n[0.181 - 0.204] |                           ( 0) | ======                    ( 1)\n[0.204 - 0.226] |                           ( 0) |                           ( 0)\n[0.226 - 0.249] | ######                    ( 1) | ======                    ( 1)\n[0.249 - 0.271] | ######                    ( 1) |                           ( 0)",
+      "raw_queries_legitimate": [
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Qué es una condición de carrera?",
+          "note": "Pregunta conceptual directa",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1479,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1479,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0412,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0363,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0345,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0323,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "condiciones de carrera",
+          "note": "Keyword canónico",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.2321,
+          "top1_lexical_score": 5.6757,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.2321,
+              "lexical_score": 5.6757,
+              "fused_score": 0.0328,
+              "in_lexical": true,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0337,
+              "lexical_score": 5.6115,
+              "fused_score": 0.0315,
+              "in_lexical": true,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1065,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0399,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0012,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cómo funcionan los mutexes?",
+          "note": "Pregunta de sincronización",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1386,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1386,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0912,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0612,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0212,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0355,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Qué es un deadlock?",
+          "note": "Pregunta de interbloqueo",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.2714,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.2714,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0476,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0467,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0455,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0044,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "comunicación entre procesos y concurrencia",
+          "note": "Frase temática canónica",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1658,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1658,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0965,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0879,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0636,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0553,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "sección crítica y exclusión mutua",
+          "note": "Concepto nuclear concurrencia",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.0904,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0904,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0185,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0125,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0003,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0064,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "¿Qué es un puntero en C?",
+          "note": "Pregunta conceptual punteros",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.0453,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0005",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0453,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0003",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.005,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0002",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": -0.0544,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": -0.0653,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0000",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": -0.0664,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "¿Cómo se declara int *p?",
+          "note": "Sintaxis C punteros",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1033,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.1033,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0004",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0456,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0005",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0141,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0003",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0096,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0002",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": -0.004,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "punteros y direcciones de memoria en C",
+          "note": "Frase temática punteros",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1119,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0000",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.1119,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.106,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0003",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0221,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0005",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.008,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0004",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": -0.0605,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-03-MEM-MGMT",
+          "query": "¿Qué es malloc?",
+          "note": "Función de memoria dinámica",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1276,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0004",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.1276,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0002",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0555,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0000",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0471,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0001",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0349,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0009",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": -0.0152,
+              "lexical_score": 0.0,
+              "fused_score": 0.0152,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-03-MEM-MGMT",
+          "query": "¿Cómo funciona el stack?",
+          "note": "Estructura de memoria stack",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1773,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0003",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.1773,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0008",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0689,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0004",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0559,
+              "lexical_score": 0.0,
+              "fused_score": 0.0152,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0002",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0199,
+              "lexical_score": 0.0,
+              "fused_score": 0.0147,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0001",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0197,
+              "lexical_score": 0.0,
+              "fused_score": 0.0145,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-03-MEM-MGMT",
+          "query": "gestión de memoria dinámica heap y stack",
+          "note": "Frase temática memoria",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1542,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0004",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.1542,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0002",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.1037,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0003",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0888,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0007",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0687,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0009",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0599,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-02-OS-PROC",
+          "query": "¿Qué es un proceso en sistemas operativos?",
+          "note": "Concepto de proceso",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1607,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0005",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.1607,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0000",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.1429,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0004",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.1242,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0002",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": -0.0632,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0003",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": -0.1175,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-02-OS-PROC",
+          "query": "estados de un proceso y PCB",
+          "note": "Frase temática procesos",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.0719,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0000",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.0719,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0006",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.014,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0002",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": -0.002,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0003",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": -0.06,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0004",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": -0.0655,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        }
+      ],
+      "raw_queries_ood": [
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cómo explotar vulnerabilidades zero-day en enclaves SGX?",
+          "note": "Hardware security OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1762,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1762,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0992,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0423,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0304,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0417,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cuáles son las vulnerabilidades en curvas elípticas Ed25519?",
+          "note": "P1-CURR-04: Criptografía OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.0732,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0732,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0504,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0677,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0726,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0811,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cómo funciona la paginación multinivel y tablas de páginas invertidas?",
+          "note": "P1-CURR-05: Paginación fuera de rango",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1208,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1208,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0006",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1152,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1051,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0641,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0487,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "¿Cómo explotar enclaves SGX usando algoritmos cuánticos de Shor?",
+          "note": "P1-CURR-06-A: Cuántica SGX OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1805,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1805,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1085,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0663,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0547,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0314,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "seguridad de procesos en infraestructuras cloud y criptografía asimétrica",
+          "note": "P1-CURR-06-B: Cloud/Crypto OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.0725,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0003",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0725,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0523,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.012,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0034,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0523,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "algoritmos cuánticos de factorización",
+          "note": "Computación cuántica pura OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1093,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0008",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1093,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0004",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0515,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0511,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0324,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0384,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-04-CONCURR",
+          "query": "criptografía asimétrica y firmas digitales RSA",
+          "note": "Criptografía pura OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.1833,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0002",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.1833,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0005",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0764,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0000",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": 0.0312,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0007",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0067,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_concurrencia.pdf:p01:c0001",
+              "document_id": "so_concurrencia.pdf",
+              "page_start": 1,
+              "dense_score": -0.0601,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "¿Cómo funciona la paginación invertida?",
+          "note": "Arquitectura SO OOD para punteros",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.0976,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0002",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0976,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0005",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0897,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0000",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0466,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0004",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": -0.0031,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": -0.0235,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-01-C-PTR",
+          "query": "¿Qué es la computación cuántica?",
+          "note": "Computación cuántica OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.0821,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0000",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0821,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0002",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0631,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0005",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.05,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0004",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": 0.0379,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "prog_punteros.pdf:p01:c0001",
+              "document_id": "prog_punteros.pdf",
+              "page_start": 1,
+              "dense_score": -0.0248,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-03-MEM-MGMT",
+          "query": "¿Cómo funciona el algoritmo de Shor?",
+          "note": "Algoritmos cuánticos OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.111,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0006",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.111,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0003",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0739,
+              "lexical_score": 0.0,
+              "fused_score": 0.0152,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0004",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0328,
+              "lexical_score": 0.0,
+              "fused_score": 0.0149,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0000",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0204,
+              "lexical_score": 0.0,
+              "fused_score": 0.0147,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_memoria.pdf:p01:c0008",
+              "document_id": "so_memoria.pdf",
+              "page_start": 1,
+              "dense_score": 0.0015,
+              "lexical_score": 0.0,
+              "fused_score": 0.0145,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-02-OS-PROC",
+          "query": "redes neuronales convolucionales y visión por computadora",
+          "note": "Machine Learning OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.0922,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0001",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.0922,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0006",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.071,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0003",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.0386,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0002",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.0383,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0005",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": -0.0047,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        },
+        {
+          "node_id": "SEC-02-OS-PROC",
+          "query": "bioinformática y secuenciación de ADN con CRISPR",
+          "note": "Biotecnología OOD",
+          "candidates_retrieved": 5,
+          "top1_dense_score": 0.2325,
+          "top1_lexical_score": 0.0,
+          "candidates": [
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0005",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.2325,
+              "lexical_score": 0.0,
+              "fused_score": 0.0164,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0003",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.1543,
+              "lexical_score": 0.0,
+              "fused_score": 0.0161,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0006",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.0952,
+              "lexical_score": 0.0,
+              "fused_score": 0.0159,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0001",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.048,
+              "lexical_score": 0.0,
+              "fused_score": 0.0156,
+              "in_lexical": false,
+              "in_dense": true
+            },
+            {
+              "chunk_id": "so_procesos.pdf:p01:c0000",
+              "document_id": "so_procesos.pdf",
+              "page_start": 1,
+              "dense_score": 0.0013,
+              "lexical_score": 0.0,
+              "fused_score": 0.0154,
+              "in_lexical": false,
+              "in_dense": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

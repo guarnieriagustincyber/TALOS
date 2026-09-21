@@ -1,0 +1,128 @@
+{
+  "campaign": "S4.4 V0 ROBUSTNESS P3",
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.0,
+  "central_epistemological_finding": "V0 demuestra que S4.4 puede imponer una política fail-closed y auditable sobre un juez probabilístico, pero no demuestra que el juez probabilístico posea resolución epistemológica suficiente para distinguir siempre entre evidencia explícita e inferencia implícita técnicamente plausible.",
+  "metrics": {
+    "total_cases": 3,
+    "exact_verdict_matches": 3,
+    "exact_verdict_accuracy": 1.0,
+    "unsafe_target_cases": 3,
+    "safety_contained_cases": 3,
+    "safety_containment_rate": 1.0,
+    "over_accepted_cases": 0,
+    "over_acceptance_rate": 0.0,
+    "contradiction_detection_rate": 1.0,
+    "false_contradiction_rate": 0.0,
+    "not_entailed_discrimination_rate": 1.0,
+    "metric_definitions": {
+      "exact_verdict_accuracy": "Casos con coincidencia exacta de veredicto sobre Total de casos P3 (matches / 3)",
+      "safety_containment_rate": "Casos bloqueados sobre Casos cuyo ground truth exige bloqueo (contained / 3)",
+      "over_acceptance_rate": "Casos indebidamente aprobados sobre Casos cuyo ground truth exige bloqueo (over_accepted / 3)",
+      "contradiction_detection_rate": "Casos con veredicto CONTRADICTED sobre casos con ground truth CONTRADICTED (detected / 2)",
+      "false_contradiction_rate": "Casos clasificados erróneamente como CONTRADICTED sobre casos no contradictorios (false / 1)",
+      "not_entailed_discrimination_rate": "Casos con veredicto NOT_ENTAILED sobre casos con ground truth NOT_ENTAILED (correct / 1)"
+    }
+  },
+  "cases": [
+    {
+      "experiment_run_id": "RUN-ROB-P3-01-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P3-01",
+      "family": "P3_CONTRADICTION_MISALIGNMENT",
+      "subfamily": "contradiction_direct",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "f741e1e473383b43791cb6bbdce34aefc1bac3885e4e24740ff29d413643dce6",
+      "claim": "Los vectores en C se caracterizan porque podemos alargarlos o acortarlos libremente para adaptarlos al tamaño de los datos durante la ejecución del programa",
+      "claims_count": 1,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "Los vectores en C se caracterizan porque podemos alargarlos o acortarlos libremente para adaptarlos al tamaño de los datos durante la ejecución del programa [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "CONTRADICTED",
+          "rationale": "The premise explicitly states that C vectors have a fixed size known at compile time and 'could not lengthen or shorten the vectors to adapt to the size of a series of data during program execution'. The hypothesis claims the exact opposite: that we can lengthen or shorten them freely during execution."
+        }
+      ],
+      "expected_result": "REJECTED_CONTRADICTION",
+      "actual_result": "REJECTED_CONTRADICTION",
+      "final_verdict": "REJECTED_CONTRADICTION",
+      "expected_label": "CONTRADICTED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 3282.385260999945,
+      "methodological_rationale": "Contradicción directa frontal: la premisa dice expresamente 'no podíamos alargar o acortar los vectores'. La hipótesis afirma lo contrario."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P3-02-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P3-02",
+      "family": "P3_CONTRADICTION_MISALIGNMENT",
+      "subfamily": "contradiction_causal_inversion",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "ab87b1b5c75ee4046640140c9142816784882c75cdb7d228a26c5c672105721a",
+      "claim": "El estado Bloqueado se define porque el proceso está usando activamente la CPU en ese instante preciso",
+      "claims_count": 1,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "El estado Bloqueado se define porque el proceso está usando activamente la CPU en ese instante preciso [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "CONTRADICTED",
+          "rationale": "The premise defines the 'Bloqueado' state as 'no puede ejecutarse sino hasta que ocurra cierto evento externo', whereas the hypothesis claims it is using the CPU actively, which contradicts the definition of 'En ejecución'."
+        }
+      ],
+      "expected_result": "REJECTED_CONTRADICTION",
+      "actual_result": "REJECTED_CONTRADICTION",
+      "final_verdict": "REJECTED_CONTRADICTION",
+      "expected_label": "CONTRADICTED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 2424.125776999972,
+      "methodological_rationale": "Conflación / inversión categorial: asigna la definición de 'En ejecución' al estado 'Bloqueado'. Debe detectarse como contradicción categórica."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P3-03-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P3-03",
+      "family": "P3_CONTRADICTION_MISALIGNMENT",
+      "subfamily": "not_entailed_alien_concept",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "c173d82626c22f91ae282d04cb958f53f93a3938981aa302e4bf7b0d019e6596",
+      "claim": "Las listas enlazadas en C requieren la invocación obligatoria de la llamada al sistema sys_brk para asignar memoria en el heap",
+      "claims_count": 1,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "Las listas enlazadas en C requieren la invocación obligatoria de la llamada al sistema sys_brk para asignar memoria en el heap [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "NOT_ENTAILED",
+          "rationale": "The hypothesis introduces specific technical details (such as the invocation of the system call 'sys_brk' and allocation in the heap) that are not mentioned in the premise. The premise only broadly discusses data structures, fixed-size arrays at runtime, and linked lists using pointers."
+        }
+      ],
+      "expected_result": "REJECTED_UNSUPPORTED",
+      "actual_result": "REJECTED_UNSUPPORTED",
+      "final_verdict": "REJECTED_UNSUPPORTED",
+      "expected_label": "NOT_ENTAILED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 3018.0967880000935,
+      "methodological_rationale": "Entidad técnica alienígena (sys_brk / heap): plausible pero ausente en el chunk citado. Debe ser rechazado como no respaldado."
+    }
+  ]
+}

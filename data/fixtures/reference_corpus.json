@@ -1,0 +1,116 @@
+{
+  "notebooks": [
+    {
+      "id": "fadena-so",
+      "name": "Sistemas Operativos (FADENA)",
+      "description": "Conceptos fundamentales de sistemas operativos, procesos, memoria y concurrencia.",
+      "subject": "Sistemas Operativos"
+    },
+    {
+      "id": "fadena-prog",
+      "name": "Programación en C (FADENA)",
+      "description": "Lenguaje C, punteros, gestión dinámica de memoria y estructuras de datos.",
+      "subject": "Programación"
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "src-so-silberschatz",
+      "filename": "Silberschatz-Operating-Systems-10th.pdf",
+      "byte_size": 2048,
+      "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "notebook_id": "fadena-so"
+    },
+    {
+      "source_id": "src-prog-joyanes",
+      "filename": "Joyanes-Programacion-C-4ta.pdf",
+      "byte_size": 4096,
+      "sha256": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+      "notebook_id": "fadena-prog"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc-so-proc",
+      "source_id": "src-so-silberschatz",
+      "title": "Procesos y Planificación",
+      "content": "Capítulo sobre ciclo de vida de procesos y algoritmos de planificación."
+    },
+    {
+      "id": "doc-so-mem",
+      "source_id": "src-so-silberschatz",
+      "title": "Memoria Virtual y Paginación",
+      "content": "Capítulo sobre memoria virtual, MMU y paginación multinivel."
+    },
+    {
+      "id": "doc-prog-ptr",
+      "source_id": "src-prog-joyanes",
+      "title": "Punteros y Gestión de Memoria",
+      "content": "Capítulo sobre memoria dinámica y operadores de punteros en C."
+    },
+    {
+      "id": "doc-prog-tree",
+      "source_id": "src-prog-joyanes",
+      "title": "Árboles Binarios de Búsqueda",
+      "content": "Capítulo sobre árboles binarios, recorridos y complejidad algorítmica."
+    }
+  ],
+  "chunks": [
+    {
+      "id": "so:proc:01",
+      "document_id": "doc-so-proc",
+      "source_id": "src-so-silberschatz",
+      "content": "En los sistemas operativos modernos, un proceso zombie o difunto es un proceso que ha completado su ejecución mediante exit() pero todavía mantiene una entrada en la tabla de procesos debido a que su proceso padre aún no ha leído su estado de salida mediante la llamada al sistema wait().",
+      "index": 0
+    },
+    {
+      "id": "so:proc:02",
+      "document_id": "doc-so-proc",
+      "source_id": "src-so-silberschatz",
+      "content": "El planificador Round Robin asigna a cada proceso ejecutable un intervalo de tiempo fijo llamado cuanto de tiempo (quantum) o time slice. Si el proceso no termina antes de que expire el cuanto, una interrupción del temporizador del hardware provoca el desalojo y el proceso pasa a la cola de listos.",
+      "index": 1
+    },
+    {
+      "id": "so:mem:01",
+      "document_id": "doc-so-mem",
+      "source_id": "src-so-silberschatz",
+      "content": "La memoria virtual es una técnica de gestión de memoria que proporciona una abstracción del almacenamiento primario físico. La unidad de manejo de memoria (MMU) traduce las direcciones virtuales generadas por la CPU a direcciones físicas en RAM mediante tablas de páginas y el buffer de traducción anticipada (TLB).",
+      "index": 0
+    },
+    {
+      "id": "so:mem:02",
+      "document_id": "doc-so-mem",
+      "source_id": "src-so-silberschatz",
+      "content": "La paginación jerárquica o multinivel divide la tabla de páginas en múltiples niveles para evitar reservar espacio contiguo en memoria para el espacio de direcciones completo de un proceso disperso.",
+      "index": 1
+    },
+    {
+      "id": "prog:ptr:01",
+      "document_id": "doc-prog-ptr",
+      "source_id": "src-prog-joyanes",
+      "content": "En lenguaje C, un puntero es una variable que almacena la dirección de memoria de otra variable. La función malloc() reserva un bloque contiguo de memoria en el heap y devuelve un puntero genérico void* que debe ser liberado posteriormente utilizando la función free() para evitar fugas de memoria.",
+      "index": 0
+    },
+    {
+      "id": "prog:ptr:02",
+      "document_id": "doc-prog-ptr",
+      "source_id": "src-prog-joyanes",
+      "content": "La aritmética de punteros en C permite avanzar o retroceder direcciones sumando enteros. Por ejemplo, ptr + 1 avanza el puntero tantos bytes como el tamaño del tipo de dato subyacente sizeof(*ptr).",
+      "index": 1
+    },
+    {
+      "id": "prog:tree:01",
+      "document_id": "doc-prog-tree",
+      "source_id": "src-prog-joyanes",
+      "content": "Un árbol binario de búsqueda (BST) es una estructura de datos jerárquica no lineal donde para cada nodo n, todos los elementos del subárbol izquierdo son menores que n y todos los elementos del subárbol derecho son mayores que n. Su tiempo de búsqueda promedio es O(log n).",
+      "index": 0
+    },
+    {
+      "id": "prog:tree:02",
+      "document_id": "doc-prog-tree",
+      "source_id": "src-prog-joyanes",
+      "content": "El recorrido inorden de un árbol binario de búsqueda visita primero el subárbol izquierdo, luego la raíz y finalmente el subárbol derecho, produciendo los elementos en orden estrictamente ascendente.",
+      "index": 1
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "title": "StudentState Canonical Hash Coverage Audit",
+  "total_authority_fields_tested": 20,
+  "total_fields_tamper_detected": 20,
+  "tamper_detection_coverage_ratio": 1.0,
+  "all_fields_sealed": true,
+  "detailed_results": [
+    {
+      "field_or_subfield": "student_id",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "roadmap_revision_id",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "policy_revision_id",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "ledger_cutoff_hash",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "as_of_time",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "cutoff_mode",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "node_states[0].node_id",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "node_states[0].status",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "node_states[0].unfulfilled_hard_prerequisites",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "node_states[0].unfulfilled_soft_prerequisites",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "node_states[0].total_evidence_count",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "node_states[0].last_event_timestamp",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "node_states[0].last_commit_timestamp",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "evaluation_result.criteria_id",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "evaluation_result.verdict",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "evaluation_result.satisfied_requirements",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "evaluation_result.missing_requirements",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "evaluation_result.subsequent_failures_count",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "evaluation_result.evaluation_timestamp",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    },
+    {
+      "field_or_subfield": "evaluation_result.rationale",
+      "hash_diverged_and_caught": true,
+      "error_sample": "Tampered StudentState hash: declared '5b5c937f45ea74c9f83e5343dd13ab6daa04c410af..."
+    }
+  ]
+}

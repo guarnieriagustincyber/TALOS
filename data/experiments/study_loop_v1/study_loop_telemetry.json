@@ -1,0 +1,76 @@
+{
+  "campaign_id": "HITO-7-STUDY-LOOP-V1",
+  "oracle_id": "STUDY-LOOP-V1-CANONICAL-ORACLE",
+  "spec_version": "SPEC-STUDY-LOOP-V1.0",
+  "timestamp_utc": "2026-09-07T03:54:50.267496+00:00",
+  "turns": {
+    "turn_1": {
+      "turn_id": "SL-TURN-01-CONCEPTUAL-EXPLANATION",
+      "action": "EXPLAIN",
+      "budget": "NORMAL",
+      "target_node_id": "SEC-01-C-PTR",
+      "pedagogical_intent": "CONCEPTUAL_GROUNDING",
+      "allow_code_snippets": true,
+      "session_status": "APPROVED",
+      "retrieved_doc_ids": [
+        "prog_punteros.pdf"
+      ],
+      "retrieved_pages": [
+        1
+      ],
+      "audit_report_id": "audit_2b24601aff0e",
+      "response_text": "En C, un puntero se declara anteponiendo el operador asterisco antes de la variable y se desreferencia con el operador * para acceder al valor en memoria [E1]."
+    },
+    "turn_2": {
+      "turn_id": "SL-TURN-02-CHECK-UNDERSTANDING",
+      "action": "CHECK_UNDERSTANDING",
+      "budget": "SHORT",
+      "target_node_id": "SEC-01-C-PTR",
+      "pedagogical_intent": "PROBE_COMPREHENSION_CONFIRMATION",
+      "conceptually_sound": true,
+      "ready_for_practice": true,
+      "ledger_delta": 0
+    },
+    "turn_3": {
+      "turn_id": "SL-TURN-03-PRACTICE-DISPATCH",
+      "action": "REQUEST_PRACTICE",
+      "budget": "DETAILED",
+      "target_node_id": "SEC-05-BIN-SEC",
+      "suggested_task_id": "task_sec05_file_hasher.json",
+      "pedagogical_intent": "DISPATCH_PRACTICAL_CHALLENGE",
+      "dispatched_task_id": "task_sec05_file_hasher.json"
+    },
+    "turn_4": {
+      "turn_id": "SL-TURN-04-EXECUTION-AND-ASSESSMENT",
+      "status": "EVALUATED",
+      "exit_code": 0,
+      "execution_status": "COMPLETED",
+      "assessment_passed": true,
+      "score": 1.0,
+      "overall_level": "N3_COMPETENT",
+      "evidence_record_id": "ev-21de661b6527ea19",
+      "ledger_delta": 1,
+      "rejection_reason": null
+    },
+    "turn_5": {
+      "turn_id": "SL-TURN-05-STATE-PROJECTION-AND-ADVANCE",
+      "sec05_status": "ASSESSED_PROFICIENT",
+      "sec06_status": "AVAILABLE",
+      "sec06_unlocked": true,
+      "action": "GIVE_FEEDBACK",
+      "budget": "NORMAL",
+      "target_node_id": "SEC-05-BIN-SEC",
+      "pedagogical_intent": "CELEBRATE_MASTERY_AND_UNLOCK_DOWNSTREAM",
+      "feedback_rendered": true,
+      "ledger_cardinality": 5,
+      "hash_chain_status": "VALID",
+      "anti_replay_idempotent_detected": true
+    }
+  },
+  "oracle_comparison": {
+    "mismatch_count": 0,
+    "mismatches": [],
+    "status": "PASS"
+  },
+  "verdict": "CERTIFIED"
+}

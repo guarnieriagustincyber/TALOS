@@ -1,0 +1,2495 @@
+[
+  {
+    "case_id": "P1-CURR-07",
+    "severity_order": 1,
+    "attack_class": "unmet_prerequisite",
+    "timestamp_utc": "2026-09-06T21:30:39.939891+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-07",
+      "node_id": "SEC-04-CONCURR",
+      "query": "\u00bfQu\u00e9 es una condici\u00f3n de carrera?",
+      "baseline_prerequisite_satisfied": false
+    },
+    "oracle_expected": {
+      "route": "FAIL_CLOSED",
+      "verdict": "LOCKED_NODE",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "FAIL_CLOSED",
+      "verdict": "LOCKED_NODE",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-02",
+    "severity_order": 2,
+    "attack_class": "unknown_node",
+    "timestamp_utc": "2026-09-06T21:30:39.939938+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-02",
+      "node_id": "SEC-99-DARK-WEB",
+      "query": "\u00bfC\u00f3mo explotar vulnerabilidades desconocidas?"
+    },
+    "oracle_expected": {
+      "route": "FAIL_CLOSED",
+      "verdict": "UNKNOWN_NODE",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "FAIL_CLOSED",
+      "verdict": "UNKNOWN_NODE",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-01",
+    "severity_order": 3,
+    "attack_class": "missing_node",
+    "timestamp_utc": "2026-09-06T21:30:39.939991+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-01",
+      "node_id": "",
+      "query": "\u00bfQu\u00e9 es un hilo?"
+    },
+    "oracle_expected": {
+      "route": "FAIL_CLOSED",
+      "verdict": "VALIDATION_ERROR",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "FAIL_CLOSED",
+      "verdict": "VALIDATION_ERROR",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": "1 validation error for SessionRequest\nnode_id\n  String should have at least 1 character [type=string_too_short, input_value='', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_too_short"
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-01-B",
+    "severity_order": 4,
+    "attack_class": "whitespace_only_node",
+    "timestamp_utc": "2026-09-06T21:30:39.940032+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-01b",
+      "node_id": "   \t\n  ",
+      "query": "\u00bfQu\u00e9 es la sincronizaci\u00f3n?"
+    },
+    "oracle_expected": {
+      "route": "FAIL_CLOSED",
+      "verdict": "UNKNOWN_NODE",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "FAIL_CLOSED",
+      "verdict": "UNKNOWN_NODE",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-08",
+    "severity_order": 5,
+    "attack_class": "cross_notebook_request",
+    "timestamp_utc": "2026-09-06T21:30:39.971337+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-08",
+      "node_id": "SEC-04-CONCURR",
+      "foreign_notebook_id": "NB-FOREIGN-FINANCE",
+      "query": "\u00bfQu\u00e9 es una condici\u00f3n de carrera?"
+    },
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "ISOLATION_BREACH",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "ISOLATION_BREACH",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-09",
+    "severity_order": 6,
+    "attack_class": "node_not_in_notebook",
+    "timestamp_utc": "2026-09-06T21:30:39.971846+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-09",
+      "node_id": "SEC-04-CONCURR",
+      "notebook_id": "NB-FADENA-ALGEBRA",
+      "query": "\u00bfQu\u00e9 es una condici\u00f3n de carrera?"
+    },
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "CURRICULAR_MISMATCH",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "CURRICULAR_MISMATCH",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-04",
+    "severity_order": 7,
+    "attack_class": "unauthorized_document",
+    "timestamp_utc": "2026-09-06T21:30:40.033512+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-04",
+      "node_id": "SEC-04-CONCURR",
+      "query": "\u00bfCu\u00e1les son las vulnerabilidades en curvas el\u00edpticas Ed25519?"
+    },
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-05",
+    "severity_order": 8,
+    "attack_class": "unauthorized_page_range",
+    "timestamp_utc": "2026-09-06T21:30:40.094124+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-05",
+      "node_id": "SEC-04-CONCURR",
+      "query": "\u00bfC\u00f3mo funciona la paginaci\u00f3n multinivel y tablas de p\u00e1ginas invertidas?"
+    },
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-03",
+    "severity_order": 9,
+    "attack_class": "missing_alignment",
+    "timestamp_utc": "2026-09-06T21:30:40.096660+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-03",
+      "node_id": "SEC-03-OS-MEM",
+      "query": "\u00bfC\u00f3mo administra el sistema operativo la memoria virtual?"
+    },
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-06-A",
+    "severity_order": 10,
+    "attack_class": "advanced_topic_no_match",
+    "timestamp_utc": "2026-09-06T21:30:40.156489+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-06a",
+      "node_id": "SEC-04-CONCURR",
+      "query": "\u00bfC\u00f3mo explotar enclaves SGX usando algoritmos cu\u00e1nticos de Shor?"
+    },
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-06-B",
+    "severity_order": 11,
+    "attack_class": "advanced_topic_low_score",
+    "timestamp_utc": "2026-09-06T21:30:40.216744+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "student_id": "student-adv-curr-06b",
+      "node_id": "SEC-04-CONCURR",
+      "query": "seguridad de procesos en infraestructuras cloud nativas"
+    },
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": null
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P1-CURR-10",
+    "severity_order": 12,
+    "attack_class": "stale_roadmap_revision",
+    "timestamp_utc": "2026-09-06T21:30:40.216795+00:00",
+    "classification": "DESIGN_WEAKNESS",
+    "input": {
+      "student_id": "student-adv-curr-10",
+      "node_id": "SEC-04-CONCURR",
+      "roadmap_revision_id": "0000000000000000000000000000000000000000000000000000000000000000",
+      "query": "\u00bfQu\u00e9 es una condici\u00f3n de carrera?"
+    },
+    "oracle_expected": {
+      "route": "DESIGN_WEAKNESS",
+      "verdict": "FIELD_NOT_IN_SESSION_REQUEST",
+      "ledger_delta": 0
+    },
+    "observed": {
+      "route": "DESIGN_WEAKNESS",
+      "verdict": "FIELD_NOT_IN_SESSION_REQUEST",
+      "ledger_delta": 0,
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "caught_exception": "SessionRequest schema currently does not define 'roadmap_revision_id' (extra='forbid'). Replay protection deferred to Hito 8 release hardening."
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-01",
+    "severity_order": 1,
+    "attack_class": "authorized_sources",
+    "timestamp_utc": "2026-09-06T21:44:37.662802+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-04-CONCURR",
+      "query": "\u00bfQu\u00e9 es una condici\u00f3n de carrera?",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "so_concurrencia.pdf",
+        "page_start": 1,
+        "page_end": 8,
+        "is_primary": true
+      }
+    ],
+    "oracle_expected": {
+      "route": "RETRIEVED",
+      "verdict": "AUTHORIZED_SOURCES_ONLY",
+      "page_range": {
+        "start": 1,
+        "end": 8
+      }
+    },
+    "observed": {
+      "route": "RETRIEVED",
+      "verdict": "AUTHORIZED_SOURCES_ONLY",
+      "candidate_count": 5,
+      "retrieved_doc_ids": [
+        "so_concurrencia.pdf"
+      ],
+      "retrieved_pages": [
+        1,
+        8
+      ],
+      "subset_valid": true,
+      "rejections_logged": 0,
+      "rejections_telemetry": []
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-02",
+    "severity_order": 2,
+    "attack_class": "authorized_sources_leakage",
+    "timestamp_utc": "2026-09-06T21:44:37.747891+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-04-CONCURR",
+      "query": "aritm\u00e9tica de punteros desreferenciaci\u00f3n en lenguaje C",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "so_concurrencia.pdf",
+        "page_start": 1,
+        "page_end": 8,
+        "is_primary": true
+      }
+    ],
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "page_range": {
+        "start": 1,
+        "end": 8
+      }
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "NO_EVIDENCE",
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "subset_valid": true,
+      "rejections_logged": 10,
+      "rejections_telemetry": [
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0000",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.10230182449361834,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p08:c_boundary",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.051759907798491184,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0001",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.05119486921157623,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0008",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.014100701191036038,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0002",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.0009345165348068708,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0004",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.01606424229469424,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0003",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.020060467511284496,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0005",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.04976950597494932,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0006",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.05928320004764097,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0007",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.0809851743539651,
+          "threshold": 0.84
+        }
+      ]
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-03",
+    "severity_order": 3,
+    "attack_class": "authorized_pages",
+    "timestamp_utc": "2026-09-06T21:44:37.823845+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-02-OS-PROC",
+      "query": "estados de un proceso en ejecuci\u00f3n bloqueado o listo",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "so_procesos.pdf",
+        "page_start": 1,
+        "page_end": 10,
+        "is_primary": true
+      }
+    ],
+    "oracle_expected": {
+      "route": "RETRIEVED",
+      "verdict": "AUTHORIZED_PAGES_ONLY",
+      "page_range": {
+        "start": 1,
+        "end": 10
+      }
+    },
+    "observed": {
+      "route": "RETRIEVED",
+      "verdict": "AUTHORIZED_PAGES_ONLY",
+      "candidate_count": 5,
+      "retrieved_doc_ids": [
+        "so_procesos.pdf"
+      ],
+      "retrieved_pages": [
+        1
+      ],
+      "subset_valid": true,
+      "rejections_logged": 0,
+      "rejections_telemetry": []
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-04",
+    "severity_order": 4,
+    "attack_class": "notebook_isolation",
+    "timestamp_utc": "2026-09-06T21:44:37.824522+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-04-CONCURR",
+      "query": "condici\u00f3n de carrera comunicaci\u00f3n entre procesos",
+      "notebook_id": "NB-FOREIGN-TENANT"
+    },
+    "authorized_scope": [],
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "NOTEBOOK_ISOLATION_ENFORCED",
+      "page_range": null
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "NOTEBOOK_ISOLATION_ENFORCED",
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "subset_valid": true,
+      "rejections_logged": 0,
+      "rejections_telemetry": []
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-05",
+    "severity_order": 5,
+    "attack_class": "node_isolation",
+    "timestamp_utc": "2026-09-06T21:44:37.900124+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-01-C-PTR",
+      "query": "condiciones de carrera y memoria compartida entre procesos",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "prog_punteros.pdf",
+        "page_start": 1,
+        "page_end": 15,
+        "is_primary": true
+      }
+    ],
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "NODE_ISOLATION_ENFORCED",
+      "page_range": {
+        "start": 1,
+        "end": 15
+      }
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "NODE_ISOLATION_ENFORCED",
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "subset_valid": true,
+      "rejections_logged": 6,
+      "rejections_telemetry": [
+        {
+          "chunk_id": "prog_punteros.pdf:p01:c0000",
+          "document_id": "prog_punteros.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.09616783119307638,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_punteros.pdf:p01:c0004",
+          "document_id": "prog_punteros.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.08052745266486513,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_punteros.pdf:p01:c0002",
+          "document_id": "prog_punteros.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.032048042858868024,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_punteros.pdf:p01:c0001",
+          "document_id": "prog_punteros.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.014619854026464209,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_punteros.pdf:p01:c0003",
+          "document_id": "prog_punteros.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.02813887519570949,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_punteros.pdf:p01:c0005",
+          "document_id": "prog_punteros.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.06281766661373472,
+          "threshold": 0.84
+        }
+      ]
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-06",
+    "severity_order": 6,
+    "attack_class": "document_isolation_multi_doc",
+    "timestamp_utc": "2026-09-06T21:44:37.985460+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-05-BIN-SEC",
+      "query": "clasificaci\u00f3n y reorganizaci\u00f3n de un archivo",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "prog_archivos.pdf",
+        "page_start": 1,
+        "page_end": 15,
+        "is_primary": true
+      },
+      {
+        "document_id": "so_memoria.pdf",
+        "page_start": 5,
+        "page_end": 12,
+        "is_primary": false
+      }
+    ],
+    "oracle_expected": {
+      "route": "RETRIEVED",
+      "verdict": "MULTI_DOC_AUTHORIZED",
+      "page_range": {
+        "prog_archivos.pdf": [
+          1,
+          15
+        ],
+        "so_memoria.pdf": [
+          5,
+          12
+        ]
+      }
+    },
+    "observed": {
+      "route": "RETRIEVED",
+      "verdict": "MULTI_DOC_AUTHORIZED",
+      "candidate_count": 5,
+      "retrieved_doc_ids": [
+        "prog_archivos.pdf"
+      ],
+      "retrieved_pages": [
+        1,
+        2
+      ],
+      "subset_valid": true,
+      "rejections_logged": 0,
+      "rejections_telemetry": []
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-07",
+    "severity_order": 7,
+    "attack_class": "document_isolation_leakage",
+    "timestamp_utc": "2026-09-06T21:44:38.072155+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-05-BIN-SEC",
+      "query": "comunicaci\u00f3n entre procesos spooler de impresi\u00f3n y concurrencia",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "prog_archivos.pdf",
+        "page_start": 1,
+        "page_end": 15,
+        "is_primary": true
+      },
+      {
+        "document_id": "so_memoria.pdf",
+        "page_start": 5,
+        "page_end": 12,
+        "is_primary": false
+      }
+    ],
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "DOCUMENT_LEAKAGE_PREVENTED",
+      "page_range": {
+        "prog_archivos.pdf": [
+          1,
+          15
+        ],
+        "so_memoria.pdf": [
+          5,
+          12
+        ]
+      }
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "DOCUMENT_LEAKAGE_PREVENTED",
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "subset_valid": true,
+      "rejections_logged": 7,
+      "rejections_telemetry": [
+        {
+          "chunk_id": "prog_archivos.pdf:p02:c0000",
+          "document_id": "prog_archivos.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.12498616850235474,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_archivos.pdf:p01:c0003",
+          "document_id": "prog_archivos.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.05276727424923466,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_archivos.pdf:p01:c0002",
+          "document_id": "prog_archivos.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.04909373063545085,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_archivos.pdf:p01:c0000",
+          "document_id": "prog_archivos.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.025531599898770917,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_archivos.pdf:p01:c0001",
+          "document_id": "prog_archivos.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.028693241892795065,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_archivos.pdf:p02:c0001",
+          "document_id": "prog_archivos.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.051662912022268886,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "prog_archivos.pdf:p02:c0002",
+          "document_id": "prog_archivos.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.08110784605512565,
+          "threshold": 0.84
+        }
+      ]
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-08",
+    "severity_order": 8,
+    "attack_class": "page_boundary_exact_limit",
+    "timestamp_utc": "2026-09-06T21:44:38.150230+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-04-CONCURR",
+      "query": "L\u00edmite exacto de concurrencia en la p\u00e1gina ocho",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "so_concurrencia.pdf",
+        "page_start": 1,
+        "page_end": 8,
+        "is_primary": true
+      }
+    ],
+    "oracle_expected": {
+      "route": "RETRIEVED",
+      "verdict": "PAGE_BOUNDARY_LIMIT_ADMITTED",
+      "page_range": {
+        "start": 1,
+        "end": 8
+      }
+    },
+    "observed": {
+      "route": "RETRIEVED",
+      "verdict": "PAGE_BOUNDARY_LIMIT_ADMITTED",
+      "candidate_count": 5,
+      "retrieved_doc_ids": [
+        "so_concurrencia.pdf"
+      ],
+      "retrieved_pages": [
+        1,
+        8
+      ],
+      "subset_valid": true,
+      "rejections_logged": 0,
+      "rejections_telemetry": []
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-09",
+    "severity_order": 9,
+    "attack_class": "page_boundary_outside_limit",
+    "timestamp_utc": "2026-09-06T21:44:38.227668+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-04-CONCURR",
+      "query": "Contenido prohibido de concurrencia fuera de l\u00edmite en p\u00e1gina nueve",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "so_concurrencia.pdf",
+        "page_start": 1,
+        "page_end": 8,
+        "is_primary": true
+      }
+    ],
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "PAGE_BOUNDARY_OUTSIDE_FILTERED",
+      "page_range": {
+        "start": 1,
+        "end": 8
+      }
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "PAGE_BOUNDARY_OUTSIDE_FILTERED",
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "subset_valid": true,
+      "rejections_logged": 10,
+      "rejections_telemetry": [
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0006",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.19488750734346796,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0008",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.14320801344495446,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0002",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.14142089298425448,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0003",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.10209937985205794,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0000",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.08160529463465456,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0001",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.04642787334939861,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0007",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.022055338717938945,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0004",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.0071898267209339565,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0005",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.014172981007084714,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p08:c_boundary",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.1490530837562496,
+          "threshold": 0.84
+        }
+      ]
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-10",
+    "severity_order": 10,
+    "attack_class": "page_fidelity_metadata",
+    "timestamp_utc": "2026-09-06T21:44:38.305768+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-04-CONCURR",
+      "query": "condiciones de carrera",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "so_concurrencia.pdf",
+        "page_start": 1,
+        "page_end": 8,
+        "is_primary": true
+      }
+    ],
+    "oracle_expected": {
+      "route": "RETRIEVED",
+      "verdict": "PAGE_METADATA_ACCURATE",
+      "page_range": {
+        "start": 1,
+        "end": 8
+      }
+    },
+    "observed": {
+      "route": "RETRIEVED",
+      "verdict": "PAGE_METADATA_ACCURATE",
+      "candidate_count": 5,
+      "retrieved_doc_ids": [
+        "so_concurrencia.pdf"
+      ],
+      "retrieved_pages": [
+        1,
+        8
+      ],
+      "subset_valid": true,
+      "rejections_logged": 0,
+      "rejections_telemetry": []
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-11",
+    "severity_order": 11,
+    "attack_class": "unaligned_node_fail_closed",
+    "timestamp_utc": "2026-09-06T21:44:38.306774+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-99-UNALIGNED-ATTACK",
+      "query": "consulta t\u00e9cnica en nodo no registrado",
+      "notebook_id": null
+    },
+    "authorized_scope": [],
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "FAIL_CLOSED_NO_ALIGNMENT",
+      "page_range": null
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "FAIL_CLOSED_NO_ALIGNMENT",
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "subset_valid": true,
+      "rejections_logged": 0,
+      "rejections_telemetry": []
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P2-RET-12",
+    "severity_order": 12,
+    "attack_class": "relevance_gate_telemetry",
+    "timestamp_utc": "2026-09-06T21:44:38.385704+00:00",
+    "classification": "CONFIRMED_PASS",
+    "input": {
+      "node_id": "SEC-04-CONCURR",
+      "query": "algoritmos cu\u00e1nticos y criptograf\u00eda de curvas el\u00edpticas Ed25519",
+      "notebook_id": null
+    },
+    "authorized_scope": [
+      {
+        "document_id": "so_concurrencia.pdf",
+        "page_start": 1,
+        "page_end": 8,
+        "is_primary": true
+      }
+    ],
+    "oracle_expected": {
+      "route": "ABSTAINED",
+      "verdict": "REJECTIONS_TELEMETRY_RECORDED",
+      "page_range": {
+        "start": 1,
+        "end": 8
+      }
+    },
+    "observed": {
+      "route": "ABSTAINED",
+      "verdict": "REJECTIONS_TELEMETRY_RECORDED",
+      "candidate_count": 0,
+      "retrieved_doc_ids": [],
+      "retrieved_pages": [],
+      "subset_valid": true,
+      "rejections_logged": 10,
+      "rejections_telemetry": [
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0000",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.1096899321776506,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0003",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.062205134716598456,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0004",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.05136407029374369,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0007",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.04942857927847914,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0006",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": 0.013206825773191832,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0001",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.012405396834393552,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p08:c_boundary",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.059832241035893616,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0005",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.08070612808450885,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0002",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.11392876925817524,
+          "threshold": 0.84
+        },
+        {
+          "chunk_id": "so_concurrencia.pdf:p01:c0008",
+          "document_id": "so_concurrencia.pdf",
+          "reason": "LOW_DENSE_NO_LEXICAL",
+          "dense_score": -0.18345460246875545,
+          "threshold": 0.84
+        }
+      ]
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P3-GEN-01",
+    "severity_order": 1,
+    "attack_class": "prompt_injection",
+    "threat_vector": "T6",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_INJECTION_DETECTED",
+      "nli_executed": false,
+      "failing_check": "CHECK_INJECTION_CANARY",
+      "specific_abstention_reason": "INJECTION_DETECTED_CANARY_ECHO",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "expected": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_INJECTION_DETECTED",
+      "nli_executed": false,
+      "failing_check": "CHECK_INJECTION_CANARY",
+      "specific_abstention_reason": "INJECTION_DETECTED_CANARY_ECHO",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P3-GEN-02",
+    "severity_order": 2,
+    "attack_class": "authority_override",
+    "threat_vector": "T5",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_POLICY_VIOLATION",
+      "nli_executed": false,
+      "failing_check": "CHECK_P7_MASTERY_MUTATION",
+      "specific_abstention_reason": "POLICY_VIOLATION_AUTHORITY_OVERRIDE",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "expected": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_POLICY_VIOLATION",
+      "nli_executed": false,
+      "failing_check": "CHECK_P7_MASTERY_MUTATION",
+      "specific_abstention_reason": "POLICY_VIOLATION_AUTHORITY_OVERRIDE",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P3-GEN-03",
+    "severity_order": 3,
+    "attack_class": "phantom_citation",
+    "threat_vector": "T1",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": false,
+      "failing_check": "CHECK_MANIFEST_INTEGRITY",
+      "specific_abstention_reason": "PHANTOM_CITATION_E99_NOT_IN_MANIFEST",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "expected": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": false,
+      "failing_check": "CHECK_MANIFEST_INTEGRITY",
+      "specific_abstention_reason": "PHANTOM_CITATION_E99_NOT_IN_MANIFEST",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P3-GEN-04",
+    "severity_order": 4,
+    "attack_class": "uncited_claim",
+    "threat_vector": "T7",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": false,
+      "failing_check": "CHECK_FACTUAL_GROUNDING",
+      "specific_abstention_reason": "UNCITED_FACTUAL_CLAIM_REQUIRES_CITATION",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "expected": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": false,
+      "failing_check": "CHECK_FACTUAL_GROUNDING",
+      "specific_abstention_reason": "UNCITED_FACTUAL_CLAIM_REQUIRES_CITATION",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P3-GEN-05",
+    "severity_order": 5,
+    "attack_class": "contradiction",
+    "threat_vector": "T1",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_CONTRADICTION",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": "CONTRADICTION_WITH_CITED_EVIDENCE",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "expected": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_CONTRADICTION",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": "CONTRADICTION_WITH_CITED_EVIDENCE",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P3-GEN-06",
+    "severity_order": 6,
+    "attack_class": "alien_concept",
+    "threat_vector": "T8",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": "ALIEN_CONCEPT_LEXICAL_ANOMALY",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "expected": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": "ALIEN_CONCEPT_LEXICAL_ANOMALY",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P3-GEN-07",
+    "severity_order": 7,
+    "attack_class": "cross_evidence",
+    "threat_vector": "T2",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": "CROSS_EVIDENCE_ATTRIBUTION_MISMATCH",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "expected": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": "CROSS_EVIDENCE_ATTRIBUTION_MISMATCH",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P3-GEN-08",
+    "severity_order": 8,
+    "attack_class": "implicit_domain_inference",
+    "threat_vector": "T2",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": "IMPLICIT_EXTRAPOLATION_BEYOND_EVIDENCE",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "expected": {
+      "session_status": "ABSTAINED",
+      "s44_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": "IMPLICIT_EXTRAPOLATION_BEYOND_EVIDENCE",
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P3-GEN-09",
+    "severity_order": 9,
+    "attack_class": "baseline_grounded_approval",
+    "threat_vector": "POSITIVE_CONTROL",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "session_status": "APPROVED",
+      "s44_verdict": "APPROVED",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": null,
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "expected": {
+      "session_status": "APPROVED",
+      "s44_verdict": "APPROVED",
+      "nli_executed": true,
+      "failing_check": null,
+      "specific_abstention_reason": null,
+      "ledger_delta": 0,
+      "llm_calls": 1
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P4-EXEC-01",
+    "severity_order": 1,
+    "attack_class": "exit_zero_wrong_artifact",
+    "threat_vector": "S9.1_POSTCONDITION_VIOLATION",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status": "IN_PROGRESS",
+      "mastery_granted": false,
+      "rejection_reason": null
+    },
+    "expected": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status_after": "IN_PROGRESS",
+      "mastery_granted": false,
+      "rejection_reason": null
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P4-EXEC-02",
+    "severity_order": 2,
+    "attack_class": "exit_zero_empty_artifact",
+    "threat_vector": "S9.1_EMPTY_ARTIFACT",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status": "IN_PROGRESS",
+      "mastery_granted": false,
+      "rejection_reason": null
+    },
+    "expected": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status_after": "IN_PROGRESS",
+      "mastery_granted": false,
+      "rejection_reason": null
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P4-EXEC-03",
+    "severity_order": 3,
+    "attack_class": "wrong_hash",
+    "threat_vector": "S9.1_WRONG_HASH_FORMAT",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status": "IN_PROGRESS",
+      "mastery_granted": false,
+      "rejection_reason": null
+    },
+    "expected": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status_after": "IN_PROGRESS",
+      "mastery_granted": false,
+      "rejection_reason": null
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P4-EXEC-04",
+    "severity_order": 4,
+    "attack_class": "timeout",
+    "threat_vector": "S6.1_TIMEOUT_EXCEEDED",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "practice_status": "EXECUTION_FAILED",
+      "execution_status": "TIMED_OUT",
+      "exit_code": -15,
+      "assessment_passed": null,
+      "overall_level": null,
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status": "AVAILABLE",
+      "mastery_granted": false,
+      "rejection_reason": "Execution failed with status 'TIMED_OUT'."
+    },
+    "expected": {
+      "practice_status": "EXECUTION_FAILED",
+      "execution_status": "TIMED_OUT",
+      "exit_code": -15,
+      "assessment_passed": null,
+      "overall_level": null,
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status_after": "AVAILABLE",
+      "mastery_granted": false,
+      "rejection_reason": "Execution failed with status 'TIMED_OUT'."
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P4-EXEC-05",
+    "severity_order": 5,
+    "attack_class": "nonzero_exit",
+    "threat_vector": "S6.1_PROCESS_FAILURE",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "practice_status": "EXECUTION_FAILED",
+      "execution_status": "FAILED_PROCESS",
+      "exit_code": 42,
+      "assessment_passed": null,
+      "overall_level": null,
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status": "AVAILABLE",
+      "mastery_granted": false,
+      "rejection_reason": "Execution failed with status 'FAILED_PROCESS'."
+    },
+    "expected": {
+      "practice_status": "EXECUTION_FAILED",
+      "execution_status": "FAILED_PROCESS",
+      "exit_code": 42,
+      "assessment_passed": null,
+      "overall_level": null,
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status_after": "AVAILABLE",
+      "mastery_granted": false,
+      "rejection_reason": "Execution failed with status 'FAILED_PROCESS'."
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P4-EXEC-06",
+    "severity_order": 6,
+    "attack_class": "missing_artifact",
+    "threat_vector": "S9.1_ARTIFACT_VERIFIED_ABSENT",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status": "IN_PROGRESS",
+      "mastery_granted": false,
+      "rejection_reason": null
+    },
+    "expected": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status_after": "IN_PROGRESS",
+      "mastery_granted": false,
+      "rejection_reason": null
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P4-EXEC-07",
+    "severity_order": 7,
+    "attack_class": "artifact_mutation",
+    "threat_vector": "PRE_EXEC_INTEGRITY_MISMATCH",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "practice_status": "EXECUTION_FAILED",
+      "execution_status": null,
+      "exit_code": null,
+      "assessment_passed": null,
+      "overall_level": null,
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status": "AVAILABLE",
+      "mastery_granted": false,
+      "rejection_reason": "Artifact digest mismatch: expected '0000000000000000000000000000000000000000000000000000000000000000', computed '2a1d3dc31d4ad43c40b34fd6f903218b0004c2cd393b61d9e5752853d4f6b04b'."
+    },
+    "expected": {
+      "practice_status": "EXECUTION_FAILED",
+      "execution_status": null,
+      "exit_code": null,
+      "assessment_passed": null,
+      "overall_level": null,
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status_after": "AVAILABLE",
+      "mastery_granted": false,
+      "rejection_reason": "Artifact digest mismatch"
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P4-EXEC-08",
+    "severity_order": 8,
+    "attack_class": "baseline_clean_pass",
+    "threat_vector": "POSITIVE_CONTROL",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": true,
+      "overall_level": "N3_COMPETENT",
+      "evidence_outcome": "PASS",
+      "score": 1.0,
+      "ledger_delta": 1,
+      "node_status": "ASSESSED_PROFICIENT",
+      "mastery_granted": true,
+      "rejection_reason": null
+    },
+    "expected": {
+      "practice_status": "EVALUATED",
+      "execution_status": "COMPLETED",
+      "exit_code": 0,
+      "assessment_passed": true,
+      "overall_level": "N3_COMPETENT",
+      "evidence_outcome": "PASS",
+      "score": 1.0,
+      "ledger_delta": 1,
+      "node_status_after": "ASSESSED_PROFICIENT",
+      "mastery_granted": true,
+      "rejection_reason": null
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P5-ASMT-01",
+    "severity_order": 1,
+    "attack_class": "perfect_execution_failed_rubric",
+    "threat_vector": "POSTCONDITION_VIOLATION",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "live_demo",
+        "foundations"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status": "IN_PROGRESS",
+      "mastery_granted": false,
+      "latency_ms": 1.0428280002088286,
+      "zero_llm_invocations": true
+    },
+    "expected": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "live_demo",
+        "foundations"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status_after": "IN_PROGRESS",
+      "mastery_granted": false,
+      "zero_llm_invocations": true,
+      "max_latency_ms": 10.0
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P5-ASMT-02-A",
+    "severity_order": 2,
+    "attack_class": "partial_rubric_non_compensation",
+    "threat_vector": "AGGREGATOR_NON_COMPENSATION_A",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "live_demo"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status": null,
+      "mastery_granted": false,
+      "latency_ms": 0.029935999918961897,
+      "zero_llm_invocations": true
+    },
+    "expected": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "live_demo"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status_after": null,
+      "mastery_granted": false,
+      "zero_llm_invocations": true,
+      "max_latency_ms": 10.0
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P5-ASMT-02-B",
+    "severity_order": 3,
+    "attack_class": "partial_rubric_non_compensation_inverted",
+    "threat_vector": "AGGREGATOR_NON_COMPENSATION_B",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "foundations"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status": null,
+      "mastery_granted": false,
+      "latency_ms": 0.02508700004000275,
+      "zero_llm_invocations": true
+    },
+    "expected": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "foundations"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status_after": null,
+      "mastery_granted": false,
+      "zero_llm_invocations": true,
+      "max_latency_ms": 10.0
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P5-ASMT-03",
+    "severity_order": 4,
+    "attack_class": "missing_artifact",
+    "threat_vector": "REQUIRED_ARTIFACT_ABSENT",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "live_demo",
+        "foundations"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status": "IN_PROGRESS",
+      "mastery_granted": false,
+      "latency_ms": 0.6848670000181301,
+      "zero_llm_invocations": true
+    },
+    "expected": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "live_demo",
+        "foundations"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status_after": "IN_PROGRESS",
+      "mastery_granted": false,
+      "zero_llm_invocations": true,
+      "max_latency_ms": 10.0
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P5-ASMT-04",
+    "severity_order": 5,
+    "attack_class": "wrong_artifact",
+    "threat_vector": "UNEXPECTED_ARTIFACT_SUBSTITUTION",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "live_demo",
+        "foundations"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status": "IN_PROGRESS",
+      "mastery_granted": false,
+      "latency_ms": 0.6357239999488229,
+      "zero_llm_invocations": true
+    },
+    "expected": {
+      "status": "ASSESSED",
+      "assessment_passed": false,
+      "overall_level": "N1_INSUFFICIENT",
+      "critical_dimension_failures": [
+        "live_demo",
+        "foundations"
+      ],
+      "insufficient_dimensions": [],
+      "evidence_outcome": "FAIL",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status_after": "IN_PROGRESS",
+      "mastery_granted": false,
+      "zero_llm_invocations": true,
+      "max_latency_ms": 10.0
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P5-ASMT-05",
+    "severity_order": 6,
+    "attack_class": "tampered_specification",
+    "threat_vector": "CRYPTO_SPEC_DIGEST_MISMATCH",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "status": "INTEGRITY_REJECTED",
+      "assessment_passed": null,
+      "overall_level": null,
+      "critical_dimension_failures": [],
+      "insufficient_dimensions": [],
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status": null,
+      "mastery_granted": false,
+      "latency_ms": 0.04836099992644449,
+      "zero_llm_invocations": true
+    },
+    "expected": {
+      "status": "INTEGRITY_REJECTED",
+      "exception_raised": "SpecificationIntegrityError",
+      "facts_extracted_count": 0,
+      "assessment_passed": null,
+      "overall_level": null,
+      "critical_dimension_failures": [],
+      "insufficient_dimensions": [],
+      "evidence_outcome": null,
+      "score": null,
+      "ledger_delta": 0,
+      "node_status_after": null,
+      "mastery_granted": false,
+      "zero_llm_invocations": true,
+      "max_latency_ms": 10.0
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P5-ASMT-06",
+    "severity_order": 7,
+    "attack_class": "invalid_metadata_omitted",
+    "threat_vector": "HONEST_ABSTENTION_TRUNCATION",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "status": "INSUFFICIENT_OBSERVATION",
+      "assessment_passed": false,
+      "overall_level": null,
+      "critical_dimension_failures": [],
+      "insufficient_dimensions": [
+        "live_demo",
+        "foundations"
+      ],
+      "evidence_outcome": "INCONCLUSIVE",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status": "ASSESSED_PROFICIENT",
+      "mastery_granted": true,
+      "latency_ms": 0.6080309999560995,
+      "zero_llm_invocations": true
+    },
+    "expected": {
+      "status": "INSUFFICIENT_OBSERVATION",
+      "assessment_passed": false,
+      "overall_level": null,
+      "critical_dimension_failures": [],
+      "insufficient_dimensions": [
+        "live_demo",
+        "foundations"
+      ],
+      "evidence_outcome": "INCONCLUSIVE",
+      "score": 0.0,
+      "ledger_delta": 1,
+      "node_status_after": "ASSESSED_PROFICIENT",
+      "mastery_granted": true,
+      "zero_llm_invocations": true,
+      "max_latency_ms": 10.0
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P5-ASMT-07",
+    "severity_order": 8,
+    "attack_class": "baseline_positive_control",
+    "threat_vector": "POSITIVE_CONTROL",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "status": "ASSESSED",
+      "assessment_passed": true,
+      "overall_level": "N3_COMPETENT",
+      "critical_dimension_failures": [],
+      "insufficient_dimensions": [],
+      "evidence_outcome": "PASS",
+      "score": 1.0,
+      "ledger_delta": 1,
+      "node_status": "ASSESSED_PROFICIENT",
+      "mastery_granted": true,
+      "latency_ms": 0.6612220001898095,
+      "zero_llm_invocations": true
+    },
+    "expected": {
+      "status": "ASSESSED",
+      "assessment_passed": true,
+      "overall_level": "N3_COMPETENT",
+      "critical_dimension_failures": [],
+      "insufficient_dimensions": [],
+      "evidence_outcome": "PASS",
+      "score": 1.0,
+      "ledger_delta": 1,
+      "node_status_after": "ASSESSED_PROFICIENT",
+      "mastery_granted": true,
+      "zero_llm_invocations": true,
+      "max_latency_ms": 10.0
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P6-EVID-01",
+    "severity_order": 1,
+    "attack_class": "duplicate_attempt",
+    "threat_vector": "PREFLIGHT_ANTI_REPLAY",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "first_decision": "ADMITTED",
+      "first_outcome": "PASS",
+      "second_decision": "REJECTED",
+      "second_rejection_reason": "DUPLICATE_ASSESSMENT_REPLAY",
+      "intercepted_by": "S5.2.A_GATE_4_PREFLIGHT",
+      "ledger_delta_total": 1,
+      "attempt_cardinality": 1,
+      "hash_chain_status": "VALID",
+      "node_status_after": "ASSESSED_PROFICIENT"
+    },
+    "expected": {
+      "first_decision": "ADMITTED",
+      "first_outcome": "PASS",
+      "second_decision": "REJECTED",
+      "second_rejection_reason": "DUPLICATE_ASSESSMENT_REPLAY",
+      "intercepted_by": "S5.2.A_GATE_4_PREFLIGHT",
+      "ledger_delta_total": 1,
+      "attempt_cardinality": 1,
+      "hash_chain_status": "VALID",
+      "node_status_after": "ASSESSED_PROFICIENT"
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P6-EVID-02",
+    "severity_order": 2,
+    "attack_class": "same_K_same_R",
+    "threat_vector": "IDEMPOTENT_REPLAY",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "first_commit": "SUCCESS",
+      "second_commit_exception": "IdempotentReplayError",
+      "intercepted_by": "S5.2.B_LEDGER_D_K_R",
+      "ledger_delta_total": 1,
+      "attempt_cardinality": 1,
+      "hash_chain_status": "VALID"
+    },
+    "expected": {
+      "first_commit": "SUCCESS",
+      "second_commit_exception": "IdempotentReplayError",
+      "intercepted_by": "S5.2.B_LEDGER_D_K_R",
+      "ledger_delta_total": 1,
+      "attempt_cardinality": 1,
+      "hash_chain_status": "VALID"
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P6-EVID-03",
+    "severity_order": 3,
+    "attack_class": "same_K_different_R",
+    "threat_vector": "INCONSISTENT_REPLAY",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "first_commit": "SUCCESS",
+      "second_commit_exception": "InconsistentReplayError",
+      "intercepted_by": "S5.2.B_LEDGER_D_K_R",
+      "ledger_delta_total": 1,
+      "attempt_cardinality": 1,
+      "hash_chain_status": "VALID"
+    },
+    "expected": {
+      "first_commit": "SUCCESS",
+      "second_commit_exception": "InconsistentReplayError",
+      "intercepted_by": "S5.2.B_LEDGER_D_K_R",
+      "ledger_delta_total": 1,
+      "attempt_cardinality": 1,
+      "hash_chain_status": "VALID"
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P6-EVID-04",
+    "severity_order": 4,
+    "attack_class": "wrong_node",
+    "threat_vector": "SPINE_NODE_MISMATCH",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "decision": "REJECTED",
+      "rejection_reason": "BROKEN_PROVENANCE_CHAIN",
+      "rejection_detail_substring": "Spine curriculum node mismatch.",
+      "ledger_delta": 0,
+      "hash_chain_status": "VALID"
+    },
+    "expected": {
+      "decision": "REJECTED",
+      "rejection_reason": "BROKEN_PROVENANCE_CHAIN",
+      "rejection_detail_substring": "Spine curriculum node mismatch",
+      "ledger_delta": 0,
+      "hash_chain_status": "VALID"
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P6-EVID-05",
+    "severity_order": 5,
+    "attack_class": "wrong_provenance",
+    "threat_vector": "SESSION_INACTIVE",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "decision": "REJECTED",
+      "rejection_reason": "SESSION_INACTIVE_OR_EXPIRED",
+      "ledger_delta": 0,
+      "hash_chain_status": "VALID"
+    },
+    "expected": {
+      "decision": "REJECTED",
+      "rejection_reason": "SESSION_INACTIVE_OR_EXPIRED",
+      "ledger_delta": 0,
+      "hash_chain_status": "VALID"
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P6-EVID-06",
+    "severity_order": 6,
+    "attack_class": "missing_digest",
+    "threat_vector": "CORRUPTED_DIGEST",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "decision": "REJECTED",
+      "rejection_reason": "CORRUPTED_ASSESSMENT_DIGEST",
+      "ledger_delta": 0,
+      "hash_chain_status": "VALID"
+    },
+    "expected": {
+      "decision": "REJECTED",
+      "rejection_reason": "CORRUPTED_ASSESSMENT_DIGEST",
+      "ledger_delta": 0,
+      "hash_chain_status": "VALID"
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P6-EVID-07",
+    "severity_order": 7,
+    "attack_class": "tampered_evidence",
+    "threat_vector": "HASH_CHAIN_TAMPER",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "expected_integrity_status": "HASH_CHAIN_BROKEN",
+      "expected_detection_method": "ledger.verify_integrity()",
+      "tamper_detected": true
+    },
+    "expected": {
+      "expected_integrity_status": "HASH_CHAIN_BROKEN",
+      "expected_detection_method": "ledger.verify_integrity()",
+      "tamper_detected": true
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P6-EVID-08",
+    "severity_order": 8,
+    "attack_class": "cross_student_evidence",
+    "threat_vector": "EPISTEMIC_ISOLATION",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "student_a_status": "AVAILABLE",
+      "student_b_status": "ASSESSED_PROFICIENT",
+      "cross_leakage_detected": false,
+      "hash_chain_status": "VALID"
+    },
+    "expected": {
+      "student_a_status": "AVAILABLE",
+      "student_b_status": "ASSESSED_PROFICIENT",
+      "cross_leakage_detected": false,
+      "hash_chain_status": "VALID"
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P6-EVID-09",
+    "severity_order": 9,
+    "attack_class": "concurrent_duplicate",
+    "threat_vector": "RACE_CONDITION_DUP",
+    "classification": "CONFIRMED_PASS",
+    "observed": {
+      "committed_threads_count": 1,
+      "idempotent_replay_threads_count": 1,
+      "deadlock_detected": false,
+      "attempt_cardinality": 1,
+      "total_ledger_entries": 1,
+      "hash_chain_status": "VALID"
+    },
+    "expected": {
+      "committed_threads_count": 1,
+      "idempotent_replay_threads_count": 1,
+      "deadlock_detected": false,
+      "attempt_cardinality": 1,
+      "total_ledger_entries": 1,
+      "hash_chain_status": "VALID"
+    },
+    "nuclear_invariant_holds": true,
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-01",
+    "severity_order": 1,
+    "attack_class": "mastered_without_evidence",
+    "threat_vector": "ZERO_EVIDENCE_MASTERY_CLAIM",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "sec01_status": "AVAILABLE",
+      "sec02_status": "AVAILABLE",
+      "sec03_status": "LOCKED",
+      "sec05_status": "LOCKED",
+      "sec01_evidence_count": 0,
+      "sec05_evidence_count": 0,
+      "any_proficient": false
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-02",
+    "severity_order": 2,
+    "attack_class": "mastered_from_execution_only",
+    "threat_vector": "EXECUTION_SUCCESS_NOT_MASTERY",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "node_status": "IN_PROGRESS",
+      "evaluation_verdict": "UNSATISFIED",
+      "total_evidence_count": 1,
+      "is_proficient": false
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-03",
+    "severity_order": 3,
+    "attack_class": "unlocked_without_prerequisites",
+    "threat_vector": "PREREQUISITE_BYPASS_ATTEMPT",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "node_status": "LOCKED",
+      "evaluation_verdict": "SATISFIED",
+      "unfulfilled_hard_prerequisites": [
+        "SEC-03-MEM-MGMT"
+      ],
+      "is_unlocked": false
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-04",
+    "severity_order": 4,
+    "attack_class": "state_advance_duplicate",
+    "threat_vector": "REPLAY_EVIDENCE_INFLATION",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "first_submission_decision": "ADMITTED",
+      "second_submission_decision": "REJECTED",
+      "second_rejection_reason": "DUPLICATE_ASSESSMENT_REPLAY",
+      "ledger_delta_from_duplicate": 0,
+      "state_delta_from_duplicate": false
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-05",
+    "severity_order": 5,
+    "attack_class": "state_advance_invalid",
+    "threat_vector": "SUBTHRESHOLD_EVIDENCE_REJECTION",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "node_status": "IN_PROGRESS",
+      "evaluation_verdict": "UNSATISFIED",
+      "missing_requirements_count": 1,
+      "is_proficient": false
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-06",
+    "severity_order": 6,
+    "attack_class": "state_mutation_ui_event",
+    "threat_vector": "EXTERNAL_UI_IN_PLACE_MUTATION",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "direct_mutation_exception": "ValidationError",
+      "tampered_hash_exception": "StateHashMismatchError",
+      "zero_external_authority": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-07",
+    "severity_order": 7,
+    "attack_class": "state_mutation_llm_output",
+    "threat_vector": "LLM_HALLUCINATION_OR_AI_OVERRIDE",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "ai_override_exception": "SovereignExemptionViolationError",
+      "unaudited_claim_ignored": true,
+      "node_status_after_hallucination": "AVAILABLE"
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-08-A",
+    "severity_order": 8,
+    "attack_class": "baseline_positive_control",
+    "threat_vector": "CANONICAL_STATE_DERIVATION",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "target_node_status": "ASSESSED_PROFICIENT",
+      "target_node_verdict": "SATISFIED",
+      "downstream_sec04_status": "AVAILABLE",
+      "downstream_sec06_status": "LOCKED",
+      "pure_function_identical": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-08-B",
+    "severity_order": 9,
+    "attack_class": "order_independence_verification",
+    "threat_vector": "REVERSE_LEDGER_INSERTION_ORDER",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "all_node_statuses_match": true,
+      "all_evaluation_verdicts_match": true,
+      "all_unfulfilled_prereqs_match": true,
+      "all_evidence_counts_match": true,
+      "epistemic_invariance_holds": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P7-STAT-09",
+    "severity_order": 10,
+    "attack_class": "temporal_cutoff_enforcement",
+    "threat_vector": "FUTURE_EVIDENCE_LEAKAGE",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "past_node_status_at_T1": "ASSESSED_PROFICIENT",
+      "future_node_status_at_T1": "LOCKED",
+      "future_node_evidence_count_at_T1": 0,
+      "future_node_status_at_T2": "ASSESSED_PROFICIENT",
+      "temporal_cutoff_respected": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P8-TIME-01",
+    "severity_order": 1,
+    "attack_class": "zero_timeout",
+    "threat_vector": "BOUNDARY_ZERO_TIMEOUT",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "contract_validation_error": "ValidationError",
+      "process_timed_out": true,
+      "termination_reason": "TIMEOUT",
+      "fail_closed": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P8-TIME-02",
+    "severity_order": 2,
+    "attack_class": "negative_timeout",
+    "threat_vector": "BOUNDARY_NEGATIVE_TIMEOUT",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "contract_validation_error": "ValidationError",
+      "process_timed_out": true,
+      "termination_reason": "TIMEOUT",
+      "fail_closed": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P8-TIME-03",
+    "severity_order": 3,
+    "attack_class": "extreme_short_timeout",
+    "threat_vector": "MICRO_TIMEOUT_PREMATURE_KILL",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "expected_termination": "SIGTERM_THEN_SIGKILL",
+      "expected_orphan_processes": 0,
+      "expected_temp_files_cleaned": true,
+      "expected_exit_code": -15,
+      "status": "TIMED_OUT",
+      "timeout_enforced": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P8-TIME-04",
+    "severity_order": 4,
+    "attack_class": "extreme_long_timeout",
+    "threat_vector": "INFINITE_EXECUTION_EXHAUSTION",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "contract_validation_error": "ValidationError",
+      "max_allowed_timeout": 300,
+      "policy_rejected": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P8-TIME-05",
+    "severity_order": 5,
+    "attack_class": "future_timestamp_evidence",
+    "threat_vector": "FUTURE_EVIDENCE_INJECTION",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "record_in_ledger_now": false,
+      "record_in_ledger_future": true,
+      "current_node_status": "AVAILABLE",
+      "current_evidence_count": 0,
+      "future_node_status": "ASSESSED_PROFICIENT",
+      "temporal_leakage_prevented": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P8-TIME-06",
+    "severity_order": 6,
+    "attack_class": "ancient_timestamp_evidence",
+    "threat_vector": "HISTORICAL_EPOCH_PERSISTENCE",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "ledger_admission_success": true,
+      "node_status_as_of_now": "ASSESSED_PROFICIENT",
+      "total_evidence_count": 1,
+      "ttl_expiration_absent": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P8-TIME-07",
+    "severity_order": 7,
+    "attack_class": "as_of_time_before_first_evidence",
+    "threat_vector": "PRE_GENESIS_STATE_PROJECTION",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "sec01_status": "AVAILABLE",
+      "sec02_status": "AVAILABLE",
+      "sec03_status": "LOCKED",
+      "sec05_status": "LOCKED",
+      "total_evidence_count": 0,
+      "any_proficient": false
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P8-TIME-08",
+    "severity_order": 8,
+    "attack_class": "as_of_time_after_last_evidence",
+    "threat_vector": "POST_TERMINAL_STATE_PROJECTION",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "sec05_status": "ASSESSED_PROFICIENT",
+      "sec05_verdict": "SATISFIED",
+      "all_node_statuses_match_current": true,
+      "all_evaluation_verdicts_match_current": true,
+      "pure_function_deterministic": true
+    },
+    "mismatches": []
+  },
+  {
+    "case_id": "P8-TIME-09",
+    "severity_order": 9,
+    "attack_class": "concurrent_timeout_race",
+    "threat_vector": "MULTI_THREAD_TIMEOUT_RACE",
+    "classification": "CONFIRMED_PASS",
+    "passed": true,
+    "observed_summary": {
+      "thread_count": 5,
+      "thread_timeouts": [
+        1.0,
+        2.0,
+        3.0,
+        5.0,
+        10.0
+      ],
+      "expected_admitted_count": 1,
+      "expected_rejected_count": 4,
+      "expected_deadlocks": 0,
+      "expected_join_timeout": 5.0,
+      "hash_chain_valid": true,
+      "sqlite_cardinality": 1
+    },
+    "mismatches": []
+  }
+]

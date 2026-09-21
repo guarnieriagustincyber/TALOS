@@ -1,0 +1,121 @@
+{
+  "experiment_id": "GOLDEN-STUDY-V0-E4-A",
+  "scenario_id": "E4-A",
+  "condition": "Completely foreign evidence (race conditions vs process states)",
+  "timestamp_utc": "2026-09-05T04:19:59.190469+00:00",
+  "query": {
+    "oracle_id": "oracle-def-01",
+    "text": "¿Cuáles son los tres estados fundamentales en los que puede encontrarse un proceso?",
+    "notebook_id": "fadena-so",
+    "canonical_oracle_chunks": [
+      "so:proc:56",
+      "so:proc:57"
+    ]
+  },
+  "retrieval_candidates": {
+    "mode": "adversarial_controlled",
+    "candidate_ids": [
+      "so:conc:31"
+    ],
+    "candidate_count": 1,
+    "candidates": [
+      {
+        "chunk_id": "so:conc:31",
+        "document_id": "doc-so-concurrencia",
+        "source_id": "src-so-concurrencia",
+        "rank": 1,
+        "score": 0.95,
+        "page_start": null,
+        "page_end": null,
+        "content_sha256": "cce639c8326fc926f2c69edf0878c0306ca2a3226d9e50fea39035c9d996baa4",
+        "content_preview": "2.3.1 Condiciones de carrera \nEn algunos sistemas operativos, los procesos que trabajan en conjunto pueden compartir cierto es-\npacio de alm..."
+      }
+    ]
+  },
+  "grounding_evaluation": {
+    "grounding_decision": "UNASSESSED_EVIDENCE",
+    "is_supported": false,
+    "abstention_required": false,
+    "abstention_reason": null,
+    "has_full_provenance": true,
+    "allowed_claims": [
+      "CITE_EVIDENCE",
+      "QUALIFIED_EXPLANATION",
+      "CONTEXTUAL_EXPLANATION"
+    ],
+    "unsupported_claims": [
+      "DIRECT_FACTUAL_ASSERTION",
+      "CANONICAL_DEFINITION"
+    ],
+    "canonical_definition_authorized": false,
+    "direct_factual_assertion_authorized": false
+  },
+  "context_packaging": {
+    "total_characters": 952,
+    "packaged_units_count": 1,
+    "manifest_keys": [
+      "E1"
+    ],
+    "was_truncated": false,
+    "formatted_block_preview": "=== POLÍTICA EPISTÉMICA DE RESPUESTA (CONTRATO OBLIGATORIO) ===\n1. Basa tu respuesta EXCLUSIVAMENTE en las Evidencias Documentadas.\n2. Cita obligatoriamente la etiqueta [E#] al realizar cada afirmació"
+  },
+  "generation_gate": {
+    "gate_action": "HALT_GENERATION_UNSUPPORTED",
+    "generation_invoked": false,
+    "gate_reason": "GroundingDecision is 'UNASSESSED_EVIDENCE' (required: 'SUPPORTED'). Deterministic generation gate strictly aborts pipeline prior to LLM invocation.",
+    "provider_call_count": 0,
+    "tokens_used": 0
+  },
+  "invariants": {
+    "student_state_before_hash": "9fc5f63baff0b4673a1a361e613454c3a503adb3a7b0e7bd6a9139f448dce440",
+    "student_state_after_hash": "9fc5f63baff0b4673a1a361e613454c3a503adb3a7b0e7bd6a9139f448dce440",
+    "student_state_mutated": false,
+    "ledger_tip_before_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "ledger_tip_after_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "ledger_mutated": false,
+    "roadmap_before_hash": "ca72dc0ba6e4222f363f3550ea297efd7745334cbf313ed22a144e08289af103",
+    "roadmap_after_hash": "ca72dc0ba6e4222f363f3550ea297efd7745334cbf313ed22a144e08289af103",
+    "roadmap_mutated": false,
+    "invariants_satisfied": true
+  },
+  "live_retrieval_baseline": {
+    "strategy": "hybrid_rrf",
+    "top_candidates": [
+      {
+        "rank": 1,
+        "chunk_id": "so:proc:56",
+        "score": 0.0164,
+        "retrieval_method": "hybrid_rrf"
+      },
+      {
+        "rank": 2,
+        "chunk_id": "so:proc:58",
+        "score": 0.0161,
+        "retrieval_method": "hybrid_rrf"
+      },
+      {
+        "rank": 3,
+        "chunk_id": "so:proc:52",
+        "score": 0.0159,
+        "retrieval_method": "hybrid_rrf"
+      },
+      {
+        "rank": 4,
+        "chunk_id": "so:proc:57",
+        "score": 0.0156,
+        "retrieval_method": "hybrid_rrf"
+      },
+      {
+        "rank": 5,
+        "chunk_id": "so:conc:30",
+        "score": 0.0154,
+        "retrieval_method": "hybrid_rrf"
+      }
+    ],
+    "canonical_present_at_rank_1": true
+  },
+  "verdict": {
+    "status": "PASS",
+    "epistemological_boundary_verified": true
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "frozen_at": "2026-09-13T00:00:00Z",
+  "bridges": [
+    {
+      "bridge_id": "B-PROG-SO-MEM",
+      "source_notebook": "fadena-prog",
+      "target_notebook": "fadena-so",
+      "topic_allowlist": [
+        "punteros",
+        "memoria_dinamica",
+        "stack_heap",
+        "buffer_overflow"
+      ],
+      "direction": "bidirectional",
+      "ttl_days": 90,
+      "created_at": "2026-09-13T00:00:00Z",
+      "reviewer": "agustin",
+      "provenance_tag": "[E#:bridge:B-PROG-SO-MEM]"
+    },
+    {
+      "bridge_id": "B-SO-SEC-CONCURR",
+      "source_notebook": "fadena-so",
+      "target_notebook": "NB-CYBERSECURITY-V1",
+      "topic_allowlist": [
+        "concurrencia",
+        "race_conditions",
+        "semaforos",
+        "sockets_tcp",
+        "buffer_overflow"
+      ],
+      "direction": "bidirectional",
+      "ttl_days": 90,
+      "created_at": "2026-09-13T00:00:00Z",
+      "reviewer": "agustin",
+      "provenance_tag": "[E#:bridge:B-SO-SEC-CONCURR]"
+    },
+    {
+      "bridge_id": "B-PROG-SEC-CRYPTO",
+      "source_notebook": "fadena-prog",
+      "target_notebook": "NB-CYBERSECURITY-V1",
+      "topic_allowlist": [
+        "arboles",
+        "hashing_sha256",
+        "archivos_binarios",
+        "complejidad"
+      ],
+      "direction": "bidirectional",
+      "ttl_days": 90,
+      "created_at": "2026-09-13T00:00:00Z",
+      "reviewer": "agustin",
+      "provenance_tag": "[E#:bridge:B-PROG-SEC-CRYPTO]"
+    }
+  ],
+  "allowlist_sha256": "7532d7ae1abcc6b3207693a5aaeac88f3b005bdb2a153351f1d0e75ab6f9d98d"
+}

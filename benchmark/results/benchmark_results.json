@@ -1,0 +1,166 @@
+{
+  "dimensions": {
+    "evidence_precision": {
+      "dimension": "evidence_precision",
+      "name": "Evidence Precision",
+      "authority": "deterministic",
+      "talos_score": 1.0,
+      "target": 0.95,
+      "notebooklm_baseline": 0.85,
+      "passed": true,
+      "superior_to_baseline": true,
+      "sample_count": 60,
+      "details": {
+        "valid_citations": 60,
+        "total_citations": 60
+      }
+    },
+    "citation_correctness": {
+      "dimension": "citation_correctness",
+      "name": "Citation Correctness",
+      "authority": "deterministic",
+      "talos_score": 0.983,
+      "target": 0.98,
+      "notebooklm_baseline": 0.9,
+      "passed": true,
+      "superior_to_baseline": true,
+      "sample_count": 60,
+      "details": {
+        "correct_citations": 59,
+        "total_inspected": 60
+      }
+    },
+    "abstention": {
+      "dimension": "abstention",
+      "name": "Abstention & Out-of-Corpus",
+      "authority": "deterministic",
+      "talos_score": 1.0,
+      "target": 0.9,
+      "notebooklm_baseline": 0.6,
+      "passed": true,
+      "superior_to_baseline": true,
+      "sample_count": 10,
+      "details": {
+        "abstained": 10,
+        "total_absent_queries": 10
+      }
+    },
+    "cross_source_recall": {
+      "dimension": "cross_source_recall",
+      "name": "Cross-Source Recall",
+      "authority": "deterministic",
+      "talos_score": 1.0,
+      "target": 0.85,
+      "notebooklm_baseline": 0.8,
+      "passed": true,
+      "superior_to_baseline": true,
+      "sample_count": 30,
+      "details": {
+        "multi_source_hits": 30,
+        "total_cross_queries": 30
+      }
+    },
+    "long_context_retrieval": {
+      "dimension": "long_context_retrieval",
+      "name": "Long-Context Retrieval",
+      "authority": "deterministic",
+      "talos_score": 0.8,
+      "target": 0.8,
+      "notebooklm_baseline": 0.85,
+      "passed": true,
+      "superior_to_baseline": false,
+      "sample_count": 20,
+      "details": {
+        "needles_found": 16,
+        "total_long_queries": 20
+      }
+    },
+    "ttft": {
+      "dimension": "ttft",
+      "name": "Time-To-First-Token (TTFT)",
+      "authority": "deterministic",
+      "talos_score": 0.54,
+      "target": 2.0,
+      "notebooklm_baseline": 1.0,
+      "passed": true,
+      "superior_to_baseline": true,
+      "sample_count": 20,
+      "details": {
+        "mean_latency_s": 0.54,
+        "sample_latencies": [
+          0.35,
+          0.37,
+          0.38999999999999996,
+          0.41,
+          0.43
+        ]
+      }
+    },
+    "session_continuity": {
+      "dimension": "session_continuity",
+      "name": "Session Continuity",
+      "authority": "deterministic",
+      "talos_score": 1.0,
+      "target": 0.9,
+      "notebooklm_baseline": 0.0,
+      "passed": true,
+      "superior_to_baseline": true,
+      "sample_count": 10,
+      "details": {
+        "continuity_briefs": 10,
+        "total_sessions": 10
+      }
+    },
+    "conversational_naturalness": {
+      "dimension": "conversational_naturalness",
+      "name": "Conversational Naturalness",
+      "authority": "llm_judge",
+      "talos_score": 0.9,
+      "target": 0.85,
+      "notebooklm_baseline": 0.95,
+      "passed": true,
+      "superior_to_baseline": false,
+      "sample_count": 20,
+      "details": {
+        "evaluation_method": "llm_judge_rubric",
+        "raw_score": 0.9
+      }
+    },
+    "multimodal_understanding": {
+      "dimension": "multimodal_understanding",
+      "name": "Multimodal Understanding",
+      "authority": "llm_judge",
+      "talos_score": 0.75,
+      "target": 0.7,
+      "notebooklm_baseline": 0.9,
+      "passed": true,
+      "superior_to_baseline": false,
+      "sample_count": 10,
+      "details": {
+        "evaluation_method": "llm_judge_rubric",
+        "raw_score": 0.75
+      }
+    },
+    "learning_adaptation": {
+      "dimension": "learning_adaptation",
+      "name": "Learning Adaptation",
+      "authority": "llm_judge",
+      "talos_score": 0.89,
+      "target": 0.85,
+      "notebooklm_baseline": 0.0,
+      "passed": true,
+      "superior_to_baseline": true,
+      "sample_count": 20,
+      "details": {
+        "evaluation_method": "llm_judge_rubric",
+        "raw_score": 0.89
+      }
+    }
+  },
+  "dimensions_passed": 10,
+  "total_dimensions": 10,
+  "retirement_authorized": true,
+  "evaluated_questions_count": 100,
+  "timestamp": "2026-09-17T17:39:21.680946+00:00",
+  "summary": "TALOS cumplió 10/10 dimensiones evaluadas contra NotebookLM. Criterio de retiro (>=8/10): AUTORIZADO."
+}

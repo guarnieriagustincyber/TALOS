@@ -1,0 +1,242 @@
+{
+  "audit_name": "System Survival Audit 0 (SSA-0)",
+  "modality": "READ-ONLY / RED TEAM / NO PATCH",
+  "master_survival_verdict": "PROVISIONALLY_VALID (SURVIVES_WITH_FINDINGS)",
+  "global_closure_status": "NOT_YET_RATIFIED",
+  "baseline_provenance": {
+    "historical_certification_baseline": "e3fc4422665a778bdcce302f2a760c3e5c82a056",
+    "historical_context": "S4.4 V0 explanation grounding certified baseline (1271 tests pass).",
+    "ssa0_input_baseline": "e3fc4422665a778bdcce302f2a760c3e5c82a056",
+    "tree_hash": "07dfd330bdcb04d909325f9f0fcac8dd68ffad3a",
+    "source_manifest_sha256": "d7697ba96674175fe5183f2c968d08ae196c8c9a39c353674e594e84f4649c8b",
+    "total_source_files": 118,
+    "baseline_status": "BASELINE_MATCH",
+    "trust_root_status": "TRUST_ROOT_UNVERIFIED",
+    "src_diff_empty": true,
+    "source_modifications_count": 0,
+    "epistemic_note": "BASELINE_MATCH confirms repository matches reference baseline string. TRUST_ROOT_UNVERIFIED explicitly notes that internal software hashing does not constitute an immutable hardware trust root."
+  },
+  "test_execution_matrix": {
+    "tests_collectable": 1302,
+    "tests_executed": 1302,
+    "passed": 1299,
+    "xfailed_expected": 3,
+    "failed_unexpected": 0,
+    "skipped": 0,
+    "not_executed": 0,
+    "execution_duration_seconds": 67.93,
+    "suite_breakdown": {
+      "baseline_suite": {
+        "collected": 1271,
+        "executed": 1271,
+        "passed": 1271,
+        "failed": 0
+      },
+      "ssa0_survival_suite": {
+        "collected": 31,
+        "executed": 31,
+        "passed": 28,
+        "xfailed": 3,
+        "failed": 0
+      }
+    }
+  },
+  "original_invariants_matrix": {
+    "INV-01": {
+      "original_id": "INV-01",
+      "original_name": "NO UNCONTAINED STATE TRANSITION",
+      "scope": "State Engine canonical projection, topological DAG progression",
+      "test_coverage": [
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l3_shortcut_1_observation_to_student_state_forbidden",
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l3_shortcut_3_assessment_to_student_state_forbidden",
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l3_shortcut_7_locked_node_cannot_progress_despite_pass_evidence",
+        "tests/survival/test_l6_chaos_and_external_oracle.py::test_l6_chaos_curriculum_differential_oracle_validation",
+        "scripts/survival/verify_multi_seed_chaos.py (1000 events / 20 seeds)"
+      ],
+      "status": "CONTAINED",
+      "classification": "CONFIRMED_PASS"
+    },
+    "INV-02": {
+      "original_id": "INV-02",
+      "original_name": "NO UNAUTHORIZED EVIDENCE",
+      "scope": "Untrusted or corrupted artifacts cannot produce valid EvidenceRecord; Gate 1 digest check",
+      "test_coverage": [
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l3_shortcut_6_untrusted_artifact_cannot_be_evidence",
+        "tests/survival/test_l1_ast_and_immutability.py::test_l1_3_ontological_authority_substitution_usurped_authority_id"
+      ],
+      "status": "CONTAINED",
+      "classification": "CONFIRMED_PASS"
+    },
+    "INV-03": {
+      "original_id": "INV-03",
+      "original_name": "NO CROSS-STUDENT CONTAMINATION",
+      "scope": "Multi-tenant student boundary in session provenance and state derivation",
+      "test_coverage": [
+        "tests/survival/test_l4_hostile_e2e_matrix.py::test_l4_1_student_identity_mismatch_in_session_provenance",
+        "tests/survival/test_l4_hostile_e2e_matrix.py::test_l4_1_cross_student_evidence_contamination_in_state_derivation"
+      ],
+      "status": "CONTAINED",
+      "classification": "CONFIRMED_PASS"
+    },
+    "INV-04": {
+      "original_id": "INV-04",
+      "original_name": "NO CURRICULAR BYPASS",
+      "scope": "Locked node cannot progress despite 100% PASS evidence if prerequisites unmet",
+      "test_coverage": [
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l3_shortcut_7_locked_node_cannot_progress_despite_pass_evidence"
+      ],
+      "status": "CONTAINED",
+      "classification": "CONFIRMED_PASS"
+    },
+    "INV-05": {
+      "original_id": "INV-05",
+      "original_name": "NO REPLAY DUPLICATION",
+      "scope": "Duplicate submissions of identical identity tuple must satisfy cardinality(persisted_semantic_evidence) == 1",
+      "test_coverage": [
+        "tests/survival/test_l5_concurrency_and_crash.py::test_l5_1_sequential_replay_race_converges_to_single_persisted_evidence",
+        "tests/survival/test_l5_concurrency_and_crash.py::test_l5_1_concurrency_replay_race_disaggregation[10]",
+        "tests/survival/test_l5_concurrency_and_crash.py::test_l5_1_concurrency_replay_race_disaggregation[50]",
+        "tests/survival/test_l5_concurrency_and_crash.py::test_l5_1_concurrency_replay_race_disaggregation[100]",
+        "scripts/survival/test_concurrency_scope.py (Scopes A, B, C)"
+      ],
+      "status": "BROKEN_CONCURRENT / CONTAINED_SEQUENTIAL",
+      "classification": "CONFIRMED_DEFECT",
+      "defect_id": "FINDING-SSA0-01"
+    },
+    "INV-06": {
+      "original_id": "INV-06",
+      "original_name": "NO UNKNOWN -> FAIL COLLAPSE",
+      "scope": "Truncation or omission must map to INSUFFICIENT_OBSERVATION -> INCONCLUSIVE, never collapsing to FAIL",
+      "test_coverage": [
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l2_1_truncation_preserves_insufficient_observation_without_collapse",
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l2_2_artifact_omitted_vs_verified_absence_boundary",
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l3_shortcut_5_inconclusive_never_triggers_regression_or_fail"
+      ],
+      "status": "CONTAINED",
+      "classification": "CONFIRMED_PASS"
+    },
+    "INV-07": {
+      "original_id": "INV-07",
+      "original_name": "NO GENERATED -> EVIDENCE LAUNDERING",
+      "scope": "LLM generated text cannot be directly admitted as EvidenceRecord bypassing verifier/audit",
+      "test_coverage": [
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l3_shortcut_8_generated_text_cannot_be_evidence"
+      ],
+      "status": "CONTAINED",
+      "classification": "CONFIRMED_PASS"
+    },
+    "INV-08": {
+      "original_id": "INV-08",
+      "original_name": "NO AUDIT / CONTEXT DIVERGENCE",
+      "scope": "Specification tampering (hash vs body mismatch) rejected at Gate 1; temporal session boundary enforced at Gate 3",
+      "test_coverage": [
+        "tests/survival/test_l4_hostile_e2e_matrix.py::test_l4_4_hash_substitution_task_specification_mismatch",
+        "tests/survival/test_l4_hostile_e2e_matrix.py::test_l4_4_hash_substitution_rubric_specification_mismatch",
+        "tests/survival/test_l4_hostile_e2e_matrix.py::test_l4_2_temporal_confusion_predating_session_start",
+        "tests/survival/test_l4_hostile_e2e_matrix.py::test_l4_2_temporal_confusion_postdating_session_expiration",
+        "tests/survival/test_l4_hostile_e2e_matrix.py::test_l4_2_temporal_confusion_inactive_session"
+      ],
+      "status": "CONTAINED",
+      "classification": "CONFIRMED_PASS"
+    },
+    "INV-09": {
+      "original_id": "INV-09",
+      "original_name": "NO CRASH-INDUCED PHANTOM STATE",
+      "scope": "Crash during ingestion/commit leaves clean uncommitted or deterministically recoverable ledger state",
+      "test_coverage": [
+        "tests/survival/test_l5_concurrency_and_crash.py::test_l5_2_crash_before_ledger_leaves_clean_uncommitted_state",
+        "tests/survival/test_l5_concurrency_and_crash.py::test_l5_2_crash_after_ledger_before_state_projection_deterministic_recovery"
+      ],
+      "status": "CONTAINED",
+      "classification": "CONFIRMED_PASS"
+    },
+    "INV-10": {
+      "original_id": "INV-10",
+      "original_name": "NO UNAUTHORIZED AUTHORITY PATH",
+      "scope": "Observation cannot masquerade as Assessment; only ingestion engine instantiates EvidenceRecord",
+      "test_coverage": [
+        "tests/survival/test_l1_ast_and_immutability.py::test_l1_1_ast_evidence_record_instantiation_sovereignty",
+        "tests/survival/test_l1_ast_and_immutability.py::test_l1_3_ontological_authority_substitution_observation_as_assessment",
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l3_shortcut_2_observation_to_evidence_record_forbidden",
+        "tests/survival/test_l2_l3_epistemic_invariants.py::test_l3_shortcut_4_rejected_decision_cannot_produce_evidence_record"
+      ],
+      "status": "CONTAINED",
+      "classification": "CONFIRMED_PASS",
+      "epistemic_limitation": "AST analysis proves absence of static constructor syntax. Dynamic reflection (getattr), indirect factory aliases, or monkeypatching require runtime instrumentation."
+    }
+  },
+  "concurrency_scope_characterization": {
+    "scope_a_same_instance_multithread": {
+      "mechanism": "TOCTOU race window between line 193 (_seen_record_ids check) and line 251 (_seen_record_ids.add). GIL released during file write/os.fsync.",
+      "results": {
+        "10_threads": {"admitted": 10, "persisted": 10, "persisted_cardinality_violated": true},
+        "50_threads": {"admitted": 50, "persisted": 50, "persisted_cardinality_violated": true},
+        "100_threads": {"admitted": 36, "persisted": 36, "persisted_cardinality_violated": true}
+      }
+    },
+    "scope_b_separate_instances_same_process": {
+      "mechanism": "In-memory deduplication set (_seen_record_ids) is instance-local. Instances initialized prior to commit append concurrently with entry_index=0.",
+      "results": {
+        "instance_1_committed": true,
+        "instance_2_committed": true,
+        "raw_lines_in_file": 2,
+        "persisted_cardinality_violated": true,
+        "post_race_reload_status": "CORRUPTED (LedgerIntegrityViolationError: Non-sequential entry_index 0 at line 2)"
+      }
+    },
+    "scope_c_separate_os_processes": {
+      "mechanism": "Independent OS processes have separate address spaces and no inter-process locking (no fcntl.flock). All workers append concurrently.",
+      "results": {
+        "4_workers_committed": 4,
+        "raw_lines_in_file": 4,
+        "persisted_cardinality_violated": true,
+        "post_race_reload_status": "CORRUPTED (LedgerIntegrityViolationError: Non-sequential entry_index 0 at line 2)"
+      }
+    },
+    "architectural_perimeter": "CONFIRMED_ACROSS_ALL_THREE_SCOPES (threads, instances, processes)"
+  },
+  "impact_propagation_shallow_immutability": {
+    "component": "EvidenceRecord.metadata and AdmissionTrace.details",
+    "in_place_mutation_succeeds": true,
+    "impact_on_ledger_integrity": "DETECTED (Ledger.verify_integrity() fails immediately with HASH_CHAIN_BROKEN: declared entry_hash != computed entry_hash)",
+    "impact_on_disk_file": "NONE (file is serialized during append_record; post-hoc memory mutation does not alter disk bytes)",
+    "impact_on_student_progression": "NONE (policy_engine criteria evaluate first-class fields: outcome, score, evidence_type, actor_type; metadata is not evaluated for progression)",
+    "classification": "DESIGN_GAP",
+    "epistemic_verdict": "Shallow immutability leak confirmed. Impact is contained to in-memory hash divergence; does NOT enable forging progression."
+  },
+  "unverified_surfaces_catalog": [
+    {
+      "surface": "Multi-process coordination & locking",
+      "status": "UNVERIFIED",
+      "reason": "Absence of OS file locks (fcntl.flock) demonstrated to corrupt ledger; multi-process safe ledger implementation not yet architected or verified."
+    },
+    {
+      "surface": "Physical disk torn writes / power loss during fsync",
+      "status": "UNVERIFIED",
+      "reason": "Simulated crash at logical phases tested; physical bitrot or mid-fsync byte truncation was not tested with block-level fault injection."
+    },
+    {
+      "surface": "Real SIGKILL / OS abnormal process termination recovery",
+      "status": "UNVERIFIED",
+      "reason": "Process kill via SIGKILL during active disk write was not executed in sandbox."
+    },
+    {
+      "surface": "Dynamic runtime authority bypass (beyond AST)",
+      "status": "UNVERIFIED",
+      "reason": "AST confirmed zero static instantiations; dynamic reflection (getattr, globals injection) was not audited via sys.settrace."
+    },
+    {
+      "surface": "Filesystem exhaustion / disk full errors (ENOSPC)",
+      "status": "UNVERIFIED",
+      "reason": "Disk full handling during ledger append was not simulated."
+    }
+  ],
+  "student_state_hash_coverage_audit": {
+    "total_authority_fields_tested": 20,
+    "total_fields_tamper_detected": 20,
+    "tamper_detection_coverage_ratio": 1.0,
+    "all_fields_sealed": true,
+    "verdict": "CONFIRMED_SEALED (every authority-bearing and operational field of StudentState and NodeState participates in canonical_state_id; zero fields omitted)"
+  },
+  "concurrency_specification_reference": "docs/06-CONCURRENCY-SPECIFICATION-V1.0.md"
+}

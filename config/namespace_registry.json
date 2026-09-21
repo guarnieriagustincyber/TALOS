@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "frozen_at": "2026-09-13T00:00:00Z",
+  "namespaces": {
+    "E": {
+      "prefix": "[E#]",
+      "origin": "CAL verified/unverified curricular corpus",
+      "default_trust": "verified",
+      "allowed_claims": [
+        "curricular",
+        "conceptual",
+        "mathematical"
+      ],
+      "can_promote_to": null,
+      "rules": "Curricular evidence base. Unverified only if low OCR / degraded."
+    },
+    "TF": {
+      "prefix": "[TF#]",
+      "origin": "Threat Intelligence feeds (VirusTotal, OTX, Abuse.ch)",
+      "default_trust": "unverified",
+      "allowed_claims": [
+        "threat_intel",
+        "ioc",
+        "vulnerability"
+      ],
+      "can_promote_to": "verified_human",
+      "promotion_requirements": [
+        "cross_check_min_2_feeds",
+        "human_review_approval"
+      ],
+      "ttl_defaults_hours": {
+        "urlhaus": 6,
+        "threatfox": 6,
+        "otx": 24,
+        "virustotal": 12
+      },
+      "rules": "NEVER migrates to [E#]. Curricular claims supported ONLY by [TF#] are strictly REJECTED_UNSUPPORTED even if verified_human."
+    },
+    "LAB": {
+      "prefix": "[LAB#]",
+      "origin": "Deterministic local lab graders (Juice Shop, VAmPI)",
+      "default_trust": "verified",
+      "allowed_claims": [
+        "lab_competency",
+        "exercise_completion"
+      ],
+      "can_promote_to": null,
+      "rules": "Exact deterministic challenge grader output only. Zero LLM dialogue updates."
+    }
+  },
+  "registry_sha256": "b0eed45859f686449cd150bfcd8b27016eb1e78397311ce42e9661afe98ba070"
+}

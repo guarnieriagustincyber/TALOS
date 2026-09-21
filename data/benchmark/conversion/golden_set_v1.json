@@ -1,0 +1,1307 @@
+[
+  {
+    "doc_id": "doc_table_01",
+    "format": "pdf",
+    "category": "tables_complex",
+    "title": "Comparativa de Algoritmos de Planificación 1",
+    "raw_content": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 1)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.4,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 1)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 5: Planificación de CPU",
+      "section": "5.1 Criterios de Planificación",
+      "page_start": 185,
+      "page_end": 189
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.94
+  },
+  {
+    "doc_id": "doc_table_02",
+    "format": "pdf",
+    "category": "tables_complex",
+    "title": "Comparativa de Algoritmos de Planificación 2",
+    "raw_content": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 2)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.4,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 2)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 5: Planificación de CPU",
+      "section": "5.2 Criterios de Planificación",
+      "page_start": 190,
+      "page_end": 194
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.94
+  },
+  {
+    "doc_id": "doc_table_03",
+    "format": "pdf",
+    "category": "tables_complex",
+    "title": "Comparativa de Algoritmos de Planificación 3",
+    "raw_content": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 3)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.4,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 3)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 5: Planificación de CPU",
+      "section": "5.3 Criterios de Planificación",
+      "page_start": 195,
+      "page_end": 199
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.94
+  },
+  {
+    "doc_id": "doc_table_04",
+    "format": "pdf",
+    "category": "tables_complex",
+    "title": "Comparativa de Algoritmos de Planificación 4",
+    "raw_content": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 4)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.4,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 4)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 5: Planificación de CPU",
+      "section": "5.4 Criterios de Planificación",
+      "page_start": 200,
+      "page_end": 204
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.94
+  },
+  {
+    "doc_id": "doc_table_05",
+    "format": "pdf",
+    "category": "tables_complex",
+    "title": "Comparativa de Algoritmos de Planificación 5",
+    "raw_content": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 5)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.4,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Planificación de Procesos: Comparativa de Algoritmos (Parte 5)\n\nEn sistemas multiprogramados, la elección del algoritmo de planificación determina el rendimiento global.\n\n| Algoritmo | Tiempo Espera Promedio (ms) | Desalojo (Preemptive) | Complejidad | Overhead |\n| :--- | :---: | :---: | :---: | :--- |\n| FCFS | 45.2 | No | O(1) | Mínimo |\n| SJF | 22.8 | No | O(n log n) | Moderado |\n| SRTF | 18.4 | Sí | O(n log n) | Alto |\n| Round Robin | 27.5 | Sí | O(1) | Moderado |\n| Priority Queue | 31.0 | Sí | O(log n) | Moderado |\n\nLa tabla anterior resume las métricas de prueba para una ráfaga uniforme de 100 procesos concurrentes.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 5: Planificación de CPU",
+      "section": "5.5 Criterios de Planificación",
+      "page_start": 205,
+      "page_end": 209
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.94
+  },
+  {
+    "doc_id": "doc_code_01",
+    "format": "pdf",
+    "category": "code_blocks",
+    "title": "Sincronización POSIX 1",
+    "raw_content": "# Implementación de Primitivas de Sincronización en C (1)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.45,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Implementación de Primitivas de Sincronización en C (1)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Tanenbaum - Sistemas Operativos Modernos",
+      "chapter": "Capítulo 2: Procesos y Subprocesos",
+      "section": "2.3 Comunicación entre Procesos",
+      "page_start": 114,
+      "page_end": 117
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.95
+  },
+  {
+    "doc_id": "doc_code_02",
+    "format": "pdf",
+    "category": "code_blocks",
+    "title": "Sincronización POSIX 2",
+    "raw_content": "# Implementación de Primitivas de Sincronización en C (2)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.45,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Implementación de Primitivas de Sincronización en C (2)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Tanenbaum - Sistemas Operativos Modernos",
+      "chapter": "Capítulo 2: Procesos y Subprocesos",
+      "section": "2.4 Comunicación entre Procesos",
+      "page_start": 118,
+      "page_end": 121
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.95
+  },
+  {
+    "doc_id": "doc_code_03",
+    "format": "pdf",
+    "category": "code_blocks",
+    "title": "Sincronización POSIX 3",
+    "raw_content": "# Implementación de Primitivas de Sincronización en C (3)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.45,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Implementación de Primitivas de Sincronización en C (3)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Tanenbaum - Sistemas Operativos Modernos",
+      "chapter": "Capítulo 2: Procesos y Subprocesos",
+      "section": "2.5 Comunicación entre Procesos",
+      "page_start": 122,
+      "page_end": 125
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.95
+  },
+  {
+    "doc_id": "doc_code_04",
+    "format": "pdf",
+    "category": "code_blocks",
+    "title": "Sincronización POSIX 4",
+    "raw_content": "# Implementación de Primitivas de Sincronización en C (4)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.45,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Implementación de Primitivas de Sincronización en C (4)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Tanenbaum - Sistemas Operativos Modernos",
+      "chapter": "Capítulo 2: Procesos y Subprocesos",
+      "section": "2.6 Comunicación entre Procesos",
+      "page_start": 126,
+      "page_end": 129
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.95
+  },
+  {
+    "doc_id": "doc_code_05",
+    "format": "pdf",
+    "category": "code_blocks",
+    "title": "Sincronización POSIX 5",
+    "raw_content": "# Implementación de Primitivas de Sincronización en C (5)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.45,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Implementación de Primitivas de Sincronización en C (5)\n\nPara evitar condiciones de carrera, se implementa el patrón productor-consumidor usando semáforos POSIX.\n\n```c\n#include <pthread.h>\n#include <semaphore.h>\n#include <stdio.h>\n\n#define BUFFER_SIZE 10\n\nint buffer[BUFFER_SIZE];\nsem_t empty;\nsem_t full;\npthread_mutex_t mutex;\n\nvoid* producer(void* arg) {\n    int item = *(int*)arg;\n    sem_wait(&empty);\n    pthread_mutex_lock(&mutex);\n    // Sección Crítica: inserción en buffer circular\n    buffer[item % BUFFER_SIZE] = item;\n    pthread_mutex_unlock(&mutex);\n    sem_post(&full);\n    return NULL;\n}\n```\n\nEs crucial asegurar que la llamada a `sem_wait(&empty)` ocurra antes de adquirir el mutex.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Tanenbaum - Sistemas Operativos Modernos",
+      "chapter": "Capítulo 2: Procesos y Subprocesos",
+      "section": "2.7 Comunicación entre Procesos",
+      "page_start": 130,
+      "page_end": 133
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.95
+  },
+  {
+    "doc_id": "doc_multicolumn_01",
+    "format": "pdf",
+    "category": "multi_column",
+    "title": "Arquitecturas de Kernel 1",
+    "raw_content": "# Arquitecturas Monolíticas vs Microkernels (Sección 1)\n\n## Columna Izquierda: Monolitos Tradicionales\nEn un sistema monolítico, todos los servicios centrales del sistema operativo se ejecutan en el espacio de direcciones del kernel con privilegios máximos (Ring 0). La ventaja principal es la baja latencia en llamadas a función directas sin cambios de contexto de CPU ni copias en IPC. La desventaja es que un fallo en un driver de dispositivo puede corromper la memoria del kernel completa.\n\n## Columna Derecha: Microkernels Modernos\nEl microkernel reduce el código en modo kernel al mínimo estricto: manejo de hilos, gestión elemental de memoria virtual y paso de mensajes (IPC). Todos los drivers, sistemas de archivos y pilas de red corren en espacio de usuario. Ante un fallo de un servidor de archivos, este simplemente se reinicia sin comprometer la estabilidad global del sistema.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Arquitecturas Monolíticas vs Microkernels (Sección 1)\n\n## Columna Izquierda: Monolitos Tradicionales\nEn un sistema monolítico, todos los servicios centrales del sistema operativo se ejecutan en el espacio de direcciones del kernel con privilegios máximos (Ring 0). La ventaja principal es la baja latencia en llamadas a función directas sin cambios de contexto de CPU ni copias en IPC. La desventaja es que un fallo en un driver de dispositivo puede corromper la memoria del kernel completa.\n\n## Columna Derecha: Microkernels Modernos\nEl microkernel reduce el código en modo kernel al mínimo estricto: manejo de hilos, gestión elemental de memoria virtual y paso de mensajes (IPC). Todos los drivers, sistemas de archivos y pilas de red corren en espacio de usuario. Ante un fallo de un servidor de archivos, este simplemente se reinicia sin comprometer la estabilidad global del sistema.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 2: Estructuras del Sistema Operativo",
+      "section": "2.5 Estructura del Sistema",
+      "page_start": 68,
+      "page_end": 70
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.91
+  },
+  {
+    "doc_id": "doc_multicolumn_02",
+    "format": "pdf",
+    "category": "multi_column",
+    "title": "Arquitecturas de Kernel 2",
+    "raw_content": "# Arquitecturas Monolíticas vs Microkernels (Sección 2)\n\n## Columna Izquierda: Monolitos Tradicionales\nEn un sistema monolítico, todos los servicios centrales del sistema operativo se ejecutan en el espacio de direcciones del kernel con privilegios máximos (Ring 0). La ventaja principal es la baja latencia en llamadas a función directas sin cambios de contexto de CPU ni copias en IPC. La desventaja es que un fallo en un driver de dispositivo puede corromper la memoria del kernel completa.\n\n## Columna Derecha: Microkernels Modernos\nEl microkernel reduce el código en modo kernel al mínimo estricto: manejo de hilos, gestión elemental de memoria virtual y paso de mensajes (IPC). Todos los drivers, sistemas de archivos y pilas de red corren en espacio de usuario. Ante un fallo de un servidor de archivos, este simplemente se reinicia sin comprometer la estabilidad global del sistema.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Arquitecturas Monolíticas vs Microkernels (Sección 2)\n\n## Columna Izquierda: Monolitos Tradicionales\nEn un sistema monolítico, todos los servicios centrales del sistema operativo se ejecutan en el espacio de direcciones del kernel con privilegios máximos (Ring 0). La ventaja principal es la baja latencia en llamadas a función directas sin cambios de contexto de CPU ni copias en IPC. La desventaja es que un fallo en un driver de dispositivo puede corromper la memoria del kernel completa.\n\n## Columna Derecha: Microkernels Modernos\nEl microkernel reduce el código en modo kernel al mínimo estricto: manejo de hilos, gestión elemental de memoria virtual y paso de mensajes (IPC). Todos los drivers, sistemas de archivos y pilas de red corren en espacio de usuario. Ante un fallo de un servidor de archivos, este simplemente se reinicia sin comprometer la estabilidad global del sistema.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 2: Estructuras del Sistema Operativo",
+      "section": "2.6 Estructura del Sistema",
+      "page_start": 71,
+      "page_end": 73
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.91
+  },
+  {
+    "doc_id": "doc_multicolumn_03",
+    "format": "pdf",
+    "category": "multi_column",
+    "title": "Arquitecturas de Kernel 3",
+    "raw_content": "# Arquitecturas Monolíticas vs Microkernels (Sección 3)\n\n## Columna Izquierda: Monolitos Tradicionales\nEn un sistema monolítico, todos los servicios centrales del sistema operativo se ejecutan en el espacio de direcciones del kernel con privilegios máximos (Ring 0). La ventaja principal es la baja latencia en llamadas a función directas sin cambios de contexto de CPU ni copias en IPC. La desventaja es que un fallo en un driver de dispositivo puede corromper la memoria del kernel completa.\n\n## Columna Derecha: Microkernels Modernos\nEl microkernel reduce el código en modo kernel al mínimo estricto: manejo de hilos, gestión elemental de memoria virtual y paso de mensajes (IPC). Todos los drivers, sistemas de archivos y pilas de red corren en espacio de usuario. Ante un fallo de un servidor de archivos, este simplemente se reinicia sin comprometer la estabilidad global del sistema.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Arquitecturas Monolíticas vs Microkernels (Sección 3)\n\n## Columna Izquierda: Monolitos Tradicionales\nEn un sistema monolítico, todos los servicios centrales del sistema operativo se ejecutan en el espacio de direcciones del kernel con privilegios máximos (Ring 0). La ventaja principal es la baja latencia en llamadas a función directas sin cambios de contexto de CPU ni copias en IPC. La desventaja es que un fallo en un driver de dispositivo puede corromper la memoria del kernel completa.\n\n## Columna Derecha: Microkernels Modernos\nEl microkernel reduce el código en modo kernel al mínimo estricto: manejo de hilos, gestión elemental de memoria virtual y paso de mensajes (IPC). Todos los drivers, sistemas de archivos y pilas de red corren en espacio de usuario. Ante un fallo de un servidor de archivos, este simplemente se reinicia sin comprometer la estabilidad global del sistema.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 2: Estructuras del Sistema Operativo",
+      "section": "2.7 Estructura del Sistema",
+      "page_start": 74,
+      "page_end": 76
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.91
+  },
+  {
+    "doc_id": "doc_multicolumn_04",
+    "format": "pdf",
+    "category": "multi_column",
+    "title": "Arquitecturas de Kernel 4",
+    "raw_content": "# Arquitecturas Monolíticas vs Microkernels (Sección 4)\n\n## Columna Izquierda: Monolitos Tradicionales\nEn un sistema monolítico, todos los servicios centrales del sistema operativo se ejecutan en el espacio de direcciones del kernel con privilegios máximos (Ring 0). La ventaja principal es la baja latencia en llamadas a función directas sin cambios de contexto de CPU ni copias en IPC. La desventaja es que un fallo en un driver de dispositivo puede corromper la memoria del kernel completa.\n\n## Columna Derecha: Microkernels Modernos\nEl microkernel reduce el código en modo kernel al mínimo estricto: manejo de hilos, gestión elemental de memoria virtual y paso de mensajes (IPC). Todos los drivers, sistemas de archivos y pilas de red corren en espacio de usuario. Ante un fallo de un servidor de archivos, este simplemente se reinicia sin comprometer la estabilidad global del sistema.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Arquitecturas Monolíticas vs Microkernels (Sección 4)\n\n## Columna Izquierda: Monolitos Tradicionales\nEn un sistema monolítico, todos los servicios centrales del sistema operativo se ejecutan en el espacio de direcciones del kernel con privilegios máximos (Ring 0). La ventaja principal es la baja latencia en llamadas a función directas sin cambios de contexto de CPU ni copias en IPC. La desventaja es que un fallo en un driver de dispositivo puede corromper la memoria del kernel completa.\n\n## Columna Derecha: Microkernels Modernos\nEl microkernel reduce el código en modo kernel al mínimo estricto: manejo de hilos, gestión elemental de memoria virtual y paso de mensajes (IPC). Todos los drivers, sistemas de archivos y pilas de red corren en espacio de usuario. Ante un fallo de un servidor de archivos, este simplemente se reinicia sin comprometer la estabilidad global del sistema.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 2: Estructuras del Sistema Operativo",
+      "section": "2.8 Estructura del Sistema",
+      "page_start": 77,
+      "page_end": 79
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.91
+  },
+  {
+    "doc_id": "doc_formulas_01",
+    "format": "pdf",
+    "category": "formulas_latex",
+    "title": "Rendimiento de Memoria Virtual 1",
+    "raw_content": "# Análisis Matemático del Rendimiento de Paginación 1\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.25,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Análisis Matemático del Rendimiento de Paginación 1\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 9: Memoria Virtual",
+      "section": "9.2 Paginación por Demanda",
+      "page_start": 356,
+      "page_end": 361
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.96
+  },
+  {
+    "doc_id": "doc_formulas_02",
+    "format": "pdf",
+    "category": "formulas_latex",
+    "title": "Rendimiento de Memoria Virtual 2",
+    "raw_content": "# Análisis Matemático del Rendimiento de Paginación 2\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.25,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Análisis Matemático del Rendimiento de Paginación 2\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 9: Memoria Virtual",
+      "section": "9.3 Paginación por Demanda",
+      "page_start": 362,
+      "page_end": 367
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.96
+  },
+  {
+    "doc_id": "doc_formulas_03",
+    "format": "pdf",
+    "category": "formulas_latex",
+    "title": "Rendimiento de Memoria Virtual 3",
+    "raw_content": "# Análisis Matemático del Rendimiento de Paginación 3\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.25,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Análisis Matemático del Rendimiento de Paginación 3\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 9: Memoria Virtual",
+      "section": "9.4 Paginación por Demanda",
+      "page_start": 368,
+      "page_end": 373
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.96
+  },
+  {
+    "doc_id": "doc_formulas_04",
+    "format": "pdf",
+    "category": "formulas_latex",
+    "title": "Rendimiento de Memoria Virtual 4",
+    "raw_content": "# Análisis Matemático del Rendimiento de Paginación 4\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.25,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Análisis Matemático del Rendimiento de Paginación 4\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 9: Memoria Virtual",
+      "section": "9.5 Paginación por Demanda",
+      "page_start": 374,
+      "page_end": 379
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.96
+  },
+  {
+    "doc_id": "doc_formulas_05",
+    "format": "pdf",
+    "category": "formulas_latex",
+    "title": "Rendimiento de Memoria Virtual 5",
+    "raw_content": "# Análisis Matemático del Rendimiento de Paginación 5\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.25,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Análisis Matemático del Rendimiento de Paginación 5\n\nEl tiempo de acceso efectivo a memoria (EAT) bajo demanda con memoria caché asociativa (TLB) se formaliza analíticamente:\n\n$$\\text{EAT} = \\alpha \\cdot (\\epsilon + m) + (1 - \\alpha) \\cdot (\\epsilon + 2m)$$\n\nDonde:\n- $\\alpha$ representa la tasa de aciertos (TLB hit ratio).\n- $\\epsilon$ es el tiempo de búsqueda asociativa en la TLB.\n- $m$ es el tiempo de ciclo de acceso a la memoria física principal.\n\nCuando consideramos la probabilidad de fallo de página $p$, la formulación extendida resulta:\n\n$$\\text{EAT}_{\\text{total}} = (1 - p) \\cdot m + p \\cdot \\tau_{\\text{fault}}$$\n\nDonde $\\tau_{\\text{fault}}$ comprende el tiempo de swap a disco y recarga del marco.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 9: Memoria Virtual",
+      "section": "9.6 Paginación por Demanda",
+      "page_start": 380,
+      "page_end": 385
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.96
+  },
+  {
+    "doc_id": "doc_formulas_plain_01",
+    "format": "pdf",
+    "category": "formulas_plain",
+    "title": "Fórmulas en Texto Plano 1",
+    "raw_content": "# Relaciones de Recurrencia en Algoritmos de Búsqueda 1\n\nPara el algoritmo de partición binaria, la ecuación de tiempo se expresa de forma elemental:\nT(n) = 2 * T(n/2) + c * n\nEcuación cuadrática:\nax^2 + bx + c = 0 -> x = (-b +- sqrt(b^2 - 4ac)) / (2a)\nSumatoria de series aritméticas:\nS_n = sum_(k=1)^n k = (n * (n + 1)) / 2\nFactorial recursivo:\nn! = prod_(i=1)^n i para todo n >= 1\nIntegral de convolución discreta:\ny[n] = sum_(k=-inf)^inf x[k] * h[n - k]\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.3,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Relaciones de Recurrencia en Algoritmos de Búsqueda 1\n\nPara el algoritmo de partición binaria, la ecuación de tiempo se expresa de forma elemental:\nT(n) = 2 * T(n/2) + c * n\nEcuación cuadrática:\nax^2 + bx + c = 0 -> x = (-b +- sqrt(b^2 - 4ac)) / (2a)\nSumatoria de series aritméticas:\nS_n = sum_(k=1)^n k = (n * (n + 1)) / 2\nFactorial recursivo:\nn! = prod_(i=1)^n i para todo n >= 1\nIntegral de convolución discreta:\ny[n] = sum_(k=-inf)^inf x[k] * h[n - k]\n",
+    "curricular_metadata": {
+      "subject": "Matemática Discreta",
+      "level": "Grado",
+      "book": "Rosen - Matemática Discreta y sus Aplicaciones",
+      "chapter": "Capítulo 8: Relaciones de Recurrencia",
+      "section": "8.1 Métodos de Resolución",
+      "page_start": 524,
+      "page_end": 527
+    },
+    "r1": "acceptable",
+    "r2": "acceptable",
+    "human_quality_score": 0.78
+  },
+  {
+    "doc_id": "doc_formulas_plain_02",
+    "format": "pdf",
+    "category": "formulas_plain",
+    "title": "Fórmulas en Texto Plano 2",
+    "raw_content": "# Relaciones de Recurrencia en Algoritmos de Búsqueda 2\n\nPara el algoritmo de partición binaria, la ecuación de tiempo se expresa de forma elemental:\nT(n) = 2 * T(n/2) + c * n\nEcuación cuadrática:\nax^2 + bx + c = 0 -> x = (-b +- sqrt(b^2 - 4ac)) / (2a)\nSumatoria de series aritméticas:\nS_n = sum_(k=1)^n k = (n * (n + 1)) / 2\nFactorial recursivo:\nn! = prod_(i=1)^n i para todo n >= 1\nIntegral de convolución discreta:\ny[n] = sum_(k=-inf)^inf x[k] * h[n - k]\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.3,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Relaciones de Recurrencia en Algoritmos de Búsqueda 2\n\nPara el algoritmo de partición binaria, la ecuación de tiempo se expresa de forma elemental:\nT(n) = 2 * T(n/2) + c * n\nEcuación cuadrática:\nax^2 + bx + c = 0 -> x = (-b +- sqrt(b^2 - 4ac)) / (2a)\nSumatoria de series aritméticas:\nS_n = sum_(k=1)^n k = (n * (n + 1)) / 2\nFactorial recursivo:\nn! = prod_(i=1)^n i para todo n >= 1\nIntegral de convolución discreta:\ny[n] = sum_(k=-inf)^inf x[k] * h[n - k]\n",
+    "curricular_metadata": {
+      "subject": "Matemática Discreta",
+      "level": "Grado",
+      "book": "Rosen - Matemática Discreta y sus Aplicaciones",
+      "chapter": "Capítulo 8: Relaciones de Recurrencia",
+      "section": "8.2 Métodos de Resolución",
+      "page_start": 528,
+      "page_end": 531
+    },
+    "r1": "acceptable",
+    "r2": "acceptable",
+    "human_quality_score": 0.78
+  },
+  {
+    "doc_id": "doc_formulas_plain_03",
+    "format": "pdf",
+    "category": "formulas_plain",
+    "title": "Fórmulas en Texto Plano 3",
+    "raw_content": "# Relaciones de Recurrencia en Algoritmos de Búsqueda 3\n\nPara el algoritmo de partición binaria, la ecuación de tiempo se expresa de forma elemental:\nT(n) = 2 * T(n/2) + c * n\nEcuación cuadrática:\nax^2 + bx + c = 0 -> x = (-b +- sqrt(b^2 - 4ac)) / (2a)\nSumatoria de series aritméticas:\nS_n = sum_(k=1)^n k = (n * (n + 1)) / 2\nFactorial recursivo:\nn! = prod_(i=1)^n i para todo n >= 1\nIntegral de convolución discreta:\ny[n] = sum_(k=-inf)^inf x[k] * h[n - k]\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.3,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Relaciones de Recurrencia en Algoritmos de Búsqueda 3\n\nPara el algoritmo de partición binaria, la ecuación de tiempo se expresa de forma elemental:\nT(n) = 2 * T(n/2) + c * n\nEcuación cuadrática:\nax^2 + bx + c = 0 -> x = (-b +- sqrt(b^2 - 4ac)) / (2a)\nSumatoria de series aritméticas:\nS_n = sum_(k=1)^n k = (n * (n + 1)) / 2\nFactorial recursivo:\nn! = prod_(i=1)^n i para todo n >= 1\nIntegral de convolución discreta:\ny[n] = sum_(k=-inf)^inf x[k] * h[n - k]\n",
+    "curricular_metadata": {
+      "subject": "Matemática Discreta",
+      "level": "Grado",
+      "book": "Rosen - Matemática Discreta y sus Aplicaciones",
+      "chapter": "Capítulo 8: Relaciones de Recurrencia",
+      "section": "8.3 Métodos de Resolución",
+      "page_start": 532,
+      "page_end": 535
+    },
+    "r1": "acceptable",
+    "r2": "acceptable",
+    "human_quality_score": 0.78
+  },
+  {
+    "doc_id": "doc_formulas_plain_04",
+    "format": "pdf",
+    "category": "formulas_plain",
+    "title": "Fórmulas en Texto Plano 4",
+    "raw_content": "# Relaciones de Recurrencia en Algoritmos de Búsqueda 4\n\nPara el algoritmo de partición binaria, la ecuación de tiempo se expresa de forma elemental:\nT(n) = 2 * T(n/2) + c * n\nEcuación cuadrática:\nax^2 + bx + c = 0 -> x = (-b +- sqrt(b^2 - 4ac)) / (2a)\nSumatoria de series aritméticas:\nS_n = sum_(k=1)^n k = (n * (n + 1)) / 2\nFactorial recursivo:\nn! = prod_(i=1)^n i para todo n >= 1\nIntegral de convolución discreta:\ny[n] = sum_(k=-inf)^inf x[k] * h[n - k]\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.3,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Relaciones de Recurrencia en Algoritmos de Búsqueda 4\n\nPara el algoritmo de partición binaria, la ecuación de tiempo se expresa de forma elemental:\nT(n) = 2 * T(n/2) + c * n\nEcuación cuadrática:\nax^2 + bx + c = 0 -> x = (-b +- sqrt(b^2 - 4ac)) / (2a)\nSumatoria de series aritméticas:\nS_n = sum_(k=1)^n k = (n * (n + 1)) / 2\nFactorial recursivo:\nn! = prod_(i=1)^n i para todo n >= 1\nIntegral de convolución discreta:\ny[n] = sum_(k=-inf)^inf x[k] * h[n - k]\n",
+    "curricular_metadata": {
+      "subject": "Matemática Discreta",
+      "level": "Grado",
+      "book": "Rosen - Matemática Discreta y sus Aplicaciones",
+      "chapter": "Capítulo 8: Relaciones de Recurrencia",
+      "section": "8.4 Métodos de Resolución",
+      "page_start": 536,
+      "page_end": 539
+    },
+    "r1": "acceptable",
+    "r2": "acceptable",
+    "human_quality_score": 0.78
+  },
+  {
+    "doc_id": "doc_footnotes_01",
+    "format": "pdf",
+    "category": "footnotes_headers",
+    "title": "Jerarquía de Memoria 1",
+    "raw_content": "# Jerarquía de Almacenamiento y Caching 1\n\n## Niveles de Memoria en Arquitecturas Modernas\n\n### Registros y Caché L1/L2\nLos registros residen en el pipeline del procesador y operan a la frecuencia del ciclo de reloj interno[^1].\nLa memoria caché L1 está dividida en instrucción (L1i) y datos (L1d).\n\n### Caché L3 Compartida y Memoria Principal\nLa caché L3 es compartida entre todos los núcleos de la CPU[^2]. Por debajo de ella encontramos la DRAM sincrónica.\n\n[^1]: Latencia típica de acceso a registros: < 1 ns.\n[^2]: En arquitecturas multicore, la coherencia de caché se mantiene mediante protocolos MESI/MOESI.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Jerarquía de Almacenamiento y Caching 1\n\n## Niveles de Memoria en Arquitecturas Modernas\n\n### Registros y Caché L1/L2\nLos registros residen en el pipeline del procesador y operan a la frecuencia del ciclo de reloj interno[^1].\nLa memoria caché L1 está dividida en instrucción (L1i) y datos (L1d).\n\n### Caché L3 Compartida y Memoria Principal\nLa caché L3 es compartida entre todos los núcleos de la CPU[^2]. Por debajo de ella encontramos la DRAM sincrónica.\n\n[^1]: Latencia típica de acceso a registros: < 1 ns.\n[^2]: En arquitecturas multicore, la coherencia de caché se mantiene mediante protocolos MESI/MOESI.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Stallings - Sistemas Operativos",
+      "chapter": "Capítulo 1: Introducción a los Computadores",
+      "section": "1.3 Organización de Memoria",
+      "page_start": 35,
+      "page_end": 39
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.92
+  },
+  {
+    "doc_id": "doc_footnotes_02",
+    "format": "pdf",
+    "category": "footnotes_headers",
+    "title": "Jerarquía de Memoria 2",
+    "raw_content": "# Jerarquía de Almacenamiento y Caching 2\n\n## Niveles de Memoria en Arquitecturas Modernas\n\n### Registros y Caché L1/L2\nLos registros residen en el pipeline del procesador y operan a la frecuencia del ciclo de reloj interno[^1].\nLa memoria caché L1 está dividida en instrucción (L1i) y datos (L1d).\n\n### Caché L3 Compartida y Memoria Principal\nLa caché L3 es compartida entre todos los núcleos de la CPU[^2]. Por debajo de ella encontramos la DRAM sincrónica.\n\n[^1]: Latencia típica de acceso a registros: < 1 ns.\n[^2]: En arquitecturas multicore, la coherencia de caché se mantiene mediante protocolos MESI/MOESI.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Jerarquía de Almacenamiento y Caching 2\n\n## Niveles de Memoria en Arquitecturas Modernas\n\n### Registros y Caché L1/L2\nLos registros residen en el pipeline del procesador y operan a la frecuencia del ciclo de reloj interno[^1].\nLa memoria caché L1 está dividida en instrucción (L1i) y datos (L1d).\n\n### Caché L3 Compartida y Memoria Principal\nLa caché L3 es compartida entre todos los núcleos de la CPU[^2]. Por debajo de ella encontramos la DRAM sincrónica.\n\n[^1]: Latencia típica de acceso a registros: < 1 ns.\n[^2]: En arquitecturas multicore, la coherencia de caché se mantiene mediante protocolos MESI/MOESI.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Stallings - Sistemas Operativos",
+      "chapter": "Capítulo 1: Introducción a los Computadores",
+      "section": "1.4 Organización de Memoria",
+      "page_start": 40,
+      "page_end": 44
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.92
+  },
+  {
+    "doc_id": "doc_footnotes_03",
+    "format": "pdf",
+    "category": "footnotes_headers",
+    "title": "Jerarquía de Memoria 3",
+    "raw_content": "# Jerarquía de Almacenamiento y Caching 3\n\n## Niveles de Memoria en Arquitecturas Modernas\n\n### Registros y Caché L1/L2\nLos registros residen en el pipeline del procesador y operan a la frecuencia del ciclo de reloj interno[^1].\nLa memoria caché L1 está dividida en instrucción (L1i) y datos (L1d).\n\n### Caché L3 Compartida y Memoria Principal\nLa caché L3 es compartida entre todos los núcleos de la CPU[^2]. Por debajo de ella encontramos la DRAM sincrónica.\n\n[^1]: Latencia típica de acceso a registros: < 1 ns.\n[^2]: En arquitecturas multicore, la coherencia de caché se mantiene mediante protocolos MESI/MOESI.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Jerarquía de Almacenamiento y Caching 3\n\n## Niveles de Memoria en Arquitecturas Modernas\n\n### Registros y Caché L1/L2\nLos registros residen en el pipeline del procesador y operan a la frecuencia del ciclo de reloj interno[^1].\nLa memoria caché L1 está dividida en instrucción (L1i) y datos (L1d).\n\n### Caché L3 Compartida y Memoria Principal\nLa caché L3 es compartida entre todos los núcleos de la CPU[^2]. Por debajo de ella encontramos la DRAM sincrónica.\n\n[^1]: Latencia típica de acceso a registros: < 1 ns.\n[^2]: En arquitecturas multicore, la coherencia de caché se mantiene mediante protocolos MESI/MOESI.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Stallings - Sistemas Operativos",
+      "chapter": "Capítulo 1: Introducción a los Computadores",
+      "section": "1.5 Organización de Memoria",
+      "page_start": 45,
+      "page_end": 49
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.92
+  },
+  {
+    "doc_id": "doc_footnotes_04",
+    "format": "pdf",
+    "category": "footnotes_headers",
+    "title": "Jerarquía de Memoria 4",
+    "raw_content": "# Jerarquía de Almacenamiento y Caching 4\n\n## Niveles de Memoria en Arquitecturas Modernas\n\n### Registros y Caché L1/L2\nLos registros residen en el pipeline del procesador y operan a la frecuencia del ciclo de reloj interno[^1].\nLa memoria caché L1 está dividida en instrucción (L1i) y datos (L1d).\n\n### Caché L3 Compartida y Memoria Principal\nLa caché L3 es compartida entre todos los núcleos de la CPU[^2]. Por debajo de ella encontramos la DRAM sincrónica.\n\n[^1]: Latencia típica de acceso a registros: < 1 ns.\n[^2]: En arquitecturas multicore, la coherencia de caché se mantiene mediante protocolos MESI/MOESI.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Jerarquía de Almacenamiento y Caching 4\n\n## Niveles de Memoria en Arquitecturas Modernas\n\n### Registros y Caché L1/L2\nLos registros residen en el pipeline del procesador y operan a la frecuencia del ciclo de reloj interno[^1].\nLa memoria caché L1 está dividida en instrucción (L1i) y datos (L1d).\n\n### Caché L3 Compartida y Memoria Principal\nLa caché L3 es compartida entre todos los núcleos de la CPU[^2]. Por debajo de ella encontramos la DRAM sincrónica.\n\n[^1]: Latencia típica de acceso a registros: < 1 ns.\n[^2]: En arquitecturas multicore, la coherencia de caché se mantiene mediante protocolos MESI/MOESI.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Stallings - Sistemas Operativos",
+      "chapter": "Capítulo 1: Introducción a los Computadores",
+      "section": "1.6 Organización de Memoria",
+      "page_start": 50,
+      "page_end": 54
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.92
+  },
+  {
+    "doc_id": "doc_scanned_01",
+    "format": "pdf",
+    "category": "scanned_ocr",
+    "title": "Rosen Lógica Proposicional Escaneada 1",
+    "raw_content": "# Rosen Matemática Discreta - Página Escaneada 1\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.1: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "expected_profile": {
+      "has_text_layer": false,
+      "scan_ratio": 1.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.05,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Rosen Matemática Discreta - Página Escaneada 1\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.1: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "curricular_metadata": {
+      "subject": "Matemática Discreta",
+      "level": "Grado",
+      "book": "Rosen - Matemática Discreta y sus Aplicaciones",
+      "chapter": "Capítulo 1: Fundamentos de Lógica",
+      "section": "1.1 Proposiciones",
+      "page_start": 11,
+      "page_end": 11
+    },
+    "r1": "acceptable",
+    "r2": "acceptable",
+    "human_quality_score": 0.82
+  },
+  {
+    "doc_id": "doc_scanned_02",
+    "format": "pdf",
+    "category": "scanned_ocr",
+    "title": "Rosen Lógica Proposicional Escaneada 2",
+    "raw_content": "# Rosen Matemática Discreta - Página Escaneada 2\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.2: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "expected_profile": {
+      "has_text_layer": false,
+      "scan_ratio": 1.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.05,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Rosen Matemática Discreta - Página Escaneada 2\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.2: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "curricular_metadata": {
+      "subject": "Matemática Discreta",
+      "level": "Grado",
+      "book": "Rosen - Matemática Discreta y sus Aplicaciones",
+      "chapter": "Capítulo 1: Fundamentos de Lógica",
+      "section": "1.2 Proposiciones",
+      "page_start": 12,
+      "page_end": 12
+    },
+    "r1": "acceptable",
+    "r2": "acceptable",
+    "human_quality_score": 0.82
+  },
+  {
+    "doc_id": "doc_scanned_03",
+    "format": "pdf",
+    "category": "scanned_ocr",
+    "title": "Rosen Lógica Proposicional Escaneada 3",
+    "raw_content": "# Rosen Matemática Discreta - Página Escaneada 3\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.3: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "expected_profile": {
+      "has_text_layer": false,
+      "scan_ratio": 1.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.05,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Rosen Matemática Discreta - Página Escaneada 3\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.3: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "curricular_metadata": {
+      "subject": "Matemática Discreta",
+      "level": "Grado",
+      "book": "Rosen - Matemática Discreta y sus Aplicaciones",
+      "chapter": "Capítulo 1: Fundamentos de Lógica",
+      "section": "1.3 Proposiciones",
+      "page_start": 13,
+      "page_end": 13
+    },
+    "r1": "acceptable",
+    "r2": "acceptable",
+    "human_quality_score": 0.82
+  },
+  {
+    "doc_id": "doc_scanned_04",
+    "format": "pdf",
+    "category": "scanned_ocr",
+    "title": "Rosen Lógica Proposicional Escaneada 4",
+    "raw_content": "# Rosen Matemática Discreta - Página Escaneada 4\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.4: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "expected_profile": {
+      "has_text_layer": false,
+      "scan_ratio": 1.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.05,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Rosen Matemática Discreta - Página Escaneada 4\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.4: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "curricular_metadata": {
+      "subject": "Matemática Discreta",
+      "level": "Grado",
+      "book": "Rosen - Matemática Discreta y sus Aplicaciones",
+      "chapter": "Capítulo 1: Fundamentos de Lógica",
+      "section": "1.4 Proposiciones",
+      "page_start": 14,
+      "page_end": 14
+    },
+    "r1": "acceptable",
+    "r2": "acceptable",
+    "human_quality_score": 0.82
+  },
+  {
+    "doc_id": "doc_scanned_05",
+    "format": "pdf",
+    "category": "scanned_ocr",
+    "title": "Rosen Lógica Proposicional Escaneada 5",
+    "raw_content": "# Rosen Matemática Discreta - Página Escaneada 5\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.5: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "expected_profile": {
+      "has_text_layer": false,
+      "scan_ratio": 1.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.05,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Rosen Matemática Discreta - Página Escaneada 5\n\nCAPÍTULO 3: LÓGICA Y DEMOSTRACIONES\n\nDefinición 3.5: Una proposición es una oración declarativa que es o bien verdadera o bien falsa, pero no ambas cosas a la vez.\nConsideremos las siguientes afirmaciones:\n1. Washington D.C. es la capital de los Estados Unidos de América.\n2. Buenos Aires es la capital de la República Argentina.\n3. 1 + 1 = 2\n4. 2 + 2 = 5\nLas afirmaciones 1, 2 y 3 son verdaderas, mientras que la afirmación 4 es falsa. Todas ellas son proposiciones válidas.\n",
+    "curricular_metadata": {
+      "subject": "Matemática Discreta",
+      "level": "Grado",
+      "book": "Rosen - Matemática Discreta y sus Aplicaciones",
+      "chapter": "Capítulo 1: Fundamentos de Lógica",
+      "section": "1.5 Proposiciones",
+      "page_start": 15,
+      "page_end": 15
+    },
+    "r1": "acceptable",
+    "r2": "acceptable",
+    "human_quality_score": 0.82
+  },
+  {
+    "doc_id": "doc_hybrid_01",
+    "format": "pdf",
+    "category": "hybrid_text_image",
+    "title": "Mecanismo DMA 1",
+    "raw_content": "# Gestión de Entrada/Salida: DMA y Buses (1)\n\nEl controlador de DMA (Direct Memory Access) transfiere bloques enteros de datos entre los periféricos de alta velocidad y la memoria principal sin la intervención continua de la CPU.\n\n![Diagrama del Bus del Sistema y Controlador DMA](figura_dma_1.png)\n\nLa CPU únicamente inicializa la dirección base de memoria, el contador de bytes y la dirección del registro de dispositivo. Al completar la transferencia del bloque, el controlador emite una interrupción hardware por el bus PCI-Express.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.35,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Gestión de Entrada/Salida: DMA y Buses (1)\n\nEl controlador de DMA (Direct Memory Access) transfiere bloques enteros de datos entre los periféricos de alta velocidad y la memoria principal sin la intervención continua de la CPU.\n\n![Diagrama del Bus del Sistema y Controlador DMA](figura_dma_1.png)\n\nLa CPU únicamente inicializa la dirección base de memoria, el contador de bytes y la dirección del registro de dispositivo. Al completar la transferencia del bloque, el controlador emite una interrupción hardware por el bus PCI-Express.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 13: Sistemas de Entrada/Salida",
+      "section": "13.2 Hardware de E/S",
+      "page_start": 484,
+      "page_end": 487
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.89
+  },
+  {
+    "doc_id": "doc_hybrid_02",
+    "format": "pdf",
+    "category": "hybrid_text_image",
+    "title": "Mecanismo DMA 2",
+    "raw_content": "# Gestión de Entrada/Salida: DMA y Buses (2)\n\nEl controlador de DMA (Direct Memory Access) transfiere bloques enteros de datos entre los periféricos de alta velocidad y la memoria principal sin la intervención continua de la CPU.\n\n![Diagrama del Bus del Sistema y Controlador DMA](figura_dma_2.png)\n\nLa CPU únicamente inicializa la dirección base de memoria, el contador de bytes y la dirección del registro de dispositivo. Al completar la transferencia del bloque, el controlador emite una interrupción hardware por el bus PCI-Express.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.35,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Gestión de Entrada/Salida: DMA y Buses (2)\n\nEl controlador de DMA (Direct Memory Access) transfiere bloques enteros de datos entre los periféricos de alta velocidad y la memoria principal sin la intervención continua de la CPU.\n\n![Diagrama del Bus del Sistema y Controlador DMA](figura_dma_2.png)\n\nLa CPU únicamente inicializa la dirección base de memoria, el contador de bytes y la dirección del registro de dispositivo. Al completar la transferencia del bloque, el controlador emite una interrupción hardware por el bus PCI-Express.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 13: Sistemas de Entrada/Salida",
+      "section": "13.3 Hardware de E/S",
+      "page_start": 488,
+      "page_end": 491
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.89
+  },
+  {
+    "doc_id": "doc_hybrid_03",
+    "format": "pdf",
+    "category": "hybrid_text_image",
+    "title": "Mecanismo DMA 3",
+    "raw_content": "# Gestión de Entrada/Salida: DMA y Buses (3)\n\nEl controlador de DMA (Direct Memory Access) transfiere bloques enteros de datos entre los periféricos de alta velocidad y la memoria principal sin la intervención continua de la CPU.\n\n![Diagrama del Bus del Sistema y Controlador DMA](figura_dma_3.png)\n\nLa CPU únicamente inicializa la dirección base de memoria, el contador de bytes y la dirección del registro de dispositivo. Al completar la transferencia del bloque, el controlador emite una interrupción hardware por el bus PCI-Express.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.35,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Gestión de Entrada/Salida: DMA y Buses (3)\n\nEl controlador de DMA (Direct Memory Access) transfiere bloques enteros de datos entre los periféricos de alta velocidad y la memoria principal sin la intervención continua de la CPU.\n\n![Diagrama del Bus del Sistema y Controlador DMA](figura_dma_3.png)\n\nLa CPU únicamente inicializa la dirección base de memoria, el contador de bytes y la dirección del registro de dispositivo. Al completar la transferencia del bloque, el controlador emite una interrupción hardware por el bus PCI-Express.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 13: Sistemas de Entrada/Salida",
+      "section": "13.4 Hardware de E/S",
+      "page_start": 492,
+      "page_end": 495
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.89
+  },
+  {
+    "doc_id": "doc_hybrid_04",
+    "format": "pdf",
+    "category": "hybrid_text_image",
+    "title": "Mecanismo DMA 4",
+    "raw_content": "# Gestión de Entrada/Salida: DMA y Buses (4)\n\nEl controlador de DMA (Direct Memory Access) transfiere bloques enteros de datos entre los periféricos de alta velocidad y la memoria principal sin la intervención continua de la CPU.\n\n![Diagrama del Bus del Sistema y Controlador DMA](figura_dma_4.png)\n\nLa CPU únicamente inicializa la dirección base de memoria, el contador de bytes y la dirección del registro de dispositivo. Al completar la transferencia del bloque, el controlador emite una interrupción hardware por el bus PCI-Express.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.35,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Gestión de Entrada/Salida: DMA y Buses (4)\n\nEl controlador de DMA (Direct Memory Access) transfiere bloques enteros de datos entre los periféricos de alta velocidad y la memoria principal sin la intervención continua de la CPU.\n\n![Diagrama del Bus del Sistema y Controlador DMA](figura_dma_4.png)\n\nLa CPU únicamente inicializa la dirección base de memoria, el contador de bytes y la dirección del registro de dispositivo. Al completar la transferencia del bloque, el controlador emite una interrupción hardware por el bus PCI-Express.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Silberschatz - Fundamentos de SO",
+      "chapter": "Capítulo 13: Sistemas de Entrada/Salida",
+      "section": "13.5 Hardware de E/S",
+      "page_start": 496,
+      "page_end": 499
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.89
+  },
+  {
+    "doc_id": "doc_corrupt_01",
+    "format": "pdf",
+    "category": "corrupt_truncated",
+    "title": "Documento Dañado 1",
+    "raw_content": "# Archivo Truncado o Dañado 1\n\u0000\u0001\u0002 Error de parseo en bloque 1. Datos ilegibles o incompletos.\n",
+    "expected_profile": {
+      "has_text_layer": false,
+      "scan_ratio": 0.9,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Archivo Truncado o Dañado 1\n\u0000\u0001\u0002 Error de parseo en bloque 1. Datos ilegibles o incompletos.\n",
+    "curricular_metadata": {
+      "subject": "Desconocido",
+      "level": "Grado",
+      "book": "Corrupt",
+      "chapter": "N/A",
+      "section": "N/A",
+      "page_start": 1,
+      "page_end": 1
+    },
+    "r1": "poor",
+    "r2": "poor",
+    "human_quality_score": 0.25
+  },
+  {
+    "doc_id": "doc_corrupt_02",
+    "format": "pdf",
+    "category": "corrupt_truncated",
+    "title": "Documento Dañado 2",
+    "raw_content": "# Archivo Truncado o Dañado 2\n\u0000\u0001\u0002 Error de parseo en bloque 2. Datos ilegibles o incompletos.\n",
+    "expected_profile": {
+      "has_text_layer": false,
+      "scan_ratio": 0.9,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Archivo Truncado o Dañado 2\n\u0000\u0001\u0002 Error de parseo en bloque 2. Datos ilegibles o incompletos.\n",
+    "curricular_metadata": {
+      "subject": "Desconocido",
+      "level": "Grado",
+      "book": "Corrupt",
+      "chapter": "N/A",
+      "section": "N/A",
+      "page_start": 1,
+      "page_end": 1
+    },
+    "r1": "poor",
+    "r2": "poor",
+    "human_quality_score": 0.25
+  },
+  {
+    "doc_id": "doc_corrupt_03",
+    "format": "pdf",
+    "category": "corrupt_truncated",
+    "title": "Documento Dañado 3",
+    "raw_content": "# Archivo Truncado o Dañado 3\n\u0000\u0001\u0002 Error de parseo en bloque 3. Datos ilegibles o incompletos.\n",
+    "expected_profile": {
+      "has_text_layer": false,
+      "scan_ratio": 0.9,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Archivo Truncado o Dañado 3\n\u0000\u0001\u0002 Error de parseo en bloque 3. Datos ilegibles o incompletos.\n",
+    "curricular_metadata": {
+      "subject": "Desconocido",
+      "level": "Grado",
+      "book": "Corrupt",
+      "chapter": "N/A",
+      "section": "N/A",
+      "page_start": 1,
+      "page_end": 1
+    },
+    "r1": "poor",
+    "r2": "poor",
+    "human_quality_score": 0.25
+  },
+  {
+    "doc_id": "doc_docx_01",
+    "format": "docx",
+    "category": "office_docx",
+    "title": "Trabajo Práctico Kernel 1",
+    "raw_content": "# Guía de Trabajos Prácticos de Laboratorio 1\n\n## Objetivos\n- Configurar un entorno virtualizado en Linux Debian.\n- Compilar el kernel Linux con módulos personalizados de telemetría.\n\n### Pasos Requeridos\n1. Clonar el repositorio oficial: `git clone https://kernel.org/git/linux.git`\n2. Ejecutar `make menuconfig` para habilitar el subsistema eBPF.\n3. Compilar con paralelismo máximo usando `make -j$(nproc)`.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.2,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Guía de Trabajos Prácticos de Laboratorio 1\n\n## Objetivos\n- Configurar un entorno virtualizado en Linux Debian.\n- Compilar el kernel Linux con módulos personalizados de telemetría.\n\n### Pasos Requeridos\n1. Clonar el repositorio oficial: `git clone https://kernel.org/git/linux.git`\n2. Ejecutar `make menuconfig` para habilitar el subsistema eBPF.\n3. Compilar con paralelismo máximo usando `make -j$(nproc)`.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Guías de Cátedra",
+      "chapter": "TP 1",
+      "section": "Práctica de Kernel",
+      "page_start": 1,
+      "page_end": 2
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.95
+  },
+  {
+    "doc_id": "doc_docx_02",
+    "format": "docx",
+    "category": "office_docx",
+    "title": "Trabajo Práctico Kernel 2",
+    "raw_content": "# Guía de Trabajos Prácticos de Laboratorio 2\n\n## Objetivos\n- Configurar un entorno virtualizado en Linux Debian.\n- Compilar el kernel Linux con módulos personalizados de telemetría.\n\n### Pasos Requeridos\n1. Clonar el repositorio oficial: `git clone https://kernel.org/git/linux.git`\n2. Ejecutar `make menuconfig` para habilitar el subsistema eBPF.\n3. Compilar con paralelismo máximo usando `make -j$(nproc)`.\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.2,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Guía de Trabajos Prácticos de Laboratorio 2\n\n## Objetivos\n- Configurar un entorno virtualizado en Linux Debian.\n- Compilar el kernel Linux con módulos personalizados de telemetría.\n\n### Pasos Requeridos\n1. Clonar el repositorio oficial: `git clone https://kernel.org/git/linux.git`\n2. Ejecutar `make menuconfig` para habilitar el subsistema eBPF.\n3. Compilar con paralelismo máximo usando `make -j$(nproc)`.\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Guías de Cátedra",
+      "chapter": "TP 2",
+      "section": "Práctica de Kernel",
+      "page_start": 1,
+      "page_end": 2
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.95
+  },
+  {
+    "doc_id": "doc_pptx_01",
+    "format": "pptx",
+    "category": "office_pptx",
+    "title": "Presentación Teórica Seguridad 1",
+    "raw_content": "<!-- slide -->\n# Clase Teórica 1: Seguridad y Protección en Sistemas Operativos\n\n- Principio de Menor Privilegio (POLP).\n- Dominios de protección y matrices de acceso.\n- Listas de Control de Acceso (ACLs) vs Capacidades.\n\n<!-- slide -->\n# Matriz de Acceso\n- Filas: Dominios / Usuarios\n- Columnas: Objetos del Sistema (Archivos, Dispositivos)\n- Celdas: Derechos de acceso (Read, Write, Execute, Owner)\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 2
+    },
+    "ground_truth_markdown": "<!-- slide -->\n# Clase Teórica 1: Seguridad y Protección en Sistemas Operativos\n\n- Principio de Menor Privilegio (POLP).\n- Dominios de protección y matrices de acceso.\n- Listas de Control de Acceso (ACLs) vs Capacidades.\n\n<!-- slide -->\n# Matriz de Acceso\n- Filas: Dominios / Usuarios\n- Columnas: Objetos del Sistema (Archivos, Dispositivos)\n- Celdas: Derechos de acceso (Read, Write, Execute, Owner)\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Diapositivas Teóricas",
+      "chapter": "Unidad 8: Seguridad",
+      "section": "Diapositivas 1 y 2",
+      "page_start": 1,
+      "page_end": 2
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.91
+  },
+  {
+    "doc_id": "doc_pptx_02",
+    "format": "pptx",
+    "category": "office_pptx",
+    "title": "Presentación Teórica Seguridad 2",
+    "raw_content": "<!-- slide -->\n# Clase Teórica 2: Seguridad y Protección en Sistemas Operativos\n\n- Principio de Menor Privilegio (POLP).\n- Dominios de protección y matrices de acceso.\n- Listas de Control de Acceso (ACLs) vs Capacidades.\n\n<!-- slide -->\n# Matriz de Acceso\n- Filas: Dominios / Usuarios\n- Columnas: Objetos del Sistema (Archivos, Dispositivos)\n- Celdas: Derechos de acceso (Read, Write, Execute, Owner)\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.0,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 2
+    },
+    "ground_truth_markdown": "<!-- slide -->\n# Clase Teórica 2: Seguridad y Protección en Sistemas Operativos\n\n- Principio de Menor Privilegio (POLP).\n- Dominios de protección y matrices de acceso.\n- Listas de Control de Acceso (ACLs) vs Capacidades.\n\n<!-- slide -->\n# Matriz de Acceso\n- Filas: Dominios / Usuarios\n- Columnas: Objetos del Sistema (Archivos, Dispositivos)\n- Celdas: Derechos de acceso (Read, Write, Execute, Owner)\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Diapositivas Teóricas",
+      "chapter": "Unidad 9: Seguridad",
+      "section": "Diapositivas 1 y 2",
+      "page_start": 1,
+      "page_end": 2
+    },
+    "r1": "high",
+    "r2": "acceptable",
+    "human_quality_score": 0.91
+  },
+  {
+    "doc_id": "doc_xlsx_01",
+    "format": "xlsx",
+    "category": "office_xlsx",
+    "title": "Planilla de Calificaciones 1",
+    "raw_content": "# Hoja 1: Registro de Calificaciones de Exámenes Parciales 1\n\n| Padrón | Apellido y Nombre | Parcial 1 | Parcial 2 | Recuperatorio | Estado |\n| :--- | :--- | :---: | :---: | :---: | :--- |\n| 104521 | Alvarez, Mateo | 8 | 9 | - | Promovido |\n| 104522 | Benitez, Sofia | 4 | 7 | 8 | Regular |\n| 104523 | Castro, Lucia | 2 | 2 | - | Libre |\n| 104524 | Dominguez, Juan | 9 | 10 | - | Promovido |\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.5,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Hoja 1: Registro de Calificaciones de Exámenes Parciales 1\n\n| Padrón | Apellido y Nombre | Parcial 1 | Parcial 2 | Recuperatorio | Estado |\n| :--- | :--- | :---: | :---: | :---: | :--- |\n| 104521 | Alvarez, Mateo | 8 | 9 | - | Promovido |\n| 104522 | Benitez, Sofia | 4 | 7 | 8 | Regular |\n| 104523 | Castro, Lucia | 2 | 2 | - | Libre |\n| 104524 | Dominguez, Juan | 9 | 10 | - | Promovido |\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Planillas Administrativas",
+      "chapter": "Calificaciones",
+      "section": "Comisión 1",
+      "page_start": 1,
+      "page_end": 1
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.93
+  },
+  {
+    "doc_id": "doc_xlsx_02",
+    "format": "xlsx",
+    "category": "office_xlsx",
+    "title": "Planilla de Calificaciones 2",
+    "raw_content": "# Hoja 1: Registro de Calificaciones de Exámenes Parciales 2\n\n| Padrón | Apellido y Nombre | Parcial 1 | Parcial 2 | Recuperatorio | Estado |\n| :--- | :--- | :---: | :---: | :---: | :--- |\n| 104521 | Alvarez, Mateo | 8 | 9 | - | Promovido |\n| 104522 | Benitez, Sofia | 4 | 7 | 8 | Regular |\n| 104523 | Castro, Lucia | 2 | 2 | - | Libre |\n| 104524 | Dominguez, Juan | 9 | 10 | - | Promovido |\n",
+    "expected_profile": {
+      "has_text_layer": true,
+      "scan_ratio": 0.0,
+      "table_density": 0.5,
+      "code_density": 0.0,
+      "formula_density": 0.0,
+      "language": "es",
+      "pages": 1
+    },
+    "ground_truth_markdown": "# Hoja 1: Registro de Calificaciones de Exámenes Parciales 2\n\n| Padrón | Apellido y Nombre | Parcial 1 | Parcial 2 | Recuperatorio | Estado |\n| :--- | :--- | :---: | :---: | :---: | :--- |\n| 104521 | Alvarez, Mateo | 8 | 9 | - | Promovido |\n| 104522 | Benitez, Sofia | 4 | 7 | 8 | Regular |\n| 104523 | Castro, Lucia | 2 | 2 | - | Libre |\n| 104524 | Dominguez, Juan | 9 | 10 | - | Promovido |\n",
+    "curricular_metadata": {
+      "subject": "Sistemas Operativos",
+      "level": "Grado",
+      "book": "Planillas Administrativas",
+      "chapter": "Calificaciones",
+      "section": "Comisión 2",
+      "page_start": 1,
+      "page_end": 1
+    },
+    "r1": "high",
+    "r2": "high",
+    "human_quality_score": 0.93
+  }
+]

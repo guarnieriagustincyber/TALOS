@@ -1,0 +1,712 @@
+{
+  "version": "1.0.0",
+  "queries": [
+    {
+      "id": "oracle-def-01",
+      "notebook_id": "fadena-so",
+      "query": "¿Cuáles son los tres estados fundamentales en los que puede encontrarse un proceso?",
+      "category": "DEFINITION",
+      "relevant": [
+        {
+          "chunk_id": "so:proc:56",
+          "grade": 2,
+          "rationale": "Lista canónicamente los 3 estados: En ejecución, Listo y Bloqueado."
+        },
+        {
+          "chunk_id": "so:proc:57",
+          "grade": 1,
+          "rationale": "Profundiza en la diferencia entre el estado listo y bloqueado."
+        }
+      ],
+      "rationale": "Evalúa recuperación de definición canónica sobre estados de un proceso en SO."
+    },
+    {
+      "id": "oracle-def-02",
+      "notebook_id": "fadena-so",
+      "query": "¿Qué es una condición de carrera en sistemas operativos?",
+      "category": "DEFINITION",
+      "relevant": [
+        {
+          "chunk_id": "so:conc:31",
+          "grade": 2,
+          "rationale": "Define formalmente condiciones de carrera en acceso concurrente a memoria compartida."
+        },
+        {
+          "chunk_id": "so:conc:32",
+          "grade": 1,
+          "rationale": "Describe el problema práctico del spooler de impresión."
+        }
+      ],
+      "rationale": "Evalúa definición de concepto central de concurrencia e IPC."
+    },
+    {
+      "id": "oracle-def-03",
+      "notebook_id": "fadena-so",
+      "query": "¿Qué es la planificación apropiativa de CPU?",
+      "category": "DEFINITION",
+      "relevant": [
+        {
+          "chunk_id": "so:sche:44",
+          "grade": 2,
+          "rationale": "Define explícitamente algoritmos de planificación apropiativa frente a no apropiativa."
+        },
+        {
+          "chunk_id": "so:sche:45",
+          "grade": 1,
+          "rationale": "Explica el papel del reloj de interrupción para suspender el proceso."
+        }
+      ],
+      "rationale": "Evalúa concepto canónico de scheduling y preemption de CPU."
+    },
+    {
+      "id": "oracle-def-04",
+      "notebook_id": "fadena-so",
+      "query": "¿Cuál es el concepto fundamental de la memoria virtual?",
+      "category": "DEFINITION",
+      "relevant": [
+        {
+          "chunk_id": "so:virt:42",
+          "grade": 2,
+          "rationale": "Define que cada programa tiene su propio espacio de direcciones mapeado a memoria física."
+        },
+        {
+          "chunk_id": "so:virt:34",
+          "grade": 1,
+          "rationale": "Introduce la evolución desde registros base y límite hacia memoria virtual."
+        }
+      ],
+      "rationale": "Evalúa comprensión arquitectónica de la memoria virtual."
+    },
+    {
+      "id": "oracle-def-05",
+      "notebook_id": "fadena-prog",
+      "query": "¿Qué es un árbol binario y cuáles son sus componentes?",
+      "category": "DEFINITION",
+      "relevant": [
+        {
+          "chunk_id": "prog:tree:05",
+          "grade": 2,
+          "rationale": "Define formalmente el árbol binario con su raíz y subárboles izquierdo y derecho."
+        },
+        {
+          "chunk_id": "prog:tree:06",
+          "grade": 1,
+          "rationale": "Ejemplifica representaciones y diagramas de árboles binarios."
+        }
+      ],
+      "rationale": "Evalúa definición de estructura no lineal básica en ciencias de la computación."
+    },
+    {
+      "id": "oracle-def-06",
+      "notebook_id": "fadena-prog",
+      "query": "¿Qué es la raíz de un árbol en estructuras de datos?",
+      "category": "DEFINITION",
+      "relevant": [
+        {
+          "chunk_id": "prog:tree:01",
+          "grade": 2,
+          "rationale": "Define la raíz del árbol como nodo inicial no vacío."
+        },
+        {
+          "chunk_id": "prog:tree:02",
+          "grade": 1,
+          "rationale": "Explica nodos que no son hojas y ramas descendientes."
+        }
+      ],
+      "rationale": "Evalúa definición terminológica de jerarquía en árboles."
+    },
+    {
+      "id": "oracle-def-07",
+      "notebook_id": "fadena-prog",
+      "query": "¿En qué consiste la operación de consulta de un archivo de datos?",
+      "category": "DEFINITION",
+      "relevant": [
+        {
+          "chunk_id": "prog:file:10",
+          "grade": 2,
+          "rationale": "Define 9.5.2 Consulta de un archivo como acceso para lectura sin modificarlo."
+        },
+        {
+          "chunk_id": "prog:file:11",
+          "grade": 1,
+          "rationale": "Detalla operaciones de consulta e inserción de registros en archivos."
+        }
+      ],
+      "rationale": "Evalúa definición de operaciones elementales de entrada/salida sobre archivos."
+    },
+    {
+      "id": "oracle-def-08",
+      "notebook_id": "fadena-prog",
+      "query": "¿Por qué se requieren estructuras dinámicas en lugar de vectores estáticos en C?",
+      "category": "DEFINITION",
+      "relevant": [
+        {
+          "chunk_id": "prog:poin:21",
+          "grade": 2,
+          "rationale": "Explica la necesidad de estructuras de datos cuyo tamaño exacto se conoce en tiempo de ejecución."
+        },
+        {
+          "chunk_id": "prog:poin:20",
+          "grade": 1,
+          "rationale": "Contrasta inconvenientes de vectores rígidos de C."
+        }
+      ],
+      "rationale": "Evalúa justificación conceptual de gestión dinámica de memoria."
+    },
+    {
+      "id": "oracle-para-01",
+      "notebook_id": "fadena-so",
+      "query": "cuando un programa se queda esperando que el usuario escriba algo o que llegue información del disco",
+      "category": "PARAPHRASE",
+      "relevant": [
+        {
+          "chunk_id": "so:proc:54",
+          "grade": 2,
+          "rationale": "Explica que un proceso se bloquea cuando lógicamente no puede continuar esperando una entrada."
+        },
+        {
+          "chunk_id": "so:proc:55",
+          "grade": 1,
+          "rationale": "Distingue la suspensión lógica por falta de entrada de la suspensión por falta de CPU."
+        }
+      ],
+      "rationale": "Paráfrasis de alumno describiendo proceso bloqueado sin usar el término formal."
+    },
+    {
+      "id": "oracle-para-02",
+      "notebook_id": "fadena-so",
+      "query": "problema cuando dos tareas intentan reservar el mismo asiento de avión o recurso compartido al mismo tiempo",
+      "category": "PARAPHRASE",
+      "relevant": [
+        {
+          "chunk_id": "so:conc:28",
+          "grade": 2,
+          "rationale": "Describe el caso de dos procesos intentando obtener el último asiento en un avión para distintos clientes."
+        },
+        {
+          "chunk_id": "so:conc:27",
+          "grade": 1,
+          "rationale": "Introduce las cuestiones de comunicación y conflicto en IPC."
+        }
+      ],
+      "rationale": "Paráfrasis de conflicto concurrente usando la metáfora de reserva de asientos."
+    },
+    {
+      "id": "oracle-para-03",
+      "notebook_id": "fadena-so",
+      "query": "estrategia para impedir que una tarea pesada monopolice el procesador y congele la máquina",
+      "category": "PARAPHRASE",
+      "relevant": [
+        {
+          "chunk_id": "so:sche:49",
+          "grade": 2,
+          "rationale": "Explica que en entornos interactivos la apropiación es esencial para evitar que un proceso acapare la CPU."
+        },
+        {
+          "chunk_id": "so:sche:44",
+          "grade": 1,
+          "rationale": "Concepto de planificación apropiativa que quita la CPU a un proceso."
+        }
+      ],
+      "rationale": "Paráfrasis de preemption y equidad en planificación interactiva."
+    },
+    {
+      "id": "oracle-para-04",
+      "notebook_id": "fadena-so",
+      "query": "técnica antigua donde el programador tenía que partir manualmente un programa gigante para que entre en la RAM",
+      "category": "PARAPHRASE",
+      "relevant": [
+        {
+          "chunk_id": "so:virt:41",
+          "grade": 2,
+          "rationale": "Describe el proceso de dividir programas en sobrepuestos manualmente por el programador."
+        },
+        {
+          "chunk_id": "so:virt:39",
+          "grade": 1,
+          "rationale": "Explica el administrador de sobrepuestos cargándolos dinámicamente desde el disco."
+        }
+      ],
+      "rationale": "Paráfrasis histórica sobre la técnica de overlays previa a la memoria virtual."
+    },
+    {
+      "id": "oracle-para-05",
+      "notebook_id": "fadena-prog",
+      "query": "cómo recorrer todos los elementos de una cadena de nodos conectados uno por uno hasta llegar al final",
+      "category": "PARAPHRASE",
+      "relevant": [
+        {
+          "chunk_id": "prog:line:14",
+          "grade": 2,
+          "rationale": "Describe el recorrido sistemático de una lista enlazada desde el primer elemento."
+        },
+        {
+          "chunk_id": "prog:line:15",
+          "grade": 1,
+          "rationale": "Algoritmo con bucle mientras posic sea distinto de cero."
+        }
+      ],
+      "rationale": "Paráfrasis coloquial de algoritmo de recorrido en listas enlazadas."
+    },
+    {
+      "id": "oracle-para-06",
+      "notebook_id": "fadena-prog",
+      "query": "conjunto o agrupación de varios árboles independientes",
+      "category": "PARAPHRASE",
+      "relevant": [
+        {
+          "chunk_id": "prog:tree:03",
+          "grade": 2,
+          "rationale": "Define que una colección de dos o más árboles se llama bosque (forest)."
+        },
+        {
+          "chunk_id": "prog:tree:01",
+          "grade": 1,
+          "rationale": "Propiedades generales de árboles."
+        }
+      ],
+      "rationale": "Paráfrasis descriptiva de la noción de bosque (forest)."
+    },
+    {
+      "id": "oracle-para-07",
+      "notebook_id": "fadena-prog",
+      "query": "forma de ordenar los datos de los empleados de una empresa según su número o legajo",
+      "category": "PARAPHRASE",
+      "relevant": [
+        {
+          "chunk_id": "prog:file:09",
+          "grade": 2,
+          "rationale": "Organigrama y creación de un archivo ordenado de empleados por campo clave."
+        },
+        {
+          "chunk_id": "prog:file:13",
+          "grade": 1,
+          "rationale": "Operación general de clasificación de archivos."
+        }
+      ],
+      "rationale": "Paráfrasis contextualizada en un caso de uso empresarial de ordenamiento de archivos."
+    },
+    {
+      "id": "oracle-para-08",
+      "notebook_id": "fadena-prog",
+      "query": "arreglos que pueden cambiar de dimensión mientras el programa está corriendo",
+      "category": "PARAPHRASE",
+      "relevant": [
+        {
+          "chunk_id": "prog:poin:24",
+          "grade": 2,
+          "rationale": "Introduce los vectores de longitud variable ajustables en ejecución."
+        },
+        {
+          "chunk_id": "prog:poin:21",
+          "grade": 1,
+          "rationale": "Fundamenta las estructuras dinámicas cuyo tamaño se define en ejecución."
+        }
+      ],
+      "rationale": "Paráfrasis de vectores dinámicos de longitud variable."
+    },
+    {
+      "id": "oracle-code-01",
+      "notebook_id": "fadena-so",
+      "query": "grep \"arbol\"",
+      "category": "CODE_SYMBOL",
+      "relevant": [
+        {
+          "chunk_id": "so:proc:53",
+          "grade": 2,
+          "rationale": "Contiene la invocación literal del comando grep con el argumento \"arbol\"."
+        }
+      ],
+      "rationale": "Evalúa coincidencia léxica exacta de comando y argumento en pipeline Unix."
+    },
+    {
+      "id": "oracle-code-02",
+      "notebook_id": "fadena-so",
+      "query": "IPC",
+      "category": "CODE_SYMBOL",
+      "relevant": [
+        {
+          "chunk_id": "so:conc:27",
+          "grade": 2,
+          "rationale": "Define y aborda directamente la sigla IPC (Inter-Process Communication)."
+        },
+        {
+          "chunk_id": "so:conc:26",
+          "grade": 1,
+          "rationale": "Encabezado de comunicación entre procesos."
+        }
+      ],
+      "rationale": "Evalúa sigla técnica de uso universal en sistemas operativos."
+    },
+    {
+      "id": "oracle-code-03",
+      "notebook_id": "fadena-prog",
+      "query": "procedimiento consultar( E entero : inic; S entero : posic, anterior; E tipo_elemento: elem)",
+      "category": "CODE_SYMBOL",
+      "relevant": [
+        {
+          "chunk_id": "prog:line:17",
+          "grade": 2,
+          "rationale": "Firma algorítmica exacta del procedimiento consultar de listas."
+        },
+        {
+          "chunk_id": "prog:line:16",
+          "grade": 1,
+          "rationale": "Descripción conceptual del procedimiento consultar."
+        }
+      ],
+      "rationale": "Evalúa firma de código/pseudocódigo algorítmico específico."
+    },
+    {
+      "id": "oracle-code-04",
+      "notebook_id": "fadena-prog",
+      "query": "posic ← inic mientras posic <> 0",
+      "category": "CODE_SYMBOL",
+      "relevant": [
+        {
+          "chunk_id": "prog:line:15",
+          "grade": 2,
+          "rationale": "Contiene exactamente la asignación posic ← inic y el bucle mientras posic <> 0."
+        },
+        {
+          "chunk_id": "prog:line:14",
+          "grade": 1,
+          "rationale": "Contexto explicativo del recorrido."
+        }
+      ],
+      "rationale": "Evalúa búsqueda de sintaxis algorítmica de iteración."
+    },
+    {
+      "id": "oracle-code-05",
+      "notebook_id": "fadena-prog",
+      "query": "forest",
+      "category": "CODE_SYMBOL",
+      "relevant": [
+        {
+          "chunk_id": "prog:tree:03",
+          "grade": 2,
+          "rationale": "Identificador técnico literal en inglés (forest) usado en la definición de bosque."
+        }
+      ],
+      "rationale": "Evalúa recuperación por término léxico en inglés incluido en el texto en español."
+    },
+    {
+      "id": "oracle-code-06",
+      "notebook_id": "fadena-prog",
+      "query": "a + b/c",
+      "category": "CODE_SYMBOL",
+      "relevant": [
+        {
+          "chunk_id": "prog:tree:06",
+          "grade": 2,
+          "rationale": "Ejemplo de árbol binario que representa la expresión aritmética literal a + b/c."
+        }
+      ],
+      "rationale": "Evalúa expresión matemática/algebraica estructurada como árbol sintáctico."
+    },
+    {
+      "id": "oracle-diac-01",
+      "notebook_id": "fadena-so",
+      "query": "planificacion apropiativa y no apropiativa de procesos",
+      "category": "DIACRITICS_VARIANTS",
+      "relevant": [
+        {
+          "chunk_id": "so:sche:44",
+          "grade": 2,
+          "rationale": "Trata sobre planificación apropiativa (con tilde en el texto fuente)."
+        },
+        {
+          "chunk_id": "so:sche:46",
+          "grade": 1,
+          "rationale": "Metas y objetivos de la planificación de CPU."
+        }
+      ],
+      "rationale": "Evalúa robustez léxica ante omisión de tilde en 'planificación'."
+    },
+    {
+      "id": "oracle-diac-02",
+      "notebook_id": "fadena-so",
+      "query": "comunicacion entre procesos y condiciones de carrera",
+      "category": "DIACRITICS_VARIANTS",
+      "relevant": [
+        {
+          "chunk_id": "so:conc:26",
+          "grade": 2,
+          "rationale": "Sección COMUNICACIÓN ENTRE PROCESOS sin acento en la consulta."
+        },
+        {
+          "chunk_id": "so:conc:31",
+          "grade": 1,
+          "rationale": "Condiciones de carrera en procesos concurrentes."
+        }
+      ],
+      "rationale": "Evalúa robustez ante omisión de tildes en consulta de IPC."
+    },
+    {
+      "id": "oracle-diac-03",
+      "notebook_id": "fadena-so",
+      "query": "administracion de memoria virtual y espacio de direcciones",
+      "category": "DIACRITICS_VARIANTS",
+      "relevant": [
+        {
+          "chunk_id": "so:virt:42",
+          "grade": 2,
+          "rationale": "Espacio de direcciones en memoria virtual."
+        },
+        {
+          "chunk_id": "so:virt:34",
+          "grade": 1,
+          "rationale": "Conceptos de memoria virtual y abstracción de memoria."
+        }
+      ],
+      "rationale": "Evalúa omisión de tildes en términos de memoria virtual."
+    },
+    {
+      "id": "oracle-diac-04",
+      "notebook_id": "fadena-prog",
+      "query": "arbol binario con subarbol izquierdo y subarbol derecho",
+      "category": "DIACRITICS_VARIANTS",
+      "relevant": [
+        {
+          "chunk_id": "prog:tree:05",
+          "grade": 2,
+          "rationale": "Define 'árbol binario' con 'subárbol izquierdo' y 'subárbol derecho' (con tildes en libro)."
+        },
+        {
+          "chunk_id": "prog:tree:06",
+          "grade": 1,
+          "rationale": "Ejemplos de árboles binarios."
+        }
+      ],
+      "rationale": "Evalúa omisión de múltiples tildes en consulta de árboles binarios."
+    },
+    {
+      "id": "oracle-diac-05",
+      "notebook_id": "fadena-prog",
+      "query": "clasificacion reorganizacion y destruccion de archivos",
+      "category": "DIACRITICS_VARIANTS",
+      "relevant": [
+        {
+          "chunk_id": "prog:file:07",
+          "grade": 2,
+          "rationale": "Lista 'Clasificación', 'Reorganización' y 'Destrucción' en operaciones sobre archivos."
+        },
+        {
+          "chunk_id": "prog:file:13",
+          "grade": 1,
+          "rationale": "Operación de clasificación de un archivo."
+        }
+      ],
+      "rationale": "Evalúa omisión sistemática de tildes en operaciones de archivos."
+    },
+    {
+      "id": "oracle-diac-06",
+      "notebook_id": "fadena-prog",
+      "query": "estructuras dinamicas lineales listas pilas y colas",
+      "category": "DIACRITICS_VARIANTS",
+      "relevant": [
+        {
+          "chunk_id": "prog:line:14",
+          "grade": 2,
+          "rationale": "Título 'Estructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)'."
+        },
+        {
+          "chunk_id": "prog:line:16",
+          "grade": 1,
+          "rationale": "Operaciones de búsqueda y consulta en listas."
+        }
+      ],
+      "rationale": "Evalúa variante sin acento de estructuras lineales."
+    },
+    {
+      "id": "oracle-ambi-01",
+      "notebook_id": "fadena-so",
+      "query": "estados y transiciones de procesos",
+      "category": "AMBIGUOUS",
+      "relevant": [
+        {
+          "chunk_id": "so:proc:56",
+          "grade": 2,
+          "rationale": "Lista los 3 estados en los que puede estar un proceso."
+        },
+        {
+          "chunk_id": "so:proc:58",
+          "grade": 2,
+          "rationale": "Detalla el diagrama de transiciones entre estados."
+        },
+        {
+          "chunk_id": "so:proc:57",
+          "grade": 1,
+          "rationale": "Distingue la suspensión lógica de la falta de CPU."
+        }
+      ],
+      "rationale": "Consulta amplia que involucra tanto la definición de estados como el diagrama de transiciones."
+    },
+    {
+      "id": "oracle-ambi-02",
+      "notebook_id": "fadena-so",
+      "query": "comunicación entre procesos e IPC",
+      "category": "AMBIGUOUS",
+      "relevant": [
+        {
+          "chunk_id": "so:conc:26",
+          "grade": 2,
+          "rationale": "Sección introductoria de comunicación entre procesos."
+        },
+        {
+          "chunk_id": "so:conc:27",
+          "grade": 2,
+          "rationale": "Tres cuestiones centrales de IPC."
+        },
+        {
+          "chunk_id": "so:conc:29",
+          "grade": 1,
+          "rationale": "Aplicación de las cuestiones a procesos e hilos."
+        }
+      ],
+      "rationale": "Consulta genérica sobre concurrencia con múltiples piezas legítimas de evidencia."
+    },
+    {
+      "id": "oracle-ambi-03",
+      "notebook_id": "fadena-prog",
+      "query": "operaciones sobre archivos",
+      "category": "AMBIGUOUS",
+      "relevant": [
+        {
+          "chunk_id": "prog:file:07",
+          "grade": 2,
+          "rationale": "Catálogo de operaciones sobre archivos (clasificación, reorganización, destrucción)."
+        },
+        {
+          "chunk_id": "prog:file:10",
+          "grade": 2,
+          "rationale": "Detalle de la operación de consulta de un archivo."
+        },
+        {
+          "chunk_id": "prog:file:13",
+          "grade": 2,
+          "rationale": "Detalle de la operación de clasificación de un archivo."
+        }
+      ],
+      "rationale": "Consulta de alto nivel que abarca múltiples suboperaciones de archivos con igual legitimidad."
+    },
+    {
+      "id": "oracle-ambi-04",
+      "notebook_id": "fadena-prog",
+      "query": "árboles y estructuras no lineales",
+      "category": "AMBIGUOUS",
+      "relevant": [
+        {
+          "chunk_id": "prog:tree:00",
+          "grade": 2,
+          "rationale": "Presentación de estructuras de datos no lineales (árboles y grafos)."
+        },
+        {
+          "chunk_id": "prog:tree:01",
+          "grade": 2,
+          "rationale": "Definiciones canónicas de raíz, ramas y nodos de árboles."
+        },
+        {
+          "chunk_id": "prog:tree:05",
+          "grade": 1,
+          "rationale": "Especialización en árboles binarios."
+        }
+      ],
+      "rationale": "Consulta amplia sobre estructuras jerárquicas con varios fragmentos relevantes."
+    },
+    {
+      "id": "oracle-leak-01",
+      "notebook_id": "fadena-so",
+      "query": "¿Cómo se declara un árbol binario con punteros a nodo izquierdo y derecho?",
+      "category": "CURRICULAR_LEAKAGE",
+      "relevant": [],
+      "rationale": "Pregunta de estructuras de datos en C ejecutada en Sistemas Operativos; debe retornar cero chunks para asegurar aislamiento curricular."
+    },
+    {
+      "id": "oracle-leak-02",
+      "notebook_id": "fadena-so",
+      "query": "operación de inserción y consulta en listas dinámicas enlazadas",
+      "category": "CURRICULAR_LEAKAGE",
+      "relevant": [],
+      "rationale": "Pregunta sobre listas enlazadas ejecutada en Sistemas Operativos; no debe fugar contenido de fadena-prog."
+    },
+    {
+      "id": "oracle-leak-03",
+      "notebook_id": "fadena-so",
+      "query": "apertura de archivos mediante flujos fopen y fclose en modo lectura",
+      "category": "CURRICULAR_LEAKAGE",
+      "relevant": [],
+      "rationale": "Pregunta de manejo de ficheros en C ejecutada en Sistemas Operativos; no debe retornar fragmentos de fadena-prog."
+    },
+    {
+      "id": "oracle-leak-04",
+      "notebook_id": "fadena-prog",
+      "query": "¿Cómo funciona la paginación de memoria virtual y la unidad de traducción MMU?",
+      "category": "CURRICULAR_LEAKAGE",
+      "relevant": [],
+      "rationale": "Pregunta sobre memoria virtual de SO ejecutada en Programación; el recuperador debe aislar el espacio curricular."
+    },
+    {
+      "id": "oracle-leak-05",
+      "notebook_id": "fadena-prog",
+      "query": "condición de carrera y sincronización entre hilos mediante semáforos",
+      "category": "CURRICULAR_LEAKAGE",
+      "relevant": [],
+      "rationale": "Pregunta de concurrencia de SO formulada en Programación; no debe permitir fuga de evidencias cruzadas."
+    },
+    {
+      "id": "oracle-leak-06",
+      "notebook_id": "fadena-prog",
+      "query": "algoritmo de planificación de CPU apropiativa con reloj de interrupciones",
+      "category": "CURRICULAR_LEAKAGE",
+      "relevant": [],
+      "rationale": "Pregunta de scheduling de CPU formulada en Programación; debe retornar cero candidatos ilegales."
+    },
+    {
+      "id": "oracle-code-07",
+      "notebook_id": "fadena-so",
+      "query": "spooler de impresion",
+      "category": "CODE_SYMBOL",
+      "relevant": [
+        {
+          "chunk_id": "so:conc:32",
+          "grade": 2,
+          "rationale": "Describe el directorio de spooler de impresion en concurrencia."
+        }
+      ],
+      "rationale": "Termino tecnico de impresion en memoria compartida."
+    },
+    {
+      "id": "oracle-code-08",
+      "notebook_id": "fadena-so",
+      "query": "SATA 100 MB/segundo",
+      "category": "CODE_SYMBOL",
+      "relevant": [
+        {
+          "chunk_id": "so:virt:37",
+          "grade": 2,
+          "rationale": "Menciona especificamente la tasa de transferencia del bus SATA."
+        }
+      ],
+      "rationale": "Parametros tecnicos de hardware de almacenamiento."
+    }
+  ],
+  "metadata": {
+    "benchmark_version": "S3.6.2",
+    "corpus": "data/benchmark/benchmark_corpus.json",
+    "description": "Deterministic Human Oracle Ground Truth for S3.6.2 Comparative Certification.",
+    "total_queries": 40,
+    "categories": {
+      "CODE_SYMBOL": 8,
+      "DEFINITION": 8,
+      "PARAPHRASE": 8,
+      "DIACRITICS_VARIANTS": 6,
+      "AMBIGUOUS": 4,
+      "CURRICULAR_LEAKAGE": 6
+    },
+    "notebooks": {
+      "fadena-so": 20,
+      "fadena-prog": 20
+    }
+  }
+}

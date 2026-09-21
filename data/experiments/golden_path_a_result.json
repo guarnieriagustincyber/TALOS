@@ -1,0 +1,161 @@
+{
+  "scenario_id": "GOLDEN-STUDY-V0-POINTERS",
+  "scenario_version": "1.0.0",
+  "timestamp_utc": "2026-09-05T00:13:11.371219+00:00",
+  "canonical_query": "¿Por qué se requieren estructuras dinámicas en lugar de vectores estáticos en C?",
+  "oracle_id": "oracle-def-08",
+  "pdf_source": {
+    "filename": "prog_punteros.pdf",
+    "expected_sha256": "4ece5c39d64e25953bac8df1f096f43df90662970f5e6225a2e7d6daa8dcaf9d",
+    "physical_page": 234
+  },
+  "evidence": {
+    "chunks": [
+      "prog:poin:20",
+      "prog:poin:21"
+    ],
+    "context_hash": "6c0d93e36ea39f72df2705d26b93ca39b162436b6f529b5ba00b1606e3d9b15b",
+    "epistemic_policy": "POLÍTICA EPISTÉMICA: ESTRICTA Y VERIFICABLE (NIVEL OBLIGATORIO).\n1. Responde de forma directa y concisa a la pregunta formulada.\n2. Basa cada una de tus afirmaciones factuales EXCLUSIVAMENTE en las evidencias identificadas con [E1] y [E2].\n3. Cita explícitamente [E1] o [E2] al final de cada oración o afirmación que contenga datos fácticos.\n4. NO introduzcas conceptos, terminología ni detalles externos que no figuren en los fragmentos provistos, aunque sean ciertos en el estándar de C.\n5. NO incluyas código de ejemplo a menos que esté presente en la evidencia.\n6. NO intentes evaluar al estudiante ni declarar avances en el curso."
+  },
+  "configuration": {
+    "provider": "gemini",
+    "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+    "model": "gemini-3.6-flash",
+    "temperature": 0.0,
+    "seed": null,
+    "max_tokens": 2048,
+    "retries": 0,
+    "cache": "disabled",
+    "google_search": "OFF",
+    "dynamic_retrieval": "OFF",
+    "prompt_hash": "7faa1c7acfc9d52c31e92537a400aaf957540c01c9cff3268b4c54a7f222934c"
+  },
+  "execution": {
+    "latency_ms": 7723.3036860006905,
+    "raw_text": "En el lenguaje C, las estructuras dinámicas son necesarias principalmente para superar las limitaciones de tamaño que presentan los vectores estáticos [E1, E2]:\n\n* **Limitación de los vectores estáticos:** Los vectores convencionales en C requieren que su tamaño sea fijo y conocido en tiempo de compilación [E1]. Por esta razón, no es posible alargarlos o acortarlos para adaptarse a la cantidad variable de datos durante la ejecución del programa [E1].\n* **Necesidad de gestión dinámica:** Se requieren estructuras dinámicas porque permiten solicitar memoria durante la ejecución para albergar datos cuyo tamaño exacto no se conoce previamente o antes de que el programa se haya iniciado [E1].\n\nPara resolver estos inconvenientes de tamaño mediante la gestión dinámica de memoria, C hace uso de punteros a través de dos aproximaciones principales [E2]:\n1. Vectores cuyo tamaño se fija en tiempo de ejecución [E2].\n2. Registros enlazados (también llamados listas enlazadas o listas) [E2].",
+    "citations": [
+      {
+        "citation_id": "E1",
+        "in_manifest": true,
+        "chunk_id": "prog:poin:20"
+      },
+      {
+        "citation_id": "E2",
+        "in_manifest": true,
+        "chunk_id": "prog:poin:21"
+      }
+    ],
+    "validation_status": "VALID",
+    "audit": {
+      "overall_verdict": "REJECTED_UNSUPPORTED",
+      "nli_executed": true,
+      "nli_judge_id": "live-nli-gemini-3.6-flash",
+      "deterministic_checks": [
+        {
+          "id": "CHECK_INPUT_IDENTITY",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "Input identity strictly aligned across request, response, and context."
+        },
+        {
+          "id": "CHECK_MANIFEST_INTEGRITY",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "All citations resolve to authoritative manifest records with valid hashes."
+        },
+        {
+          "id": "CHECK_P7_MASTERY_MUTATION",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "No student state or curricular advancement claims detected."
+        },
+        {
+          "id": "CHECK_INJECTION_CANARY",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "No canary leakage detected."
+        },
+        {
+          "id": "CHECK_INJECTION_ECHO",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "No injection directive echoes detected in text."
+        },
+        {
+          "id": "CHECK_FACTUAL_GROUNDING",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "All factual claims cite packaged evidence tags."
+        }
+      ],
+      "claim_verifications": [
+        {
+          "claim_index": 0,
+          "claim_text": "En el lenguaje C, las estructuras dinámicas son necesarias principalmente para superar las limitaciones de tamaño que presentan los vectores estáticos [E1, E2]:",
+          "cited_tags": [
+            "E1",
+            "E2"
+          ],
+          "nli_verdict": "UNASSESSED",
+          "rationale": "Judge error: Unterminated string starting at: line 4 column 16 (char 68)"
+        },
+        {
+          "claim_index": 1,
+          "claim_text": "* **Limitación de los vectores estáticos:** Los vectores convencionales en C requieren que su tamaño sea fijo y conocido en tiempo de compilación [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "The premise explicitly states that C vectors require their size to be fixed and known at compile time ('su tamaño debía ser ﬁjo y conocido en tiempo de compilación'), which directly entails the hypothesis."
+        },
+        {
+          "claim_index": 2,
+          "claim_text": "Por esta razón, no es posible alargarlos o acortarlos para adaptarse a la cantidad variable de datos durante la ejecución del programa [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "The premise explicitly states that C vectors have a fixed size known at compile time, meaning they cannot be lengthened or shortened to adapt to data size during program execution. The hypothesis directly restates this logical consequence."
+        },
+        {
+          "claim_index": 3,
+          "claim_text": "* **Necesidad de gestión dinámica:** Se requieren estructuras dinámicas porque permiten solicitar memoria durante la ejecución para albergar datos cuyo tamaño exacto no se conoce previamente o antes de que el programa se haya iniciado [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "The premise explicitly states that C vectors required a fixed size known at compile time (before execution), whereas dynamic memory management allows requesting memory during program execution to store structure contents and adapt to data sizes. This directly supports the hypothesis."
+        },
+        {
+          "claim_index": 4,
+          "claim_text": "Para resolver estos inconvenientes de tamaño mediante la gestión dinámica de memoria, C hace uso de punteros a través de dos aproximaciones principales [E2]:",
+          "cited_tags": [
+            "E2"
+          ],
+          "nli_verdict": "NOT_ENTAILED",
+          "rationale": "The premise states that two approaches (runtime-sized vectors and linked lists) based on pointers are studied to overcome C's size limitations. However, the premise does not explicitly mention 'gestión dinámica de memoria' (dynamic memory management), making the hypothesis introduce concepts not directly supported by the text alone."
+        },
+        {
+          "claim_index": 5,
+          "claim_text": "1. Vectores cuyo tamaño se fija en tiempo de ejecución [E2].",
+          "cited_tags": [
+            "E2"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "The premise explicitly mentions 'vectores cuyo tamaño se ﬁja en tiempo de ejecución' as one of the two methods studied to overcome the size limitations imposed by C."
+        },
+        {
+          "claim_index": 6,
+          "claim_text": "2. Registros enlazados (también llamados listas enlazadas o listas) [E2].",
+          "cited_tags": [
+            "E2"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "The premise explicitly identifies 'registros enlazados' as the second method mentioned for overcoming size limitations, and directly states that they are also known as 'listas enlazadas' or simply 'listas'."
+        }
+      ]
+    },
+    "final_verdict": "REJECTED_UNSUPPORTED"
+  },
+  "status": "COMPLETED"
+}

@@ -1,0 +1,60 @@
+{
+  "routing_version": "0.9.0-candidate",
+  "probe_version": "1.0.0",
+  "description": "Candidate routing rules for document conversion based on probe profile",
+  "default_primary": "markitdown",
+  "default_secondary": "anydoc_local",
+  "rules": {
+    "docx": {
+      "format": "docx",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    },
+    "pptx": {
+      "format": "pptx",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    },
+    "xlsx": {
+      "format": "xlsx",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    },
+    "pdf_digital": {
+      "format": "pdf",
+      "condition": "has_text_layer == true and scan_ratio <= 0.50",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": "tesseract_fallback",
+      "requires_cloud": false
+    },
+    "pdf_scanned": {
+      "format": "pdf",
+      "condition": "has_text_layer == false or scan_ratio > 0.50",
+      "primary": "anydoc_cloud",
+      "secondary": "tesseract_fallback",
+      "fallback": "tesseract_fallback",
+      "requires_cloud": true
+    },
+    "html": {
+      "format": "html",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    },
+    "plain": {
+      "format": "txt",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    }
+  }
+}

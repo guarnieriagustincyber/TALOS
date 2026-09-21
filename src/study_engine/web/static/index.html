@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KASIU Study Engine - Plataforma de Aprendizaje Soberano</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+  <!-- Offline Vendor Libraries -->
+  <script src="/static/vendor/mermaid.min.js"></script>
+  <script src="/static/vendor/marked.min.js"></script>
+  <script src="/static/vendor/dompurify.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="brand">
+      <span>⚡ KASIU</span>
+      <span class="brand-badge">HITO 10</span>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button id="tab-btn-study" class="nav-tab active" onclick="switchTab('study')">
+        <span>🗺️</span> Ruta & Tutor
+      </button>
+      <button id="tab-btn-practice" class="nav-tab" onclick="switchTab('practice')">
+        <span>💻</span> Práctica
+      </button>
+      <button id="tab-btn-audit" class="nav-tab" onclick="switchTab('audit')">
+        <span>📊</span> Auditoría & Ledger
+      </button>
+    </nav>
+
+    <!-- Health Diagnostics Badge -->
+    <div id="health-badge" class="health-status" onclick="toggleHealthPopover()">
+      <span id="health-dot" class="health-dot"></span>
+      <span id="health-text">Conectando...</span>
+
+      <!-- Health Popover Diagnostics -->
+      <div id="health-popover" class="health-popover">
+        <h4>Diagnóstico del Sistema KASIU</h4>
+        <div class="health-item">
+          <span>Curriculum:</span>
+          <span id="diag-curriculum">--</span>
+        </div>
+        <div class="health-item">
+          <span>Ledger Inmutable:</span>
+          <span id="diag-ledger">--</span>
+        </div>
+        <div class="health-item">
+          <span>Proveedor LLM:</span>
+          <span id="diag-llm">--</span>
+        </div>
+        <div class="health-item">
+          <span>Sandbox Aislamiento:</span>
+          <span id="diag-sandbox">Tier 0 Hermético</span>
+        </div>
+        <div class="health-item">
+          <span>Perímetro Congelado:</span>
+          <span id="diag-perimeter" style="color: #34d399;">INTACTO</span>
+        </div>
+        <div class="health-item">
+          <span>Suite de Tests:</span>
+          <span id="diag-tests">1.490 pasando</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace Content -->
+  <main class="main-content">
+
+    <!-- TAB 1: RUTA DE ESTUDIO Y TUTOR SOCRÁTICO -->
+    <section id="view-study" class="tab-view active">
+      <div class="study-grid">
+        
+        <!-- Left Column: DAG Curricular -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">
+              <span>🗺️</span> Roadmap Curricular Interactivo
+            </span>
+            <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" onclick="loadRoadmap()">
+              ↻ Actualizar
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="dag-container">
+              <div id="dag-render-area">
+                <p style="color: var(--text-secondary); font-size: 0.85rem;">Cargando grafo curricular soberano...</p>
+              </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="dag-legend">
+              <div class="legend-item">
+                <span class="legend-swatch swatch-available"></span>
+                <span>Disponible</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-swatch swatch-progress"></span>
+                <span>En Progreso</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-swatch swatch-proficient"></span>
+                <span>Competente (Aprobado)</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-swatch swatch-locked"></span>
+                <span>Bloqueado</span>
+              </div>
+            </div>
+
+            <!-- Node Detail Drawer -->
+            <div id="node-drawer" class="node-drawer">
+              <div class="node-drawer-header">
+                <div>
+                  <h3 id="drawer-node-title" class="node-drawer-title">Seleccioná un nodo</h3>
+                  <p id="drawer-node-id" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);"></p>
+                </div>
+                <span id="drawer-node-status" class="node-status-badge badge-locked">LOCKED</span>
+              </div>
+              <p id="drawer-node-desc" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;"></p>
+              
+              <div id="drawer-prereqs-box" style="margin-bottom: 0.75rem; font-size: 0.78rem;">
+                <span style="color: var(--text-muted); font-weight: 600;">Prerrequisitos:</span>
+                <span id="drawer-prereqs-list" style="color: var(--text-primary);">Ninguno</span>
+              </div>
+
+              <div id="drawer-sources-box" style="margin-bottom: 0.75rem; font-size: 0.78rem;">
+                <span style="color: var(--text-muted); font-weight: 600;">Fuentes Autorizadas [E#]:</span>
+                <span id="drawer-sources-list" style="color: #93c5fd; font-family: var(--font-mono);">--</span>
+              </div>
+
+              <button id="btn-start-study" class="btn" style="width: 100%; justify-content: center;" onclick="startSessionForActiveNode()">
+                🚀 Iniciar Sesión de Estudio
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Chat Socrático del Tutor -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">
+              <span>💬</span> Tutor Socrático KASIU
+            </span>
+            <span id="active-session-label" style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
+              Sin sesión activa
+            </span>
+          </div>
+          <div class="card-body chat-container">
+            <div id="chat-history" class="chat-history">
+              <div class="chat-bubble tutor">
+                <strong>⚡ Tutor KASIU:</strong><br>
+                ¡Bienvenido a tu entorno de estudio! Seleccioná un nodo <strong>Disponible (Verde)</strong> en el mapa curricular de la izquierda para iniciar tu sesión de aprendizaje fundamentada con evidencia.
+              </div>
+            </div>
+            <div class="chat-input-bar">
+              <input id="chat-input" type="text" class="chat-input" placeholder="Hacé una pregunta conceptual sobre el tema activo..." onkeypress="handleChatKeyPress(event)">
+              <button id="btn-send-chat" class="btn" onclick="sendChatMessage()">
+                Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: PRÁCTICA Y LABORATORIO EN SANDBOX HERMÉTICO -->
+    <section id="view-practice" class="tab-view">
+      <div class="practice-grid">
+        
+        <!-- Left Column: Consigna del Desafío Práctico & Rúbrica -->
+        <div class="card practice-task-card">
+          <div class="card-header">
+            <span class="card-title">
+              <span>💻</span> <span id="practice-task-title">Desafío Práctico (Cargando...)</span>
+            </span>
+            <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" onclick="Practice.init()">
+              ↻ Cargar Tarea
+            </button>
+          </div>
+          <div id="practice-task-desc" class="card-body practice-task-body">
+            <p style="color: var(--text-secondary);">Seleccioná un nodo en la pestaña <strong>Ruta & Tutor</strong> para cargar su desafío práctico de código correspondiente.</p>
+          </div>
+        </div>
+
+        <!-- Right Column: Editor de Código & Consola de Evaluación -->
+        <div class="practice-workspace-card">
+          
+          <!-- Code Editor Component -->
+          <div class="code-editor-container">
+            <div class="editor-toolbar">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <button id="btn-submit-practice" class="btn" style="padding: 0.35rem 0.85rem; font-size: 0.78rem;" onclick="Practice.submitSolution()">
+                  🚀 Ejecutar y Entregar (Sandbox Tier 0)
+                </button>
+                <button class="btn btn-secondary" style="padding: 0.35rem 0.6rem; font-size: 0.75rem;" onclick="Practice.resetDraft()" title="Restaurar plantilla inicial">
+                  🗑️ Resetear
+                </button>
+              </div>
+              <span id="practice-status-bar" style="color: var(--text-muted); font-size: 0.75rem;">
+                Cargando...
+              </span>
+            </div>
+            <textarea id="code-editor"
+                      placeholder="// Escribí tu solución aquí..."
+                      onkeydown="Practice.handleEditorKeyDown(event)"
+                      oninput="Practice.triggerAutoSave()"></textarea>
+          </div>
+
+          <!-- 3-Tab Feedback Console (Stdout/Stderr, Rubric, Ledger) -->
+          <div class="console-container">
+            <div class="console-tabs-bar">
+              <button id="console-tab-btn-stdout" class="console-tab-btn active" onclick="Practice.switchConsoleTab('stdout')">
+                📟 Terminal & Execution
+              </button>
+              <button id="console-tab-btn-rubric" class="console-tab-btn" onclick="Practice.switchConsoleTab('rubric')">
+                📊 Rúbrica S9.1
+              </button>
+              <button id="console-tab-btn-ledger" class="console-tab-btn" onclick="Practice.switchConsoleTab('ledger')">
+                📜 EvidenceLedger
+              </button>
+            </div>
+            <div class="console-body">
+              <div id="console-tab-view-stdout" class="console-tab-view active">
+                <p style="color: var(--text-muted); font-style: italic;">
+                  Presioná <strong>"Ejecutar y Entregar"</strong> para evaluar tu código en el Sandbox aislado Tier 0.
+                </p>
+              </div>
+              <div id="console-tab-view-rubric" class="console-tab-view">
+                <p style="color: var(--text-muted); font-style: italic;">
+                  El desglose por dimensiones de la Rúbrica S9.1 aparecerá aquí tras la evaluación.
+                </p>
+              </div>
+              <div id="console-tab-view-ledger" class="console-tab-view">
+                <p style="color: var(--text-muted); font-style: italic;">
+                  Los sellos de admisión criptográfica del EvidenceLedger se mostrarán aquí.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: AUDITORÍA Y LEDGER FORENSE -->
+    <section id="view-audit" class="tab-view">
+      <div class="card" style="flex: 1;">
+        <div class="card-header">
+          <span class="card-title">📊 Registro Forense Inmutable (EvidenceLedger)</span>
+          <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" onclick="loadLedger()">
+            ↻ Recargar Ledger
+          </button>
+        </div>
+        <div class="card-body">
+          <div id="ledger-content" style="font-size: 0.85rem;">
+            <p style="color: var(--text-secondary);">Cargando registros inmutables del Ledger...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Evidence Drawer Modal (S4.4 Authoritative Epistemic Grounding) -->
+  <div id="evidence-drawer-backdrop" class="evidence-drawer-backdrop" onclick="if(event.target===this) Chat.closeEvidence()">
+    <div id="evidence-drawer" class="evidence-drawer-content">
+      <div class="evidence-drawer-header">
+        <h3 id="evidence-drawer-title">🔍 Fuente Epistémica Autorizada</h3>
+        <button class="evidence-close-btn" onclick="Chat.closeEvidence()" title="Cerrar">✕</button>
+      </div>
+      <div id="evidence-drawer-body" class="evidence-drawer-body">
+        <p style="color: var(--text-secondary);">Seleccioná una cita [E#] en las respuestas del tutor para consultar su fragmento certificado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-status">
+      <span>KASIU Study Engine v1.0.0</span>
+      <span>•</span>
+      <span style="color: #34d399;">🛡️ Perímetro Congelado: INTACTO</span>
+      <span>•</span>
+      <span>🧪 1.493 tests verdes</span>
+    </div>
+    <div>
+      <span>Thin Client • Offline-First • Localhost:8000</span>
+    </div>
+  </footer>
+
+  <!-- Core Frontend Scripts (Strict Offline Loading Order) -->
+  <script src="/static/js/followup.js"></script>
+  <script src="/static/js/chat.js"></script>
+  <script src="/static/js/practice.js"></script>
+  <script src="/static/js/dag.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

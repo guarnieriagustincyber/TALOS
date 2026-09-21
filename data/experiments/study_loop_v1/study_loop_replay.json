@@ -1,0 +1,17 @@
+{
+  "fixtures": {
+    "fixture_approved_pointers_01": {
+      "replay_key": "c1d2e3f4a5b6c7d8e9f0123456789abcdef0123456789abcdef0123456789abcd",
+      "node_id": "SEC-01-C-PTR",
+      "query": "¿Cómo se declara y desreferencia un puntero en C?",
+      "context_hash": "c0ffee0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+      "profile_id": "profile_strict_v1",
+      "raw_content": "En C, un puntero se declara anteponiendo el operador asterisco antes de la variable y se desreferencia con el operador * para acceder al valor en memoria [E1].",
+      "citations_manifest_expected": [
+        "E1"
+      ],
+      "expected_audit_verdict": "APPROVED",
+      "expected_session_status": "APPROVED"
+    }
+  }
+}

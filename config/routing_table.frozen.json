@@ -1,0 +1,82 @@
+{
+  "table_version": "1.0.0",
+  "frozen_at": "2026-09-12T23:00:00Z",
+  "probe_version": "1.0.0",
+  "converter_versions": {
+    "markitdown": "1.0.0",
+    "anydoc_local": "1.0.0",
+    "anydoc_cloud": "1.0.0",
+    "tesseract_fallback": "1.0.0"
+  },
+  "cal_amendments_enforced": [
+    "CAL-1",
+    "CAL-2",
+    "CAL-3",
+    "CAL-4",
+    "CAL-5",
+    "CAL-6",
+    "CAL-7"
+  ],
+  "thresholds": {
+    "tau_conflict": 0.12,
+    "delta_canon": 0.15,
+    "tau_cloud": 0.85,
+    "tau_local": 0.75,
+    "epsilon_stability": 0.02,
+    "inter_annotator_kappa_min": 0.8
+  },
+  "routes": {
+    "docx": {
+      "format": "docx",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    },
+    "pptx": {
+      "format": "pptx",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    },
+    "xlsx": {
+      "format": "xlsx",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    },
+    "pdf_digital": {
+      "format": "pdf",
+      "condition": "has_text_layer == True and scan_ratio <= 0.50",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": "tesseract_fallback",
+      "requires_cloud": false
+    },
+    "pdf_scanned": {
+      "format": "pdf",
+      "condition": "has_text_layer == False or scan_ratio > 0.50",
+      "primary": "anydoc_cloud",
+      "secondary": "tesseract_fallback",
+      "fallback": "tesseract_fallback",
+      "requires_cloud": true
+    },
+    "html": {
+      "format": "html",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    },
+    "plain": {
+      "format": "txt",
+      "primary": "markitdown",
+      "secondary": "anydoc_local",
+      "fallback": null,
+      "requires_cloud": false
+    }
+  },
+  "routing_table_sha256": "224e59aa466649279f44e26a5ae1d017fc98532203286c24b637106e2052d94b"
+}

@@ -1,0 +1,16 @@
+{
+  "experiment_id": "ROBUSTNESS-RUN-004-REPRO",
+  "description": "Reproduction of subtle unsupported concept finding from RUN-004",
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.0,
+  "premise_chunk_id": "prog:poin:21",
+  "premise_hash": "c173d82626c22f91ae282d04cb958f53f93a3938981aa302e4bf7b0d019e6596",
+  "premise_snippet": "turas de datos cuyo tamaño exacto no conocemos hasta que se ha iniciado la ejecución\ndel programa. Estudiaremos aquí dos formas de superar las limitac...",
+  "claim_text": "Para resolver estos inconvenientes de tamaño mediante la gestión dinámica de memoria, C hace uso de punteros a través de dos aproximaciones principales",
+  "cited_tag": "E1",
+  "atomic_nli_verdict": "ENTAILED",
+  "atomic_nli_rationale": "El texto establece que para superar las limitaciones de tamaño que impone C se utilizan dos aproximaciones basadas en el uso de punteros (vectores cuyo tamaño se fija en tiempo de ejecución y registros enlazados), lo cual concuerda directamente con la hipótesis de que C hace uso de punteros a través de dos aproximaciones principales para resolver dichos inconvenientes.",
+  "atomic_nli_confidence": 0.95,
+  "overall_s4_verdict": "APPROVED",
+  "reproduction_successful": false
+}

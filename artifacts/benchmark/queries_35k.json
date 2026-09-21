@@ -1,0 +1,317 @@
+[
+  {
+    "id": "Q-SIMP-01",
+    "category": "simple",
+    "topic_id": "U01-T01",
+    "text": "¿Cuáles son las etapas fundamentales de la metodología de resolución de problemas algorítmicos según Joyanes?",
+    "expected_sources": ["joyanes_fundamentos"],
+    "expected_coverage": 1.0,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-SIMP-02",
+    "category": "simple",
+    "topic_id": "U01-T03",
+    "text": "¿Cómo se define el diseño estructurado top-down y cuáles son las primitivas del pseudocódigo estándar?",
+    "expected_sources": ["joyanes_fundamentos"],
+    "expected_coverage": 1.0,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-SIMP-03",
+    "category": "simple",
+    "topic_id": "U02-T01",
+    "text": "¿Qué ocurre físicamente en la memoria RAM durante la asignación destructiva de una variable entera?",
+    "expected_sources": ["joyanes_fundamentos", "spraul_think_like_a_programmer"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-SIMP-04",
+    "category": "simple",
+    "topic_id": "U02-T04",
+    "text": "¿Cómo funcionan los Type Hints y la declaración segura en Python según Fluent Python?",
+    "expected_sources": ["ramalho_fluent_python"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-SIMP-05",
+    "category": "simple",
+    "topic_id": "U03-T01",
+    "text": "¿Cuál es el rol del Program Counter (PC) y cómo operan las instrucciones de salto incondicional y condicional?",
+    "expected_sources": ["joyanes_fundamentos", "stallings_computer_security"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-SIMP-06",
+    "category": "simple",
+    "topic_id": "U04-T01",
+    "text": "¿Qué es un registro de activación (Stack Frame) en memoria RAM y qué elementos almacena al invocar una función?",
+    "expected_sources": ["joyanes_fundamentos"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-SIMP-07",
+    "category": "simple",
+    "topic_id": "U05-T01",
+    "text": "Si un arreglo de 5 enteros de 4 bytes comienza en la dirección base 1000 en RAM, ¿cuál es la dirección de memoria exacta del índice 3?",
+    "expected_sources": ["joyanes_fundamentos", "goodrich_dsa_python"],
+    "expected_coverage": 1.0,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-SIMP-08",
+    "category": "simple",
+    "topic_id": "U06-T01",
+    "text": "¿Cómo se representa un objeto en memoria RAM en cuanto a sus atributos de instancia y métodos de clase?",
+    "expected_sources": ["ramalho_fluent_python", "goodrich_dsa_python"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MULT-01",
+    "category": "multi_topic",
+    "topic_id": "U01-U02",
+    "text": "Explicame el análisis del problema algorítmico, la validación de tipos de entrada y la formulación de proposiciones lógicas.",
+    "expected_sources": ["joyanes_fundamentos", "goodrich_dsa_python"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MULT-02",
+    "category": "multi_topic",
+    "topic_id": "U03-U04",
+    "text": "¿Cómo se relacionan las cláusulas de guardia para evitar la pirámide de if con la física del stack frame al retornar temprano?",
+    "expected_sources": ["martin_clean_code", "joyanes_fundamentos"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MULT-03",
+    "category": "multi_topic",
+    "topic_id": "U04-U05",
+    "text": "¿Cómo impacta el paso de parámetros por valor frente a referencia en el consumo de memoria del Stack y el Heap al procesar listas?",
+    "expected_sources": ["joyanes_fundamentos", "ramalho_fluent_python", "goodrich_dsa_python"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MULT-04",
+    "category": "multi_topic",
+    "topic_id": "U05-U06",
+    "text": "Explicame el direccionamiento contiguo en arreglos, la sobreasignación de memoria en listas dinámicas y su encapsulamiento orientado a objetos.",
+    "expected_sources": ["goodrich_dsa_python", "ramalho_fluent_python", "joyanes_fundamentos"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MULT-05",
+    "category": "multi_topic",
+    "topic_id": "U03-U05",
+    "text": "¿Cómo se implementa un bucle repetitivo controlado por centinela y cómo se evalúa su complejidad temporal asintótica Big O?",
+    "expected_sources": ["joyanes_fundamentos", "goodrich_dsa_python", "bel_algoritmos_estructuras_python"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MULT-06",
+    "category": "multi_topic",
+    "topic_id": "U04-U06",
+    "text": "¿Qué son los contratos formales de precondición y postcondición en funciones y cómo se aplican a los invariantes de clase en POO?",
+    "expected_sources": ["joyanes_fundamentos", "martin_clean_code", "ramalho_fluent_python"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MSRC-01",
+    "category": "multi_source",
+    "topic_id": "U03-T04",
+    "text": "¿Cómo ocurre un bucle infinito a nivel de saltos de Program Counter en CPU y cómo puede ser explotado en un ataque de denegación de servicio (DoS)?",
+    "expected_sources": ["joyanes_fundamentos", "stallings_computer_security"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MSRC-02",
+    "category": "multi_source",
+    "topic_id": "U04-T05",
+    "text": "¿Cómo descomponer modularmente una dirección IPv4 en cuatro octetos y validar sus rangos de 0 a 255 con código limpio y seguro?",
+    "expected_sources": ["joyanes_fundamentos", "sweigart_automate_boring_stuff", "martin_clean_code"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MSRC-03",
+    "category": "multi_source",
+    "topic_id": "U05-T03",
+    "text": "¿Cómo se define formalmente la notación Big O y cuál es la diferencia entre orden lineal O(n) y cuadrático O(n^2)?",
+    "expected_sources": ["goodrich_dsa_python", "bel_algoritmos_estructuras_python", "joyanes_fundamentos"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MSRC-04",
+    "category": "multi_source",
+    "topic_id": "U05-T04",
+    "text": "¿Por qué la búsqueda binaria requiere que los datos estén previamente ordenados y cómo reduce la complejidad frente a la búsqueda secuencial?",
+    "expected_sources": ["joyanes_fundamentos", "goodrich_dsa_python", "spraul_think_like_a_programmer"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MSRC-05",
+    "category": "multi_source",
+    "topic_id": "U06-T03",
+    "text": "¿Por qué la memoria RAM es considerada evidencia volátil y qué riesgos de persistencia de credenciales existen según seguridad informática?",
+    "expected_sources": ["stallings_computer_security"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MSRC-06",
+    "category": "multi_source",
+    "topic_id": "U02-T03",
+    "text": "¿Cuáles son las reglas de Clean Code para nombrar variables con sentido de negocio y evitar abreviaturas crípticas en código práctico?",
+    "expected_sources": ["martin_clean_code", "sweigart_automate_boring_stuff"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-REDUN-01",
+    "category": "redundancy",
+    "topic_id": "U02-T01",
+    "text": "¿Qué es una variable en programación y cómo se almacena un valor en una posición de memoria?",
+    "expected_sources": ["joyanes_fundamentos", "spraul_think_like_a_programmer", "sweigart_automate_boring_stuff", "bel_algoritmos_estructuras_python"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-REDUN-02",
+    "category": "redundancy",
+    "topic_id": "U03-T02",
+    "text": "¿Cómo funciona la bifurcación lógica condicional if-else simple y anidada?",
+    "expected_sources": ["joyanes_fundamentos", "martin_clean_code", "sweigart_automate_boring_stuff"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-REDUN-03",
+    "category": "redundancy",
+    "topic_id": "U03-T03",
+    "text": "¿Qué diferencia existe entre un bucle mientras (while) y un bucle para (for) con variable de control y acumulador?",
+    "expected_sources": ["joyanes_fundamentos", "sweigart_automate_boring_stuff", "bel_algoritmos_estructuras_python"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-REDUN-04",
+    "category": "redundancy",
+    "topic_id": "U01-T04",
+    "text": "¿Cuáles son los símbolos estándar para representar el inicio, fin, procesos y decisiones en diagramas de flujo?",
+    "expected_sources": ["joyanes_fundamentos"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-REDUN-05",
+    "category": "redundancy",
+    "topic_id": "U05-T05",
+    "text": "¿Cómo opera el algoritmo de ordenamiento por burbuja comparando elementos adyacentes y cuál es su número de pasadas?",
+    "expected_sources": ["joyanes_fundamentos", "goodrich_dsa_python", "bel_algoritmos_estructuras_python"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-CONTRA-01",
+    "category": "contradiction",
+    "topic_id": "U04-T02",
+    "text": "¿Cómo funciona el paso de parámetros por referencia? ¿Puede una función modificar directamente una variable entera del llamador in situ?",
+    "expected_sources": ["joyanes_fundamentos", "ramalho_fluent_python"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-CONTRA-02",
+    "category": "contradiction",
+    "topic_id": "U05-T02",
+    "text": "¿Es una lista en Python un bloque de memoria RAM contigua homogénea de tamaño fijo o un arreglo referencial dinámico redimensionable?",
+    "expected_sources": ["joyanes_fundamentos", "goodrich_dsa_python"],
+    "expected_coverage": 0.9,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-CONTRA-03",
+    "category": "contradiction",
+    "topic_id": "U04-T04",
+    "text": "¿Se deben manejar los errores y estados inválidos devolviendo códigos centinela como -1 o lanzando excepciones?",
+    "expected_sources": ["joyanes_fundamentos", "martin_clean_code"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-MISS-01",
+    "category": "missing",
+    "topic_id": "NONE",
+    "text": "¿Cómo se configura un Ingress Controller en un clúster de Kubernetes usando Helm en entornos de producción?",
+    "expected_sources": [],
+    "expected_coverage": 0.0,
+    "should_abstain": true
+  },
+  {
+    "id": "Q-MISS-02",
+    "category": "missing",
+    "topic_id": "NONE",
+    "text": "¿Cómo se configuran los Objetos de Directiva de Grupo (GPO) y la replicación Kerberos en Active Directory en Windows Server 2022?",
+    "expected_sources": [],
+    "expected_coverage": 0.0,
+    "should_abstain": true
+  },
+  {
+    "id": "Q-MISS-03",
+    "category": "missing",
+    "topic_id": "NONE",
+    "text": "¿Cómo utiliza el algoritmo cuántico de Shor la transformada de Fourier cuántica para romper el cifrado asimétrico RSA?",
+    "expected_sources": [],
+    "expected_coverage": 0.0,
+    "should_abstain": true
+  },
+  {
+    "id": "Q-MISS-04",
+    "category": "missing",
+    "topic_id": "GAP-M5-01",
+    "text": "Escribí un exploit de desbordamiento de búfer en código máquina ensamblador x86 modificando directamente los registros EBP y EIP.",
+    "expected_sources": [],
+    "expected_coverage": 0.0,
+    "should_abstain": true
+  },
+  {
+    "id": "Q-CROSS-01",
+    "category": "cross_curricular",
+    "topic_id": "U05-T06",
+    "text": "¿Cómo implementar un analizador de logs de firewall que ordene las direcciones IP en memoria y realice búsquedas binarias para detectar anomalías de seguridad?",
+    "expected_sources": ["goodrich_dsa_python", "stallings_computer_security", "kurose_computer_networking"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-CROSS-02",
+    "category": "cross_curricular",
+    "topic_id": "U06-T04",
+    "text": "¿Cuáles son los controles de gobernanza de IA y cómo se implementa un mecanismo de rollback determinista en caso de desvío del modelo según el roadmap?",
+    "expected_sources": ["roadmap_nuevo_horizonte"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  },
+  {
+    "id": "Q-CROSS-03",
+    "category": "cross_curricular",
+    "topic_id": "U03-U06",
+    "text": "¿Cómo se establece el handshake de tres vías en TCP y qué estructuras de socket mantiene el sistema operativo en memoria RAM?",
+    "expected_sources": ["kurose_computer_networking", "stallings_computer_security"],
+    "expected_coverage": 0.85,
+    "should_abstain": false
+  }
+]

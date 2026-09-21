@@ -1,0 +1,944 @@
+{
+  "benchmark_date": "2026-09-12T17:37:00.601100+00:00",
+  "total_queries": 35,
+  "total_chunks_indexed": 31114,
+  "total_elapsed_seconds": 0.51,
+  "metrics_e0": {
+    "avg_supported_answer_coverage": 0.9249,
+    "avg_epistemic_evidence_utilization": 0.5418,
+    "avg_source_diversity": 1.8,
+    "avg_cross_book_redundancy": 0.0613,
+    "avg_latency_ms": 12.69,
+    "false_abstention_rate": 0.0,
+    "false_gap_rate": 0.0,
+    "ood_abstention_accuracy": 1.0
+  },
+  "category_breakdown": {
+    "simple": {
+      "queries_count": 8,
+      "avg_coverage": 0.9674,
+      "avg_eeu": 0.4844,
+      "avg_diversity": 1.12,
+      "avg_redundancy": 0.0625,
+      "avg_latency_ms": 13.01
+    },
+    "multi_topic": {
+      "queries_count": 6,
+      "avg_coverage": 0.903,
+      "avg_eeu": 0.4314,
+      "avg_diversity": 2.0,
+      "avg_redundancy": 0.2744,
+      "avg_latency_ms": 10.96
+    },
+    "multi_source": {
+      "queries_count": 6,
+      "avg_coverage": 0.8505,
+      "avg_eeu": 0.5,
+      "avg_diversity": 1.83,
+      "avg_redundancy": 0.0,
+      "avg_latency_ms": 12.14
+    },
+    "redundancy": {
+      "queries_count": 5,
+      "avg_coverage": 0.9532,
+      "avg_eeu": 0.5,
+      "avg_diversity": 1.2,
+      "avg_redundancy": 0.0,
+      "avg_latency_ms": 17.24
+    },
+    "contradiction": {
+      "queries_count": 3,
+      "avg_coverage": 0.9573,
+      "avg_eeu": 0.5,
+      "avg_diversity": 2.0,
+      "avg_redundancy": 0.0,
+      "avg_latency_ms": 16.31
+    },
+    "missing": {
+      "queries_count": 4,
+      "avg_coverage": 1.0,
+      "avg_eeu": 1.0,
+      "avg_diversity": 2.5,
+      "avg_redundancy": 0.0,
+      "avg_latency_ms": 8.92
+    },
+    "cross_curricular": {
+      "queries_count": 3,
+      "avg_coverage": 0.824,
+      "avg_eeu": 0.5,
+      "avg_diversity": 3.0,
+      "avg_redundancy": 0.0,
+      "avg_latency_ms": 10.24
+    }
+  },
+  "results": [
+    {
+      "id": "Q-SIMP-01",
+      "category": "simple",
+      "topic_id": "U01-T01",
+      "text": "¿Cuáles son las etapas fundamentales de la metodología de resolución de problemas algorítmicos según Joyanes?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 1.0,
+      "eeu_score": 0.375,
+      "redundancy_rate": 0.5,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 9.16,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p79:c0003",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 79
+      }
+    },
+    {
+      "id": "Q-SIMP-02",
+      "category": "simple",
+      "topic_id": "U01-T03",
+      "text": "¿Cómo se define el diseño estructurado top-down y cuáles son las primitivas del pseudocódigo estándar?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.8953,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 11.39,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p232:c0001",
+        "score": 0.8953,
+        "source": "src_joyanes_fundamentos",
+        "page": 232
+      }
+    },
+    {
+      "id": "Q-SIMP-03",
+      "category": "simple",
+      "topic_id": "U02-T01",
+      "text": "¿Qué ocurre físicamente en la memoria RAM durante la asignación destructiva de una variable entera?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "bel_algoritmos_estructuras_python"
+      ],
+      "latency_ms": 10.73,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p134:c0002",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 134
+      }
+    },
+    {
+      "id": "Q-SIMP-04",
+      "category": "simple",
+      "topic_id": "U02-T04",
+      "text": "¿Cómo funcionan los Type Hints y la declaración segura en Python según Fluent Python?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "ramalho_fluent_python"
+      ],
+      "latency_ms": 15.9,
+      "top_candidate": {
+        "id": "luciano-ramalho-fluent-python_-clear-concise-and-effective-programming-oreilly-media-2022.pdf:p284:c0001",
+        "score": 1.0,
+        "source": "src_ramalho_fluent_python",
+        "page": 284
+      }
+    },
+    {
+      "id": "Q-SIMP-05",
+      "category": "simple",
+      "topic_id": "U03-T01",
+      "text": "¿Cuál es el rol del Program Counter (PC) y cómo operan las instrucciones de salto incondicional y condicional?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 12.55,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p39:c0006",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 39
+      }
+    },
+    {
+      "id": "Q-SIMP-06",
+      "category": "simple",
+      "topic_id": "U04-T01",
+      "text": "¿Qué es un registro de activación (Stack Frame) en memoria RAM y qué elementos almacena al invocar una función?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 11.44,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p359:c0005",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 359
+      }
+    },
+    {
+      "id": "Q-SIMP-07",
+      "category": "simple",
+      "topic_id": "U05-T01",
+      "text": "Si un arreglo de 5 enteros de 4 bytes comienza en la dirección base 1000 en RAM, ¿cuál es la dirección de memoria exacta del índice 3?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 23.05,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p293:c0000",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 293
+      }
+    },
+    {
+      "id": "Q-SIMP-08",
+      "category": "simple",
+      "topic_id": "U06-T01",
+      "text": "¿Cómo se representa un objeto en memoria RAM en cuanto a sus atributos de instancia y métodos de clase?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.9609,
+      "coverage_score": 0.739,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 9.86,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p587:c0000",
+        "score": 0.9609,
+        "source": "src_joyanes_fundamentos",
+        "page": 587
+      }
+    },
+    {
+      "id": "Q-MULT-01",
+      "category": "multi_topic",
+      "topic_id": "U01-U02",
+      "text": "Explicame el análisis del problema algorítmico, la validación de tipos de entrada y la formulación de proposiciones lógicas.",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.7751,
+      "coverage_score": 0.846,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "bel_algoritmos_estructuras_python"
+      ],
+      "latency_ms": 10.34,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p77:c0003",
+        "score": 0.7751,
+        "source": "src_joyanes_fundamentos",
+        "page": 77
+      }
+    },
+    {
+      "id": "Q-MULT-02",
+      "category": "multi_topic",
+      "topic_id": "U03-U04",
+      "text": "¿Cómo se relacionan las cláusulas de guardia para evitar la pirámide de if con la física del stack frame al retornar temprano?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.652,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 4,
+      "sources_used": [
+        "fadena_so_planificacion",
+        "stallings_computer_security",
+        "joyanes_fundamentos",
+        "martin_clean_code"
+      ],
+      "latency_ms": 17.87,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p597:c0005",
+        "score": 0.652,
+        "source": "src_joyanes_fundamentos",
+        "page": 597
+      }
+    },
+    {
+      "id": "Q-MULT-03",
+      "category": "multi_topic",
+      "topic_id": "U04-U05",
+      "text": "¿Cómo impacta el paso de parámetros por valor frente a referencia en el consumo de memoria del Stack y el Heap al procesar listas?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.8229,
+      "coverage_score": 0.8,
+      "eeu_score": 0.3021,
+      "redundancy_rate": 0.7917,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 10.54,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p250:c0002",
+        "score": 0.8229,
+        "source": "src_joyanes_fundamentos",
+        "page": 250
+      }
+    },
+    {
+      "id": "Q-MULT-04",
+      "category": "multi_topic",
+      "topic_id": "U05-U06",
+      "text": "Explicame el direccionamiento contiguo en arreglos, la sobreasignación de memoria en listas dinámicas y su encapsulamiento orientado a objetos.",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.843,
+      "coverage_score": 0.815,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 9.08,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p471:c0000",
+        "score": 0.843,
+        "source": "src_joyanes_fundamentos",
+        "page": 471
+      }
+    },
+    {
+      "id": "Q-MULT-05",
+      "category": "multi_topic",
+      "topic_id": "U03-U05",
+      "text": "¿Cómo se implementa un bucle repetitivo controlado por centinela y cómo se evalúa su complejidad temporal asintótica Big O?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.8185,
+      "coverage_score": 0.963,
+      "eeu_score": 0.4113,
+      "redundancy_rate": 0.3548,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "bel_algoritmos_estructuras_python"
+      ],
+      "latency_ms": 8.26,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p227:c0003",
+        "score": 0.8185,
+        "source": "src_joyanes_fundamentos",
+        "page": 227
+      }
+    },
+    {
+      "id": "Q-MULT-06",
+      "category": "multi_topic",
+      "topic_id": "U04-U06",
+      "text": "¿Qué son los contratos formales de precondición y postcondición en funciones y cómo se aplican a los invariantes de clase en POO?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.8591,
+      "coverage_score": 0.994,
+      "eeu_score": 0.375,
+      "redundancy_rate": 0.5,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "martin_clean_code"
+      ],
+      "latency_ms": 9.7,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p261:c0003",
+        "score": 0.8591,
+        "source": "src_joyanes_fundamentos",
+        "page": 261
+      }
+    },
+    {
+      "id": "Q-MSRC-01",
+      "category": "multi_source",
+      "topic_id": "U03-T04",
+      "text": "¿Cómo ocurre un bucle infinito a nivel de saltos de Program Counter en CPU y cómo puede ser explotado en un ataque de denegación de servicio (DoS)?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.8188,
+      "coverage_score": 0.88,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "ramalho_fluent_python"
+      ],
+      "latency_ms": 13.43,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p561:c0000",
+        "score": 0.8188,
+        "source": "src_joyanes_fundamentos",
+        "page": 561
+      }
+    },
+    {
+      "id": "Q-MSRC-02",
+      "category": "multi_source",
+      "topic_id": "U04-T05",
+      "text": "¿Cómo descomponer modularmente una dirección IPv4 en cuatro octetos y validar sus rangos de 0 a 255 con código limpio y seguro?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.6181,
+      "coverage_score": 0.809,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 3,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "martin_clean_code",
+        "kurose_computer_networking"
+      ],
+      "latency_ms": 8.35,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p716:c0000",
+        "score": 0.6181,
+        "source": "src_joyanes_fundamentos",
+        "page": 716
+      }
+    },
+    {
+      "id": "Q-MSRC-03",
+      "category": "multi_source",
+      "topic_id": "U05-T03",
+      "text": "¿Cómo se define formalmente la notación Big O y cuál es la diferencia entre orden lineal O(n) y cuadrático O(n^2)?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.9231,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "bel_algoritmos_estructuras_python"
+      ],
+      "latency_ms": 15.42,
+      "top_candidate": {
+        "id": "algoritmos-y-estructuras-de-datos-en-python-digital.pdf:p28:c0006",
+        "score": 0.9231,
+        "source": "src_bel_algoritmos_estructuras_python",
+        "page": 28
+      }
+    },
+    {
+      "id": "Q-MSRC-04",
+      "category": "multi_source",
+      "topic_id": "U05-T04",
+      "text": "¿Por qué la búsqueda binaria requiere que los datos estén previamente ordenados y cómo reduce la complejidad frente a la búsqueda secuencial?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 0.936,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 11.68,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p413:c0004",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 413
+      }
+    },
+    {
+      "id": "Q-MSRC-05",
+      "category": "multi_source",
+      "topic_id": "U06-T03",
+      "text": "¿Por qué la memoria RAM es considerada evidencia volátil y qué riesgos de persistencia de credenciales existen según seguridad informática?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.7244,
+      "coverage_score": 0.557,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 8.89,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p65:c0004",
+        "score": 0.7244,
+        "source": "src_joyanes_fundamentos",
+        "page": 65
+      }
+    },
+    {
+      "id": "Q-MSRC-06",
+      "category": "multi_source",
+      "topic_id": "U02-T03",
+      "text": "¿Cuáles son las reglas de Clean Code para nombrar variables con sentido de negocio y evitar abreviaturas crípticas en código práctico?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.8722,
+      "coverage_score": 0.921,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "martin_clean_code"
+      ],
+      "latency_ms": 15.05,
+      "top_candidate": {
+        "id": "Codigo limpio - Robert Cecil Martin.pdf:p44:c0000",
+        "score": 0.8722,
+        "source": "src_martin_clean_code",
+        "page": 44
+      }
+    },
+    {
+      "id": "Q-REDUN-01",
+      "category": "redundancy",
+      "topic_id": "U02-T01",
+      "text": "¿Qué es una variable en programación y cómo se almacena un valor en una posición de memoria?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 0.894,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 14.65,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p280:c0001",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 280
+      }
+    },
+    {
+      "id": "Q-REDUN-02",
+      "category": "redundancy",
+      "topic_id": "U03-T02",
+      "text": "¿Cómo funciona la bifurcación lógica condicional if-else simple y anidada?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 0.936,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 20.06,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p184:c0000",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 184
+      }
+    },
+    {
+      "id": "Q-REDUN-03",
+      "category": "redundancy",
+      "topic_id": "U03-T03",
+      "text": "¿Qué diferencia existe entre un bucle mientras (while) y un bucle para (for) con variable de control y acumulador?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 0.936,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 29.52,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p195:c0004",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 195
+      }
+    },
+    {
+      "id": "Q-REDUN-04",
+      "category": "redundancy",
+      "topic_id": "U01-T04",
+      "text": "¿Cuáles son los símbolos estándar para representar el inicio, fin, procesos y decisiones en diagramas de flujo?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 10.36,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p102:c0000",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 102
+      }
+    },
+    {
+      "id": "Q-REDUN-05",
+      "category": "redundancy",
+      "topic_id": "U05-T05",
+      "text": "¿Cómo opera el algoritmo de ordenamiento por burbuja comparando elementos adyacentes y cuál es su número de pasadas?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "bel_algoritmos_estructuras_python"
+      ],
+      "latency_ms": 11.6,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p388:c0000",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 388
+      }
+    },
+    {
+      "id": "Q-CONTRA-01",
+      "category": "contradiction",
+      "topic_id": "U04-T02",
+      "text": "¿Cómo funciona el paso de parámetros por referencia? ¿Puede una función modificar directamente una variable entera del llamador in situ?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 1.0,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 12.14,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p272:c0000",
+        "score": 1.0,
+        "source": "src_joyanes_fundamentos",
+        "page": 272
+      }
+    },
+    {
+      "id": "Q-CONTRA-02",
+      "category": "contradiction",
+      "topic_id": "U05-T02",
+      "text": "¿Es una lista en Python un bloque de memoria RAM contigua homogénea de tamaño fijo o un arreglo referencial dinámico redimensionable?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.8089,
+      "coverage_score": 0.872,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "fadena_prog_punteros"
+      ],
+      "latency_ms": 15.51,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p460:c0006",
+        "score": 0.8089,
+        "source": "src_joyanes_fundamentos",
+        "page": 460
+      }
+    },
+    {
+      "id": "Q-CONTRA-03",
+      "category": "contradiction",
+      "topic_id": "U04-T04",
+      "text": "¿Se deben manejar los errores y estados inválidos devolviendo códigos centinela como -1 o lanzando excepciones?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.7974,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 3,
+      "sources_used": [
+        "guia_utn_2025",
+        "joyanes_fundamentos",
+        "martin_clean_code"
+      ],
+      "latency_ms": 21.27,
+      "top_candidate": {
+        "id": "Codigo limpio - Robert Cecil Martin.pdf:p147:c0000",
+        "score": 0.7974,
+        "source": "src_martin_clean_code",
+        "page": 147
+      }
+    },
+    {
+      "id": "Q-MISS-01",
+      "category": "missing",
+      "topic_id": "NONE",
+      "text": "¿Cómo se configura un Ingress Controller en un clúster de Kubernetes usando Helm en entornos de producción?",
+      "should_abstain": true,
+      "decision": "ABSTAINED",
+      "candidates_count": 8,
+      "max_score": 0.6447,
+      "coverage_score": 1.0,
+      "eeu_score": 1.0,
+      "redundancy_rate": 0.0,
+      "source_diversity": 4,
+      "sources_used": [
+        "stallings_computer_security",
+        "joyanes_fundamentos",
+        "martin_clean_code",
+        "kurose_computer_networking"
+      ],
+      "latency_ms": 7.12,
+      "top_candidate": {
+        "id": "Computer Networking A Top-Down Approach (James W. Kurose, Keith W. Ross).pdf:p427:c0004",
+        "score": 0.6447,
+        "source": "src_kurose_computer_networking",
+        "page": 427
+      }
+    },
+    {
+      "id": "Q-MISS-02",
+      "category": "missing",
+      "topic_id": "NONE",
+      "text": "¿Cómo se configuran los Objetos de Directiva de Grupo (GPO) y la replicación Kerberos en Active Directory en Windows Server 2022?",
+      "should_abstain": true,
+      "decision": "ABSTAINED",
+      "candidates_count": 8,
+      "max_score": 0.6233,
+      "coverage_score": 1.0,
+      "eeu_score": 1.0,
+      "redundancy_rate": 0.0,
+      "source_diversity": 3,
+      "sources_used": [
+        "stallings_computer_security",
+        "joyanes_fundamentos",
+        "martin_clean_code"
+      ],
+      "latency_ms": 9.08,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p639:c0000",
+        "score": 0.6233,
+        "source": "src_joyanes_fundamentos",
+        "page": 639
+      }
+    },
+    {
+      "id": "Q-MISS-03",
+      "category": "missing",
+      "topic_id": "NONE",
+      "text": "¿Cómo utiliza el algoritmo cuántico de Shor la transformada de Fourier cuántica para romper el cifrado asimétrico RSA?",
+      "should_abstain": true,
+      "decision": "ABSTAINED",
+      "candidates_count": 8,
+      "max_score": 0.7462,
+      "coverage_score": 1.0,
+      "eeu_score": 1.0,
+      "redundancy_rate": 0.0,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "bel_algoritmos_estructuras_python"
+      ],
+      "latency_ms": 9.48,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p686:c0005",
+        "score": 0.7462,
+        "source": "src_joyanes_fundamentos",
+        "page": 686
+      }
+    },
+    {
+      "id": "Q-MISS-04",
+      "category": "missing",
+      "topic_id": "GAP-M5-01",
+      "text": "Escribí un exploit de desbordamiento de búfer en código máquina ensamblador x86 modificando directamente los registros EBP y EIP.",
+      "should_abstain": true,
+      "decision": "ABSTAINED",
+      "candidates_count": 8,
+      "max_score": 0.7777,
+      "coverage_score": 1.0,
+      "eeu_score": 1.0,
+      "redundancy_rate": 0.0,
+      "source_diversity": 1,
+      "sources_used": [
+        "joyanes_fundamentos"
+      ],
+      "latency_ms": 10.01,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p73:c0003",
+        "score": 0.7777,
+        "source": "src_joyanes_fundamentos",
+        "page": 73
+      }
+    },
+    {
+      "id": "Q-CROSS-01",
+      "category": "cross_curricular",
+      "topic_id": "U05-T06",
+      "text": "¿Cómo implementar un analizador de logs de firewall que ordene las direcciones IP en memoria y realice búsquedas binarias para detectar anomalías de seguridad?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.6013,
+      "coverage_score": 0.629,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 3,
+      "sources_used": [
+        "stallings_computer_security",
+        "joyanes_fundamentos",
+        "fadena_so_memoria"
+      ],
+      "latency_ms": 10.7,
+      "top_candidate": {
+        "id": "so_memoria.pdf:p01:c0008",
+        "score": 0.6013,
+        "source": "src_fadena_so_memoria",
+        "page": 1
+      }
+    },
+    {
+      "id": "Q-CROSS-02",
+      "category": "cross_curricular",
+      "topic_id": "U06-T04",
+      "text": "¿Cuáles son los controles de gobernanza de IA y cómo se implementa un mecanismo de rollback determinista en caso de desvío del modelo según el roadmap?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.8981,
+      "coverage_score": 1.0,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 4,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "martin_clean_code",
+        "roadmap_nuevo_horizonte",
+        "bel_algoritmos_estructuras_python"
+      ],
+      "latency_ms": 9.23,
+      "top_candidate": {
+        "id": "RoadmapNuevoHorizonte.txt:p01:c0009",
+        "score": 0.8981,
+        "source": "src_roadmap_nuevo_horizonte",
+        "page": 1
+      }
+    },
+    {
+      "id": "Q-CROSS-03",
+      "category": "cross_curricular",
+      "topic_id": "U03-U06",
+      "text": "¿Cómo se establece el handshake de tres vías en TCP y qué estructuras de socket mantiene el sistema operativo en memoria RAM?",
+      "should_abstain": false,
+      "decision": "APPROVED",
+      "candidates_count": 8,
+      "max_score": 0.7705,
+      "coverage_score": 0.843,
+      "eeu_score": 0.5,
+      "redundancy_rate": 0.0,
+      "source_diversity": 2,
+      "sources_used": [
+        "joyanes_fundamentos",
+        "kurose_computer_networking"
+      ],
+      "latency_ms": 10.79,
+      "top_candidate": {
+        "id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p297:c0000",
+        "score": 0.7705,
+        "source": "src_joyanes_fundamentos",
+        "page": 297
+      }
+    }
+  ]
+}

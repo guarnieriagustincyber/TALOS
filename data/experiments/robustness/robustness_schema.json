@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "StudyEngineRobustnessCaseSchema",
+  "description": "Schema for S4.4 V0 Robustness Campaign Experimental Cases",
+  "type": "object",
+  "required": [
+    "experiment_id",
+    "family",
+    "subfamily",
+    "source_evidence_ids",
+    "premise_hash",
+    "premise_text",
+    "claim",
+    "expected_label",
+    "expected_layer1_behavior",
+    "expected_layer2_behavior",
+    "expected_final_verdict",
+    "methodological_rationale"
+  ],
+  "properties": {
+    "experiment_id": {
+      "type": "string",
+      "pattern": "^ROB-(P[1-5])-[A-Z0-9_-]+$"
+    },
+    "family": {
+      "type": "string",
+      "enum": [
+        "P1_PARAPHRASE",
+        "P2_MULTI_CLAIM",
+        "P3_CONTRADICTION_MISALIGNMENT",
+        "P4_ADVERSARIAL",
+        "P5_REPRODUCIBILITY"
+      ]
+    },
+    "subfamily": {
+      "type": "string",
+      "enum": [
+        "strict_paraphrase",
+        "technical_synonymy",
+        "NM-1_omission",
+        "NM-2_implicit_domain_inference",
+        "NM-3_external_factual_insertion",
+        "not_entailed_alien_concept",
+        "contradiction_direct",
+        "contradiction_causal_inversion",
+        "multi_claim_clean",
+        "multi_claim_contaminated_head",
+        "multi_claim_contaminated_mid",
+        "multi_claim_contaminated_tail",
+        "adversarial_phantom_citation",
+        "adversarial_malformed_citation",
+        "adversarial_cross_evidence",
+        "adversarial_uncited_claim",
+        "adversarial_canary_injection"
+      ]
+    },
+    "source_evidence_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "premise_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "premise_text": {
+      "type": "string",
+      "minLength": 10
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 5
+    },
+    "full_response_text": {
+      "type": "string",
+      "description": "Optional full formatted text containing citations"
+    },
+    "expected_label": {
+      "type": "string",
+      "enum": [
+        "ENTAILED",
+        "NOT_ENTAILED",
+        "CONTRADICTED",
+        "BYPASS_LAYER1"
+      ]
+    },
+    "expected_layer1_behavior": {
+      "type": "string",
+      "description": "PASS or specific check failure like FAIL_CHECK_MANIFEST_INTEGRITY"
+    },
+    "expected_layer2_behavior": {
+      "type": "string",
+      "enum": [
+        "ENTAILED",
+        "NOT_ENTAILED",
+        "CONTRADICTED",
+        "BYPASS"
+      ]
+    },
+    "expected_final_verdict": {
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "REJECTED_UNSUPPORTED",
+        "REJECTED_CONTRADICTION",
+        "REJECTED_INPUT_MISMATCH",
+        "REJECTED_INJECTION_DETECTED",
+        "REJECTED_POLICY_VIOLATION",
+        "FLAGGED_UNASSESSED"
+      ]
+    },
+    "methodological_rationale": {
+      "type": "string",
+      "minLength": 20
+    }
+  }
+}

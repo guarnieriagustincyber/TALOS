@@ -1,0 +1,9 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0
+rootdir: /media/agustin/Laboratorio/study-engie
+configfile: pyproject.toml
+plugins: anyio-4.14.2, cov-7.1.0
+collected 1024 items
+
+1024 passed in 22.36s
+============================= 1024 passed in 22.36s =============================

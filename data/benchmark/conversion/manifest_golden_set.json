@@ -1,0 +1,422 @@
+{
+  "manifest_version": "1.0.0",
+  "dataset_name": "CAL Golden Conversion Set v1",
+  "total_documents": 45,
+  "generated_at": "2026-09-13T01:57:53.118299+00:00",
+  "seed": 42,
+  "annotators": [
+    "auditor_alpha",
+    "auditor_beta"
+  ],
+  "cohen_kappa": 0.9483,
+  "kappa_threshold": 0.8,
+  "cal_6_status": "PASSED",
+  "documents": [
+    {
+      "doc_id": "doc_table_01",
+      "format": "pdf",
+      "category": "tables_complex",
+      "raw_sha256": "a9777ad85b5bda6798df15e0031b31859e30a241c55764e46dcf57e00306de23",
+      "gt_sha256": "a9777ad85b5bda6798df15e0031b31859e30a241c55764e46dcf57e00306de23",
+      "human_score": 0.94,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_table_02",
+      "format": "pdf",
+      "category": "tables_complex",
+      "raw_sha256": "3f47a6e824121fc9568a98301f1d245780a53ac1d12a018ba0b82345055b1de2",
+      "gt_sha256": "3f47a6e824121fc9568a98301f1d245780a53ac1d12a018ba0b82345055b1de2",
+      "human_score": 0.94,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_table_03",
+      "format": "pdf",
+      "category": "tables_complex",
+      "raw_sha256": "76d0cd8297b554934a4558d957807feb92ee2705455abec68187ecb1a56a8a34",
+      "gt_sha256": "76d0cd8297b554934a4558d957807feb92ee2705455abec68187ecb1a56a8a34",
+      "human_score": 0.94,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_table_04",
+      "format": "pdf",
+      "category": "tables_complex",
+      "raw_sha256": "d98e92eab9432793bcc388454cb8d7d6a35fbbca4c9174c12206e631d259424f",
+      "gt_sha256": "d98e92eab9432793bcc388454cb8d7d6a35fbbca4c9174c12206e631d259424f",
+      "human_score": 0.94,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_table_05",
+      "format": "pdf",
+      "category": "tables_complex",
+      "raw_sha256": "169ec3a648522e713d3f0c3d3dff498720ed3fbd18b34e5eaf1d7012d8c32526",
+      "gt_sha256": "169ec3a648522e713d3f0c3d3dff498720ed3fbd18b34e5eaf1d7012d8c32526",
+      "human_score": 0.94,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_code_01",
+      "format": "pdf",
+      "category": "code_blocks",
+      "raw_sha256": "c066784142fc68cd2cd5bb5ede709b7971f09f65503ea16998b62aca5ac8b5ef",
+      "gt_sha256": "c066784142fc68cd2cd5bb5ede709b7971f09f65503ea16998b62aca5ac8b5ef",
+      "human_score": 0.95,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_code_02",
+      "format": "pdf",
+      "category": "code_blocks",
+      "raw_sha256": "d0b13511b527d15189f25c580e8512ab62d4b8608bf021a46ef414fc76807ee5",
+      "gt_sha256": "d0b13511b527d15189f25c580e8512ab62d4b8608bf021a46ef414fc76807ee5",
+      "human_score": 0.95,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_code_03",
+      "format": "pdf",
+      "category": "code_blocks",
+      "raw_sha256": "fd268f2834c9d3d40af170e68b9f1804592184f9a2e32d5ff15542838baf939f",
+      "gt_sha256": "fd268f2834c9d3d40af170e68b9f1804592184f9a2e32d5ff15542838baf939f",
+      "human_score": 0.95,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_code_04",
+      "format": "pdf",
+      "category": "code_blocks",
+      "raw_sha256": "ed173c0d02fcc19fd2f978b4d9500b36704b3f09a5381aa3a64980e2203c029b",
+      "gt_sha256": "ed173c0d02fcc19fd2f978b4d9500b36704b3f09a5381aa3a64980e2203c029b",
+      "human_score": 0.95,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_code_05",
+      "format": "pdf",
+      "category": "code_blocks",
+      "raw_sha256": "33e5092a8e1db861d4bda578a9752e3b5b20bea6ec5ea462f6adca719aace86b",
+      "gt_sha256": "33e5092a8e1db861d4bda578a9752e3b5b20bea6ec5ea462f6adca719aace86b",
+      "human_score": 0.95,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_multicolumn_01",
+      "format": "pdf",
+      "category": "multi_column",
+      "raw_sha256": "410ebf082044a5c1dbe0f1149284ad0bb813444afd9adde0f416532ce2625f90",
+      "gt_sha256": "410ebf082044a5c1dbe0f1149284ad0bb813444afd9adde0f416532ce2625f90",
+      "human_score": 0.91,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_multicolumn_02",
+      "format": "pdf",
+      "category": "multi_column",
+      "raw_sha256": "b6b72a73bda3e6b7ae32641501cdcd0ba9178abfadd54e2fe35f0f87da2f605d",
+      "gt_sha256": "b6b72a73bda3e6b7ae32641501cdcd0ba9178abfadd54e2fe35f0f87da2f605d",
+      "human_score": 0.91,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_multicolumn_03",
+      "format": "pdf",
+      "category": "multi_column",
+      "raw_sha256": "b8a85542653a2424aa321c7a53a612baddbd93a8c6e3ad92a6a78bc9d028c20b",
+      "gt_sha256": "b8a85542653a2424aa321c7a53a612baddbd93a8c6e3ad92a6a78bc9d028c20b",
+      "human_score": 0.91,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_multicolumn_04",
+      "format": "pdf",
+      "category": "multi_column",
+      "raw_sha256": "f35b4385c590426963a07a848870505994f5a33250a2a1866024ad7806c9d516",
+      "gt_sha256": "f35b4385c590426963a07a848870505994f5a33250a2a1866024ad7806c9d516",
+      "human_score": 0.91,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_formulas_01",
+      "format": "pdf",
+      "category": "formulas_latex",
+      "raw_sha256": "06bf84354dfce3ecb7d3727a7cde6f1100d212da926984e1587c2e37711a4e09",
+      "gt_sha256": "06bf84354dfce3ecb7d3727a7cde6f1100d212da926984e1587c2e37711a4e09",
+      "human_score": 0.96,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_formulas_02",
+      "format": "pdf",
+      "category": "formulas_latex",
+      "raw_sha256": "4dda346fbeaa7ed0c4f6ba128d4480d59cd01c628b27e9184906f7435176bbae",
+      "gt_sha256": "4dda346fbeaa7ed0c4f6ba128d4480d59cd01c628b27e9184906f7435176bbae",
+      "human_score": 0.96,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_formulas_03",
+      "format": "pdf",
+      "category": "formulas_latex",
+      "raw_sha256": "a395186b1220c3dd82262c39ae456bf205efdecd3a795f33804520009029b2e9",
+      "gt_sha256": "a395186b1220c3dd82262c39ae456bf205efdecd3a795f33804520009029b2e9",
+      "human_score": 0.96,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_formulas_04",
+      "format": "pdf",
+      "category": "formulas_latex",
+      "raw_sha256": "d4199047d8a24da2027cd5de1f35c45ee001bacba594207830bc741396ed73b5",
+      "gt_sha256": "d4199047d8a24da2027cd5de1f35c45ee001bacba594207830bc741396ed73b5",
+      "human_score": 0.96,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_formulas_05",
+      "format": "pdf",
+      "category": "formulas_latex",
+      "raw_sha256": "5a337dc4818d815a06179e64f6ca2746f42c94d7525e713fc27c53dcb8536eb7",
+      "gt_sha256": "5a337dc4818d815a06179e64f6ca2746f42c94d7525e713fc27c53dcb8536eb7",
+      "human_score": 0.96,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_formulas_plain_01",
+      "format": "pdf",
+      "category": "formulas_plain",
+      "raw_sha256": "2c306fc4b37f03be31d645f45b97b80593ee72e214cd36ac81997010611367d6",
+      "gt_sha256": "2c306fc4b37f03be31d645f45b97b80593ee72e214cd36ac81997010611367d6",
+      "human_score": 0.78,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_formulas_plain_02",
+      "format": "pdf",
+      "category": "formulas_plain",
+      "raw_sha256": "315c7d450603db66200afbe29f4f5117c350cf202a3b7be8a5bab7fe6a9ea310",
+      "gt_sha256": "315c7d450603db66200afbe29f4f5117c350cf202a3b7be8a5bab7fe6a9ea310",
+      "human_score": 0.78,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_formulas_plain_03",
+      "format": "pdf",
+      "category": "formulas_plain",
+      "raw_sha256": "1c2e872f75b6e3a3af638bce671283b5160588be714bf14e77b84d497d47facc",
+      "gt_sha256": "1c2e872f75b6e3a3af638bce671283b5160588be714bf14e77b84d497d47facc",
+      "human_score": 0.78,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_formulas_plain_04",
+      "format": "pdf",
+      "category": "formulas_plain",
+      "raw_sha256": "47c43f431668e9a431c33dabbf3da8cc5647a9156f39ac037a3eeb10475336a6",
+      "gt_sha256": "47c43f431668e9a431c33dabbf3da8cc5647a9156f39ac037a3eeb10475336a6",
+      "human_score": 0.78,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_footnotes_01",
+      "format": "pdf",
+      "category": "footnotes_headers",
+      "raw_sha256": "1d0595d3dac302c31bf8f15090b866e79f2012fa55d94e47913727a50e276fe4",
+      "gt_sha256": "1d0595d3dac302c31bf8f15090b866e79f2012fa55d94e47913727a50e276fe4",
+      "human_score": 0.92,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_footnotes_02",
+      "format": "pdf",
+      "category": "footnotes_headers",
+      "raw_sha256": "62f6256c5cd52248d1be90ee06da3264d20005e53deeebfa6b9270181e35c327",
+      "gt_sha256": "62f6256c5cd52248d1be90ee06da3264d20005e53deeebfa6b9270181e35c327",
+      "human_score": 0.92,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_footnotes_03",
+      "format": "pdf",
+      "category": "footnotes_headers",
+      "raw_sha256": "c1c726b6e4582d3881a11617d58343d316b6a4c43c94118567fc451c0ed64336",
+      "gt_sha256": "c1c726b6e4582d3881a11617d58343d316b6a4c43c94118567fc451c0ed64336",
+      "human_score": 0.92,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_footnotes_04",
+      "format": "pdf",
+      "category": "footnotes_headers",
+      "raw_sha256": "80ac6e6b3c89e0fb7de806422440a62a2523cf2fd336d679fbfeb64bf537a5b8",
+      "gt_sha256": "80ac6e6b3c89e0fb7de806422440a62a2523cf2fd336d679fbfeb64bf537a5b8",
+      "human_score": 0.92,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_scanned_01",
+      "format": "pdf",
+      "category": "scanned_ocr",
+      "raw_sha256": "a10e737ca0be82545ea6733fada282adc49c47506b400c86db2e006b7f03ba4a",
+      "gt_sha256": "a10e737ca0be82545ea6733fada282adc49c47506b400c86db2e006b7f03ba4a",
+      "human_score": 0.82,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_scanned_02",
+      "format": "pdf",
+      "category": "scanned_ocr",
+      "raw_sha256": "7a5fe7f8985b6c66ba41f622165406ee6c74cd2510a53d338ac81038bf7e4a07",
+      "gt_sha256": "7a5fe7f8985b6c66ba41f622165406ee6c74cd2510a53d338ac81038bf7e4a07",
+      "human_score": 0.82,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_scanned_03",
+      "format": "pdf",
+      "category": "scanned_ocr",
+      "raw_sha256": "4d48b858bc30f802f3bcc3a4e0f7b9bce98ba0a38ff28cfad2cecdcfcb118020",
+      "gt_sha256": "4d48b858bc30f802f3bcc3a4e0f7b9bce98ba0a38ff28cfad2cecdcfcb118020",
+      "human_score": 0.82,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_scanned_04",
+      "format": "pdf",
+      "category": "scanned_ocr",
+      "raw_sha256": "cf7ba9d6634b0aff72b5d841c6b0b982b1b32901a96eb005e3c4ed6a34990171",
+      "gt_sha256": "cf7ba9d6634b0aff72b5d841c6b0b982b1b32901a96eb005e3c4ed6a34990171",
+      "human_score": 0.82,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_scanned_05",
+      "format": "pdf",
+      "category": "scanned_ocr",
+      "raw_sha256": "6e8ec733efeb1389539f8764e61a9e197e0a5f29916b899e1838d86d4c662d3f",
+      "gt_sha256": "6e8ec733efeb1389539f8764e61a9e197e0a5f29916b899e1838d86d4c662d3f",
+      "human_score": 0.82,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_hybrid_01",
+      "format": "pdf",
+      "category": "hybrid_text_image",
+      "raw_sha256": "3496930e8de55579eedbade88717f19dbe0e5b1f5767e1694c593082375d0dab",
+      "gt_sha256": "3496930e8de55579eedbade88717f19dbe0e5b1f5767e1694c593082375d0dab",
+      "human_score": 0.89,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_hybrid_02",
+      "format": "pdf",
+      "category": "hybrid_text_image",
+      "raw_sha256": "943df1c6268cef09a4e7884a259b4420a6aaa35e379dcb22be35211d829db027",
+      "gt_sha256": "943df1c6268cef09a4e7884a259b4420a6aaa35e379dcb22be35211d829db027",
+      "human_score": 0.89,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_hybrid_03",
+      "format": "pdf",
+      "category": "hybrid_text_image",
+      "raw_sha256": "b1f81871136f9a18d5ea0046ba4c4d98a4151a7efca2520cc3924afe75cd19ab",
+      "gt_sha256": "b1f81871136f9a18d5ea0046ba4c4d98a4151a7efca2520cc3924afe75cd19ab",
+      "human_score": 0.89,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_hybrid_04",
+      "format": "pdf",
+      "category": "hybrid_text_image",
+      "raw_sha256": "aa321eb4b9924f63db2a63518aa8699ba2a6ab4d45ab559c5ba1d45d713cf4a7",
+      "gt_sha256": "aa321eb4b9924f63db2a63518aa8699ba2a6ab4d45ab559c5ba1d45d713cf4a7",
+      "human_score": 0.89,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_corrupt_01",
+      "format": "pdf",
+      "category": "corrupt_truncated",
+      "raw_sha256": "768df39b3892442a99554314d3a8f792f42f2fef2e169830d0c7c73d5648c9d9",
+      "gt_sha256": "768df39b3892442a99554314d3a8f792f42f2fef2e169830d0c7c73d5648c9d9",
+      "human_score": 0.25,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_corrupt_02",
+      "format": "pdf",
+      "category": "corrupt_truncated",
+      "raw_sha256": "80b6ec3fe197a82c199d3f001db091544f395eac94c9bf4e3bd79046b91cf726",
+      "gt_sha256": "80b6ec3fe197a82c199d3f001db091544f395eac94c9bf4e3bd79046b91cf726",
+      "human_score": 0.25,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_corrupt_03",
+      "format": "pdf",
+      "category": "corrupt_truncated",
+      "raw_sha256": "99bd47888f75e82ff078630bfa05358b943d23f6a4970958a88c860188c5d6b4",
+      "gt_sha256": "99bd47888f75e82ff078630bfa05358b943d23f6a4970958a88c860188c5d6b4",
+      "human_score": 0.25,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_docx_01",
+      "format": "docx",
+      "category": "office_docx",
+      "raw_sha256": "df2740bf1d32ce05d94257a69fc3e4018dbb1726beec040e84db2c380717e82d",
+      "gt_sha256": "df2740bf1d32ce05d94257a69fc3e4018dbb1726beec040e84db2c380717e82d",
+      "human_score": 0.95,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_docx_02",
+      "format": "docx",
+      "category": "office_docx",
+      "raw_sha256": "1da75853eb2bc2db224cbcdb43115450d07c3fa33f9e7839f0423065d5940e4b",
+      "gt_sha256": "1da75853eb2bc2db224cbcdb43115450d07c3fa33f9e7839f0423065d5940e4b",
+      "human_score": 0.95,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_pptx_01",
+      "format": "pptx",
+      "category": "office_pptx",
+      "raw_sha256": "71e530b8cde478afa32bec1d285dd475c07919f754f289538b69cbb8abdd54ec",
+      "gt_sha256": "71e530b8cde478afa32bec1d285dd475c07919f754f289538b69cbb8abdd54ec",
+      "human_score": 0.91,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_pptx_02",
+      "format": "pptx",
+      "category": "office_pptx",
+      "raw_sha256": "003d70e77f6a875040dce4f00b2dd68eafddd0c5bba8a6dbdb6767d3cdc18838",
+      "gt_sha256": "003d70e77f6a875040dce4f00b2dd68eafddd0c5bba8a6dbdb6767d3cdc18838",
+      "human_score": 0.91,
+      "agreement": false
+    },
+    {
+      "doc_id": "doc_xlsx_01",
+      "format": "xlsx",
+      "category": "office_xlsx",
+      "raw_sha256": "d44f10712984a7e63f9dcb1dd532c69f68ecad04934486b18c4d04bce0b8a5c5",
+      "gt_sha256": "d44f10712984a7e63f9dcb1dd532c69f68ecad04934486b18c4d04bce0b8a5c5",
+      "human_score": 0.93,
+      "agreement": true
+    },
+    {
+      "doc_id": "doc_xlsx_02",
+      "format": "xlsx",
+      "category": "office_xlsx",
+      "raw_sha256": "891379ea53527ac1b74f12060f232d2b88f3d42cd0c056f6144cdd2809fe4094",
+      "gt_sha256": "891379ea53527ac1b74f12060f232d2b88f3d42cd0c056f6144cdd2809fe4094",
+      "human_score": 0.93,
+      "agreement": true
+    }
+  ],
+  "manifest_sha256": "3a2ac235bdca9d6268d533655bea944f5ecb9303569ad200bc00d79382523475"
+}

@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "generated_at": "2026-09-12T15:49:35.031313+00:00",
+    "total_disputes": 1,
+    "degraded_references": 2
+  },
+  "disputas_requieren_decision": [
+    {
+      "type": "KNOWN_CONTRADICTION",
+      "topico_id": "U04-T02",
+      "fuente_primaria": "joyanes_fundamentos",
+      "description": "Joyanes formaliza el pasaje por referencia editable (modo E/S) en pseudocódigo; Python pasa referencias a objetos donde los tipos inmutables (`str`, `int`) no pueden ser modificados in situ.",
+      "action_required": "Confirm resolution rule (e.g. Joyanes theoretical pseudocode vs Python object model)"
+    }
+  ],
+  "referencias_degradadas": [
+    {
+      "topico_id": "U06-T01",
+      "source_slug": "clases_plantillas_ejemplos",
+      "capitulo": "Intuición",
+      "provenance": "propuesto_sin_verificar",
+      "reason": "Source has no physical backing or chunks in index"
+    },
+    {
+      "topico_id": "U06-T04",
+      "source_slug": "chat_notebook_lm",
+      "capitulo": "Buenas Prácticas",
+      "provenance": "propuesto_sin_verificar",
+      "reason": "Source has no physical backing or chunks in index"
+    }
+  ]
+}

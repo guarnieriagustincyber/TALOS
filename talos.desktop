@@ -1,0 +1,13 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TALOS - Sistema de Estudio
+Comment=Sistema de Estudio Epistémico con IA
+Exec=/bin/bash -c 'cd /media/agustin/Laboratorio/study-engie && (/media/agustin/Laboratorio/study-engie/.venv/bin/python3 start_talos.py || python3 start_talos.py)'
+Icon=/media/agustin/Laboratorio/study-engie/assets/talos-icon.png
+Terminal=false
+Categories=Education;Development;
+Keywords=study;learning;ai;education;
+StartupNotify=true
+StartupWMClass=talos

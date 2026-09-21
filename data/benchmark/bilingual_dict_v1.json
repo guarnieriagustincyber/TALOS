@@ -1,0 +1,2303 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Technical bilingual vocabulary for cross-lingual evidence grounding (Spanish <-> English)",
+    "domain": "Computer Science, Systems, Networking, Data Structures"
+  },
+  "es_to_en": {
+    "hilo": [
+      "thread",
+      "threads"
+    ],
+    "hebra": [
+      "thread",
+      "threads"
+    ],
+    "proceso": [
+      "process",
+      "processes"
+    ],
+    "bloque de control de proceso": [
+      "process control block",
+      "pcb"
+    ],
+    "cambio de contexto": [
+      "context switch",
+      "context switching"
+    ],
+    "memoria virtual": [
+      "virtual memory"
+    ],
+    "paginación": [
+      "paging"
+    ],
+    "paginacion": [
+      "paging"
+    ],
+    "segmentación": [
+      "segmentation"
+    ],
+    "segmentacion": [
+      "segmentation"
+    ],
+    "fallo de página": [
+      "page fault",
+      "page faults"
+    ],
+    "fallo de pagina": [
+      "page fault",
+      "page faults"
+    ],
+    "marco de página": [
+      "page frame",
+      "page frames",
+      "frame"
+    ],
+    "marco de pagina": [
+      "page frame",
+      "page frames",
+      "frame"
+    ],
+    "tabla de páginas": [
+      "page table",
+      "page tables"
+    ],
+    "tabla de paginas": [
+      "page table",
+      "page tables"
+    ],
+    "interbloqueo": [
+      "deadlock",
+      "deadlocks"
+    ],
+    "bloqueo mutuo": [
+      "deadlock",
+      "deadlocks"
+    ],
+    "sección crítica": [
+      "critical section",
+      "critical sections"
+    ],
+    "seccion critica": [
+      "critical section",
+      "critical sections"
+    ],
+    "exclusión mutua": [
+      "mutual exclusion",
+      "mutex"
+    ],
+    "exclusion mutua": [
+      "mutual exclusion",
+      "mutex"
+    ],
+    "semáforo": [
+      "semaphore",
+      "semaphores"
+    ],
+    "semaforo": [
+      "semaphore",
+      "semaphores"
+    ],
+    "condición de carrera": [
+      "race condition",
+      "race conditions"
+    ],
+    "condicion de carrera": [
+      "race condition",
+      "race conditions"
+    ],
+    "inversión de prioridad": [
+      "priority inversion"
+    ],
+    "inversion de prioridad": [
+      "priority inversion"
+    ],
+    "planificación de cpu": [
+      "cpu scheduling",
+      "processor scheduling"
+    ],
+    "planificacion de cpu": [
+      "cpu scheduling",
+      "processor scheduling"
+    ],
+    "llamada al sistema": [
+      "system call",
+      "syscall",
+      "system calls"
+    ],
+    "espacio de usuario": [
+      "user space",
+      "user mode"
+    ],
+    "espacio de kernel": [
+      "kernel space",
+      "kernel mode"
+    ],
+    "espacio de nucleo": [
+      "kernel space",
+      "kernel mode"
+    ],
+    "espacio de núcleo": [
+      "kernel space",
+      "kernel mode"
+    ],
+    "puntero": [
+      "pointer",
+      "pointers"
+    ],
+    "desreferenciación": [
+      "dereference",
+      "dereferencing"
+    ],
+    "desreferenciacion": [
+      "dereference",
+      "dereferencing"
+    ],
+    "fuga de memoria": [
+      "memory leak",
+      "memory leaks"
+    ],
+    "registro de activación": [
+      "stack frame",
+      "activation record",
+      "stack frames"
+    ],
+    "registro de activacion": [
+      "stack frame",
+      "activation record",
+      "stack frames"
+    ],
+    "contador de programa": [
+      "program counter",
+      "pc"
+    ],
+    "pila": [
+      "stack",
+      "call stack"
+    ],
+    "montón": [
+      "heap",
+      "dynamic heap",
+      "free store"
+    ],
+    "monton": [
+      "heap",
+      "dynamic heap",
+      "free store"
+    ],
+    "memoria dinámica": [
+      "dynamic memory"
+    ],
+    "memoria dinamica": [
+      "dynamic memory"
+    ],
+    "traducción de direcciones": [
+      "address translation"
+    ],
+    "traduccion de direcciones": [
+      "address translation"
+    ],
+    "búfer de traducción adelantada": [
+      "translation lookaside buffer",
+      "tlb"
+    ],
+    "bufer de traduccion adelantada": [
+      "translation lookaside buffer",
+      "tlb"
+    ],
+    "tlb": [
+      "translation lookaside buffer",
+      "tlb"
+    ],
+    "segmento de texto": [
+      "text segment",
+      "code segment"
+    ],
+    "segmento de código": [
+      "code segment",
+      "text segment"
+    ],
+    "segmento de codigo": [
+      "code segment",
+      "text segment"
+    ],
+    "segmento de datos": [
+      "data segment"
+    ],
+    "asignación destructiva": [
+      "destructive assignment"
+    ],
+    "asignacion destructiva": [
+      "destructive assignment"
+    ],
+    "dirección base": [
+      "base address"
+    ],
+    "direccion base": [
+      "base address"
+    ],
+    "desplazamiento": [
+      "offset",
+      "displacement"
+    ],
+    "cola": [
+      "queue",
+      "queues"
+    ],
+    "cola de prioridad": [
+      "priority queue",
+      "priority queues"
+    ],
+    "árbol": [
+      "tree",
+      "trees"
+    ],
+    "arbol": [
+      "tree",
+      "trees"
+    ],
+    "árbol binario": [
+      "binary tree",
+      "binary trees"
+    ],
+    "arbol binario": [
+      "binary tree",
+      "binary trees"
+    ],
+    "árbol binario de búsqueda": [
+      "binary search tree",
+      "bst"
+    ],
+    "arbol binario de busqueda": [
+      "binary search tree",
+      "bst"
+    ],
+    "árbol avl": [
+      "avl tree",
+      "avl trees"
+    ],
+    "arbol avl": [
+      "avl tree",
+      "avl trees"
+    ],
+    "árbol rojinegro": [
+      "red-black tree",
+      "red black tree"
+    ],
+    "arbol rojinegro": [
+      "red-black tree",
+      "red black tree"
+    ],
+    "montículo": [
+      "heap",
+      "binary heap",
+      "min-heap",
+      "max-heap"
+    ],
+    "monticulo": [
+      "heap",
+      "binary heap",
+      "min-heap",
+      "max-heap"
+    ],
+    "tabla hash": [
+      "hash table",
+      "hash map"
+    ],
+    "grafo": [
+      "graph",
+      "graphs"
+    ],
+    "recorrido en profundidad": [
+      "depth-first search",
+      "dfs"
+    ],
+    "recorrido en anchura": [
+      "breadth-first search",
+      "bfs"
+    ],
+    "complejidad temporal": [
+      "time complexity",
+      "temporal complexity"
+    ],
+    "complejidad espacial": [
+      "space complexity",
+      "spatial complexity"
+    ],
+    "tiempo amortizado": [
+      "amortized time",
+      "amortized complexity"
+    ],
+    "caso promedio": [
+      "average case",
+      "average-case"
+    ],
+    "peor caso": [
+      "worst case",
+      "worst-case"
+    ],
+    "mejor caso": [
+      "best case",
+      "best-case"
+    ],
+    "lista enlazada": [
+      "linked list",
+      "linked lists"
+    ],
+    "lista simplemente enlazada": [
+      "singly linked list"
+    ],
+    "lista doblemente enlazada": [
+      "doubly linked list"
+    ],
+    "ordenamiento por mezcla": [
+      "mergesort",
+      "merge sort"
+    ],
+    "ordenamiento rápido": [
+      "quicksort",
+      "quick sort"
+    ],
+    "ordenamiento rapido": [
+      "quicksort",
+      "quick sort"
+    ],
+    "búsqueda binaria": [
+      "binary search"
+    ],
+    "busqueda binaria": [
+      "binary search"
+    ],
+    "apretón de manos": [
+      "three-way handshake",
+      "handshake"
+    ],
+    "saludo de tres vías": [
+      "three-way handshake",
+      "three way handshake"
+    ],
+    "control de congestión": [
+      "congestion control"
+    ],
+    "control de congestion": [
+      "congestion control"
+    ],
+    "control de flujo": [
+      "flow control"
+    ],
+    "desbordamiento de búfer": [
+      "buffer overflow",
+      "buffer overrun"
+    ],
+    "desbordamiento de buffer": [
+      "buffer overflow",
+      "buffer overrun"
+    ],
+    "inyección sql": [
+      "sql injection",
+      "sqli"
+    ],
+    "inyeccion sql": [
+      "sql injection",
+      "sqli"
+    ],
+    "denegación de servicio": [
+      "denial of service",
+      "dos",
+      "ddos"
+    ],
+    "denegacion de servicio": [
+      "denial of service",
+      "dos",
+      "ddos"
+    ],
+    "criptografía de clave pública": [
+      "public-key cryptography",
+      "asymmetric cryptography"
+    ],
+    "criptografia de clave publica": [
+      "public-key cryptography",
+      "asymmetric cryptography"
+    ],
+    "tabla de enrutamiento": [
+      "routing table"
+    ],
+    "puerta de enlace": [
+      "gateway",
+      "default gateway"
+    ],
+    "máscara de red": [
+      "subnet mask",
+      "netmask"
+    ],
+    "mascara de red": [
+      "subnet mask",
+      "netmask"
+    ],
+    "binario": [
+      "binary"
+    ],
+    "binaria": [
+      "binary"
+    ],
+    "acceso": [
+      "access"
+    ],
+    "restringe": [
+      "restricts",
+      "limits",
+      "allows",
+      "controls"
+    ],
+    "sección": [
+      "section"
+    ],
+    "seccion": [
+      "section"
+    ],
+    "crítica": [
+      "critical"
+    ],
+    "critica": [
+      "critical"
+    ],
+    "único": [
+      "one",
+      "single",
+      "unique"
+    ],
+    "unico": [
+      "one",
+      "single",
+      "unique"
+    ],
+    "ejecución": [
+      "execution",
+      "execute"
+    ],
+    "ejecucion": [
+      "execution",
+      "execute"
+    ],
+    "simultáneamente": [
+      "simultaneously",
+      "concurrently"
+    ],
+    "simultaneamente": [
+      "simultaneously",
+      "concurrently"
+    ],
+    "bloque": [
+      "block",
+      "blocks"
+    ],
+    "registro": [
+      "register",
+      "registers"
+    ],
+    "tabla": [
+      "table",
+      "tables"
+    ],
+    "marco": [
+      "frame",
+      "frames"
+    ],
+    "página": [
+      "page",
+      "pages"
+    ],
+    "pagina": [
+      "page",
+      "pages"
+    ],
+    "clave": [
+      "key",
+      "keys"
+    ],
+    "nodo": [
+      "node",
+      "nodes"
+    ],
+    "raíz": [
+      "root"
+    ],
+    "raiz": [
+      "root"
+    ],
+    "almacena": [
+      "stores",
+      "holds",
+      "maintains"
+    ],
+    "contiene": [
+      "contains",
+      "holds"
+    ],
+    "tamaño": [
+      "size"
+    ],
+    "tamano": [
+      "size"
+    ],
+    "fijo": [
+      "fixed"
+    ],
+    "dinámico": [
+      "dynamic"
+    ],
+    "dinamico": [
+      "dynamic"
+    ],
+    "algoritmo": [
+      "algorithm",
+      "algorithms"
+    ],
+    "camino": [
+      "path",
+      "paths",
+      "shortest-path"
+    ],
+    "camino más corto": [
+      "shortest path",
+      "shortest-path"
+    ],
+    "camino mas corto": [
+      "shortest path",
+      "shortest-path"
+    ],
+    "corto": [
+      "short",
+      "shortest"
+    ],
+    "pesos": [
+      "weights",
+      "weighted",
+      "costs"
+    ],
+    "peso": [
+      "weight",
+      "weighted",
+      "cost"
+    ],
+    "origen": [
+      "source",
+      "single-source",
+      "origin"
+    ],
+    "resuelve": [
+      "solves",
+      "computes"
+    ],
+    "dificultad": [
+      "difficulty",
+      "hardness"
+    ],
+    "computacional": [
+      "computational"
+    ],
+    "factorización": [
+      "factoring",
+      "factorization"
+    ],
+    "factorizacion": [
+      "factoring",
+      "factorization"
+    ],
+    "números primos": [
+      "prime numbers",
+      "primes",
+      "prime"
+    ],
+    "numeros primos": [
+      "prime numbers",
+      "primes",
+      "prime"
+    ],
+    "primo": [
+      "prime"
+    ],
+    "primos": [
+      "primes",
+      "prime"
+    ],
+    "seguridad": [
+      "security"
+    ],
+    "cifrado": [
+      "encryption",
+      "cipher"
+    ],
+    "encriptación": [
+      "encryption"
+    ],
+    "encriptacion": [
+      "encryption"
+    ],
+    "pérdida de memoria": [
+      "memory leak"
+    ],
+    "perdida de memoria": [
+      "memory leak"
+    ],
+    "referencias": [
+      "references",
+      "pointers"
+    ],
+    "alcanzable": [
+      "reachable"
+    ],
+    "alcanzables": [
+      "reachable"
+    ],
+    "desasignados": [
+      "reclaimed",
+      "freed"
+    ],
+    "liberada": [
+      "freed",
+      "reclaimed",
+      "released"
+    ],
+    "liberado": [
+      "freed",
+      "reclaimed",
+      "released"
+    ],
+    "despacha": [
+      "serves",
+      "dispatches",
+      "pops",
+      "retrieves"
+    ],
+    "atiende": [
+      "serves",
+      "handles"
+    ],
+    "antiguo": [
+      "oldest",
+      "early",
+      "earliest"
+    ],
+    "reciente": [
+      "newest",
+      "latest",
+      "recent"
+    ],
+    "reparte": [
+      "shares",
+      "allocates",
+      "distributes"
+    ],
+    "turnos": [
+      "time slices",
+      "quantum",
+      "turns"
+    ],
+    "breves": [
+      "slices",
+      "short",
+      "quantum"
+    ],
+    "activo": [
+      "active",
+      "ready"
+    ],
+    "activa": [
+      "active",
+      "ready"
+    ],
+    "activas": [
+      "active",
+      "ready"
+    ],
+    "circular": [
+      "circular",
+      "round"
+    ],
+    "tarea": [
+      "task",
+      "process"
+    ],
+    "tareas": [
+      "tasks",
+      "processes"
+    ],
+    "restringir": [
+      "restrict",
+      "limit",
+      "allow",
+      "gatekeep"
+    ],
+    "paso": [
+      "access",
+      "entry",
+      "path"
+    ],
+    "zona": [
+      "section",
+      "region",
+      "zone"
+    ],
+    "zona crítica": [
+      "critical section",
+      "critical region"
+    ],
+    "zona critica": [
+      "critical section",
+      "critical region"
+    ],
+    "desbordamiento": [
+      "overflow"
+    ],
+    "búfer": [
+      "buffer"
+    ],
+    "bufer": [
+      "buffer"
+    ],
+    "sobrescribir": [
+      "overwrite",
+      "overwrites"
+    ],
+    "sobrescribe": [
+      "overwrites",
+      "overwrite"
+    ],
+    "secuestrar": [
+      "hijack",
+      "divert",
+      "overwrite"
+    ],
+    "flujo de control": [
+      "control flow",
+      "instruction flow",
+      "flow"
+    ],
+    "dirección de retorno": [
+      "return address",
+      "return pointer"
+    ],
+    "direccion de retorno": [
+      "return address",
+      "return pointer"
+    ],
+    "puntero de instrucción": [
+      "instruction pointer"
+    ],
+    "puntero de instruccion": [
+      "instruction pointer"
+    ],
+    "espacio de direcciones": [
+      "address space",
+      "address spaces"
+    ],
+    "ordenamiento": [
+      "sorting",
+      "sort"
+    ],
+    "pivote": [
+      "pivot"
+    ],
+    "partición": [
+      "partition",
+      "partitioning"
+    ],
+    "particion": [
+      "partition",
+      "partitioning"
+    ],
+    "desacoplado": [
+      "decoupled",
+      "isolated"
+    ],
+    "aislamiento": [
+      "isolation"
+    ],
+    "protección": [
+      "protection"
+    ],
+    "proteccion": [
+      "protection"
+    ],
+    "bit de modo": [
+      "mode bit",
+      "supervisor mode"
+    ],
+    "supervisor": [
+      "supervisor",
+      "kernel"
+    ],
+    "fugas de memoria": [
+      "memory leak",
+      "memory leaks"
+    ],
+    "trayecto": [
+      "camino",
+      "path"
+    ],
+    "menor costo": [
+      "mínimo",
+      "minimo",
+      "shortest"
+    ],
+    "fuente única": [
+      "origen",
+      "single source",
+      "single-source"
+    ],
+    "fuente unica": [
+      "origen",
+      "single source",
+      "single-source"
+    ],
+    "aristas": [
+      "edges",
+      "arista"
+    ],
+    "arista": [
+      "edge",
+      "edges"
+    ],
+    "rutina": [
+      "función",
+      "subroutine",
+      "function"
+    ],
+    "resguarda": [
+      "guarda",
+      "stores",
+      "almacena"
+    ],
+    "incorporado": [
+      "insertado",
+      "pushed",
+      "enqueued"
+    ],
+    "anular": [
+      "eliminar",
+      "break",
+      "invalidate"
+    ],
+    "premisas": [
+      "condiciones",
+      "conditions"
+    ],
+    "preserva": [
+      "mantiene",
+      "stores",
+      "guarda"
+    ],
+    "órdenes": [
+      "instrucciones",
+      "instructions"
+    ],
+    "custodia": [
+      "contiene",
+      "almacena",
+      "holds"
+    ],
+    "sucesiva": [
+      "siguiente",
+      "next"
+    ],
+    "bifurcación": [
+      "branch",
+      "salto"
+    ],
+    "bifurcacion": [
+      "branch",
+      "salto"
+    ],
+    "puertas": [
+      "gates",
+      "controllers"
+    ],
+    "conmutador": [
+      "switch",
+      "router"
+    ],
+    "instancia": [
+      "objeto",
+      "instance",
+      "object"
+    ],
+    "identificador": [
+      "nombre",
+      "identifier",
+      "name"
+    ],
+    "reasignación": [
+      "modificación",
+      "modificar",
+      "rebinding",
+      "re-assignment"
+    ],
+    "reasignacion": [
+      "modificación",
+      "modificar",
+      "rebinding",
+      "re-assignment"
+    ],
+    "fifo": [
+      "first-in first-out",
+      "first-in-first-out",
+      "cola",
+      "queue"
+    ],
+    "arrivals": [
+      "insertions",
+      "llegadas"
+    ],
+    "retrieved": [
+      "removals",
+      "despachados"
+    ],
+    "collections": [
+      "structures",
+      "queues",
+      "colecciones"
+    ],
+    "brinda": [
+      "provee",
+      "proporciona",
+      "provides"
+    ],
+    "mapa": [
+      "espacio",
+      "abstracción",
+      "map"
+    ],
+    "planificador": [
+      "scheduler",
+      "round robin"
+    ],
+    "procesador": [
+      "cpu",
+      "processor"
+    ],
+    "relies": [
+      "rooted",
+      "depends",
+      "se basa"
+    ],
+    "anulada": [
+      "violada",
+      "compromised",
+      "breached"
+    ],
+    "int": [
+      "numbers",
+      "integers",
+      "enteros"
+    ],
+    "str": [
+      "strings",
+      "cadenas"
+    ],
+    "sesión": [
+      "connection",
+      "session"
+    ],
+    "sesion": [
+      "connection",
+      "session"
+    ],
+    "establecimiento": [
+      "setup",
+      "establishment"
+    ],
+    "intercambio": [
+      "handshake",
+      "exchange"
+    ],
+    "prevenir": [
+      "prevención",
+      "prevention"
+    ],
+    "fragmenta": [
+      "divide",
+      "partitions"
+    ],
+    "espacio físico": [
+      "memoria física",
+      "physical memory"
+    ],
+    "espacio fisico": [
+      "memoria fisica",
+      "physical memory"
+    ],
+    "uniformes": [
+      "fijo",
+      "fixed",
+      "equal"
+    ],
+    "longitud": [
+      "tamaño",
+      "size"
+    ],
+    "predeterminada": [
+      "fijo",
+      "fixed"
+    ],
+    "numeración de secuencia": [
+      "números de secuencia",
+      "sequence numbers"
+    ],
+    "numeracion de secuencia": [
+      "numeros de secuencia",
+      "sequence numbers"
+    ],
+    "protection": [
+      "permission",
+      "protección",
+      "protection"
+    ],
+    "isolation": [
+      "separate",
+      "aislamiento",
+      "isolation"
+    ]
+  },
+  "en_to_es": {
+    "thread": [
+      "hilo",
+      "hebra"
+    ],
+    "threads": [
+      "hilo",
+      "hebra"
+    ],
+    "process": [
+      "proceso",
+      "tarea"
+    ],
+    "processes": [
+      "proceso",
+      "tareas"
+    ],
+    "process control block": [
+      "bloque de control de proceso"
+    ],
+    "pcb": [
+      "bloque de control de proceso"
+    ],
+    "context switch": [
+      "cambio de contexto"
+    ],
+    "context switching": [
+      "cambio de contexto"
+    ],
+    "virtual memory": [
+      "memoria virtual"
+    ],
+    "paging": [
+      "paginación",
+      "paginacion"
+    ],
+    "segmentation": [
+      "segmentación",
+      "segmentacion"
+    ],
+    "page fault": [
+      "fallo de página",
+      "fallo de pagina"
+    ],
+    "page faults": [
+      "fallo de página",
+      "fallo de pagina"
+    ],
+    "page frame": [
+      "marco de página",
+      "marco de pagina"
+    ],
+    "page frames": [
+      "marco de página",
+      "marco de pagina"
+    ],
+    "frame": [
+      "marco de página",
+      "marco de pagina",
+      "marco"
+    ],
+    "page table": [
+      "tabla de páginas",
+      "tabla de paginas"
+    ],
+    "page tables": [
+      "tabla de páginas",
+      "tabla de paginas"
+    ],
+    "deadlock": [
+      "interbloqueo",
+      "bloqueo mutuo"
+    ],
+    "deadlocks": [
+      "interbloqueo",
+      "bloqueo mutuo"
+    ],
+    "critical section": [
+      "sección crítica",
+      "seccion critica",
+      "zona crítica",
+      "zona critica"
+    ],
+    "critical sections": [
+      "sección crítica",
+      "seccion critica"
+    ],
+    "mutual exclusion": [
+      "exclusión mutua",
+      "exclusion mutua"
+    ],
+    "mutex": [
+      "exclusión mutua",
+      "exclusion mutua"
+    ],
+    "semaphore": [
+      "semáforo",
+      "semaforo"
+    ],
+    "semaphores": [
+      "semáforo",
+      "semaforo"
+    ],
+    "race condition": [
+      "condición de carrera",
+      "condicion de carrera"
+    ],
+    "race conditions": [
+      "condición de carrera",
+      "condicion de carrera"
+    ],
+    "priority inversion": [
+      "inversión de prioridad",
+      "inversion de prioridad"
+    ],
+    "cpu scheduling": [
+      "planificación de cpu",
+      "planificacion de cpu"
+    ],
+    "processor scheduling": [
+      "planificación de cpu",
+      "planificacion de cpu"
+    ],
+    "system call": [
+      "llamada al sistema"
+    ],
+    "syscall": [
+      "llamada al sistema"
+    ],
+    "system calls": [
+      "llamada al sistema"
+    ],
+    "user space": [
+      "espacio de usuario"
+    ],
+    "user mode": [
+      "espacio de usuario"
+    ],
+    "kernel space": [
+      "espacio de kernel",
+      "espacio de nucleo",
+      "espacio de núcleo"
+    ],
+    "kernel mode": [
+      "espacio de kernel",
+      "espacio de nucleo",
+      "espacio de núcleo"
+    ],
+    "pointer": [
+      "puntero"
+    ],
+    "pointers": [
+      "puntero",
+      "referencias"
+    ],
+    "dereference": [
+      "desreferenciación",
+      "desreferenciacion"
+    ],
+    "dereferencing": [
+      "desreferenciación",
+      "desreferenciacion"
+    ],
+    "memory leak": [
+      "fuga de memoria",
+      "pérdida de memoria",
+      "perdida de memoria",
+      "fugas de memoria"
+    ],
+    "memory leaks": [
+      "fuga de memoria",
+      "fugas de memoria"
+    ],
+    "stack frame": [
+      "registro de activación",
+      "registro de activacion"
+    ],
+    "activation record": [
+      "registro de activación",
+      "registro de activacion"
+    ],
+    "stack frames": [
+      "registro de activación",
+      "registro de activacion"
+    ],
+    "program counter": [
+      "contador de programa"
+    ],
+    "pc": [
+      "contador de programa"
+    ],
+    "stack": [
+      "pila"
+    ],
+    "call stack": [
+      "pila"
+    ],
+    "heap": [
+      "montón",
+      "monton",
+      "montículo",
+      "monticulo"
+    ],
+    "dynamic heap": [
+      "montón",
+      "monton"
+    ],
+    "free store": [
+      "montón",
+      "monton"
+    ],
+    "dynamic memory": [
+      "memoria dinámica",
+      "memoria dinamica"
+    ],
+    "address translation": [
+      "traducción de direcciones",
+      "traduccion de direcciones"
+    ],
+    "translation lookaside buffer": [
+      "búfer de traducción adelantada",
+      "bufer de traduccion adelantada",
+      "tlb"
+    ],
+    "tlb": [
+      "búfer de traducción adelantada",
+      "bufer de traduccion adelantada",
+      "tlb"
+    ],
+    "text segment": [
+      "segmento de texto",
+      "segmento de código",
+      "segmento de codigo"
+    ],
+    "code segment": [
+      "segmento de texto",
+      "segmento de código",
+      "segmento de codigo"
+    ],
+    "data segment": [
+      "segmento de datos"
+    ],
+    "destructive assignment": [
+      "asignación destructiva",
+      "asignacion destructiva"
+    ],
+    "base address": [
+      "dirección base",
+      "direccion base"
+    ],
+    "offset": [
+      "desplazamiento"
+    ],
+    "displacement": [
+      "desplazamiento"
+    ],
+    "queue": [
+      "cola",
+      "fifo"
+    ],
+    "queues": [
+      "cola",
+      "collections"
+    ],
+    "priority queue": [
+      "cola de prioridad"
+    ],
+    "priority queues": [
+      "cola de prioridad"
+    ],
+    "tree": [
+      "árbol",
+      "arbol"
+    ],
+    "trees": [
+      "árbol",
+      "arbol"
+    ],
+    "binary tree": [
+      "árbol binario",
+      "arbol binario"
+    ],
+    "binary trees": [
+      "árbol binario",
+      "arbol binario"
+    ],
+    "binary search tree": [
+      "árbol binario de búsqueda",
+      "arbol binario de busqueda"
+    ],
+    "bst": [
+      "árbol binario de búsqueda",
+      "arbol binario de busqueda"
+    ],
+    "avl tree": [
+      "árbol avl",
+      "arbol avl"
+    ],
+    "avl trees": [
+      "árbol avl",
+      "arbol avl"
+    ],
+    "red-black tree": [
+      "árbol rojinegro",
+      "arbol rojinegro"
+    ],
+    "red black tree": [
+      "árbol rojinegro",
+      "arbol rojinegro"
+    ],
+    "binary heap": [
+      "montículo",
+      "monticulo"
+    ],
+    "min-heap": [
+      "montículo",
+      "monticulo"
+    ],
+    "max-heap": [
+      "montículo",
+      "monticulo"
+    ],
+    "hash table": [
+      "tabla hash"
+    ],
+    "hash map": [
+      "tabla hash"
+    ],
+    "graph": [
+      "grafo"
+    ],
+    "graphs": [
+      "grafo"
+    ],
+    "depth-first search": [
+      "recorrido en profundidad"
+    ],
+    "dfs": [
+      "recorrido en profundidad"
+    ],
+    "breadth-first search": [
+      "recorrido en anchura"
+    ],
+    "bfs": [
+      "recorrido en anchura"
+    ],
+    "time complexity": [
+      "complejidad temporal"
+    ],
+    "temporal complexity": [
+      "complejidad temporal"
+    ],
+    "space complexity": [
+      "complejidad espacial"
+    ],
+    "spatial complexity": [
+      "complejidad espacial"
+    ],
+    "amortized time": [
+      "tiempo amortizado"
+    ],
+    "amortized complexity": [
+      "tiempo amortizado"
+    ],
+    "average case": [
+      "caso promedio"
+    ],
+    "average-case": [
+      "caso promedio"
+    ],
+    "worst case": [
+      "peor caso"
+    ],
+    "worst-case": [
+      "peor caso"
+    ],
+    "best case": [
+      "mejor caso"
+    ],
+    "best-case": [
+      "mejor caso"
+    ],
+    "linked list": [
+      "lista enlazada"
+    ],
+    "linked lists": [
+      "lista enlazada"
+    ],
+    "singly linked list": [
+      "lista simplemente enlazada"
+    ],
+    "doubly linked list": [
+      "lista doblemente enlazada"
+    ],
+    "mergesort": [
+      "ordenamiento por mezcla"
+    ],
+    "merge sort": [
+      "ordenamiento por mezcla"
+    ],
+    "quicksort": [
+      "ordenamiento rápido",
+      "ordenamiento rapido"
+    ],
+    "quick sort": [
+      "ordenamiento rápido",
+      "ordenamiento rapido"
+    ],
+    "binary search": [
+      "búsqueda binaria",
+      "busqueda binaria"
+    ],
+    "three-way handshake": [
+      "apretón de manos",
+      "saludo de tres vías"
+    ],
+    "handshake": [
+      "apretón de manos",
+      "intercambio"
+    ],
+    "three way handshake": [
+      "saludo de tres vías"
+    ],
+    "congestion control": [
+      "control de congestión",
+      "control de congestion"
+    ],
+    "flow control": [
+      "control de flujo"
+    ],
+    "buffer overflow": [
+      "desbordamiento de búfer",
+      "desbordamiento de buffer"
+    ],
+    "buffer overrun": [
+      "desbordamiento de búfer",
+      "desbordamiento de buffer"
+    ],
+    "sql injection": [
+      "inyección sql",
+      "inyeccion sql"
+    ],
+    "sqli": [
+      "inyección sql",
+      "inyeccion sql"
+    ],
+    "denial of service": [
+      "denegación de servicio",
+      "denegacion de servicio"
+    ],
+    "dos": [
+      "denegación de servicio",
+      "denegacion de servicio"
+    ],
+    "ddos": [
+      "denegación de servicio",
+      "denegacion de servicio"
+    ],
+    "public-key cryptography": [
+      "criptografía de clave pública",
+      "criptografia de clave publica"
+    ],
+    "asymmetric cryptography": [
+      "criptografía de clave pública",
+      "criptografia de clave publica"
+    ],
+    "routing table": [
+      "tabla de enrutamiento"
+    ],
+    "gateway": [
+      "puerta de enlace"
+    ],
+    "default gateway": [
+      "puerta de enlace"
+    ],
+    "subnet mask": [
+      "máscara de red",
+      "mascara de red"
+    ],
+    "netmask": [
+      "máscara de red",
+      "mascara de red"
+    ],
+    "binary": [
+      "binario",
+      "binaria"
+    ],
+    "access": [
+      "acceso",
+      "paso"
+    ],
+    "restricts": [
+      "restringe"
+    ],
+    "limits": [
+      "restringe"
+    ],
+    "allows": [
+      "restringe"
+    ],
+    "controls": [
+      "restringe"
+    ],
+    "section": [
+      "sección",
+      "seccion",
+      "zona"
+    ],
+    "critical": [
+      "crítica",
+      "critica"
+    ],
+    "one": [
+      "único",
+      "unico"
+    ],
+    "single": [
+      "único",
+      "unico"
+    ],
+    "unique": [
+      "único",
+      "unico"
+    ],
+    "execution": [
+      "ejecución",
+      "ejecucion"
+    ],
+    "execute": [
+      "ejecución",
+      "ejecucion"
+    ],
+    "simultaneously": [
+      "simultáneamente",
+      "simultaneamente"
+    ],
+    "concurrently": [
+      "simultáneamente",
+      "simultaneamente"
+    ],
+    "block": [
+      "bloque"
+    ],
+    "blocks": [
+      "bloque"
+    ],
+    "register": [
+      "registro"
+    ],
+    "registers": [
+      "registro"
+    ],
+    "table": [
+      "tabla"
+    ],
+    "tables": [
+      "tabla"
+    ],
+    "frames": [
+      "marco"
+    ],
+    "page": [
+      "página",
+      "pagina"
+    ],
+    "pages": [
+      "página",
+      "pagina"
+    ],
+    "key": [
+      "clave"
+    ],
+    "keys": [
+      "clave"
+    ],
+    "node": [
+      "nodo"
+    ],
+    "nodes": [
+      "nodo"
+    ],
+    "root": [
+      "raíz",
+      "raiz"
+    ],
+    "stores": [
+      "almacena",
+      "resguarda",
+      "preserva"
+    ],
+    "holds": [
+      "almacena",
+      "contiene",
+      "custodia"
+    ],
+    "maintains": [
+      "almacena"
+    ],
+    "contains": [
+      "contiene"
+    ],
+    "size": [
+      "tamaño",
+      "tamano",
+      "longitud"
+    ],
+    "fixed": [
+      "fijo",
+      "uniformes",
+      "predeterminada"
+    ],
+    "dynamic": [
+      "dinámico",
+      "dinamico"
+    ],
+    "algorithm": [
+      "algoritmo"
+    ],
+    "algorithms": [
+      "algoritmo"
+    ],
+    "path": [
+      "camino",
+      "paso",
+      "trayecto"
+    ],
+    "paths": [
+      "camino"
+    ],
+    "shortest-path": [
+      "camino",
+      "camino más corto",
+      "camino mas corto"
+    ],
+    "shortest path": [
+      "camino más corto",
+      "camino mas corto"
+    ],
+    "short": [
+      "corto",
+      "breves"
+    ],
+    "shortest": [
+      "corto",
+      "menor costo"
+    ],
+    "weights": [
+      "pesos"
+    ],
+    "weighted": [
+      "pesos",
+      "peso"
+    ],
+    "costs": [
+      "pesos"
+    ],
+    "weight": [
+      "peso"
+    ],
+    "cost": [
+      "peso"
+    ],
+    "source": [
+      "origen"
+    ],
+    "single-source": [
+      "origen",
+      "fuente única",
+      "fuente unica"
+    ],
+    "origin": [
+      "origen"
+    ],
+    "solves": [
+      "resuelve"
+    ],
+    "computes": [
+      "resuelve"
+    ],
+    "difficulty": [
+      "dificultad"
+    ],
+    "hardness": [
+      "dificultad"
+    ],
+    "computational": [
+      "computacional"
+    ],
+    "factoring": [
+      "factorización",
+      "factorizacion"
+    ],
+    "factorization": [
+      "factorización",
+      "factorizacion"
+    ],
+    "prime numbers": [
+      "números primos",
+      "numeros primos"
+    ],
+    "primes": [
+      "números primos",
+      "numeros primos",
+      "primos"
+    ],
+    "prime": [
+      "números primos",
+      "numeros primos",
+      "primo",
+      "primos"
+    ],
+    "security": [
+      "seguridad"
+    ],
+    "encryption": [
+      "cifrado",
+      "encriptación",
+      "encriptacion"
+    ],
+    "cipher": [
+      "cifrado"
+    ],
+    "references": [
+      "referencias"
+    ],
+    "reachable": [
+      "alcanzable",
+      "alcanzables"
+    ],
+    "reclaimed": [
+      "desasignados",
+      "liberada",
+      "liberado"
+    ],
+    "freed": [
+      "desasignados",
+      "liberada",
+      "liberado"
+    ],
+    "released": [
+      "liberada",
+      "liberado"
+    ],
+    "serves": [
+      "despacha",
+      "atiende"
+    ],
+    "dispatches": [
+      "despacha"
+    ],
+    "pops": [
+      "despacha"
+    ],
+    "retrieves": [
+      "despacha"
+    ],
+    "handles": [
+      "atiende"
+    ],
+    "oldest": [
+      "antiguo"
+    ],
+    "early": [
+      "antiguo"
+    ],
+    "earliest": [
+      "antiguo"
+    ],
+    "newest": [
+      "reciente"
+    ],
+    "latest": [
+      "reciente"
+    ],
+    "recent": [
+      "reciente"
+    ],
+    "shares": [
+      "reparte"
+    ],
+    "allocates": [
+      "reparte"
+    ],
+    "distributes": [
+      "reparte"
+    ],
+    "time slices": [
+      "turnos"
+    ],
+    "quantum": [
+      "turnos",
+      "breves"
+    ],
+    "turns": [
+      "turnos"
+    ],
+    "slices": [
+      "breves"
+    ],
+    "active": [
+      "activo",
+      "activa",
+      "activas"
+    ],
+    "ready": [
+      "activo",
+      "activa",
+      "activas"
+    ],
+    "circular": [
+      "circular"
+    ],
+    "round": [
+      "circular"
+    ],
+    "task": [
+      "tarea"
+    ],
+    "tasks": [
+      "tareas"
+    ],
+    "restrict": [
+      "restringir"
+    ],
+    "limit": [
+      "restringir"
+    ],
+    "allow": [
+      "restringir"
+    ],
+    "gatekeep": [
+      "restringir"
+    ],
+    "entry": [
+      "paso"
+    ],
+    "region": [
+      "zona"
+    ],
+    "zone": [
+      "zona"
+    ],
+    "critical region": [
+      "zona crítica",
+      "zona critica"
+    ],
+    "overflow": [
+      "desbordamiento"
+    ],
+    "buffer": [
+      "búfer",
+      "bufer"
+    ],
+    "overwrite": [
+      "sobrescribir",
+      "sobrescribe",
+      "secuestrar"
+    ],
+    "overwrites": [
+      "sobrescribir",
+      "sobrescribe"
+    ],
+    "hijack": [
+      "secuestrar"
+    ],
+    "divert": [
+      "secuestrar"
+    ],
+    "control flow": [
+      "flujo de control"
+    ],
+    "instruction flow": [
+      "flujo de control"
+    ],
+    "flow": [
+      "flujo de control"
+    ],
+    "return address": [
+      "dirección de retorno",
+      "direccion de retorno"
+    ],
+    "return pointer": [
+      "dirección de retorno",
+      "direccion de retorno"
+    ],
+    "instruction pointer": [
+      "puntero de instrucción",
+      "puntero de instruccion"
+    ],
+    "address space": [
+      "espacio de direcciones"
+    ],
+    "address spaces": [
+      "espacio de direcciones"
+    ],
+    "sorting": [
+      "ordenamiento"
+    ],
+    "sort": [
+      "ordenamiento"
+    ],
+    "pivot": [
+      "pivote"
+    ],
+    "partition": [
+      "partición",
+      "particion"
+    ],
+    "partitioning": [
+      "partición",
+      "particion"
+    ],
+    "decoupled": [
+      "desacoplado"
+    ],
+    "isolated": [
+      "desacoplado"
+    ],
+    "isolation": [
+      "aislamiento",
+      "isolation"
+    ],
+    "protection": [
+      "protección",
+      "proteccion",
+      "protection"
+    ],
+    "mode bit": [
+      "bit de modo"
+    ],
+    "supervisor mode": [
+      "bit de modo"
+    ],
+    "supervisor": [
+      "supervisor"
+    ],
+    "kernel": [
+      "supervisor"
+    ],
+    "camino": [
+      "trayecto"
+    ],
+    "mínimo": [
+      "menor costo"
+    ],
+    "minimo": [
+      "menor costo"
+    ],
+    "origen": [
+      "fuente única",
+      "fuente unica"
+    ],
+    "single source": [
+      "fuente única",
+      "fuente unica"
+    ],
+    "edges": [
+      "aristas",
+      "arista"
+    ],
+    "arista": [
+      "aristas"
+    ],
+    "edge": [
+      "arista"
+    ],
+    "función": [
+      "rutina"
+    ],
+    "subroutine": [
+      "rutina"
+    ],
+    "function": [
+      "rutina"
+    ],
+    "guarda": [
+      "resguarda",
+      "preserva"
+    ],
+    "almacena": [
+      "resguarda",
+      "custodia"
+    ],
+    "insertado": [
+      "incorporado"
+    ],
+    "pushed": [
+      "incorporado"
+    ],
+    "enqueued": [
+      "incorporado"
+    ],
+    "eliminar": [
+      "anular"
+    ],
+    "break": [
+      "anular"
+    ],
+    "invalidate": [
+      "anular"
+    ],
+    "condiciones": [
+      "premisas"
+    ],
+    "conditions": [
+      "premisas"
+    ],
+    "mantiene": [
+      "preserva"
+    ],
+    "instrucciones": [
+      "órdenes"
+    ],
+    "instructions": [
+      "órdenes"
+    ],
+    "contiene": [
+      "custodia"
+    ],
+    "siguiente": [
+      "sucesiva"
+    ],
+    "next": [
+      "sucesiva"
+    ],
+    "branch": [
+      "bifurcación",
+      "bifurcacion"
+    ],
+    "salto": [
+      "bifurcación",
+      "bifurcacion"
+    ],
+    "gates": [
+      "puertas"
+    ],
+    "controllers": [
+      "puertas"
+    ],
+    "switch": [
+      "conmutador"
+    ],
+    "router": [
+      "conmutador"
+    ],
+    "objeto": [
+      "instancia"
+    ],
+    "instance": [
+      "instancia"
+    ],
+    "object": [
+      "instancia"
+    ],
+    "nombre": [
+      "identificador"
+    ],
+    "identifier": [
+      "identificador"
+    ],
+    "name": [
+      "identificador"
+    ],
+    "modificación": [
+      "reasignación",
+      "reasignacion"
+    ],
+    "modificar": [
+      "reasignación",
+      "reasignacion"
+    ],
+    "rebinding": [
+      "reasignación",
+      "reasignacion"
+    ],
+    "re-assignment": [
+      "reasignación",
+      "reasignacion"
+    ],
+    "first-in first-out": [
+      "fifo"
+    ],
+    "first-in-first-out": [
+      "fifo"
+    ],
+    "cola": [
+      "fifo"
+    ],
+    "insertions": [
+      "arrivals"
+    ],
+    "llegadas": [
+      "arrivals"
+    ],
+    "removals": [
+      "retrieved"
+    ],
+    "despachados": [
+      "retrieved"
+    ],
+    "structures": [
+      "collections"
+    ],
+    "colecciones": [
+      "collections"
+    ],
+    "provee": [
+      "brinda"
+    ],
+    "proporciona": [
+      "brinda"
+    ],
+    "provides": [
+      "brinda"
+    ],
+    "espacio": [
+      "mapa"
+    ],
+    "abstracción": [
+      "mapa"
+    ],
+    "map": [
+      "mapa"
+    ],
+    "scheduler": [
+      "planificador"
+    ],
+    "round robin": [
+      "planificador"
+    ],
+    "cpu": [
+      "procesador"
+    ],
+    "processor": [
+      "procesador"
+    ],
+    "rooted": [
+      "relies"
+    ],
+    "depends": [
+      "relies"
+    ],
+    "se basa": [
+      "relies"
+    ],
+    "violada": [
+      "anulada"
+    ],
+    "compromised": [
+      "anulada"
+    ],
+    "breached": [
+      "anulada"
+    ],
+    "numbers": [
+      "int"
+    ],
+    "integers": [
+      "int"
+    ],
+    "enteros": [
+      "int"
+    ],
+    "strings": [
+      "str"
+    ],
+    "cadenas": [
+      "str"
+    ],
+    "connection": [
+      "sesión",
+      "sesion"
+    ],
+    "session": [
+      "sesión",
+      "sesion"
+    ],
+    "setup": [
+      "establecimiento"
+    ],
+    "establishment": [
+      "establecimiento"
+    ],
+    "exchange": [
+      "intercambio"
+    ],
+    "prevención": [
+      "prevenir"
+    ],
+    "prevention": [
+      "prevenir"
+    ],
+    "divide": [
+      "fragmenta"
+    ],
+    "partitions": [
+      "fragmenta"
+    ],
+    "memoria física": [
+      "espacio físico"
+    ],
+    "physical memory": [
+      "espacio físico",
+      "espacio fisico"
+    ],
+    "memoria fisica": [
+      "espacio fisico"
+    ],
+    "fijo": [
+      "uniformes",
+      "predeterminada"
+    ],
+    "equal": [
+      "uniformes"
+    ],
+    "tamaño": [
+      "longitud"
+    ],
+    "números de secuencia": [
+      "numeración de secuencia"
+    ],
+    "sequence numbers": [
+      "numeración de secuencia",
+      "numeracion de secuencia"
+    ],
+    "numeros de secuencia": [
+      "numeracion de secuencia"
+    ],
+    "permission": [
+      "protection"
+    ],
+    "protección": [
+      "protection"
+    ],
+    "separate": [
+      "isolation"
+    ],
+    "aislamiento": [
+      "isolation"
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "campaign_id": "GP-E2E-HITO5",
+  "spec_version": "SPEC-HITO5-V1.0",
+  "created_at_utc": "2026-09-06T14:00:00Z",
+  "canonical_stdin": "STUDY_ENGINE_CANONICAL_INPUT",
+  "phase_1_conceptual": {
+    "input": {
+      "session_id": "session-gp-e2e-hito5",
+      "student_id": "student-e2e-hito5",
+      "node_id": "SEC-04-CONCURR",
+      "query": "¿Qué es una condición de carrera?",
+      "turn_index": 1,
+      "mode": "EXPLANATION"
+    },
+    "expected_retrieval": {
+      "candidate_count": 5,
+      "primary_document_id": "so_concurrencia.pdf",
+      "expected_authorized_page_range": {
+        "document": "so_concurrencia.pdf",
+        "start": 1,
+        "end": 8
+      },
+      "expected_retrieved_page_set": {
+        "document": "so_concurrencia.pdf",
+        "pages": [
+          1
+        ]
+      },
+      "assertion": "RETRIEVED_PAGE_SET ⊆ AUTHORIZED_PAGE_RANGE"
+    },
+    "expected_generation": {
+      "raw_content": "Según se documenta en [E1], una condición de carrera ocurre cuando dos o más procesos acceden a un espacio de memoria compartida sin sincronización apropiada, produciendo resultados dependientes del orden de ejecución.",
+      "citations_manifest_expected": [
+        "E1"
+      ]
+    },
+    "expected_audit": {
+      "overall_verdict": "APPROVED",
+      "session_status": "APPROVED",
+      "abstention_reason": null
+    }
+  },
+  "phase_2_practical": {
+    "input": {
+      "student_id": "student-e2e-hito5",
+      "node_id": "SEC-05-BIN-SEC",
+      "task_id": "task_sec05_file_hasher.json",
+      "rubric_id": "rubric_sec05_deterministic.json",
+      "artifact_path": "scratch/fixtures/gp_b/student_clean_solution.py",
+      "artifact_filename": "student_clean_solution.py"
+    },
+    "expected_practice": {
+      "execution_observation": {
+        "exit_code": 0,
+        "status": "COMPLETED",
+        "artifact_filename": "output_hash.txt",
+        "artifact_size_bytes": 64,
+        "duration_ms_max": 5000.0
+      },
+      "assessment_result": {
+        "passed": true,
+        "overall_level": "N3_COMPETENT",
+        "practice_result_status": "EVALUATED"
+      }
+    }
+  },
+  "phase_3_state": {
+    "expected_node_transitions": {
+      "PROG-01": "ASSESSED_PROFICIENT",
+      "PROG-02": "AVAILABLE",
+      "SEC-02-OS-PROC": "ASSESSED_PROFICIENT",
+      "SEC-04-CONCURR": "AVAILABLE"
+    }
+  },
+  "phase_4_ledger": {
+    "expected_cardinality": 2,
+    "expected_hash_chain_status": "VALID",
+    "expected_anti_replay_error": "IdempotentReplayError"
+  }
+}

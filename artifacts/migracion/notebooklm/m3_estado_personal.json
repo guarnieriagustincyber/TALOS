@@ -1,0 +1,103 @@
+{
+  "estado_personal": {
+    "posicion_actual": {
+      "tramo": "Tramo 5: Algoritmos, Estructuras de Datos y Complejidad - Big O",
+      "ejercicio_en_curso": "Aritmética de Punteros y Direccionamiento Contiguo en RAM (Arreglo de 5 enteros, base 1000, 4 bytes por entero, índice 3)"
+    },
+    "topicos_dominados": [
+      "Metodología de Resolución de Problemas (Análisis, Diseño, Codificación, Verificación)",
+      "Análisis del Problema (Entradas, Salidas y Restricciones)",
+      "Diseño Algorítmico Top-Down y Refinamiento Sucesivo",
+      "Diagramas de Flujo y Salidas de Escape (Mermaid)",
+      "Física de la Memoria RAM, Asignación Destructiva y Ámbito de Variables (Scope)",
+      "Lógica Proposicional, Tablas de Verdad, Operadores Booleanos e Implicación Condicional (Rosen)",
+      "Principios de Clean Code, Nombres Autodescriptivos y Expresiones Afirmativas",
+      "Type Hints y Declaración Segura en Python",
+      "Control de Flujo, Estructuras Selectivas (if/else/else de resguardo) e Iterativas (while, for, centinelas)",
+      "Anatomía del Bucle Infinito y Control de Centinelas (-1)",
+      "Física del Stack Frame (Registro de Activación) y Dirección de Retorno",
+      "Paso de Parámetros por Valor vs. Referencia e Inmutabilidad en Python",
+      "Cláusulas de Guardia (Guard Clauses / Early Return) vs. Pirámide de Ifs",
+      "Contratos Formales de Ingeniería (Precondición y Postcondición en Docstrings)",
+      "Validador de Octetos IPv4 (es_octeto_valido)",
+      "Orquestador Validador de Direcciones IPv4 Completa (analizar_ip / es_ip_valida)"
+    ],
+    "topicos_en_curso": [
+      "Tramo 5: Aritmética de Punteros, Direccionamiento Contiguo y Colecciones en RAM"
+    ],
+    "anclas": [
+      {
+        "contenido": "no es que yo tenga que hacer todo, sino solo trabajar en mi oficina: es_octeto_valido() es el perito de la ventanilla 1, no el gerente",
+        "topico": "Modularidad y Abstracción en Tramo 4",
+        "origen": "2026-08-31"
+      },
+      {
+        "contenido": "no tiene sentido alguno analizar un caracter, sino acumular",
+        "topico": "Patrón Acumulador en Cadenas / Parsers",
+        "origen": "2026-09-01"
+      },
+      {
+        "contenido": "Deterministic code first, AI second (con verificación Human-in-the-loop)",
+        "topico": "Gobernanza de IA y Filosofía del Roadmap Kasiu Tech",
+        "origen": "RoadmapNuevoHorizonte.txt"
+      },
+      {
+        "contenido": "La verdad es igual a nunca (Ley de LeBlanc)",
+        "topico": "Clean Code y Deuda Técnica",
+        "origen": "Codigo limpio - Robert Cecil Martin"
+      },
+      {
+        "contenido": "Always Have a Plan, Restate the Problem, Reduce the Problem, Avoid Frustration",
+        "topico": "Estrategias de Resolución de Problemas",
+        "origen": "Spraul - Think Like a Programmer"
+      },
+      {
+        "contenido": "La implicación (p -> q) no es una orden de código sino una regla/auditoría de contratos que solo da FALSO cuando V -> F (Verdad por Vacuidad)",
+        "topico": "Lógica Proposicional de Rosen",
+        "origen": "chatNotebookLM.txt"
+      }
+    ],
+    "errores_recurrentes": [
+      {
+        "error": "Tratar llamadas a funciones como variables simples sin pasarles parámetros ni paréntesis",
+        "correccion": "Definir explícitamente la firma con parámetros de entrada y enviar las variables correspondientes en la invocación."
+      },
+      {
+        "error": "Duplicación del acumulador al concatenar strings (escribir 'pedazo += pedazo + caracter' en lugar de 'pedazo = pedazo + caracter')",
+        "correccion": "Usar la sintaxis explícita 'pedazo = pedazo + caracter' o el operador compuesto 'pedazo += caracter', pero jamás ambos a la vez."
+      },
+      {
+        "error": "Dejar el 'octeto colgado' al final de un bucle de lectura sin punto delimitador terminal",
+        "correccion": "Añadir una cláusula de guardia fuera del bucle para validar el residuo acumulado en el último pedazo antes del retorno final."
+      },
+      {
+        "error": "Doble incremento en contadores de bucle (incrementar el contador en el 'else' y luego dentro de la rama condicional de éxito)",
+        "correccion": "Aislar el incremento del contador exclusivamente dentro de la rama condicional de éxito confirmado ('si es_valido entonces contador += 1')."
+      },
+      {
+        "error": "Desfasaje por uno (off-by-one) en conteo de delimitadores vs. entidades (esperar 4 puntos en lugar de 3 puntos o 4 octetos)",
+        "correccion": "Contar directamente entidades validadas con éxito (4 octetos) o ajustar el conteo de delimitadores a N-1 (3 puntos)."
+      },
+      {
+        "error": "Intentar usar diccionarios o estructuras compuestas antes de dominar las variables simples y la lógica básica",
+        "correccion": "Aplicar la regla 'Reduce the Problem' de Spraul: resolver primero con variables simples y acumuladores lineales."
+      },
+      {
+        "error": "Lógica invertida en aduanas de rango (devolver False cuando la entrada es válida en lugar de cuando es inválida)",
+        "correccion": "Usar cláusulas de guardia afirmativas de fallo: 'si valor < MIN o valor > MAX entonces devolver False'."
+      },
+      {
+        "error": "Comparación directa de tipos incompatibles en la ALU (ej. comparar un string 'pedazo_analizar' con enteros sin convertir previamente a int)",
+        "correccion": "Convertir y asignar primero a una variable entera intermedia antes de realizar comparaciones aritméticas."
+      }
+    ],
+    "victorias_logicas": [
+      "Ejercicio PinSeguro (Python de producción con control de 3 intentos y bloqueo defensivo)",
+      "Ejercicio de la Tabla de la Aduana: Expresión φ = (A ∧ ¬B) → (C ⊕ ¬D) (16 combinaciones resueltas con implicación y XOR)",
+      "Refactorización Clean Code de IP Permitida y Bautismo de Variables con Type Hints",
+      "Ejercicio de la Aduana del CBU Bancario (Validación de longitud 22 en frontera)",
+      "Validador de Octeto IPv4 (es_octeto_valido) con 4 sub-oficinas de filtro, sin bucles innecesarios y con retornos tempranos",
+      "Descomponedor y Validador Completo de Direcciones IPv4 (analizar_ip / es_ip_valida) con acumulador, manejo del octeto colgante y control de 4 octetos resuelto en Python"
+    ]
+  }
+}

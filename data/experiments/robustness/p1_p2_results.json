@@ -1,0 +1,413 @@
+{
+  "campaign": "S4.4 V0 ROBUSTNESS P1 & P2",
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.0,
+  "central_epistemological_finding": "V0 demuestra que S4.4 puede imponer una política fail-closed y auditable sobre un juez probabilístico, pero no demuestra que el juez probabilístico posea resolución epistemológica suficiente para distinguir siempre entre evidencia explícita e inferencia implícita técnicamente plausible.",
+  "metrics": {
+    "total_cases": 9,
+    "exact_verdict_matches": 7,
+    "exact_verdict_accuracy": 0.7777777777777778,
+    "unsafe_target_cases": 6,
+    "safety_contained_cases": 5,
+    "safety_containment_rate": 0.8333333333333334,
+    "over_accepted_cases": 1,
+    "over_acceptance_rate": 0.16666666666666666,
+    "metric_definitions": {
+      "exact_verdict_accuracy": "Casos con coincidencia exacta de veredicto sobre Total de casos evaluados (7/9 = 77.8%)",
+      "safety_containment_rate": "Casos bloqueados sobre Casos cuyo ground truth exige bloqueo (5/6 = 83.3%)",
+      "over_acceptance_rate": "Casos indebidamente aprobados sobre Casos cuyo ground truth exige bloqueo (1/6 = 16.7%)"
+    }
+  },
+  "family_breakdown": {
+    "p1_paraphrase": {
+      "total": 5,
+      "exact_matched": 4,
+      "over_accepted": 1
+    },
+    "p2_multiclaim": {
+      "total": 4,
+      "exact_matched": 3,
+      "safety_containment": "100.0%"
+    }
+  },
+  "cases": [
+    {
+      "experiment_run_id": "RUN-ROB-P1-01-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P1-01",
+      "family": "P1_PARAPHRASE",
+      "subfamily": "strict_paraphrase",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "ab87b1b5c75ee4046640140c9142816784882c75cdb7d228a26c5c672105721a",
+      "claim": "Un proceso en estado 'En ejecución' se encuentra utilizando efectivamente la unidad central de procesamiento en ese momento preciso",
+      "claims_count": 1,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "Un proceso en estado 'En ejecución' se encuentra utilizando efectivamente la unidad central de procesamiento en ese momento preciso [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis para el estado 'En ejecución' indica que el proceso está utilizando efectivamente la unidad central de procesamiento en ese momento preciso, lo cual es una traducción directa y parafraseada de la premisa: 'En ejecución (en realidad está usando la CPU en ese instante)'."
+        }
+      ],
+      "expected_result": "APPROVED",
+      "actual_result": "APPROVED",
+      "final_verdict": "APPROVED",
+      "expected_label": "ENTAILED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 34623.486262999904,
+      "methodological_rationale": "Paráfrasis léxica directa: 'usando la CPU en ese instante' -> 'utilizando efectivamente la unidad central de procesamiento en ese momento preciso'. Evalúa si NLI tolera sinonimia natural común."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P1-02-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P1-02",
+      "family": "P1_PARAPHRASE",
+      "subfamily": "technical_synonymy",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "f741e1e473383b43791cb6bbdce34aefc1bac3885e4e24740ff29d413643dce6",
+      "claim": "Los arreglos estáticos en C sufren la restricción de que su dimensión espacial debe ser invariable y predeterminada durante la fase de traducción del código fuente",
+      "claims_count": 1,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "Los arreglos estáticos en C sufren la restricción de que su dimensión espacial debe ser invariable y predeterminada durante la fase de traducción del código fuente [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "El texto establece que los vectores de C tienen un tamaño fijo y conocido en tiempo de compilación, lo que equivale a decir que su dimensión espacial debe ser invariable y predeterminada durante la fase de traducción del código fuente (tiempo de compilación)."
+        }
+      ],
+      "expected_result": "APPROVED",
+      "actual_result": "APPROVED",
+      "final_verdict": "APPROVED",
+      "expected_label": "ENTAILED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 5146.100382999975,
+      "methodological_rationale": "Sinonimia técnica rigurosa: 'vectores' -> 'arreglos estáticos', 'tamaño fijo' -> 'dimensión espacial invariable', 'tiempo de compilación' -> 'fase de traducción del código fuente'. Evalúa si NLI aprueba equivalencia técnica formal."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P1-03-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P1-03",
+      "family": "P1_PARAPHRASE",
+      "subfamily": "NM-2_implicit_domain_inference",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "c173d82626c22f91ae282d04cb958f53f93a3938981aa302e4bf7b0d019e6596",
+      "claim": "Para resolver las limitaciones de dimensión en C se recurre a dos métodos basados en punteros y en la gestión dinámica de memoria",
+      "claims_count": 1,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "Para resolver las limitaciones de dimensión en C se recurre a dos métodos basados en punteros y en la gestión dinámica de memoria [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "El texto (premisa) afirma que para superar las limitaciones de tamaño impuestas por el lenguaje C se estudian dos formas basadas en el uso de punteros: vectores cuyo tamaño se fija en tiempo de ejecución y registros enlazados (listas enlazadas). La hipótesis resume esto indicando que para resolver las limitaciones de dimensión en C se recurre a dos métodos basados en punteros y en la gestión dinámica de memoria (implícita en el uso de punteros y tamaño en tiempo de ejecución). La congruencia conceptual es directa."
+        }
+      ],
+      "expected_result": "REJECTED_UNSUPPORTED",
+      "actual_result": "APPROVED",
+      "final_verdict": "APPROVED",
+      "expected_label": "NOT_ENTAILED",
+      "matches_verdict": false,
+      "safety_outcome": "FAIL_OVER_ACCEPTANCE",
+      "anomaly_classification": "NLI judge epistemic laxity / implicit-domain over-acceptance",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 5762.236701999882,
+      "methodological_rationale": "NM-2 Inferencia implícita de dominio (arquetipo RUN-004). 'Gestión dinámica de memoria' es fáctico en C pero ausente en prog:poin:21. Detecta si el juez sobre-acepta por conocimiento tácito."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P1-04-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P1-04",
+      "family": "P1_PARAPHRASE",
+      "subfamily": "NM-1_omission",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "ab87b1b5c75ee4046640140c9142816784882c75cdb7d228a26c5c672105721a",
+      "claim": "Un proceso en estado bloqueado no puede ejecutarse bajo ninguna circunstancia",
+      "claims_count": 1,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "Un proceso en estado bloqueado no puede ejecutarse bajo ninguna circunstancia [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "NOT_ENTAILED",
+          "rationale": "The premise states that a blocked process 'no puede ejecutarse sino hasta que ocurra cierto evento externo' (cannot execute until a certain external event occurs). The hypothesis claims it cannot execute 'bajo ninguna circunstancia' (under any circumstances), which ignores the exception explicitly mentioned in the premise (the occurrence of the external event)."
+        }
+      ],
+      "expected_result": "REJECTED_UNSUPPORTED",
+      "actual_result": "REJECTED_UNSUPPORTED",
+      "final_verdict": "REJECTED_UNSUPPORTED",
+      "expected_label": "NOT_ENTAILED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 35257.322948000365,
+      "methodological_rationale": "NM-1 Omisión de condición crítica: omite 'hasta que ocurra cierto evento externo' transformándolo en imposibilidad absoluta incondicional ('bajo ninguna circunstancia')."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P1-05-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P1-05",
+      "family": "P1_PARAPHRASE",
+      "subfamily": "NM-3_external_factual_insertion",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "f741e1e473383b43791cb6bbdce34aefc1bac3885e4e24740ff29d413643dce6",
+      "claim": "Los vectores en C tienen tamaño estático y carecen de verificación de límites en tiempo de ejecución",
+      "claims_count": 1,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "Los vectores en C tienen tamaño estático y carecen de verificación de límites en tiempo de ejecución [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "NOT_ENTAILED",
+          "rationale": "The premise states that C vectors have a fixed size known at compile time and cannot be resized dynamically during execution (though C allows dynamic memory management generally). However, the hypothesis introduces a new claim not found in the premise: that vectors in C 'lack runtime bounds checking' (carecen de verificación de límites en tiempo de ejecución). Because of this extra claim, the hypothesis is not strictly entailed by the premise."
+        }
+      ],
+      "expected_result": "REJECTED_UNSUPPORTED",
+      "actual_result": "REJECTED_UNSUPPORTED",
+      "final_verdict": "REJECTED_UNSUPPORTED",
+      "expected_label": "NOT_ENTAILED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 5291.355475999808,
+      "methodological_rationale": "NM-3 Inserción factual externa: 'carecen de verificación de límites' es verídico en C estándar, pero completamente ausente en el chunk citado prog:poin:20."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P2-01-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P2-01",
+      "family": "P2_MULTI_CLAIM",
+      "subfamily": "multi_claim_clean",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "ab87b1b5c75ee4046640140c9142816784882c75cdb7d228a26c5c672105721a",
+      "claim": "Multi-claim benchmark de 4 proposiciones válidas",
+      "claims_count": 4,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "El estado en ejecución implica que el proceso está usando la CPU en ese instante [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis es una cita literal o una reformulación exacta del punto 1 de la premisa ('En ejecución (en realidad está usando la CPU en ese instante)')."
+        },
+        {
+          "claim_index": 1,
+          "claim_text": "El estado listo representa a un proceso ejecutable que se detuvo temporalmente [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis afirma que 'El estado listo representa a un proceso ejecutable que se detuvo temporalmente', lo cual coincide exactamente con la definición proporcionada en el punto 2 de la premisa ('Listo (ejecutable; se detuvo temporalmente para dejar que se ejecute otro proceso)')."
+        },
+        {
+          "claim_index": 2,
+          "claim_text": "El estado bloqueado no puede ejecutarse hasta que ocurra un evento externo [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis es una cita casi literal del punto 3 de la premisa ('Bloqueado (no puede ejecutarse sino hasta que ocurra cierto evento externo)')."
+        },
+        {
+          "claim_index": 3,
+          "claim_text": "Lógicamente los estados en ejecución y listo son similares porque en ambos el proceso desea ejecutarse [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "El texto establece explícitamente que 'En sentido lógico, los primeros dos estados son similares' (referiéndose a 'en ejecución' y 'listo') y que 'En ambos casos el proceso está deseoso' (de ejecutarse). La hipótesis reformula esta información de manera directa y fiel."
+        }
+      ],
+      "expected_result": "APPROVED",
+      "actual_result": "APPROVED",
+      "final_verdict": "APPROVED",
+      "expected_label": "ENTAILED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 36611.54981000027,
+      "methodological_rationale": "Control positivo multi-claim: 4 claims contiguos, todos rigurosamente respaldados por so:proc:56. Debe resultar en 4/4 ENTAILED y APPROVED."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P2-02-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P2-02",
+      "family": "P2_MULTI_CLAIM",
+      "subfamily": "multi_claim_contaminated_head",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "ab87b1b5c75ee4046640140c9142816784882c75cdb7d228a26c5c672105721a",
+      "claim": "Contaminación en posición 0 (Head): 'El sistema operativo traslada el bloque de control del proceso a memoria swap [E1]'",
+      "claims_count": 3,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "El sistema operativo traslada el bloque de control del proceso a memoria swap [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "NOT_ENTAILED",
+          "rationale": "The premise describes three states of a process (running, ready, blocked) and notes that the first two are logically similar. The hypothesis introduces the concept of the operating system moving the process control block to swap memory, which is not mentioned anywhere in the premise."
+        },
+        {
+          "claim_index": 1,
+          "claim_text": "El estado listo representa a un proceso ejecutable que se detuvo temporalmente [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis afirma que el estado listo representa a un proceso ejecutable que se detuvo temporalmente, lo cual es una cita directa y exacta del punto 2 de la premisa ('Listo (ejecutable; se detuvo temporalmente para dejar que se ejecute otro proceso)')."
+        },
+        {
+          "claim_index": 2,
+          "claim_text": "El estado bloqueado no puede ejecutarse hasta que ocurra un evento externo [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis paraifica directamente el punto 3 de la premisa, el cual establece que el estado 'Bloqueado' no puede ejecutarse sino hasta que ocurra cierto evento externo."
+        }
+      ],
+      "expected_result": "REJECTED_UNSUPPORTED",
+      "actual_result": "REJECTED_UNSUPPORTED",
+      "final_verdict": "REJECTED_UNSUPPORTED",
+      "expected_label": "NOT_ENTAILED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 7063.216936000117,
+      "methodological_rationale": "Prueba de conjunción booleana: Claim 0 contaminado, Claims 1 y 2 válidos. La respuesta completa debe ser REJECTED_UNSUPPORTED."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P2-03-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P2-03",
+      "family": "P2_MULTI_CLAIM",
+      "subfamily": "multi_claim_contaminated_mid",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "ab87b1b5c75ee4046640140c9142816784882c75cdb7d228a26c5c672105721a",
+      "claim": "Contaminación en posición 1 (Mid): 'Para pasar a listo se requiere forzosamente un algoritmo de colas multinivel [E1]'",
+      "claims_count": 3,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "El estado en ejecución implica que el proceso está usando la CPU en ese instante [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis es una cita directa o una paráfrasis exacta del primer punto del texto base (\"En ejecución (en realidad está usando la CPU en ese instante)\"). Por lo tanto, está estrictamente entailada por la premisa."
+        },
+        {
+          "claim_index": 1,
+          "claim_text": "Para pasar a listo se requiere forzosamente un algoritmo de colas multinivel [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "NOT_ENTAILED",
+          "rationale": "The premise defines the three states of a process (running, ready, and blocked) and states that the first two are logically similar. It does not mention any requirement for a multi-level queue algorithm to transition to the ready state. Therefore, the hypothesis introduces outside information not present in the premise."
+        },
+        {
+          "claim_index": 2,
+          "claim_text": "El estado bloqueado no puede ejecutarse hasta que ocurra un evento externo [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis paraifica directamente el punto 3 de la premisa, el cual establece que el estado 'Bloqueado' indica que un proceso 'no puede ejecutarse sino hasta que ocurra cierto evento externo'."
+        }
+      ],
+      "expected_result": "REJECTED_UNSUPPORTED",
+      "actual_result": "REJECTED_UNSUPPORTED",
+      "final_verdict": "REJECTED_UNSUPPORTED",
+      "expected_label": "NOT_ENTAILED",
+      "matches_verdict": true,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "NONE",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 42309.98041000021,
+      "methodological_rationale": "Prueba de conjunción booleana: Claim 0 válido, Claim 1 contaminado con concepto alien, Claim 2 válido. Debe resultar en REJECTED_UNSUPPORTED."
+    },
+    {
+      "experiment_run_id": "RUN-ROB-P2-04-GEMINI-3.5-FLASH-LITE",
+      "experiment_id": "ROB-P2-04",
+      "family": "P2_MULTI_CLAIM",
+      "subfamily": "multi_claim_contaminated_tail",
+      "model_version": "gemini-3.5-flash-lite",
+      "prompt_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "premise_hash": "ab87b1b5c75ee4046640140c9142816784882c75cdb7d228a26c5c672105721a",
+      "claim": "Contaminación en posición 2 (Tail): 'Al desbloquearse, el proceso pasa inmediatamente a usar la CPU sin pasar por listo [E1]'",
+      "claims_count": 3,
+      "claim_details": [
+        {
+          "claim_index": 0,
+          "claim_text": "El estado en ejecución implica que el proceso está usando la CPU en ese instante [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis es una cita directa o una transcripción exacta del primer punto de la premisa (\"En ejecución (en realidad está usando la CPU en ese instante)\"), por lo que está estrictamente entailada."
+        },
+        {
+          "claim_index": 1,
+          "claim_text": "El estado listo representa a un proceso ejecutable detenido temporalmente [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "El texto establece en el punto 2 sobre el estado Listo: 'Listo (ejecutable; se detuvo temporalmente para dejar que se ejecute otro proceso)'. La hipótesis es una reformulación directa y exacta de esta definición."
+        },
+        {
+          "claim_index": 2,
+          "claim_text": "Al desbloquearse, el proceso pasa inmediatamente a usar la CPU sin pasar por listo [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "CONTRADICTED",
+          "rationale": "El texto establece que los procesos pueden estar en ejecución, listos o bloqueados, y que los estados de 'ejecución' y 'listo' son similares porque el proceso está deseoso de ejecutarse (estar listo significa que es ejecutable y espera a usar la CPU). La hipótesis afirma que el proceso pasa inmediatamente a usar la CPU al desbloquearse sin pasar por el estado de listo, lo cual contradice el flujo estándar de los sistemas operativos descrito implícitamente donde un proceso bloqueado pasa primero a listo antes de ser ejecutado de nuevo."
+        }
+      ],
+      "expected_result": "REJECTED_UNSUPPORTED",
+      "actual_result": "REJECTED_CONTRADICTION",
+      "final_verdict": "REJECTED_CONTRADICTION",
+      "expected_label": "NOT_ENTAILED",
+      "matches_verdict": false,
+      "safety_outcome": "PASS",
+      "anomaly_classification": "Exact verdict mismatch (REJECTED_CONTRADICTION vs REJECTED_UNSUPPORTED); safety outcome PASS",
+      "evaluator_failure_state": null,
+      "nli_executed": true,
+      "latency_ms": 42301.90000199991,
+      "methodological_rationale": "Prueba de conjunción booleana: Claims 0 y 1 válidos, Claim 2 final contaminado. La decisión global debe rechazar la respuesta."
+    }
+  ]
+}

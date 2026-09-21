@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-09-04T19:47:00Z",
+  "description": "Cryptographic manifest of protected invariant tests for Study Engine",
+  "files": {
+    "test_epistemological_invariants.py": "3f10a1eba00f74d7bd0119ff4610f4429832f9e6b79c422526ef71ac4a1f3099"
+  }
+}

@@ -1,0 +1,413 @@
+{
+  "inventario": [
+    {
+      "source_slug": "joyanes_fundamentos",
+      "titulo": "Fundamentos de Programación: Algoritmos, estructura de datos y objetos (4ta Edición)",
+      "tipo": "libro_texto",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Metodología completa de resolución de problemas con computadora (Análisis, Diseño, Codificación, Verificación)",
+        "Pseudocódigo estructurado en español (UPSAM 2.1) con rigor sintáctico e independiente de lenguajes concretos",
+        "Diseño descendente (Top-Down), refinamiento sucesivo y modularidad estructurada",
+        "Tratamiento detallado de estructuras de control, subprogramas, pasaje de parámetros y estructuras de datos compuestas"
+      ],
+      "debilidades": [
+        "No cubre la sintaxis idiomática de Python ni las características dinámicas de su entorno de ejecución",
+        "Enfoque procedimental clásico previo a la programación orientada a objetos avanzada"
+      ],
+      "rol_recomendado": "brujula",
+      "solapa_con": [
+        "spraul_think_like_a_programmer",
+        "segundo_cuatrimestre_fadena",
+        "bel_algoritmos_estructuras_python",
+        "guia_utn_2025"
+      ],
+      "capitulos_clave": [
+        "Cap. 1: Introducción a las computadoras y los lenguajes de programación",
+        "Cap. 2: Metodología de la programación y desarrollo de software",
+        "Cap. 3: Estructura general de un programa",
+        "Cap. 4: Flujo de control I: Estructuras selectivas",
+        "Cap. 5: Flujo de control II: Estructuras repetitivas",
+        "Cap. 6: Subprogramas (subalgoritmos): Funciones",
+        "Cap. 7: Estructuras de datos I (arrays y estructuras)",
+        "Cap. 10: Ordenación, búsqueda e intercalación"
+      ]
+    },
+    {
+      "source_slug": "spraul_think_like_a_programmer",
+      "titulo": "Think Like a Programmer: An Introduction to Creative Problem Solving",
+      "tipo": "libro_texto",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Estrategias sistemáticas de resolución de problemas ('Always Have a Plan', 'Restate the Problem', 'Reduce the Problem', 'Avoid Frustration')",
+        "Descomposición de rompecabezas lógicos y problemas complejos en partes manejables",
+        "Entrenamiento de la flexibilidad mental en manipulación de arreglos, punteros, cadenas y recursividad"
+      ],
+      "debilidades": [
+        "Usa C++ como lenguaje para la implementación de ejemplos en lugar de Python",
+        "No profundiza en notación matemática formal de complejidad ni en ciberseguridad directa"
+      ],
+      "rol_recomendado": "intuicion",
+      "solapa_con": [
+        "joyanes_fundamentos"
+      ],
+      "capitulos_clave": [
+        "Cap. 1: Strategies for Problem Solving",
+        "Cap. 2: Pure Puzzles",
+        "Cap. 3: Solving Problems with Arrays",
+        "Cap. 4: Solving Problems with Pointers and Dynamic Memory",
+        "Cap. 6: Solving Problems with Recursion"
+      ]
+    },
+    {
+      "source_slug": "rosen_matematicas_discretas",
+      "titulo": "Matemáticas Discretas y sus Aplicaciones (Kenneth H. Rosen)",
+      "tipo": "libro_texto",
+      "calidad_texto": "escaneado",
+      "fortalezas": [
+        "Fundamentación matemática rigurosa en lógica proposicional, tablas de verdad y equivalencias lógicas",
+        "Álgebra de Boole, funciones booleanas y diseño de puertas lógicas",
+        "Análisis formal del crecimiento de funciones y complejidad de algoritmos (Notación Big O)",
+        "Técnicas de demostración e inducción matemática para algoritmos recursivos"
+      ],
+      "debilidades": [
+        "Alta densidad teórica matemática; no aborda la implementación práctica de código en Python ni arquitectura defensiva de software",
+        "Documento escaneado que dificulta la extracción limpia por texto nativo"
+      ],
+      "rol_recomendado": "matematica",
+      "solapa_con": [
+        "goodrich_dsa_python",
+        "bel_algoritmos_estructuras_python"
+      ],
+      "capitulos_clave": [
+        "Cap. 1: Los fundamentos: lógica y demostración, conjuntos y funciones",
+        "Cap. 2: Los fundamentos: algoritmos, números enteros y matrices (Sec. 2.2 y 2.3: Crecimiento y Complejidad)",
+        "Cap. 3: Razonamiento matemático, inducción y recursividad",
+        "Cap. 10: Álgebra de Boole"
+      ]
+    },
+    {
+      "source_slug": "goodrich_dsa_python",
+      "titulo": "Data Structures and Algorithms in Python (Michael T. Goodrich, Roberto Tamassia, Michael H. Goldwasser)",
+      "tipo": "libro_texto",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Explicación de bajo nivel de la memoria física y direccionamiento contiguo (Low-Level Arrays, Referential Arrays, Compact Arrays)",
+        "Análisis amortizado de arreglos dinámicos y funcionamiento interno de la clase `list` en Python",
+        "Estructuras de datos abstractas fundamentales (Pilas, Colas, Listas Enlazadas, Árboles, Hash Tables) y algoritmos de ordenamiento",
+        "Análisis riguroso de complejidad en Notación Big O integrado al paradigma orientativo de Python"
+      ],
+      "debilidades": [
+        "Nivel técnico intermedio/avanzado; presupone familiaridad básica con la sintaxis y conceptos de programación orientada a objetos"
+      ],
+      "rol_recomendado": "referencia_tecnica",
+      "solapa_con": [
+        "bel_algoritmos_estructuras_python",
+        "ramalho_fluent_python",
+        "rosen_matematicas_discretas"
+      ],
+      "capitulos_clave": [
+        "Cap. 3: Algorithm Analysis",
+        "Cap. 5: Array-Based Sequences (Low-Level Arrays & Dynamic Arrays)",
+        "Cap. 6: Stacks, Queues, and Deques",
+        "Cap. 10: Maps, Hash Tables, and Skip Lists",
+        "Cap. 12: Sorting and Selection",
+        "Cap. 15: Memory Management and B-Trees"
+      ]
+    },
+    {
+      "source_slug": "ramalho_fluent_python",
+      "titulo": "Fluent Python: Clear, Concise, and Effective Programming (2nd Edition, Luciano Ramalho)",
+      "tipo": "manual",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Modelo de datos de Python (Python Data Model) y uso idiomático de métodos especiales (dunder methods)",
+        "Física de la memoria en Python: referencias de objetos, mutabilidad, aliasing, pasaje por referencia y Garbage Collection",
+        "Manejo profesional de secuencias, diccionarios, type hints, decoradores y modelos de concurrencia en Python 3.10+"
+      ],
+      "debilidades": [
+        "No está diseñado para principiantes en lógica algorítmica básica ni aborda pseudocódigo inicial"
+      ],
+      "rol_recomendado": "referencia_tecnica",
+      "solapa_con": [
+        "goodrich_dsa_python",
+        "sweigart_automate_boring_stuff"
+      ],
+      "capitulos_clave": [
+        "Cap. 1: The Python Data Model",
+        "Cap. 2: An Array of Sequences",
+        "Cap. 3: Dictionaries and Sets",
+        "Cap. 6: Object References, Mutability, and Recycling",
+        "Cap. 8: Type Hints in Functions",
+        "Cap. 11: A Pythonic Object"
+      ]
+    },
+    {
+      "source_slug": "martin_clean_code",
+      "titulo": "Código Limpio: Manual de estilo para el desarrollo ágil de software (Robert C. Martin)",
+      "tipo": "manual",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Principios fundamentales de legibilidad, nombres con sentido autodescriptivos y funciones de responsabilidad única",
+        "Regla del Boy Scout, Ley de LeBlanc y actitud profesional del programador como autor",
+        "Refactorización de código espagueti, manejo limpio de errores y minimización de complejidad cognitiva"
+      ],
+      "debilidades": [
+        "Ejemplos orientados a Java; no contempla la sintaxis ni modismos específicos del lenguaje Python"
+      ],
+      "rol_recomendado": "buenas_practicas",
+      "solapa_con": [
+        "sweigart_automate_boring_stuff"
+      ],
+      "capitulos_clave": [
+        "Cap. 1: Código Limpio",
+        "Cap. 2: Nombres con sentido",
+        "Cap. 3: Funciones",
+        "Cap. 7: Procesamiento de errores",
+        "Cap. 10: Clases"
+      ]
+    },
+    {
+      "source_slug": "stallings_computer_security",
+      "titulo": "Computer Security: Principles and Practice (3rd Edition, William Stallings & Lawrie Brown)",
+      "tipo": "libro_texto",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Definición formal de la Tríada CIA (Confidencialidad, Integridad, Disponibilidad) y taxonomía de amenazas, ataques y activos",
+        "Análisis técnico de vulnerabilidades de software, desbordamiento de búfer (Buffer Overflow) y programación defensiva",
+        "Principios de diseño de sistemas seguros, arquitectura de control de acceso, autenticación y firewalls"
+      ],
+      "debilidades": [
+        "No enseña programación ni sintaxis algorítmica desde cero"
+      ],
+      "rol_recomendado": "contexto_seguridad",
+      "solapa_con": [
+        "segundo_cuatrimestre_fadena"
+      ],
+      "capitulos_clave": [
+        "Cap. 1: Overview (Tríada CIA y principios de diseño seguro)",
+        "Cap. 2: Cryptographic Tools",
+        "Cap. 4: Access Control",
+        "Cap. 9: Firewalls and Intrusion Prevention Systems",
+        "Cap. 10: Buffer Overflow",
+        "Cap. 11: Software Security"
+      ]
+    },
+    {
+      "source_slug": "sweigart_automate_boring_stuff",
+      "titulo": "Automate the Boring Stuff with Python: Practical Programming for Total Beginners (Al Sweigart)",
+      "tipo": "manual",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Introducción pragmática e inmediata a la sintaxis básica de Python para principiantes",
+        "Uso práctico de estructuras de control, funciones, listas, diccionarios y expresiones regulares",
+        "Automatización de tareas cotidianas como manipulación de archivos, lectura/escritura en disco y scripting"
+      ],
+      "debilidades": [
+        "Superficial en teoría formal de ciencias de la computación, estructuras de datos avanzadas y análisis de complejidad"
+      ],
+      "rol_recomendado": "practica",
+      "solapa_con": [
+        "ramalho_fluent_python",
+        "joyanes_fundamentos"
+      ],
+      "capitulos_clave": [
+        "Cap. 1: Python Basics",
+        "Cap. 2: Flow Control",
+        "Cap. 3: Functions",
+        "Cap. 4: Lists",
+        "Cap. 5: Dictionaries and Structuring Data",
+        "Cap. 7: Pattern Matching with Regular Expressions",
+        "Cap. 8: Reading and Writing Files"
+      ]
+    },
+    {
+      "source_slug": "bel_algoritmos_estructuras_python",
+      "titulo": "Algoritmos y estructuras de datos en Python: un enfoque ágil y estructurado (Walter Bel)",
+      "tipo": "libro_texto",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Explicación directa y sintética de algoritmos recursivos, búsqueda, ordenamiento y notación Big O en Python",
+        "Implementación práctica de tipos de datos abstractos lineales (Pilas, Colas)",
+        "Transición ágil entre el diseño lógico y el código ejecutable"
+      ],
+      "debilidades": [
+        "Menos exhaustivo que Goodrich y Joyanes en el desarrollo teórico de bajo nivel y estructuras no lineales"
+      ],
+      "rol_recomendado": "practica",
+      "solapa_con": [
+        "goodrich_dsa_python",
+        "joyanes_fundamentos"
+      ],
+      "capitulos_clave": [
+        "Cap. I: Una breve introducción a algoritmos, estructuras de datos y Python",
+        "Cap. II: Auto llamadas con algoritmos recursivos",
+        "Cap. III: Analizando algoritmos en búsqueda de eficiencia",
+        "Cap. IV: Buscar es más fácil cuando las cosas están ordenadas",
+        "Cap. VI: Desde la cima de la pila, intentando evitar el desbordamiento",
+        "Cap. VII: Por favor espere su turno en la cola que será atendido"
+      ]
+    },
+    {
+      "source_slug": "segundo_cuatrimestre_fadena",
+      "titulo": "Syllabus de Lenguajes de Programación - Licenciatura en Ciberdefensa (FADENA / UNDEF)",
+      "tipo": "guia_catedra",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Alineación del plan de estudio universitario formal con objetivos de ciberdefensa",
+        "Mapa de unidades desde lógica/pseudocódigo hasta C, PHP, Java, POO y seguridad backend",
+        "Sinergia temática con materias de la carrera de Ciberdefensa"
+      ],
+      "debilidades": [
+        "Documento de planificación curricular; no incluye el desarrollo teórico completo de los temas"
+      ],
+      "rol_recomendado": "brujula",
+      "solapa_con": [
+        "roadmap_nuevo_horizonte",
+        "guia_utn_2025"
+      ],
+      "capitulos_clave": [
+        "Unidad 1: Introducción a la programación, algoritmos y diagramas de flujo",
+        "Unidad 2: Pseudocódigo – estructuras secuenciales, condicionales, múltiples y repetitivas",
+        "Unidad 4: Arreglos y cadenas",
+        "Unidad 5: Funciones y modularización"
+      ]
+    },
+    {
+      "source_slug": "guia_utn_2025",
+      "titulo": "Guía de Trabajos Prácticos 2025: Algoritmos y Estructuras de Datos (UTN FRRe)",
+      "tipo": "ejercicios",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Banco masivo de problemas prácticos graduados de lógica secuencial, selectiva e iterativa",
+        "Patrones estandarizados de lógica algorítmica, procesamiento de archivos secuenciales/indexados, cortes de control y apareo"
+      ],
+      "debilidades": [
+        "Es un libro de ejercitación de cátedra; requiere bibliografía teórica de respaldo como Joyanes para aprender los conceptos"
+      ],
+      "rol_recomendado": "practica",
+      "solapa_con": [
+        "segundo_cuatrimestre_fadena",
+        "joyanes_fundamentos"
+      ],
+      "capitulos_clave": [
+        "Unidad Práctica 1: Lógica Secuencial y Condicional",
+        "Unidad Práctica 2: Estructuras Repetitivas",
+        "Unidad Práctica 3: Arreglos y Funciones",
+        "Unidad Práctica 4: Archivos y Procesamiento en Lote"
+      ]
+    },
+    {
+      "source_slug": "roadmap_nuevo_horizonte",
+      "titulo": "Roadmap v4 Definitiva (AI-Integrated) - Kasiu Tech Roadmap Nuevo Horizonte",
+      "tipo": "especificacion",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Marco estratégico de aprendizaje: 'Deterministic code first, AI second' con verificación 'Human-in-the-loop'",
+        "Especificación de los 6 principios rectores y 11 controles de AI Governance",
+        "Planificación de tramos de aprendizaje (Tramo 1 al 6 de la Fase 0) con métricas de evaluación y portafolio progresivo"
+      ],
+      "debilidades": [
+        "Documento normativo y de arquitectura de ruta; no constituye un manual teórico de consulta algorítmica"
+      ],
+      "rol_recomendado": "brujula",
+      "solapa_con": [
+        "roadmap_fase0_chat",
+        "segundo_cuatrimestre_fadena"
+      ],
+      "capitulos_clave": [
+        "Principios Rectores de KASIU TECH",
+        "Controles de AI Governance",
+        "Fase 0: Tramo 1 al Tramo 6"
+      ]
+    },
+    {
+      "source_slug": "chat_notebook_lm",
+      "titulo": "chatNotebookLM.txt - Bitácora de Mentoría y Evolución",
+      "tipo": "manual",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Registro histórico y cronológico del entrenamiento socrático y superación de la 'ilusión de competencia'",
+        "Catálogo de errores comunes corregidos (ámbito de variables, llamadas sin parámetros, confusiones lógicas en Boole)",
+        "Guías de lectura previa punto por punto preparadas para abordar los capítulos de Joyanes"
+      ],
+      "debilidades": [
+        "Formato conversacional no estructurado como libro de texto formal"
+      ],
+      "rol_recomendado": "buenas_practicas",
+      "solapa_con": [
+        "roadmap_fase0_chat",
+        "fuentes_respuestas_rigurosas"
+      ],
+      "capitulos_clave": [
+        "Bitácora de errores comunes corregidos",
+        "Plan semanal de lectura de Fase 0",
+        "Guía previa punto por punto de Joyanes Cap. 2 y Cap. 3"
+      ]
+    },
+    {
+      "source_slug": "roadmap_fase0_chat",
+      "titulo": "Roadmap de Programación: Fase 0 (Transcripción de Chat)",
+      "tipo": "especificacion",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Transcripción del diálogo pedagógico inicial para la articulación metodológica de la Fase 0",
+        "Reglas procedimentales de estudio y compromiso con la enseñanza socrática"
+      ],
+      "debilidades": [
+        "Contenido histórico duplicado y absorbido en `chatNotebookLM.txt` y `RoadmapNuevoHorizonte.txt`"
+      ],
+      "rol_recomendado": "brujula",
+      "solapa_con": [
+        "chat_notebook_lm",
+        "roadmap_nuevo_horizonte"
+      ],
+      "capitulos_clave": [
+        "Estructura de estudio de la Fase 0",
+        "Reglas socráticas de mentoría"
+      ]
+    },
+    {
+      "source_slug": "fuentes_respuestas_rigurosas",
+      "titulo": "Fuentes y Respuestas Rigurosas (Reglas y Formatos Socráticos)",
+      "tipo": "especificacion",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Especificación estricta de los formatos de salida del tutor socrático (MAPA DE CAPÍTULO, EXPLICACIÓN DEL PUNTO, EJERCICIO GUIADO, VERIFICACIÓN, TRADUCCIÓN A PYTHON)",
+        "Reglas anti-errores para garantizar la rigurosidad pedagógica y evitar la alucinación de contenido"
+      ],
+      "debilidades": [
+        "Es un documento de control de comportamiento de tutoría, no un texto de contenido algorítmico"
+      ],
+      "rol_recomendado": "buenas_practicas",
+      "solapa_con": [
+        "clases_plantillas_ejemplos"
+      ],
+      "capitulos_clave": [
+        "Formatos de salida estandarizados",
+        "Reglas principales de enseñanza socrática"
+      ]
+    },
+    {
+      "source_slug": "clases_plantillas_ejemplos",
+      "titulo": "Clases: Plantillas y Ejemplos (Guía Metodológica de Orientación)",
+      "tipo": "guia_catedra",
+      "calidad_texto": "texto_limpio",
+      "fortalezas": [
+        "Plantillas conceptuales y analogías pedagógicas para la enseñanza de programación orientada a objetos (ej. la fábrica de galletitas)",
+        "Modelos de interacción mentor-alumno para verificación paso a paso"
+      ],
+      "debilidades": [
+        "Texto auxiliar de apoyo pedagógico superpuesto con la especificación de `fuentes_respuestas_rigurosas`"
+      ],
+      "rol_recomendado": "buenas_practicas",
+      "solapa_con": [
+        "fuentes_respuestas_rigurosas"
+      ],
+      "capitulos_clave": [
+        "Plantillas de POO",
+        "Ejemplos analógicos de abstracción y encapsulamiento"
+      ]
+    }
+  ]
+}

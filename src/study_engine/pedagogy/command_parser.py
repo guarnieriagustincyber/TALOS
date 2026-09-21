@@ -1,0 +1,298 @@
+"""Deterministic Student Command Parser for TALOS Socratic System Prompt.
+
+Detects fixed student commands via regex/keywords and maps them to canonical
+output formats (e.g. MAPA DE UNIDAD, EXPLICACIÓN DEL TEMA, EJERCICIO GUIADO,
+SOLUCIÓN COMPLETA, TRADUCCIÓN, EXPLICACIÓN DESDE CERO, CAMBIO DE ENFOQUE).
+Zero LLM invocation. Deterministic first.
+"""
+
+from dataclasses import dataclass
+from enum import Enum
+import re
+from typing import Optional
+
+
+class CommandType(str, Enum):
+    RESUMEN_UNIDAD = "RESUMEN_UNIDAD"
+    EMPECEMOS_TEMA = "EMPECEMOS_TEMA"
+    DAME_UN_EJERCICIO = "DAME_UN_EJERCICIO"
+    DAME_SOLUCION_COMPLETA = "DAME_SOLUCION_COMPLETA"
+    VERIFICACION = "VERIFICACION"
+    TRADUCCION = "TRADUCCION"
+    EXPLICACION_DESDE_CERO = "EXPLICACION_DESDE_CERO"
+    NO_ENTENDI = "NO_ENTENDI"
+
+
+@dataclass(frozen=True)
+class ParsedCommand:
+    command_type: CommandType
+    target_arg: Optional[str]
+    expected_format: str
+    max_words: int
+    is_structured: bool
+    template_instruction: str
+
+
+# =========================================================================
+# TEMPLATES DE SALIDA OBLIGATORIOS (Socrático TALOS / NotebookLM)
+# =========================================================================
+
+TEMPLATE_MAPA_UNIDAD = """Tu salida debe seguir estrictamente este formato:
+
+**MAPA DE UNIDAD**
+- Título de la unidad [E#]
+- Idea principal
+- Conceptos fundamentales
+- Qué es cultura general (se puede leer rápido)
+- Qué puntos conviene marcar para practicar
+- Analogía principal para entender la unidad
+- Conexión con programación general, si existe
+- Conexión con ciberseguridad, solo si es natural"""
+
+TEMPLATE_EXPLICACION_TEMA = """Tu salida debe seguir estrictamente este formato:
+
+**EXPLICACIÓN DEL TEMA**
+1. ¿Qué es este tema? [E#]
+2. ¿Por qué importa?
+3. Explicación simple sin asumir conocimiento
+4. Analogía
+5. Ejemplo en pseudocódigo
+6. Ejemplo en el lenguaje del notebook
+7. Error común de principiante
+8. Pregunta para verificar si entendió"""
+
+TEMPLATE_EJERCICIO_GUIADO = """Tu salida debe seguir estrictamente este formato de alto impacto pedagógico:
+
+**EJERCICIO GUIADO**
+1. Enunciado del ejercicio [E#] (situado en un contexto real de ciberdefensa o ingeniería)
+2. Análisis del problema (Metodología Joyanes / Spraul, dividiendo en sub-responsabilidades)
+3. Contratos Formales PRE/POST (Precondiciones y Postcondiciones rigurosas)
+4. Entradas esperadas
+5. Salidas esperadas
+6. Restricciones (Fail-Fast, sin librerías mágicas, manejo de casos de borde)
+7. Diagrama de Flujo (en Mermaid o caja de texto)
+8. Suite de Pruebas Automatizadas con Pytest (Harness con casos felices, casos hostiles/malformados y valores límite)
+9. Primer paso en pseudocódigo y código real (con cláusulas de guarda iniciales)
+10. Pregunta socrática concreta para que el estudiante continúe el desarrollo en su cuaderno
+
+REGLA INVIOLABLE: NO resuelvas todo el ejercicio. Guialo paso a paso. Solo dar la solución completa si el estudiante lo pide explícitamente con "DAME LA SOLUCIÓN COMPLETA"."""
+
+TEMPLATE_SOLUCION_COMPLETA = """Tu salida debe seguir estrictamente este formato:
+
+**SOLUCIÓN COMPLETA**
+1. Enunciado del ejercicio
+2. Análisis del problema (entradas, salidas, restricciones)
+3. Pseudocódigo completo
+4. Código en el lenguaje del notebook
+5. Explicación paso a paso de cada bloque
+6. Cómo probarlo
+7. Casos límite a considerar"""
+
+TEMPLATE_VERIFICACION = """Tu salida debe seguir estrictamente este formato:
+
+**VERIFICACIÓN**
+- ¿Qué está bien?
+- ¿Qué está incompleto o mal?
+- ¿Qué concepto faltó?
+- ¿Cómo lo pensamos paso a paso?
+- ¿Cuál sería el siguiente paso mínimo?
+- Si hay error, NO des la solución completa: dá una pista concreta."""
+
+TEMPLATE_TRADUCCION = """Tu salida debe seguir estrictamente este formato:
+
+**TRADUCCIÓN**
+1. Pseudocódigo original
+2. Explicación de la traducción
+3. Código en el lenguaje destino
+4. Cómo probarlo
+5. Qué cambiaría si la entrada fuera inválida"""
+
+TEMPLATE_EXPLICACION_DESDE_CERO = """Tu salida debe seguir estrictamente este formato:
+
+**EXPLICACIÓN DESDE CERO**
+- Definición simple
+- Analogía cotidiana
+- Ejemplo mínimo
+- Palabras clave explicadas
+- Error común
+- Pregunta de verificación"""
+
+TEMPLATE_NO_ENTENDI = """Tu salida debe aplicar un CAMBIO DE ENFOQUE pedagógico:
+- NO repitas exactamente lo mismo.
+- Usá otra analogía diferente a la anterior.
+- Dividí el problema en partes más chicas.
+- Mostrá un ejemplo más simple.
+- Hacé una pregunta precisa para detectar dónde se trabó el estudiante."""
+
+
+# =========================================================================
+# UNIVERSAL SAFE COMMANDS (Para SocraticGuard en todos los cuadernos)
+# =========================================================================
+
+UNIVERSAL_SAFE_COMMANDS = [
+    ":solve",
+    "RESUMEN UNIDAD",
+    "RESUMEN CAPÍTULO",
+    "RESUMEN CAPITULO",
+    "EMPECEMOS CON EL TEMA",
+    "LEÍ EL CAPÍTULO",
+    "LEI EL CAPITULO",
+    "DAME UN EJERCICIO",
+    "TRADUCÍ ESTO A C",
+    "TRADUCI ESTO A C",
+    "TRADUCÍ ESTO A PYTHON",
+    "TRADUCI ESTO A PYTHON",
+    "TRADUCÍ ESTO",
+    "TRADUCI ESTO",
+    "EXPLICÁ COMO SI NO SUPIERA NADA",
+    "EXPLICA COMO SI NO SUPIERA NADA",
+    "NO ENTENDÍ",
+    "NO ENTENDI",
+    "OTRA FORMA",
+    "REFORMULÁ",
+    "REFORMULA",
+    "DAME LA SOLUCIÓN COMPLETA",
+    "DAME LA SOLUCION COMPLETA",
+    "SOLUCIÓN COMPLETA",
+    "SOLUCION COMPLETA",
+]
+
+
+# =========================================================================
+# REGEX MATCHER
+# =========================================================================
+
+_RE_RESUMEN_UNIDAD = re.compile(
+    r"^\s*RESUMEN\s+(?:DE\s+LA\s+|DEL\s+)?(?:UNIDAD|CAP[IÍ]TULO)\s+([A-Za-z0-9_.-]+)",
+    re.IGNORECASE,
+)
+_RE_EMPECEMOS_TEMA = re.compile(
+    r"^\s*(?:EMPECEMOS\s+CON\s+EL\s+TEMA|LE[IÍ]\s+(?:EL\s+)?CAP[IÍ]TULO,?\s*EMPECEMOS\s+CON\s+EL\s+PUNTO)\s+([A-Za-z0-9_.-]+)",
+    re.IGNORECASE,
+)
+_RE_DAME_EJERCICIO = re.compile(
+    r"^\s*(?:(?:/|:)?(?:PRACTICAR|PRACTICE|EJERCICIO)|(?:DAME|QUIERO|PROPON[EÉ])\s+(?:UN\s+)?EJERCICIO)(?:\s+(?:DE|SOBRE)?\s*([A-Za-z0-9_.\-\s]+))?",
+    re.IGNORECASE,
+)
+_RE_SOLUCION_COMPLETA = re.compile(
+    r"^\s*(?:DAME\s+LA\s+SOLUCI[OÓ]N\s+COMPLETA|SOLUCI[OÓ]N\s+COMPLETA)",
+    re.IGNORECASE,
+)
+_RE_TRADUCIR = re.compile(
+    r"^\s*TRADUC[IÍ]\s+(?:ESTO\s+)?A\s+([A-Za-z0-9_+#]+)",
+    re.IGNORECASE,
+)
+_RE_DESDE_CERO = re.compile(
+    r"^\s*EXPLIC[AÁ]\s+(?:ESTO\s+)?COMO\s+SI\s+NO\s+SUPIERA\s+NADA",
+    re.IGNORECASE,
+)
+_RE_NO_ENTENDI = re.compile(
+    r"^\s*(?:NO\s+ENTEND[IÍ](?!\s+POR\s*QU[EÉ]|\s+C[OÓ]MO)|NO\s+ENTIENDO(?!\s+POR\s*QU[EÉ]|\s+C[OÓ]MO)|OTRA\s+FORMA|REFORMUL[AÁ]|ME\s+PERD[IÍ])",
+    re.IGNORECASE,
+)
+
+
+def parse_student_command(message: str) -> Optional[ParsedCommand]:
+    """Determines if the message matches any of the canonical student commands.
+    
+    Returns ParsedCommand with template, expected_format, and token/word bounds,
+    or None if it's a standard conversational query.
+    """
+    if not message:
+        return None
+    raw = message.strip()
+
+    # Si el mensaje viene dentro de un prompt bundle estructurado, aislar la consulta real
+    if "=== CONSULTA DEL ESTUDIANTE ===" in raw:
+        part = raw.split("=== CONSULTA DEL ESTUDIANTE ===")[1]
+        if "=== INSTRUCCIÓN" in part:
+            raw = part.split("=== INSTRUCCIÓN")[0].strip()
+        else:
+            raw = part.strip()
+
+    # 1. Solución completa (Prioridad alta para no confundir con ejercicio)
+    if _RE_SOLUCION_COMPLETA.search(raw):
+        return ParsedCommand(
+            command_type=CommandType.DAME_SOLUCION_COMPLETA,
+            target_arg=None,
+            expected_format="SOLUCIÓN COMPLETA",
+            max_words=500,
+            is_structured=True,
+            template_instruction=TEMPLATE_SOLUCION_COMPLETA,
+        )
+
+    # 2. Resumen de Unidad / Capítulo
+    m_resumen = _RE_RESUMEN_UNIDAD.search(raw)
+    if m_resumen:
+        arg = m_resumen.group(1).strip()
+        return ParsedCommand(
+            command_type=CommandType.RESUMEN_UNIDAD,
+            target_arg=arg,
+            expected_format="MAPA DE UNIDAD",
+            max_words=500,
+            is_structured=True,
+            template_instruction=TEMPLATE_MAPA_UNIDAD,
+        )
+
+    # 3. Empecemos con el tema
+    m_tema = _RE_EMPECEMOS_TEMA.search(raw)
+    if m_tema:
+        arg = m_tema.group(1).strip()
+        return ParsedCommand(
+            command_type=CommandType.EMPECEMOS_TEMA,
+            target_arg=arg,
+            expected_format="EXPLICACIÓN DEL TEMA",
+            max_words=500,
+            is_structured=True,
+            template_instruction=TEMPLATE_EXPLICACION_TEMA,
+        )
+
+    # 4. Dame un ejercicio / Practicar
+    m_ej = _RE_DAME_EJERCICIO.search(raw)
+    if m_ej:
+        raw_topic = m_ej.group(1).strip() if m_ej.group(1) else None
+        return ParsedCommand(
+            command_type=CommandType.DAME_UN_EJERCICIO,
+            target_arg=raw_topic if raw_topic else None,
+            expected_format="EJERCICIO GUIADO",
+            max_words=500,
+            is_structured=True,
+            template_instruction=TEMPLATE_EJERCICIO_GUIADO,
+        )
+
+    # 5. Traducí a lenguaje
+    m_trad = _RE_TRADUCIR.search(raw)
+    if m_trad:
+        lang = m_trad.group(1).strip().upper()
+        return ParsedCommand(
+            command_type=CommandType.TRADUCCION,
+            target_arg=lang,
+            expected_format="TRADUCCIÓN",
+            max_words=500,
+            is_structured=True,
+            template_instruction=TEMPLATE_TRADUCCION,
+        )
+
+    # 6. Explicá como si no supiera nada
+    if _RE_DESDE_CERO.search(raw):
+        return ParsedCommand(
+            command_type=CommandType.EXPLICACION_DESDE_CERO,
+            target_arg=None,
+            expected_format="EXPLICACIÓN DESDE CERO",
+            max_words=500,
+            is_structured=True,
+            template_instruction=TEMPLATE_EXPLICACION_DESDE_CERO,
+        )
+
+    # 7. No entendí / Otra forma
+    if _RE_NO_ENTENDI.search(raw):
+        return ParsedCommand(
+            command_type=CommandType.NO_ENTENDI,
+            target_arg=None,
+            expected_format="CAMBIO DE ENFOQUE",
+            max_words=400,
+            is_structured=True,
+            template_instruction=TEMPLATE_NO_ENTENDI,
+        )
+
+    return None

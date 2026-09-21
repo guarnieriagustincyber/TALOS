@@ -1,0 +1,792 @@
+{
+  "benchmark_version": "S3.6.1",
+  "notebooks": [
+    {
+      "id": "fadena-so",
+      "name": "Sistemas Operativos (FADENA)",
+      "description": "Conceptos de SO, procesos, concurrencia y memoria.",
+      "subject": "Sistemas Operativos",
+      "sources": [],
+      "metadata": {},
+      "created_at": null,
+      "updated_at": null
+    },
+    {
+      "id": "fadena-prog",
+      "name": "Programación en C (FADENA)",
+      "description": "Lenguaje C, memoria, estructuras de datos y archivos.",
+      "subject": "Programación",
+      "sources": [],
+      "metadata": {},
+      "created_at": null,
+      "updated_at": null
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "src-prog-arboles",
+      "filename": "prog_arboles.pdf",
+      "byte_size": 253214,
+      "sha256": "241af51b9e0b65944911513384563aca9d2623d7b30e6fa2eb04cc4946d65f4f",
+      "notebook_id": "fadena-prog",
+      "topic": "trees"
+    },
+    {
+      "source_id": "src-prog-archivos",
+      "filename": "prog_archivos.pdf",
+      "byte_size": 246177,
+      "sha256": "ead0e969f47d966b7d39ac2c3c814bfd78b0134589b386f427898259eff1b56e",
+      "notebook_id": "fadena-prog",
+      "topic": "file_io"
+    },
+    {
+      "source_id": "src-prog-lineales",
+      "filename": "prog_lineales.pdf",
+      "byte_size": 47298,
+      "sha256": "d03d7669e19abaccdd331067ddf61d38f3113fe684458cf828a14f4553051145",
+      "notebook_id": "fadena-prog",
+      "topic": "linear_structs"
+    },
+    {
+      "source_id": "src-prog-punteros",
+      "filename": "prog_punteros.pdf",
+      "byte_size": 61912,
+      "sha256": "4ece5c39d64e25953bac8df1f096f43df90662970f5e6225a2e7d6daa8dcaf9d",
+      "notebook_id": "fadena-prog",
+      "topic": "pointers"
+    },
+    {
+      "source_id": "src-so-concurrencia",
+      "filename": "so_concurrencia.pdf",
+      "byte_size": 6122,
+      "sha256": "4c38c87d686dcc7d03fcd81f0d75d3b2ed5541e7ca9c95635a786ebdef686d85",
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "source_id": "src-so-memoria",
+      "filename": "so_memoria.pdf",
+      "byte_size": 7182,
+      "sha256": "869c24589732b4392c8ae70be552d0e139cbb408e78400a75e186bb2dff574b2",
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "source_id": "src-so-planificacion",
+      "filename": "so_planificacion.pdf",
+      "byte_size": 4962,
+      "sha256": "26cfba6fe46943b6bc0a054a8e82537a90a0aba2dcab302c27bc09b7b9341744",
+      "notebook_id": "fadena-so",
+      "topic": "scheduling"
+    },
+    {
+      "source_id": "src-so-procesos",
+      "filename": "so_procesos.pdf",
+      "byte_size": 8666,
+      "sha256": "4f9413043a5e562d43f59db634d9cae5de231c2c1fdd08d3242c5f76cc4eae20",
+      "notebook_id": "fadena-so",
+      "topic": "processes"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc-prog-arboles",
+      "source_id": "src-prog-arboles",
+      "title": "prog_arboles",
+      "content": "Estructura de datos no lineales (árboles y grafos)   481\n13.2.1. Terminología y representación de un árbol g eneral\nLa representación y terminología de los árboles se realiza con las típicas notaciones de las relacione s familiares \nen los árboles genealógicos: padre, hijo, hermano, ascendente, descendiente, etc. Sea el árbol general  de la Figu-\nra 13.2.\nK L\nG F\nE\nH I J \nCB D\nA\nFigura 13.2. Árbol general.\nLas definiciones a tener en cuenta son:\n• Raíz del árbol. Todos los árboles que no están vacíos t ienen un único nodo raíz. Todos los demás elementos  o \nnodos se derivan o descienden de él. El nodo raíz n o tiene padre, es decir, no es el hijo de ningún elemento.\n• Nodo, son los vértices o elementos del árbol.\n• Nodo terminal u hoja (leaf node) es aquel nodo que no contiene ningún subárbol (los  nodos terminales u hojas \ndel árbol de la Figura 13.2 son E, F, K, L, H  y J).\n• A cada nodo que no es hoja se asocia uno o varios  subárboles llamados descendientes (offspring) o hijos. De \nigual forma, cada nodo tiene asociado un antecesor o ascendiente llamado padre.\n• Los nodos de un mismo padre se llaman hermanos.\n• Los nodos con uno o dos subárboles —no son hojas ni raíz— se llaman nodos interiores o internos.\n• Una colección de dos o más árboles se llama bosque (forest).\n• Todos los nodos tienen un solo padre —excepto el raíz— que no tiene padre.\n• Se denomina camino el enlace entre dos nodos consecutivos y rama es un camino que termina en una hoja.\n• Cada nodo tiene asociado un número de nivel que se determina por la longitud del camino desde el raíz al nodo \nespecífico. Por ejemplo, en el árbol de la Figura 1 3.2.\nNivel 0 A\nNivel 1 B, C, D\nNivel 2 E, F, G, H, I, J\nNivel 3 K, L\n• La altura o profundidad de un árbol es el número máximo de nodos de una ra ma. Equivale al nivel más alto \nde los nodos más uno. El peso de un árbol es el número de nodos terminales. La altura y el peso del árbol de \nla Figura 13.2 son 4 y 7, respectivamente.\nLas representaciones gráficas de los árboles —ademá s de las ya expuestas— pueden ser las mostradas en la Fi-\ngura 13.3.\n\n482  Fundamentos de programación\n13.3. ÁRBOL BINARIO\nExiste un tipo de árbol denominado árbol binario que puede ser implementado fácilmente en una compu tadora.\nUn árbol binario es un conjunto finito de cero o más nodos, tales q ue:\n• Existe un nodo denominado raíz del árbol.\n• Cada nodo puede tener 0, 1 o 2 subárboles, conoci dos como subárbol izquierdo y subárbol derecho.\nLa Figura 13.4 representa diferentes tipos de árbol es binarios:\nB\nA\n+\nC\n/\nT2 T1 T\n100\n5\n5\n100\n(a) (b) (c)\nFigura 13.4. Ejemplos de árboles binarios: (a) expresión árbol a + b/c; \n(b) y (c) dos árboles diferentes con valores enteros.\nK L\nG F H I J \nCB D\nA\nE\nA\nE\nB J I\nHD\nF\nK\nL\nC G\nFigura 13.3 Representaciones de árboles."
+    },
+    {
+      "id": "doc-prog-archivos",
+      "source_id": "src-prog-archivos",
+      "title": "prog_archivos",
+      "content": "318  Fundamentos de programación\n• Clasificación.\n• Reorganización.\n• Destrucción (borrado).\n• Reunión, fusión.\n• Rotura, estallido.\n9.5.1. Creación de un archivo\nEs la primera operación que sufrirá el archivo de datos. Implica la elección de un entorno descriptivo que permita un \nágil, rápido y eficaz tratamiento del archivo.\nPara utilizar un archivo, éste tiene que existir, e s decir, las informaciones de este archivo tienen q ue haber sido \nalmacenadas sobre un soporte y ser utilizables. La creación exige organización, estructura, localización o reserva de \nespacio en el soporte de almacenamiento, transferen cia del archivo del soporte antiguo al nuevo.\nUn archivo puede ser creado por primera vez en un s oporte, proceder de otro previamente existente en e l mismo \no diferente soporte, ser el resultado de un cálculo  o ambas cosas a la vez.\nLa Figura 9.8 muestra un organigrama de la creación  de un archivo ordenado de empleados de una empresa  por \nel campo clave (número o código de empleado).\nDATOS\nCREACIÓN\nde un archivo\nen disco\nMAESTRO\n(desordenado)\nNúmero de\nempleado\nMaestro\nordenado\nOperación de clasificación\npor número empleado\nFigura 9.8. Creación de un archivo ordenado de empleados.\n9.5.2. Consulta de un archivo\nEs la operación que permite al usuario acceder al a rchivo de datos para conocer el contenido de uno, v arios o todos \nlos registros.\nProceso\nde\nconsulta\nFigura 9.9. Consulta de un archivo.\n\nArchivos (ﬁ cheros)  319\n9.5.3. Actualización de un archivo\nEs la operación que permite tener actualizado (pues to al día) el archivo, de tal modo que sea posible realizar las si-\nguientes operaciones con sus registros:\n• Consulta del contenido de un registro.\n• Inserción de un registro nuevo en el archivo.\n• Supresión de un registro existente.\n• Modificación de un registro.\nUn ejemplo de actualización es el de un archivo de un almacén, cuyos registros contienen las existencias de cada \nartículo, precios, proveedores, etc. Las existencia s, precios, etc., varían continuamente y exigen una  actualización \nsimultánea del archivo con cada operación de consul ta.\nProceso\nde\nactualización\nFigura 9.10. Actualización de un archivo (I).\nInserción \nde un registro\nFin\nLocalizar posición\nde inserción\nNo\nSí\nGrabar\nnuevo registro\nTransferir áreas\nde entrada a salida\nPosición\nlibre\nFigura 9.11. Actualización de un archivo (II).\n9.5.4. Clasificación de un archivo\nUna operación muy importante en un archivo es la clasificación u ordenación (sort, en inglés). Esta clasificación se \nrealizará de acuerdo con el valor de un campo espec ífico, pudiendo ser ascendente (creciente) o descendente (decre-\nciente): alfabética o numérica (véase Figura 9.12)."
+    },
+    {
+      "id": "doc-prog-lineales",
+      "source_id": "src-prog-lineales",
+      "title": "prog_lineales",
+      "content": "Estructuras dinámicas lineales de datos (pilas, col as y listas enlazadas)  449\nRecorrido de una lista\nEl recorrido de la lista se realizará siguiendo los  punteros a partir de su primer elemento, el señala do por inic.\nEl procedimiento recorrer(...) que se implementa a continuación, al recorrer la l ista va mostrando por pan-\ntalla los diferentes elementos que la componen.\nprocedimiento recorrer(E entero : inic)\n   var entero: posic\n   inicio\n    posic ← inic\n    mientras  posic <> 0 hacer\n      { Recurrimos a un procedimiento, proc_escribir(...), \n        para presentar por pantalla los campos del registro\n        pasado como parámetro }\n      proc_escribir(m[posic].elemento)\n      posic ← m[posic].sig\n    fin_mientras\nfin_procedimiento\nBúsqueda de un determinado elemento en una lista\nEl procedimiento consultar informará sobre si un determinado elemento se encu entra o no en la lista, la posición \nque ocupa dicho elemento en el array y la que ocupa  el elemento anterior. Si la información se encontr ara colocada \nen la lista de forma ordenada y creciente por el ca mpo de búsqueda el procedimiento de consulta podría  ser el si-\nguiente:\nprocedimiento consultar( E entero : inic; S entero : posic, anterior;\nE tipo_elemento: elemento; S lógico : encontrado;\nE arr: m)\ninicio\n  anterior ← 0\n  posic ← inic\n  { Las funciones menor() e igual()comparan los registros por \n    un determinado campo}\n  mientras menor(m[posic].elemento,elemento) y (posic <> 0) hacer\n      anterior ← posic     \n      posic ← m[posic].sig\n  fin_mientras\n  si(posic = 0) entonces\n     encontrado ← falso\n  si igual(m[posic].elemento,elemento) entonces\n     encontrado ← verdad\nfin_procedimiento\nFunciones\nCuando implementamos una lista enlazada utilizando arrays, necesitamos las siguientes funciones:\nlogico función vacia(E entero : inic)\n  inicio\n    devolver(inic = 0)\n  fin_función\nlógico función  llena(E entero : vacio)\n  inicio\n    devolver(vacio = 0)\n  fin_función"
+    },
+    {
+      "id": "doc-prog-punteros",
+      "source_id": "src-prog-punteros",
+      "title": "prog_punteros",
+      "content": "234Andrés Marzal/Isabel Gracia - ISBN: 978-84-693-0143-2 Introducción a la programación con C - UJI\nLa Reina se puso congestionada de furia, y, tras lanzarle una mirada felina,\nempezó a gritar: «¡Que le corten la cabeza! ¡Que le corten. . . !».\nL/E.small/W.small/I.small/S.small C/A.small/R.small/R.small/O.small/L.small/L.small, Alicia en el País de las Maravillas .\nVimos en el capítulo 2 que los vectores de C presentaban un serio inconveniente con\nrespecto a las listas de Python: su tamaño debía ser ﬁjo y conocido en tiempo de com-\npilación, es decir, no podíamos alargar o acortar los vectores para que se adaptaran al\ntamaño de una serie de datos durante la ejecución del programa . C permite una gestión\ndinámica de la memoria, es decir, solicitar memoria para albergar el contenido de estruc-\nturas de datos cuyo tamaño exacto no conocemos hasta que se ha iniciado la ejecución\ndel programa. Estudiaremos aquí dos formas de superar las limitaciones de tamaño que\nimpone el C:\nmediante vectores cuyo tamaño se ﬁja en tiempo de ejecución,\ny mediante registros enlazados, también conocidos como listas enlazadas (o, sim-\nplemente, listas).\nAmbas aproximaciones se basan en el uso de punteros y cada una de ellas presenta\ndiferentes ventajas e inconvenientes.\nSabemos deﬁnir vectores indicando su tamaño en tiempo de compilación:\ndeﬁne\n 10\nint /a.math\nPero, ¿y si no sabemos a priori cuántos elementos debe albergar el vector? 1 Por lo\nestudiado hasta el momento, podemos deﬁnir\n como el número más grande de\nelementos posible, el número de elementos para el peor de los casos. Pero, ¿y si no\npodemos determinar un número máximo de elementos? Aunque pudiéramos, ¿y si éste\nfuera tan grande que, en la práctica, supusiera un despilfarro de memoria intolerable\npara situaciones normales? Imagina una aplicación de agenda telefónica personal que,\n1En la sección 3.5.3 vimos cómo deﬁnir vectores locales cuya talla se decide al ejecutar una función:\nlo que denominamos «vectores de longitud variable». Nos proponemos dos objetivos: por una parte, poder\nredimensionar vectores globales; y, por otro, vamos a permitir que un vector crezca y decrezca en tamaño\ncuantas veces queramos. Los «vectores de longitud variable» que estudiamos en su momento son inapropiados\npara cualquiera de estos dos objetivos.\n234"
+    },
+    {
+      "id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "title": "so_concurrencia",
+      "content": "SECCIÓN 2.3 COMUNICACIÓN ENTRE PROCESOS 117\nTal vez haya que redefinir la semántica de las llamadas al sistema y reescribir las bibliotecas, cuan-\ndo menos. Y todo esto se debe realizar de tal forma que se mantenga una compatibilidad hacia atrás\ncon los programas existentes para el caso limitante de un proceso con sólo un hilo. Para obtener in-\nformación adicional acerca de los hilos, consulte (Hauser y colaboradores, 1993; y Marsh y colabo-\nradores, 1991).\n2.3 COMUNICACIÓN ENTRE PROCESOS\nCon frecuencia, los procesos necesitan comunicarse con otros procesos. Por ejemplo, en una cana-\nlización del shell, la salida del primer proceso se debe pasar al segundo proceso y así sucesivamen-\nte. Por ende, existe una necesidad de comunicación entre procesos, de preferencia en una forma\nbien estructurada sin utilizar interrupciones. En las siguientes secciones analizaremos algunas de las\ncuestiones relacionadas con esta comunicación entre procesos o IPC.\nEn resumen, hay tres cuestiones aquí. La primera se alude a lo anterior: cómo un proceso pue-\nde pasar información a otro. La segunda está relacionada con hacer que dos o más procesos no se\ninterpongan entre sí; por ejemplo, dos procesos en un sistema de reservaciones de una aerolínea,\ncada uno de los cuales trata de obtener el último asiento en un avión para un cliente distinto. La\ntercera trata acerca de obtener la secuencia apropiada cuando hay dependencias presentes: si el\nproceso A produce datos y el proceso B los imprime, B tiene que esperar hasta que A haya produ-\ncido algunos datos antes de empezar a imprimir. En la siguiente sección analizaremos las tres cues-\ntiones. \nTambién es importante mencionar que dos de estas cuestiones se aplican de igual forma a los\nhilos. La primera (el paso de información) es fácil para los hilos, ya que comparten un espacio de\ndirecciones común (los hilos en distintos espacios de direcciones que necesitan comunicarse entran\nen la categoría de los procesos en comunicación). Sin embargo, las otras dos (evitar que un hilo en-\ntre en conflicto con los demás y obtener la secuencia apropiada) se aplican de igual forma a los hi-\nlos. Existen los mismos problemas y se aplican las mismas soluciones. A continuación veremos \nel problema en el contexto de los procesos, pero tenga en cuenta que también se aplican los mismos\nproblemas y soluciones a los hilos.\n2.3.1 Condiciones de carrera \nEn algunos sistemas operativos, los procesos que trabajan en conjunto pueden compartir cierto es-\npacio de almacenamiento en el que pueden leer y escribir datos. El almacenamiento compartido\npuede estar en la memoria principal (posiblemente en una estructura de datos del kernel) o puede\nser un archivo compartido; la ubicación de la memoria compartida no cambia la naturaleza de la co-\nmunicación o los problemas que surgen. Para ver cómo funciona la comunicación entre procesos en\nla práctica, consideremos un ejemplo simple pero común: un spooler de impresión. Cuando un pro-\nceso desea imprimir un archivo, introduce el nombre del archivo en un directorio de spooler espe-\ncial. Otro proceso, el demonio de impresión, comprueba en forma periódica si hay archivos que\ndeban imprimirse y si los hay, los imprime y luego elimina sus nombres del directorio."
+    },
+    {
+      "id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "title": "so_memoria",
+      "content": "3.3  MEMORIA VIRTUAL\nMientras que los registros base y límite se pueden utilizar para crear la abstracción de los espacios de\ndirecciones, hay otro problema que se tiene que resolver: la administración del agrandamiento del soft-\nware (bloatware). Aunque el tamaño de las memorias se incrementa con cierta rapidez, el del softwa-\nre aumenta con una mucha mayor. En la década de 1980, muchas universidades operaban un sistema\nde tiempo compartido con docenas de usuarios (más o menos satisfechos) trabajando simultáneamen-\nte en una V AX de 4 MB. Ahora Microsoft recomienda tener por lo menos 512 MB para que un siste-\nma Vista de un solo usuario ejecute aplicaciones simples y 1 GB si el usuario va a realizar algún\ntrabajo serio. La tendencia hacia la multimedia impone aún mayores exigencias sobre la memoria.\nComo consecuencia de estos desarrollos, existe la necesidad de ejecutar programas que son de-\nmasiado grandes como para caber en la memoria y sin duda existe también la necesidad de tener\nsistemas que puedan soportar varios programas ejecutándose al mismo tiempo, cada uno de los cua-\nles cabe en memoria, pero que en forma colectiva exceden el tamaño de la misma. El intercambio\nno es una opción atractiva, ya que un disco SATA ordinario tiene una velocidad de transferencia pi-\nco de 100 MB/segundo a lo más, lo cual significa que requiere por lo menos 10 segundos para in-\ntercambiar un programa de 1 GB de memoria a disco y otros 10 segundos para intercambiar un\nprograma de 1 GB del disco a memoria.\nEl problema de que los programas sean más grandes que la memoria ha estado presente desde\nlos inicios de la computación, en áreas limitadas como la ciencia y la ingeniería (para simular la\ncreación del universo o, incluso, para simular una nueva aeronave, se requiere mucha memoria).\nUna solución que se adoptó en la década de 1960 fue dividir los programas en pequeñas partes, co-\nnocidas como sobrepuestos (overlays). Cuando empezaba un programa, todo lo que se cargaba en\nmemoria era el administrador de sobrepuestos, que de inmediato cargaba y ejecutaba el sobrepues-\nto 0; cuando éste terminaba, indicaba al administrador de sobrepuestos que cargara el 1 encima del\nsobrepuesto 0 en la memoria (si había espacio) o encima del mismo (si no había espacio). Algunos\nsistemas de sobrepuestos eran muy complejos, ya que permitían varios sobrepuestos en memoria a\nla vez. Los sobrepuestos se mantenían en el disco, intercambiándolos primero hacia adentro de la\nmemoria y después hacia afuera de la memoria mediante el administrador de sobrepuestos.\nAunque el trabajo real de intercambiar sobrepuestos hacia adentro y hacia afuera de la memo-\nria lo realizaba el sistema operativo, el de dividir el programa en partes tenía que realizarlo el pro-\ngramador en forma manual. El proceso de dividir programas grandes en partes modulares más\npequeñas consumía mucho tiempo, y era aburrido y propenso a errores. Pocos programadores eran\nbuenos para esto. No pasó mucho tiempo antes de que alguien ideara una forma de pasar todo el\ntrabajo a la computadora.\nEl método ideado (Fotheringham, 1961) se conoce actualmente como memoria virtual. La idea\nbásica detrás de la memoria virtual es que cada programa tiene su propio espacio de direcciones, el cual\nse divide en trozos llamados páginas. Cada página es un rango contiguo de direcciones. Estas páginas se\nasocian a la memoria física, pero no todas tienen que estar en la memoria física para poder ejecutar el\nprograma. Cuando el programa hace referencia a una parte de su espacio de direcciones que está en la\nmemoria física, el hardware realiza la asociación necesaria al instante. Cuando el programa hace refe-\nrencia a una parte de su espacio de direcciones que no está en la memoria física, el sistema operativo\nrecibe una alerta para buscar la parte faltante y volver a ejecutar la instrucción que falló.\n188 ADMINISTRACIÓN DE MEMORIA CAPÍTULO 3"
+    },
+    {
+      "id": "doc-so-planificacion",
+      "source_id": "src-so-planificacion",
+      "title": "so_planificacion",
+      "content": "SECCIÓN 2.4 PLANIFICACIÓN 149\nPor el contrario, un algoritmo de planificación apropiativa selecciona un proceso y deja que\nse ejecute por un máximo de tiempo fijo. Si sigue en ejecución al final del intervalo de tiempo, se\nsuspende y el planificador selecciona otro proceso para ejecutarlo (si hay uno disponible). Para lle-\nvar a cabo la planificación apropiativa, es necesario que ocurra una interrupción de reloj al final del\nintervalo de tiempo para que la CPU regrese el control al planificador. Si no hay un reloj disponi-\nble, la planificación no apropiativa es la única opción.\nCategorías de los algoritmos de planificación\nNo es sorprendente que distintos entornos requieran algoritmos de planificación diferentes. Esta si-\ntuación se presenta debido a que las diferentes áreas de aplicación (y los distintos tipos de sistemas\noperativos) tienen diferentes objetivos. En otras palabras, lo que el planificador debe optimizar no es\nlo mismo en todos los sistemas. Tres de los entornos que vale la pena mencionar son:\n1. Procesamiento por lotes.\n2. Interactivo.\n3. De tiempo real.\nLos sistemas de procesamiento por lotes siguen utilizándose ampliamente en el mundo de los ne-\ngocios para realizar nóminas, inventarios, cuentas por cobrar, cuentas por pagar, cálculos de interés\n(en los bancos), procesamiento de reclamaciones (en las compañías de seguros) y otras tareas pe-\nriódicas. En los sistemas de procesamiento por lotes no hay usuarios que esperen impacientemente\nen sus terminales para obtener una respuesta rápida a una petición corta. En consecuencia, son acep-\ntables los algoritmos no apropiativos (o apropiativos con largos periodos para cada proceso). Este\nmétodo reduce la conmutación de procesos y por ende, mejora el rendimiento. En realidad, los al-\ngoritmos de procesamiento por lotes son bastante generales y a menudo se pueden aplicar a otras\nsituaciones también, lo cual hace que valga la pena estudiarlos, incluso para las personas que no es-\ntán involucradas en la computación con mainframes corporativas.\nEn un entorno con usuarios interactivos, la apropiación es esencial para evitar que un proceso\nacapare la CPU y niegue el servicio a los demás. Aun si no hubiera un proceso que se ejecutara in-\ndefinidamente de manera intencional, podría haber un proceso que deshabilitara a los demás de ma-\nnera indefinida, debido a un error en el programa. La apropiación es necesaria para evitar este\ncomportamiento. Los servidores también entran en esta categoría, ya que por lo general dan servi-\ncio a varios usuarios (remotos), todos los cuales siempre tienen mucha prisa.\nEn los sistemas con restricciones de tiempo real, aunque parezca extraño, la apropiación a ve-\nces es no necesaria debido a que los procesos saben que no se pueden ejecutar durante periodos ex-\ntensos, que por lo general realizan su trabajo y se bloquean con rapidez. La diferencia con los\nsistemas interactivos es que los sistemas de tiempo real sólo ejecutan programas destinados para\nampliar la aplicación en cuestión. Los sistemas interactivos son de propósito general y pueden eje-\ncutar programas arbitrarios que no sean cooperativos, o incluso malintencionados."
+    },
+    {
+      "id": "doc-so-procesos",
+      "source_id": "src-so-procesos",
+      "title": "so_procesos",
+      "content": "2.1.5  Estados de un proceso\nAunque cada proceso es una entidad independiente, con su propio contador de programa y estado\ninterno, a menudo los procesos necesitan interactuar con otros. Un proceso puede generar cierta sa-\nlida que otro proceso utiliza como entrada. En el comando de shell\ncat capitulo1 capitulo2 capitulo3 | grep arbol\nel primer proceso, que ejecuta cat, concatena tres archivos y los envía como salida. El segundo pro-\nceso, que ejecuta grep, selecciona todas las líneas que contengan la palabra “arbol”. Dependiendo\nde la velocidad relativa de los dos procesos (que dependen tanto de la complejidad relativa de los\nprogramas, como de cuánto tiempo ha tenido cada uno la CPU), puede ocurrir que grep esté listo\npara ejecutarse, pero que no haya una entrada esperándolo. Entonces debe bloquear hasta que haya\nuna entrada disponible.\nCuando un proceso se bloquea, lo hace debido a que por lógica no puede continuar, común-\nmente porque está esperando una entrada que todavía no está disponible. También es posible que\nun proceso, que esté listo en concepto y pueda ejecutarse, se detenga debido a que el sistema ope-\nrativo ha decidido asignar la CPU a otro proceso por cierto tiempo. Estas dos condiciones son com-\npletamente distintas. En el primer caso, la suspensión está inherente en el problema (no se puede\nprocesar la línea de comandos del usuario sino hasta que éste la haya escrito mediante el teclado).\nEn el segundo caso, es un tecnicismo del sistema (no hay suficientes CPUs como para otorgar a ca-\nda proceso su propio procesador privado). En la figura 2-2 podemos ver un diagrama de estados que\nmuestra los tres estados en los que se puede encontrar un proceso:\n1. En ejecución (en realidad está usando la CPU en ese instante).\n2. Listo (ejecutable; se detuvo temporalmente para dejar que se ejecute otro proceso).\n3. Bloqueado (no puede ejecutarse sino hasta que ocurra cierto evento externo).\nEn sentido lógico, los primeros dos estados son similares. En ambos casos el proceso está deseoso\nde ejecutarse; sólo en el segundo no hay temporalmente una CPU para él. El tercer estado es dis-\ntinto de los primeros dos en cuanto a que el proceso no se puede ejecutar, incluso aunque la CPU\nno tenga nada que hacer.\n90 PROCESOS E HILOS CAPÍTULO 2\n12 3\n4Bloqueado\nEn ejecución\nListo\n1. El proceso se bloquea para recibir entrada\n2. El planificador selecciona otro proceso\n3. El planificador selecciona este proceso\n4. La entrada ya está disponible\nFigura 2-2. Un proceso puede encontrarse en estado “en ejecución”, “bloqueado” o\n“listo”. Las transiciones entre estos estados son como se muestran.\nHay cuatro transiciones posibles entre estos tres estados, como se indica. La transición 1 ocurre\ncuando el sistema operativo descubre que un proceso no puede continuar justo en ese momento. En"
+    }
+  ],
+  "chunks": [
+    {
+      "id": "prog:tree:00",
+      "document_id": "doc-prog-arboles",
+      "source_id": "src-prog-arboles",
+      "content": "Estructura de datos no lineales (árboles y grafos)   481\n13.2.1. Terminología y representación de un árbol g eneral\nLa representación y terminología de los árboles se realiza con las típicas notaciones de las relacione s familiares \nen los árboles genealógicos: padre, hijo, hermano, ascendente, descendiente, etc. Sea el árbol general  de la Figu-\nra 13.2.\nK L\nG F\nE\nH I J \nCB D\nA\nFigura 13.2. Árbol general.\nLas definiciones a tener en cuenta son:\n",
+      "index": 0,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "trees"
+    },
+    {
+      "id": "prog:tree:01",
+      "document_id": "doc-prog-arboles",
+      "source_id": "src-prog-arboles",
+      "content": "Las definiciones a tener en cuenta son:\n• Raíz del árbol. Todos los árboles que no están vacíos t ienen un único nodo raíz. Todos los demás elementos  o \nnodos se derivan o descienden de él. El nodo raíz n o tiene padre, es decir, no es el hijo de ningún elemento.\n• Nodo, son los vértices o elementos del árbol.\n• Nodo terminal u hoja (leaf node) es aquel nodo que no contiene ningún subárbol (los  nodos terminales u hojas \n",
+      "index": 1,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "trees"
+    },
+    {
+      "id": "prog:tree:02",
+      "document_id": "doc-prog-arboles",
+      "source_id": "src-prog-arboles",
+      "content": "del árbol de la Figura 13.2 son E, F, K, L, H  y J).\n• A cada nodo que no es hoja se asocia uno o varios  subárboles llamados descendientes (offspring) o hijos. De \nigual forma, cada nodo tiene asociado un antecesor o ascendiente llamado padre.\n• Los nodos de un mismo padre se llaman hermanos.\n• Los nodos con uno o dos subárboles —no son hojas ni raíz— se llaman nodos interiores o internos.\n",
+      "index": 2,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "trees"
+    },
+    {
+      "id": "prog:tree:03",
+      "document_id": "doc-prog-arboles",
+      "source_id": "src-prog-arboles",
+      "content": "• Una colección de dos o más árboles se llama bosque (forest).\n• Todos los nodos tienen un solo padre —excepto el raíz— que no tiene padre.\n• Se denomina camino el enlace entre dos nodos consecutivos y rama es un camino que termina en una hoja.\n• Cada nodo tiene asociado un número de nivel que se determina por la longitud del camino desde el raíz al nodo \nespecífico. Por ejemplo, en el árbol de la Figura 1 3.2.\nNivel 0 A\nNivel 1 B, C, D\n",
+      "index": 3,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "trees"
+    },
+    {
+      "id": "prog:tree:04",
+      "document_id": "doc-prog-arboles",
+      "source_id": "src-prog-arboles",
+      "content": "Nivel 0 A\nNivel 1 B, C, D\nNivel 2 E, F, G, H, I, J\nNivel 3 K, L\n• La altura o profundidad de un árbol es el número máximo de nodos de una ra ma. Equivale al nivel más alto \nde los nodos más uno. El peso de un árbol es el número de nodos terminales. La altura y el peso del árbol de \nla Figura 13.2 son 4 y 7, respectivamente.\nLas representaciones gráficas de los árboles —ademá s de las ya expuestas— pueden ser las mostradas en la Fi-\ngura 13.3.\n\n",
+      "index": 4,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "trees"
+    },
+    {
+      "id": "prog:tree:05",
+      "document_id": "doc-prog-arboles",
+      "source_id": "src-prog-arboles",
+      "content": "gura 13.3.\n\n482  Fundamentos de programación\n13.3. ÁRBOL BINARIO\nExiste un tipo de árbol denominado árbol binario que puede ser implementado fácilmente en una compu tadora.\nUn árbol binario es un conjunto finito de cero o más nodos, tales q ue:\n• Existe un nodo denominado raíz del árbol.\n• Cada nodo puede tener 0, 1 o 2 subárboles, conoci dos como subárbol izquierdo y subárbol derecho.\n",
+      "index": 5,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "trees"
+    },
+    {
+      "id": "prog:tree:06",
+      "document_id": "doc-prog-arboles",
+      "source_id": "src-prog-arboles",
+      "content": "La Figura 13.4 representa diferentes tipos de árbol es binarios:\nB\nA\n+\nC\n/\nT2 T1 T\n100\n5\n5\n100\n(a) (b) (c)\nFigura 13.4. Ejemplos de árboles binarios: (a) expresión árbol a + b/c; \n(b) y (c) dos árboles diferentes con valores enteros.\nK L\nG F H I J \nCB D\nA\nE\nA\nE\nB J I\nHD\nF\nK\nL\nC G\nFigura 13.3 Representaciones de árboles.",
+      "index": 6,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "trees"
+    },
+    {
+      "id": "prog:file:07",
+      "document_id": "doc-prog-archivos",
+      "source_id": "src-prog-archivos",
+      "content": "318  Fundamentos de programación\n• Clasificación.\n• Reorganización.\n• Destrucción (borrado).\n• Reunión, fusión.\n• Rotura, estallido.\n9.5.1. Creación de un archivo\nEs la primera operación que sufrirá el archivo de datos. Implica la elección de un entorno descriptivo que permita un \nágil, rápido y eficaz tratamiento del archivo.\nPara utilizar un archivo, éste tiene que existir, e s decir, las informaciones de este archivo tienen q ue haber sido \n",
+      "index": 0,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "file_io"
+    },
+    {
+      "id": "prog:file:08",
+      "document_id": "doc-prog-archivos",
+      "source_id": "src-prog-archivos",
+      "content": "almacenadas sobre un soporte y ser utilizables. La creación exige organización, estructura, localización o reserva de \nespacio en el soporte de almacenamiento, transferen cia del archivo del soporte antiguo al nuevo.\nUn archivo puede ser creado por primera vez en un s oporte, proceder de otro previamente existente en e l mismo \no diferente soporte, ser el resultado de un cálculo  o ambas cosas a la vez.\n",
+      "index": 1,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "file_io"
+    },
+    {
+      "id": "prog:file:09",
+      "document_id": "doc-prog-archivos",
+      "source_id": "src-prog-archivos",
+      "content": "La Figura 9.8 muestra un organigrama de la creación  de un archivo ordenado de empleados de una empresa  por \nel campo clave (número o código de empleado).\nDATOS\nCREACIÓN\nde un archivo\nen disco\nMAESTRO\n(desordenado)\nNúmero de\nempleado\nMaestro\nordenado\nOperación de clasificación\npor número empleado\nFigura 9.8. Creación de un archivo ordenado de empleados.\n9.5.2. Consulta de un archivo\n",
+      "index": 2,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "file_io"
+    },
+    {
+      "id": "prog:file:10",
+      "document_id": "doc-prog-archivos",
+      "source_id": "src-prog-archivos",
+      "content": "9.5.2. Consulta de un archivo\nEs la operación que permite al usuario acceder al a rchivo de datos para conocer el contenido de uno, v arios o todos \nlos registros.\nProceso\nde\nconsulta\nFigura 9.9. Consulta de un archivo.\n\nArchivos (ﬁ cheros)  319\n9.5.3. Actualización de un archivo\nEs la operación que permite tener actualizado (pues to al día) el archivo, de tal modo que sea posible realizar las si-\nguientes operaciones con sus registros:\n",
+      "index": 3,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "file_io"
+    },
+    {
+      "id": "prog:file:11",
+      "document_id": "doc-prog-archivos",
+      "source_id": "src-prog-archivos",
+      "content": "guientes operaciones con sus registros:\n• Consulta del contenido de un registro.\n• Inserción de un registro nuevo en el archivo.\n• Supresión de un registro existente.\n• Modificación de un registro.\nUn ejemplo de actualización es el de un archivo de un almacén, cuyos registros contienen las existencias de cada \nartículo, precios, proveedores, etc. Las existencia s, precios, etc., varían continuamente y exigen una  actualización \n",
+      "index": 4,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "file_io"
+    },
+    {
+      "id": "prog:file:12",
+      "document_id": "doc-prog-archivos",
+      "source_id": "src-prog-archivos",
+      "content": "simultánea del archivo con cada operación de consul ta.\nProceso\nde\nactualización\nFigura 9.10. Actualización de un archivo (I).\nInserción \nde un registro\nFin\nLocalizar posición\nde inserción\nNo\nSí\nGrabar\nnuevo registro\nTransferir áreas\nde entrada a salida\nPosición\nlibre\nFigura 9.11. Actualización de un archivo (II).\n9.5.4. Clasificación de un archivo\n",
+      "index": 5,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "file_io"
+    },
+    {
+      "id": "prog:file:13",
+      "document_id": "doc-prog-archivos",
+      "source_id": "src-prog-archivos",
+      "content": "9.5.4. Clasificación de un archivo\nUna operación muy importante en un archivo es la clasificación u ordenación (sort, en inglés). Esta clasificación se \nrealizará de acuerdo con el valor de un campo espec ífico, pudiendo ser ascendente (creciente) o descendente (decre-\nciente): alfabética o numérica (véase Figura 9.12).",
+      "index": 6,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "file_io"
+    },
+    {
+      "id": "prog:line:14",
+      "document_id": "doc-prog-lineales",
+      "source_id": "src-prog-lineales",
+      "content": "Estructuras dinámicas lineales de datos (pilas, col as y listas enlazadas)  449\nRecorrido de una lista\nEl recorrido de la lista se realizará siguiendo los  punteros a partir de su primer elemento, el señala do por inic.\nEl procedimiento recorrer(...) que se implementa a continuación, al recorrer la l ista va mostrando por pan-\ntalla los diferentes elementos que la componen.\nprocedimiento recorrer(E entero : inic)\n   var entero: posic\n   inicio\n",
+      "index": 0,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "linear_structs"
+    },
+    {
+      "id": "prog:line:15",
+      "document_id": "doc-prog-lineales",
+      "source_id": "src-prog-lineales",
+      "content": "   var entero: posic\n   inicio\n    posic ← inic\n    mientras  posic <> 0 hacer\n      { Recurrimos a un procedimiento, proc_escribir(...), \n        para presentar por pantalla los campos del registro\n        pasado como parámetro }\n      proc_escribir(m[posic].elemento)\n      posic ← m[posic].sig\n    fin_mientras\nfin_procedimiento\nBúsqueda de un determinado elemento en una lista\n",
+      "index": 1,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "linear_structs"
+    },
+    {
+      "id": "prog:line:16",
+      "document_id": "doc-prog-lineales",
+      "source_id": "src-prog-lineales",
+      "content": "Búsqueda de un determinado elemento en una lista\nEl procedimiento consultar informará sobre si un determinado elemento se encu entra o no en la lista, la posición \nque ocupa dicho elemento en el array y la que ocupa  el elemento anterior. Si la información se encontr ara colocada \nen la lista de forma ordenada y creciente por el ca mpo de búsqueda el procedimiento de consulta podría  ser el si-\nguiente:\n",
+      "index": 2,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "linear_structs"
+    },
+    {
+      "id": "prog:line:17",
+      "document_id": "doc-prog-lineales",
+      "source_id": "src-prog-lineales",
+      "content": "guiente:\nprocedimiento consultar( E entero : inic; S entero : posic, anterior;\nE tipo_elemento: elemento; S lógico : encontrado;\nE arr: m)\ninicio\n  anterior ← 0\n  posic ← inic\n  { Las funciones menor() e igual()comparan los registros por \n    un determinado campo}\n  mientras menor(m[posic].elemento,elemento) y (posic <> 0) hacer\n      anterior ← posic     \n      posic ← m[posic].sig\n  fin_mientras\n  si(posic = 0) entonces\n     encontrado ← falso\n",
+      "index": 3,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "linear_structs"
+    },
+    {
+      "id": "prog:line:18",
+      "document_id": "doc-prog-lineales",
+      "source_id": "src-prog-lineales",
+      "content": "  si(posic = 0) entonces\n     encontrado ← falso\n  si igual(m[posic].elemento,elemento) entonces\n     encontrado ← verdad\nfin_procedimiento\nFunciones\nCuando implementamos una lista enlazada utilizando arrays, necesitamos las siguientes funciones:\nlogico función vacia(E entero : inic)\n  inicio\n    devolver(inic = 0)\n  fin_función\nlógico función  llena(E entero : vacio)\n  inicio\n    devolver(vacio = 0)\n  fin_función",
+      "index": 4,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "linear_structs"
+    },
+    {
+      "id": "prog:poin:19",
+      "document_id": "doc-prog-punteros",
+      "source_id": "src-prog-punteros",
+      "content": "234Andrés Marzal/Isabel Gracia - ISBN: 978-84-693-0143-2 Introducción a la programación con C - UJI\nLa Reina se puso congestionada de furia, y, tras lanzarle una mirada felina,\nempezó a gritar: «¡Que le corten la cabeza! ¡Que le corten. . . !».\nL/E.small/W.small/I.small/S.small C/A.small/R.small/R.small/O.small/L.small/L.small, Alicia en el País de las Maravillas .\n",
+      "index": 0,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "pointers"
+    },
+    {
+      "id": "prog:poin:20",
+      "document_id": "doc-prog-punteros",
+      "source_id": "src-prog-punteros",
+      "content": "Vimos en el capítulo 2 que los vectores de C presentaban un serio inconveniente con\nrespecto a las listas de Python: su tamaño debía ser ﬁjo y conocido en tiempo de com-\npilación, es decir, no podíamos alargar o acortar los vectores para que se adaptaran al\ntamaño de una serie de datos durante la ejecución del programa . C permite una gestión\ndinámica de la memoria, es decir, solicitar memoria para albergar el contenido de estruc-\n",
+      "index": 1,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "pointers"
+    },
+    {
+      "id": "prog:poin:21",
+      "document_id": "doc-prog-punteros",
+      "source_id": "src-prog-punteros",
+      "content": "turas de datos cuyo tamaño exacto no conocemos hasta que se ha iniciado la ejecución\ndel programa. Estudiaremos aquí dos formas de superar las limitaciones de tamaño que\nimpone el C:\nmediante vectores cuyo tamaño se ﬁja en tiempo de ejecución,\ny mediante registros enlazados, también conocidos como listas enlazadas (o, sim-\nplemente, listas).\nAmbas aproximaciones se basan en el uso de punteros y cada una de ellas presenta\n",
+      "index": 2,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "pointers"
+    },
+    {
+      "id": "prog:poin:22",
+      "document_id": "doc-prog-punteros",
+      "source_id": "src-prog-punteros",
+      "content": "diferentes ventajas e inconvenientes.\nSabemos deﬁnir vectores indicando su tamaño en tiempo de compilación:\ndeﬁne\n 10\nint /a.math\nPero, ¿y si no sabemos a priori cuántos elementos debe albergar el vector? 1 Por lo\nestudiado hasta el momento, podemos deﬁnir\n como el número más grande de\nelementos posible, el número de elementos para el peor de los casos. Pero, ¿y si no\n",
+      "index": 3,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "pointers"
+    },
+    {
+      "id": "prog:poin:23",
+      "document_id": "doc-prog-punteros",
+      "source_id": "src-prog-punteros",
+      "content": "podemos determinar un número máximo de elementos? Aunque pudiéramos, ¿y si éste\nfuera tan grande que, en la práctica, supusiera un despilfarro de memoria intolerable\npara situaciones normales? Imagina una aplicación de agenda telefónica personal que,\n1En la sección 3.5.3 vimos cómo deﬁnir vectores locales cuya talla se decide al ejecutar una función:\n",
+      "index": 4,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "pointers"
+    },
+    {
+      "id": "prog:poin:24",
+      "document_id": "doc-prog-punteros",
+      "source_id": "src-prog-punteros",
+      "content": "lo que denominamos «vectores de longitud variable». Nos proponemos dos objetivos: por una parte, poder\nredimensionar vectores globales; y, por otro, vamos a permitir que un vector crezca y decrezca en tamaño\ncuantas veces queramos. Los «vectores de longitud variable» que estudiamos en su momento son inapropiados\npara cualquiera de estos dos objetivos.\n234",
+      "index": 5,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-prog",
+      "topic": "pointers"
+    },
+    {
+      "id": "so:conc:25",
+      "document_id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "content": "SECCIÓN 2.3 COMUNICACIÓN ENTRE PROCESOS 117\nTal vez haya que redefinir la semántica de las llamadas al sistema y reescribir las bibliotecas, cuan-\ndo menos. Y todo esto se debe realizar de tal forma que se mantenga una compatibilidad hacia atrás\ncon los programas existentes para el caso limitante de un proceso con sólo un hilo. Para obtener in-\nformación adicional acerca de los hilos, consulte (Hauser y colaboradores, 1993; y Marsh y colabo-\n",
+      "index": 0,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "id": "so:conc:26",
+      "document_id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "content": "radores, 1991).\n2.3 COMUNICACIÓN ENTRE PROCESOS\nCon frecuencia, los procesos necesitan comunicarse con otros procesos. Por ejemplo, en una cana-\nlización del shell, la salida del primer proceso se debe pasar al segundo proceso y así sucesivamen-\nte. Por ende, existe una necesidad de comunicación entre procesos, de preferencia en una forma\nbien estructurada sin utilizar interrupciones. En las siguientes secciones analizaremos algunas de las\n",
+      "index": 1,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "id": "so:conc:27",
+      "document_id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "content": "cuestiones relacionadas con esta comunicación entre procesos o IPC.\nEn resumen, hay tres cuestiones aquí. La primera se alude a lo anterior: cómo un proceso pue-\nde pasar información a otro. La segunda está relacionada con hacer que dos o más procesos no se\ninterpongan entre sí; por ejemplo, dos procesos en un sistema de reservaciones de una aerolínea,\n",
+      "index": 2,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "id": "so:conc:28",
+      "document_id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "content": "cada uno de los cuales trata de obtener el último asiento en un avión para un cliente distinto. La\ntercera trata acerca de obtener la secuencia apropiada cuando hay dependencias presentes: si el\nproceso A produce datos y el proceso B los imprime, B tiene que esperar hasta que A haya produ-\ncido algunos datos antes de empezar a imprimir. En la siguiente sección analizaremos las tres cues-\ntiones. \n",
+      "index": 3,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "id": "so:conc:29",
+      "document_id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "content": "tiones. \nTambién es importante mencionar que dos de estas cuestiones se aplican de igual forma a los\nhilos. La primera (el paso de información) es fácil para los hilos, ya que comparten un espacio de\ndirecciones común (los hilos en distintos espacios de direcciones que necesitan comunicarse entran\nen la categoría de los procesos en comunicación). Sin embargo, las otras dos (evitar que un hilo en-\n",
+      "index": 4,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "id": "so:conc:30",
+      "document_id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "content": "tre en conflicto con los demás y obtener la secuencia apropiada) se aplican de igual forma a los hi-\nlos. Existen los mismos problemas y se aplican las mismas soluciones. A continuación veremos \nel problema en el contexto de los procesos, pero tenga en cuenta que también se aplican los mismos\nproblemas y soluciones a los hilos.\n2.3.1 Condiciones de carrera \n",
+      "index": 5,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "id": "so:conc:31",
+      "document_id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "content": "2.3.1 Condiciones de carrera \nEn algunos sistemas operativos, los procesos que trabajan en conjunto pueden compartir cierto es-\npacio de almacenamiento en el que pueden leer y escribir datos. El almacenamiento compartido\npuede estar en la memoria principal (posiblemente en una estructura de datos del kernel) o puede\nser un archivo compartido; la ubicación de la memoria compartida no cambia la naturaleza de la co-\n",
+      "index": 6,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "id": "so:conc:32",
+      "document_id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "content": "municación o los problemas que surgen. Para ver cómo funciona la comunicación entre procesos en\nla práctica, consideremos un ejemplo simple pero común: un spooler de impresión. Cuando un pro-\nceso desea imprimir un archivo, introduce el nombre del archivo en un directorio de spooler espe-\ncial. Otro proceso, el demonio de impresión, comprueba en forma periódica si hay archivos que\n",
+      "index": 7,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "id": "so:conc:33",
+      "document_id": "doc-so-concurrencia",
+      "source_id": "src-so-concurrencia",
+      "content": "deban imprimirse y si los hay, los imprime y luego elimina sus nombres del directorio.",
+      "index": 8,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "concurrency"
+    },
+    {
+      "id": "so:virt:34",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "3.3  MEMORIA VIRTUAL\nMientras que los registros base y límite se pueden utilizar para crear la abstracción de los espacios de\ndirecciones, hay otro problema que se tiene que resolver: la administración del agrandamiento del soft-\nware (bloatware). Aunque el tamaño de las memorias se incrementa con cierta rapidez, el del softwa-\nre aumenta con una mucha mayor. En la década de 1980, muchas universidades operaban un sistema\n",
+      "index": 0,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:virt:35",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "de tiempo compartido con docenas de usuarios (más o menos satisfechos) trabajando simultáneamen-\nte en una V AX de 4 MB. Ahora Microsoft recomienda tener por lo menos 512 MB para que un siste-\nma Vista de un solo usuario ejecute aplicaciones simples y 1 GB si el usuario va a realizar algún\ntrabajo serio. La tendencia hacia la multimedia impone aún mayores exigencias sobre la memoria.\n",
+      "index": 1,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:virt:36",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "Como consecuencia de estos desarrollos, existe la necesidad de ejecutar programas que son de-\nmasiado grandes como para caber en la memoria y sin duda existe también la necesidad de tener\nsistemas que puedan soportar varios programas ejecutándose al mismo tiempo, cada uno de los cua-\nles cabe en memoria, pero que en forma colectiva exceden el tamaño de la misma. El intercambio\n",
+      "index": 2,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:virt:37",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "no es una opción atractiva, ya que un disco SATA ordinario tiene una velocidad de transferencia pi-\nco de 100 MB/segundo a lo más, lo cual significa que requiere por lo menos 10 segundos para in-\ntercambiar un programa de 1 GB de memoria a disco y otros 10 segundos para intercambiar un\nprograma de 1 GB del disco a memoria.\nEl problema de que los programas sean más grandes que la memoria ha estado presente desde\n",
+      "index": 3,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:virt:38",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "los inicios de la computación, en áreas limitadas como la ciencia y la ingeniería (para simular la\ncreación del universo o, incluso, para simular una nueva aeronave, se requiere mucha memoria).\nUna solución que se adoptó en la década de 1960 fue dividir los programas en pequeñas partes, co-\nnocidas como sobrepuestos (overlays). Cuando empezaba un programa, todo lo que se cargaba en\n",
+      "index": 4,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:virt:39",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "memoria era el administrador de sobrepuestos, que de inmediato cargaba y ejecutaba el sobrepues-\nto 0; cuando éste terminaba, indicaba al administrador de sobrepuestos que cargara el 1 encima del\nsobrepuesto 0 en la memoria (si había espacio) o encima del mismo (si no había espacio). Algunos\nsistemas de sobrepuestos eran muy complejos, ya que permitían varios sobrepuestos en memoria a\n",
+      "index": 5,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:virt:40",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "la vez. Los sobrepuestos se mantenían en el disco, intercambiándolos primero hacia adentro de la\nmemoria y después hacia afuera de la memoria mediante el administrador de sobrepuestos.\nAunque el trabajo real de intercambiar sobrepuestos hacia adentro y hacia afuera de la memo-\nria lo realizaba el sistema operativo, el de dividir el programa en partes tenía que realizarlo el pro-\n",
+      "index": 6,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:virt:41",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "gramador en forma manual. El proceso de dividir programas grandes en partes modulares más\npequeñas consumía mucho tiempo, y era aburrido y propenso a errores. Pocos programadores eran\nbuenos para esto. No pasó mucho tiempo antes de que alguien ideara una forma de pasar todo el\ntrabajo a la computadora.\nEl método ideado (Fotheringham, 1961) se conoce actualmente como memoria virtual. La idea\n",
+      "index": 7,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:virt:42",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "básica detrás de la memoria virtual es que cada programa tiene su propio espacio de direcciones, el cual\nse divide en trozos llamados páginas. Cada página es un rango contiguo de direcciones. Estas páginas se\nasocian a la memoria física, pero no todas tienen que estar en la memoria física para poder ejecutar el\nprograma. Cuando el programa hace referencia a una parte de su espacio de direcciones que está en la\n",
+      "index": 8,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:virt:43",
+      "document_id": "doc-so-memoria",
+      "source_id": "src-so-memoria",
+      "content": "memoria física, el hardware realiza la asociación necesaria al instante. Cuando el programa hace refe-\nrencia a una parte de su espacio de direcciones que no está en la memoria física, el sistema operativo\nrecibe una alerta para buscar la parte faltante y volver a ejecutar la instrucción que falló.\n188 ADMINISTRACIÓN DE MEMORIA CAPÍTULO 3",
+      "index": 9,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "virtual_memory"
+    },
+    {
+      "id": "so:sche:44",
+      "document_id": "doc-so-planificacion",
+      "source_id": "src-so-planificacion",
+      "content": "SECCIÓN 2.4 PLANIFICACIÓN 149\nPor el contrario, un algoritmo de planificación apropiativa selecciona un proceso y deja que\nse ejecute por un máximo de tiempo fijo. Si sigue en ejecución al final del intervalo de tiempo, se\nsuspende y el planificador selecciona otro proceso para ejecutarlo (si hay uno disponible). Para lle-\nvar a cabo la planificación apropiativa, es necesario que ocurra una interrupción de reloj al final del\n",
+      "index": 0,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "scheduling"
+    },
+    {
+      "id": "so:sche:45",
+      "document_id": "doc-so-planificacion",
+      "source_id": "src-so-planificacion",
+      "content": "intervalo de tiempo para que la CPU regrese el control al planificador. Si no hay un reloj disponi-\nble, la planificación no apropiativa es la única opción.\nCategorías de los algoritmos de planificación\nNo es sorprendente que distintos entornos requieran algoritmos de planificación diferentes. Esta si-\ntuación se presenta debido a que las diferentes áreas de aplicación (y los distintos tipos de sistemas\n",
+      "index": 1,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "scheduling"
+    },
+    {
+      "id": "so:sche:46",
+      "document_id": "doc-so-planificacion",
+      "source_id": "src-so-planificacion",
+      "content": "operativos) tienen diferentes objetivos. En otras palabras, lo que el planificador debe optimizar no es\nlo mismo en todos los sistemas. Tres de los entornos que vale la pena mencionar son:\n1. Procesamiento por lotes.\n2. Interactivo.\n3. De tiempo real.\nLos sistemas de procesamiento por lotes siguen utilizándose ampliamente en el mundo de los ne-\ngocios para realizar nóminas, inventarios, cuentas por cobrar, cuentas por pagar, cálculos de interés\n",
+      "index": 2,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "scheduling"
+    },
+    {
+      "id": "so:sche:47",
+      "document_id": "doc-so-planificacion",
+      "source_id": "src-so-planificacion",
+      "content": "(en los bancos), procesamiento de reclamaciones (en las compañías de seguros) y otras tareas pe-\nriódicas. En los sistemas de procesamiento por lotes no hay usuarios que esperen impacientemente\nen sus terminales para obtener una respuesta rápida a una petición corta. En consecuencia, son acep-\ntables los algoritmos no apropiativos (o apropiativos con largos periodos para cada proceso). Este\n",
+      "index": 3,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "scheduling"
+    },
+    {
+      "id": "so:sche:48",
+      "document_id": "doc-so-planificacion",
+      "source_id": "src-so-planificacion",
+      "content": "método reduce la conmutación de procesos y por ende, mejora el rendimiento. En realidad, los al-\ngoritmos de procesamiento por lotes son bastante generales y a menudo se pueden aplicar a otras\nsituaciones también, lo cual hace que valga la pena estudiarlos, incluso para las personas que no es-\ntán involucradas en la computación con mainframes corporativas.\n",
+      "index": 4,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "scheduling"
+    },
+    {
+      "id": "so:sche:49",
+      "document_id": "doc-so-planificacion",
+      "source_id": "src-so-planificacion",
+      "content": "En un entorno con usuarios interactivos, la apropiación es esencial para evitar que un proceso\nacapare la CPU y niegue el servicio a los demás. Aun si no hubiera un proceso que se ejecutara in-\ndefinidamente de manera intencional, podría haber un proceso que deshabilitara a los demás de ma-\nnera indefinida, debido a un error en el programa. La apropiación es necesaria para evitar este\n",
+      "index": 5,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "scheduling"
+    },
+    {
+      "id": "so:sche:50",
+      "document_id": "doc-so-planificacion",
+      "source_id": "src-so-planificacion",
+      "content": "comportamiento. Los servidores también entran en esta categoría, ya que por lo general dan servi-\ncio a varios usuarios (remotos), todos los cuales siempre tienen mucha prisa.\nEn los sistemas con restricciones de tiempo real, aunque parezca extraño, la apropiación a ve-\nces es no necesaria debido a que los procesos saben que no se pueden ejecutar durante periodos ex-\n",
+      "index": 6,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "scheduling"
+    },
+    {
+      "id": "so:sche:51",
+      "document_id": "doc-so-planificacion",
+      "source_id": "src-so-planificacion",
+      "content": "tensos, que por lo general realizan su trabajo y se bloquean con rapidez. La diferencia con los\nsistemas interactivos es que los sistemas de tiempo real sólo ejecutan programas destinados para\nampliar la aplicación en cuestión. Los sistemas interactivos son de propósito general y pueden eje-\ncutar programas arbitrarios que no sean cooperativos, o incluso malintencionados.",
+      "index": 7,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "scheduling"
+    },
+    {
+      "id": "so:proc:52",
+      "document_id": "doc-so-procesos",
+      "source_id": "src-so-procesos",
+      "content": "2.1.5  Estados de un proceso\nAunque cada proceso es una entidad independiente, con su propio contador de programa y estado\ninterno, a menudo los procesos necesitan interactuar con otros. Un proceso puede generar cierta sa-\nlida que otro proceso utiliza como entrada. En el comando de shell\ncat capitulo1 capitulo2 capitulo3 | grep arbol\nel primer proceso, que ejecuta cat, concatena tres archivos y los envía como salida. El segundo pro-\n",
+      "index": 0,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "processes"
+    },
+    {
+      "id": "so:proc:53",
+      "document_id": "doc-so-procesos",
+      "source_id": "src-so-procesos",
+      "content": "ceso, que ejecuta grep, selecciona todas las líneas que contengan la palabra “arbol”. Dependiendo\nde la velocidad relativa de los dos procesos (que dependen tanto de la complejidad relativa de los\nprogramas, como de cuánto tiempo ha tenido cada uno la CPU), puede ocurrir que grep esté listo\npara ejecutarse, pero que no haya una entrada esperándolo. Entonces debe bloquear hasta que haya\nuna entrada disponible.\n",
+      "index": 1,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "processes"
+    },
+    {
+      "id": "so:proc:54",
+      "document_id": "doc-so-procesos",
+      "source_id": "src-so-procesos",
+      "content": "una entrada disponible.\nCuando un proceso se bloquea, lo hace debido a que por lógica no puede continuar, común-\nmente porque está esperando una entrada que todavía no está disponible. También es posible que\nun proceso, que esté listo en concepto y pueda ejecutarse, se detenga debido a que el sistema ope-\nrativo ha decidido asignar la CPU a otro proceso por cierto tiempo. Estas dos condiciones son com-\n",
+      "index": 2,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "processes"
+    },
+    {
+      "id": "so:proc:55",
+      "document_id": "doc-so-procesos",
+      "source_id": "src-so-procesos",
+      "content": "pletamente distintas. En el primer caso, la suspensión está inherente en el problema (no se puede\nprocesar la línea de comandos del usuario sino hasta que éste la haya escrito mediante el teclado).\nEn el segundo caso, es un tecnicismo del sistema (no hay suficientes CPUs como para otorgar a ca-\nda proceso su propio procesador privado). En la figura 2-2 podemos ver un diagrama de estados que\n",
+      "index": 3,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "processes"
+    },
+    {
+      "id": "so:proc:56",
+      "document_id": "doc-so-procesos",
+      "source_id": "src-so-procesos",
+      "content": "muestra los tres estados en los que se puede encontrar un proceso:\n1. En ejecución (en realidad está usando la CPU en ese instante).\n2. Listo (ejecutable; se detuvo temporalmente para dejar que se ejecute otro proceso).\n3. Bloqueado (no puede ejecutarse sino hasta que ocurra cierto evento externo).\nEn sentido lógico, los primeros dos estados son similares. En ambos casos el proceso está deseoso\n",
+      "index": 4,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "processes"
+    },
+    {
+      "id": "so:proc:57",
+      "document_id": "doc-so-procesos",
+      "source_id": "src-so-procesos",
+      "content": "de ejecutarse; sólo en el segundo no hay temporalmente una CPU para él. El tercer estado es dis-\ntinto de los primeros dos en cuanto a que el proceso no se puede ejecutar, incluso aunque la CPU\nno tenga nada que hacer.\n90 PROCESOS E HILOS CAPÍTULO 2\n12 3\n4Bloqueado\nEn ejecución\nListo\n1. El proceso se bloquea para recibir entrada\n2. El planificador selecciona otro proceso\n3. El planificador selecciona este proceso\n4. La entrada ya está disponible\n",
+      "index": 5,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "processes"
+    },
+    {
+      "id": "so:proc:58",
+      "document_id": "doc-so-procesos",
+      "source_id": "src-so-procesos",
+      "content": "4. La entrada ya está disponible\nFigura 2-2. Un proceso puede encontrarse en estado “en ejecución”, “bloqueado” o\n“listo”. Las transiciones entre estos estados son como se muestran.\nHay cuatro transiciones posibles entre estos tres estados, como se indica. La transición 1 ocurre\ncuando el sistema operativo descubre que un proceso no puede continuar justo en ese momento. En",
+      "index": 6,
+      "page_start": null,
+      "page_end": null,
+      "notebook_id": "fadena-so",
+      "topic": "processes"
+    }
+  ]
+}

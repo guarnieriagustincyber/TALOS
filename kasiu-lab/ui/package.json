@@ -1,0 +1,39 @@
+{
+  "name": "kasiu-ui",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "scripts": {
+    "tailwind": "./bin/tailwindcss -i ./src/styles/input.css -o ./src/styles/tactical.css",
+    "tailwind:watch": "./bin/tailwindcss -i ./src/styles/input.css -o ./src/styles/tactical.css --watch",
+    "dev": "./bin/tailwindcss -i ./src/styles/input.css -o ./src/styles/tactical.css && vite",
+    "build": "./bin/tailwindcss -i ./src/styles/input.css -o ./src/styles/tactical.css --minify && tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "5.66.11",
+    "katex": "^0.18.7",
+    "lucide-react": "0.475.0",
+    "mermaid": "^11.17.2",
+    "prismjs": "^1.30.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "zustand": "5.0.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.20",
+    "@types/katex": "^0.16.8",
+    "@types/prismjs": "^1.26.6",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "@vitejs/plugin-react": "4.3.4",
+    "jsdom": "^29.1.1",
+    "typescript": "5.7.3",
+    "vite": "6.1.1"
+  }
+}

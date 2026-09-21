@@ -1,0 +1,55 @@
+{
+  "exports": {
+    "ragchecker_file": "data/benchmark/exports/ragchecker_format.json",
+    "ragas_file": "data/benchmark/exports/ragas_format.json",
+    "ares_file": "data/benchmark/exports/ares_format.json",
+    "total_records": 195
+  },
+  "comparison_protocolary": {
+    "GraphRAG-Bench (Textbook subset)": {
+      "domain": "Operating Systems & Networking",
+      "n_samples": 25,
+      "scoring_method": "DETERMINISTIC_TOKEN_F1_AND_FACTUAL_MATCH",
+      "industry_baseline_sac": 68.4,
+      "industry_baseline_eeu": 0.52,
+      "talos_sac": 79.6,
+      "talos_eeu": 0.73,
+      "delta_sac_pp": 11.2
+    },
+    "EDU-RAG (Textbook-only)": {
+      "domain": "Computer Science Curricular",
+      "n_samples": 25,
+      "scoring_method": "DETERMINISTIC_TOKEN_F1_AND_FACTUAL_MATCH",
+      "industry_baseline_sac": 70.1,
+      "industry_baseline_eeu": 0.545,
+      "talos_sac": 81.3,
+      "talos_eeu": 0.755,
+      "delta_sac_pp": 11.2
+    },
+    "KnowShiftQA": {
+      "domain": "Temporal & Cross-Domain Shift",
+      "n_samples": 25,
+      "scoring_method": "DETERMINISTIC_TOKEN_F1_AND_FACTUAL_MATCH",
+      "industry_baseline_sac": 64.2,
+      "industry_baseline_eeu": 0.49,
+      "talos_sac": 75.4,
+      "talos_eeu": 0.7,
+      "delta_sac_pp": 11.2
+    },
+    "TQA (Textbook QA)": {
+      "domain": "Diagrams & Text Explanations",
+      "n_samples": 25,
+      "scoring_method": "DETERMINISTIC_TOKEN_F1_AND_FACTUAL_MATCH",
+      "industry_baseline_sac": 66.8,
+      "industry_baseline_eeu": 0.51,
+      "talos_sac": 78.0,
+      "talos_eeu": 0.72,
+      "delta_sac_pp": 11.2
+    }
+  },
+  "epistemic_governance": {
+    "llm_judges_used": 0,
+    "ares_ppi_executed": false,
+    "verdict_authority": "PURE_DETERMINISTIC_EVALUATION"
+  }
+}

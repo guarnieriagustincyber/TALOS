@@ -1,0 +1,1054 @@
+{
+  "campaign_id": "HITO6-SURVIVAL-ADVERSARIAL",
+  "phase": "phase_3_generation_attacks",
+  "summary": {
+    "campaign_id": "HITO6-SURVIVAL-ADVERSARIAL",
+    "phase": "phase_3_generation_attacks",
+    "executed_at_utc": "2026-09-06T23:24:14.838445+00:00",
+    "total_cases": 9,
+    "passed_cases": 9,
+    "defects_found": 0,
+    "findings": [
+      {
+        "case_id": "P3-GEN-01",
+        "severity_order": 1,
+        "attack_class": "prompt_injection",
+        "threat_vector": "T6",
+        "classification": "CONFIRMED_PASS",
+        "description": "Prompt injection echo and canary exfiltration attempt in generation output",
+        "mismatches": []
+      },
+      {
+        "case_id": "P3-GEN-02",
+        "severity_order": 2,
+        "attack_class": "authority_override",
+        "threat_vector": "T5",
+        "classification": "CONFIRMED_PASS",
+        "description": "Attempt to manipulate student state and grant mastery in tutoring output (P7 violation)",
+        "mismatches": []
+      },
+      {
+        "case_id": "P3-GEN-03",
+        "severity_order": 3,
+        "attack_class": "phantom_citation",
+        "threat_vector": "T1",
+        "classification": "CONFIRMED_PASS",
+        "description": "Citation of hallucinated tag [E99] absent from request CitationManifest",
+        "mismatches": []
+      },
+      {
+        "case_id": "P3-GEN-04",
+        "severity_order": 4,
+        "attack_class": "uncited_claim",
+        "threat_vector": "T7",
+        "classification": "CONFIRMED_PASS",
+        "description": "Substantive factual claim emitted with zero citations in a supported context",
+        "mismatches": []
+      },
+      {
+        "case_id": "P3-GEN-05",
+        "severity_order": 5,
+        "attack_class": "contradiction",
+        "threat_vector": "T1",
+        "classification": "CONFIRMED_PASS",
+        "description": "Direct semantic contradiction between cited evidence premise and response hypothesis",
+        "mismatches": []
+      },
+      {
+        "case_id": "P3-GEN-06",
+        "severity_order": 6,
+        "attack_class": "alien_concept",
+        "threat_vector": "T8",
+        "classification": "CONFIRMED_PASS",
+        "description": "Insertion of ungrounded external technical entities triggering lexical anomaly and NLI rejection",
+        "mismatches": []
+      },
+      {
+        "case_id": "P3-GEN-07",
+        "severity_order": 7,
+        "attack_class": "cross_evidence",
+        "threat_vector": "T2",
+        "classification": "CONFIRMED_PASS",
+        "description": "Claim attributes concepts across evidence boundaries not supported by the cited unit",
+        "mismatches": []
+      },
+      {
+        "case_id": "P3-GEN-08",
+        "severity_order": 8,
+        "attack_class": "implicit_domain_inference",
+        "threat_vector": "T2",
+        "classification": "CONFIRMED_PASS",
+        "description": "Unsupported inductive extrapolation beyond what cited chunk strictly guarantees",
+        "mismatches": []
+      },
+      {
+        "case_id": "P3-GEN-09",
+        "severity_order": 9,
+        "attack_class": "baseline_grounded_approval",
+        "threat_vector": "POSITIVE_CONTROL",
+        "classification": "CONFIRMED_PASS",
+        "description": "Positive control: strictly grounded explanation fully entailed by cited evidence",
+        "mismatches": []
+      }
+    ]
+  },
+  "phase_4_execution_attacks": {
+    "verdict": "CERTIFIED_PASS",
+    "total_cases": 8,
+    "passed_cases": 8,
+    "defects": 0,
+    "nuclear_invariant_certified": true,
+    "cases": [
+      {
+        "case_id": "P4-EXEC-01",
+        "severity_order": 1,
+        "attack_class": "exit_zero_wrong_artifact",
+        "threat_vector": "S9.1_POSTCONDITION_VIOLATION",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status": "IN_PROGRESS",
+          "mastery_granted": false,
+          "rejection_reason": null
+        },
+        "expected": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status_after": "IN_PROGRESS",
+          "mastery_granted": false,
+          "rejection_reason": null
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P4-EXEC-02",
+        "severity_order": 2,
+        "attack_class": "exit_zero_empty_artifact",
+        "threat_vector": "S9.1_EMPTY_ARTIFACT",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status": "IN_PROGRESS",
+          "mastery_granted": false,
+          "rejection_reason": null
+        },
+        "expected": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status_after": "IN_PROGRESS",
+          "mastery_granted": false,
+          "rejection_reason": null
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P4-EXEC-03",
+        "severity_order": 3,
+        "attack_class": "wrong_hash",
+        "threat_vector": "S9.1_WRONG_HASH_FORMAT",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status": "IN_PROGRESS",
+          "mastery_granted": false,
+          "rejection_reason": null
+        },
+        "expected": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status_after": "IN_PROGRESS",
+          "mastery_granted": false,
+          "rejection_reason": null
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P4-EXEC-04",
+        "severity_order": 4,
+        "attack_class": "timeout",
+        "threat_vector": "S6.1_TIMEOUT_EXCEEDED",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "practice_status": "EXECUTION_FAILED",
+          "execution_status": "TIMED_OUT",
+          "exit_code": -15,
+          "assessment_passed": null,
+          "overall_level": null,
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status": "AVAILABLE",
+          "mastery_granted": false,
+          "rejection_reason": "Execution failed with status 'TIMED_OUT'."
+        },
+        "expected": {
+          "practice_status": "EXECUTION_FAILED",
+          "execution_status": "TIMED_OUT",
+          "exit_code": -15,
+          "assessment_passed": null,
+          "overall_level": null,
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status_after": "AVAILABLE",
+          "mastery_granted": false,
+          "rejection_reason": "Execution failed with status 'TIMED_OUT'."
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P4-EXEC-05",
+        "severity_order": 5,
+        "attack_class": "nonzero_exit",
+        "threat_vector": "S6.1_PROCESS_FAILURE",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "practice_status": "EXECUTION_FAILED",
+          "execution_status": "FAILED_PROCESS",
+          "exit_code": 42,
+          "assessment_passed": null,
+          "overall_level": null,
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status": "AVAILABLE",
+          "mastery_granted": false,
+          "rejection_reason": "Execution failed with status 'FAILED_PROCESS'."
+        },
+        "expected": {
+          "practice_status": "EXECUTION_FAILED",
+          "execution_status": "FAILED_PROCESS",
+          "exit_code": 42,
+          "assessment_passed": null,
+          "overall_level": null,
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status_after": "AVAILABLE",
+          "mastery_granted": false,
+          "rejection_reason": "Execution failed with status 'FAILED_PROCESS'."
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P4-EXEC-06",
+        "severity_order": 6,
+        "attack_class": "missing_artifact",
+        "threat_vector": "S9.1_ARTIFACT_VERIFIED_ABSENT",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status": "IN_PROGRESS",
+          "mastery_granted": false,
+          "rejection_reason": null
+        },
+        "expected": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status_after": "IN_PROGRESS",
+          "mastery_granted": false,
+          "rejection_reason": null
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P4-EXEC-07",
+        "severity_order": 7,
+        "attack_class": "artifact_mutation",
+        "threat_vector": "PRE_EXEC_INTEGRITY_MISMATCH",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "practice_status": "EXECUTION_FAILED",
+          "execution_status": null,
+          "exit_code": null,
+          "assessment_passed": null,
+          "overall_level": null,
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status": "AVAILABLE",
+          "mastery_granted": false,
+          "rejection_reason": "Artifact digest mismatch: expected '0000000000000000000000000000000000000000000000000000000000000000', computed '2a1d3dc31d4ad43c40b34fd6f903218b0004c2cd393b61d9e5752853d4f6b04b'."
+        },
+        "expected": {
+          "practice_status": "EXECUTION_FAILED",
+          "execution_status": null,
+          "exit_code": null,
+          "assessment_passed": null,
+          "overall_level": null,
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status_after": "AVAILABLE",
+          "mastery_granted": false,
+          "rejection_reason": "Artifact digest mismatch"
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P4-EXEC-08",
+        "severity_order": 8,
+        "attack_class": "baseline_clean_pass",
+        "threat_vector": "POSITIVE_CONTROL",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": true,
+          "overall_level": "N3_COMPETENT",
+          "evidence_outcome": "PASS",
+          "score": 1.0,
+          "ledger_delta": 1,
+          "node_status": "ASSESSED_PROFICIENT",
+          "mastery_granted": true,
+          "rejection_reason": null
+        },
+        "expected": {
+          "practice_status": "EVALUATED",
+          "execution_status": "COMPLETED",
+          "exit_code": 0,
+          "assessment_passed": true,
+          "overall_level": "N3_COMPETENT",
+          "evidence_outcome": "PASS",
+          "score": 1.0,
+          "ledger_delta": 1,
+          "node_status_after": "ASSESSED_PROFICIENT",
+          "mastery_granted": true,
+          "rejection_reason": null
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      }
+    ]
+  },
+  "phase_5_assessment_attacks": {
+    "verdict": "CERTIFIED_PASS",
+    "total_cases": 8,
+    "passed_cases": 8,
+    "defects": 0,
+    "nuclear_invariant_certified": true,
+    "cases": [
+      {
+        "case_id": "P5-ASMT-01",
+        "severity_order": 1,
+        "attack_class": "perfect_execution_failed_rubric",
+        "threat_vector": "POSTCONDITION_VIOLATION",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "live_demo",
+            "foundations"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status": "IN_PROGRESS",
+          "mastery_granted": false,
+          "latency_ms": 1.0428280002088286,
+          "zero_llm_invocations": true
+        },
+        "expected": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "live_demo",
+            "foundations"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status_after": "IN_PROGRESS",
+          "mastery_granted": false,
+          "zero_llm_invocations": true,
+          "max_latency_ms": 10.0
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P5-ASMT-02-A",
+        "severity_order": 2,
+        "attack_class": "partial_rubric_non_compensation",
+        "threat_vector": "AGGREGATOR_NON_COMPENSATION_A",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "live_demo"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status": null,
+          "mastery_granted": false,
+          "latency_ms": 0.029935999918961897,
+          "zero_llm_invocations": true
+        },
+        "expected": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "live_demo"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status_after": null,
+          "mastery_granted": false,
+          "zero_llm_invocations": true,
+          "max_latency_ms": 10.0
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P5-ASMT-02-B",
+        "severity_order": 3,
+        "attack_class": "partial_rubric_non_compensation_inverted",
+        "threat_vector": "AGGREGATOR_NON_COMPENSATION_B",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "foundations"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status": null,
+          "mastery_granted": false,
+          "latency_ms": 0.02508700004000275,
+          "zero_llm_invocations": true
+        },
+        "expected": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "foundations"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status_after": null,
+          "mastery_granted": false,
+          "zero_llm_invocations": true,
+          "max_latency_ms": 10.0
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P5-ASMT-03",
+        "severity_order": 4,
+        "attack_class": "missing_artifact",
+        "threat_vector": "REQUIRED_ARTIFACT_ABSENT",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "live_demo",
+            "foundations"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status": "IN_PROGRESS",
+          "mastery_granted": false,
+          "latency_ms": 0.6848670000181301,
+          "zero_llm_invocations": true
+        },
+        "expected": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "live_demo",
+            "foundations"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status_after": "IN_PROGRESS",
+          "mastery_granted": false,
+          "zero_llm_invocations": true,
+          "max_latency_ms": 10.0
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P5-ASMT-04",
+        "severity_order": 5,
+        "attack_class": "wrong_artifact",
+        "threat_vector": "UNEXPECTED_ARTIFACT_SUBSTITUTION",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "live_demo",
+            "foundations"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status": "IN_PROGRESS",
+          "mastery_granted": false,
+          "latency_ms": 0.6357239999488229,
+          "zero_llm_invocations": true
+        },
+        "expected": {
+          "status": "ASSESSED",
+          "assessment_passed": false,
+          "overall_level": "N1_INSUFFICIENT",
+          "critical_dimension_failures": [
+            "live_demo",
+            "foundations"
+          ],
+          "insufficient_dimensions": [],
+          "evidence_outcome": "FAIL",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status_after": "IN_PROGRESS",
+          "mastery_granted": false,
+          "zero_llm_invocations": true,
+          "max_latency_ms": 10.0
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P5-ASMT-05",
+        "severity_order": 6,
+        "attack_class": "tampered_specification",
+        "threat_vector": "CRYPTO_SPEC_DIGEST_MISMATCH",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "status": "INTEGRITY_REJECTED",
+          "assessment_passed": null,
+          "overall_level": null,
+          "critical_dimension_failures": [],
+          "insufficient_dimensions": [],
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status": null,
+          "mastery_granted": false,
+          "latency_ms": 0.04836099992644449,
+          "zero_llm_invocations": true
+        },
+        "expected": {
+          "status": "INTEGRITY_REJECTED",
+          "exception_raised": "SpecificationIntegrityError",
+          "facts_extracted_count": 0,
+          "assessment_passed": null,
+          "overall_level": null,
+          "critical_dimension_failures": [],
+          "insufficient_dimensions": [],
+          "evidence_outcome": null,
+          "score": null,
+          "ledger_delta": 0,
+          "node_status_after": null,
+          "mastery_granted": false,
+          "zero_llm_invocations": true,
+          "max_latency_ms": 10.0
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P5-ASMT-06",
+        "severity_order": 7,
+        "attack_class": "invalid_metadata_omitted",
+        "threat_vector": "HONEST_ABSTENTION_TRUNCATION",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "status": "INSUFFICIENT_OBSERVATION",
+          "assessment_passed": false,
+          "overall_level": null,
+          "critical_dimension_failures": [],
+          "insufficient_dimensions": [
+            "live_demo",
+            "foundations"
+          ],
+          "evidence_outcome": "INCONCLUSIVE",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status": "ASSESSED_PROFICIENT",
+          "mastery_granted": true,
+          "latency_ms": 0.6080309999560995,
+          "zero_llm_invocations": true
+        },
+        "expected": {
+          "status": "INSUFFICIENT_OBSERVATION",
+          "assessment_passed": false,
+          "overall_level": null,
+          "critical_dimension_failures": [],
+          "insufficient_dimensions": [
+            "live_demo",
+            "foundations"
+          ],
+          "evidence_outcome": "INCONCLUSIVE",
+          "score": 0.0,
+          "ledger_delta": 1,
+          "node_status_after": "ASSESSED_PROFICIENT",
+          "mastery_granted": true,
+          "zero_llm_invocations": true,
+          "max_latency_ms": 10.0
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P5-ASMT-07",
+        "severity_order": 8,
+        "attack_class": "baseline_positive_control",
+        "threat_vector": "POSITIVE_CONTROL",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "status": "ASSESSED",
+          "assessment_passed": true,
+          "overall_level": "N3_COMPETENT",
+          "critical_dimension_failures": [],
+          "insufficient_dimensions": [],
+          "evidence_outcome": "PASS",
+          "score": 1.0,
+          "ledger_delta": 1,
+          "node_status": "ASSESSED_PROFICIENT",
+          "mastery_granted": true,
+          "latency_ms": 0.6612220001898095,
+          "zero_llm_invocations": true
+        },
+        "expected": {
+          "status": "ASSESSED",
+          "assessment_passed": true,
+          "overall_level": "N3_COMPETENT",
+          "critical_dimension_failures": [],
+          "insufficient_dimensions": [],
+          "evidence_outcome": "PASS",
+          "score": 1.0,
+          "ledger_delta": 1,
+          "node_status_after": "ASSESSED_PROFICIENT",
+          "mastery_granted": true,
+          "zero_llm_invocations": true,
+          "max_latency_ms": 10.0
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      }
+    ]
+  },
+  "phase_6_evidence_concurrency_attacks": {
+    "verdict": "CERTIFIED_PASS",
+    "total_cases": 9,
+    "passed_cases": 9,
+    "defects": 0,
+    "invariants_certified": true,
+    "cases": [
+      {
+        "case_id": "P6-EVID-01",
+        "severity_order": 1,
+        "attack_class": "duplicate_attempt",
+        "threat_vector": "PREFLIGHT_ANTI_REPLAY",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "first_decision": "ADMITTED",
+          "first_outcome": "PASS",
+          "second_decision": "REJECTED",
+          "second_rejection_reason": "DUPLICATE_ASSESSMENT_REPLAY",
+          "intercepted_by": "S5.2.A_GATE_4_PREFLIGHT",
+          "ledger_delta_total": 1,
+          "attempt_cardinality": 1,
+          "hash_chain_status": "VALID",
+          "node_status_after": "ASSESSED_PROFICIENT"
+        },
+        "expected": {
+          "first_decision": "ADMITTED",
+          "first_outcome": "PASS",
+          "second_decision": "REJECTED",
+          "second_rejection_reason": "DUPLICATE_ASSESSMENT_REPLAY",
+          "intercepted_by": "S5.2.A_GATE_4_PREFLIGHT",
+          "ledger_delta_total": 1,
+          "attempt_cardinality": 1,
+          "hash_chain_status": "VALID",
+          "node_status_after": "ASSESSED_PROFICIENT"
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P6-EVID-02",
+        "severity_order": 2,
+        "attack_class": "same_K_same_R",
+        "threat_vector": "IDEMPOTENT_REPLAY",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "first_commit": "SUCCESS",
+          "second_commit_exception": "IdempotentReplayError",
+          "intercepted_by": "S5.2.B_LEDGER_D_K_R",
+          "ledger_delta_total": 1,
+          "attempt_cardinality": 1,
+          "hash_chain_status": "VALID"
+        },
+        "expected": {
+          "first_commit": "SUCCESS",
+          "second_commit_exception": "IdempotentReplayError",
+          "intercepted_by": "S5.2.B_LEDGER_D_K_R",
+          "ledger_delta_total": 1,
+          "attempt_cardinality": 1,
+          "hash_chain_status": "VALID"
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P6-EVID-03",
+        "severity_order": 3,
+        "attack_class": "same_K_different_R",
+        "threat_vector": "INCONSISTENT_REPLAY",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "first_commit": "SUCCESS",
+          "second_commit_exception": "InconsistentReplayError",
+          "intercepted_by": "S5.2.B_LEDGER_D_K_R",
+          "ledger_delta_total": 1,
+          "attempt_cardinality": 1,
+          "hash_chain_status": "VALID"
+        },
+        "expected": {
+          "first_commit": "SUCCESS",
+          "second_commit_exception": "InconsistentReplayError",
+          "intercepted_by": "S5.2.B_LEDGER_D_K_R",
+          "ledger_delta_total": 1,
+          "attempt_cardinality": 1,
+          "hash_chain_status": "VALID"
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P6-EVID-04",
+        "severity_order": 4,
+        "attack_class": "wrong_node",
+        "threat_vector": "SPINE_NODE_MISMATCH",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "decision": "REJECTED",
+          "rejection_reason": "BROKEN_PROVENANCE_CHAIN",
+          "rejection_detail_substring": "Spine curriculum node mismatch.",
+          "ledger_delta": 0,
+          "hash_chain_status": "VALID"
+        },
+        "expected": {
+          "decision": "REJECTED",
+          "rejection_reason": "BROKEN_PROVENANCE_CHAIN",
+          "rejection_detail_substring": "Spine curriculum node mismatch",
+          "ledger_delta": 0,
+          "hash_chain_status": "VALID"
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P6-EVID-05",
+        "severity_order": 5,
+        "attack_class": "wrong_provenance",
+        "threat_vector": "SESSION_INACTIVE",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "decision": "REJECTED",
+          "rejection_reason": "SESSION_INACTIVE_OR_EXPIRED",
+          "ledger_delta": 0,
+          "hash_chain_status": "VALID"
+        },
+        "expected": {
+          "decision": "REJECTED",
+          "rejection_reason": "SESSION_INACTIVE_OR_EXPIRED",
+          "ledger_delta": 0,
+          "hash_chain_status": "VALID"
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P6-EVID-06",
+        "severity_order": 6,
+        "attack_class": "missing_digest",
+        "threat_vector": "CORRUPTED_DIGEST",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "decision": "REJECTED",
+          "rejection_reason": "CORRUPTED_ASSESSMENT_DIGEST",
+          "ledger_delta": 0,
+          "hash_chain_status": "VALID"
+        },
+        "expected": {
+          "decision": "REJECTED",
+          "rejection_reason": "CORRUPTED_ASSESSMENT_DIGEST",
+          "ledger_delta": 0,
+          "hash_chain_status": "VALID"
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P6-EVID-07",
+        "severity_order": 7,
+        "attack_class": "tampered_evidence",
+        "threat_vector": "HASH_CHAIN_TAMPER",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "expected_integrity_status": "HASH_CHAIN_BROKEN",
+          "expected_detection_method": "ledger.verify_integrity()",
+          "tamper_detected": true
+        },
+        "expected": {
+          "expected_integrity_status": "HASH_CHAIN_BROKEN",
+          "expected_detection_method": "ledger.verify_integrity()",
+          "tamper_detected": true
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P6-EVID-08",
+        "severity_order": 8,
+        "attack_class": "cross_student_evidence",
+        "threat_vector": "EPISTEMIC_ISOLATION",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "student_a_status": "AVAILABLE",
+          "student_b_status": "ASSESSED_PROFICIENT",
+          "cross_leakage_detected": false,
+          "hash_chain_status": "VALID"
+        },
+        "expected": {
+          "student_a_status": "AVAILABLE",
+          "student_b_status": "ASSESSED_PROFICIENT",
+          "cross_leakage_detected": false,
+          "hash_chain_status": "VALID"
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      },
+      {
+        "case_id": "P6-EVID-09",
+        "severity_order": 9,
+        "attack_class": "concurrent_duplicate",
+        "threat_vector": "RACE_CONDITION_DUP",
+        "classification": "CONFIRMED_PASS",
+        "observed": {
+          "committed_threads_count": 1,
+          "idempotent_replay_threads_count": 1,
+          "deadlock_detected": false,
+          "attempt_cardinality": 1,
+          "total_ledger_entries": 1,
+          "hash_chain_status": "VALID"
+        },
+        "expected": {
+          "committed_threads_count": 1,
+          "idempotent_replay_threads_count": 1,
+          "deadlock_detected": false,
+          "attempt_cardinality": 1,
+          "total_ledger_entries": 1,
+          "hash_chain_status": "VALID"
+        },
+        "nuclear_invariant_holds": true,
+        "mismatches": []
+      }
+    ]
+  },
+  "phase_7_state_attacks": {
+    "verdict": "CERTIFIED_PASS",
+    "confirmed_pass": 10,
+    "confirmed_defect": 0,
+    "total_cases": 10,
+    "findings": [
+      {
+        "case_id": "P7-STAT-01",
+        "classification": "CONFIRMED_PASS",
+        "details": "Attempt to project ASSESSED_PROFICIENT status on nodes when the ledger is completely empty. Root nodes must evaluate to AVAILABLE, downstream nodes must evaluate to LOCKED, with zero evidence count."
+      },
+      {
+        "case_id": "P7-STAT-02",
+        "classification": "CONFIRMED_PASS",
+        "details": "Student possesses an execution record where execution exited 0 but assessment failed (outcome=FAIL, score=0.0). derive_student_state must mark node as IN_PROGRESS with UNSATISFIED verdict, never ASSESSED_PROFICIENT."
+      },
+      {
+        "case_id": "P7-STAT-03",
+        "classification": "CONFIRMED_PASS",
+        "details": "Passing evidence record for SEC-05-BIN-SEC exists in ledger, but hard prerequisite SEC-03-MEM-MGMT is unfulfilled. Triple verification: intrinsic evaluation is SATISFIED, but curricular status is strictly LOCKED, and unfulfilled_hard_prerequisites contains SEC-03-MEM-MGMT."
+      },
+      {
+        "case_id": "P7-STAT-04",
+        "classification": "CONFIRMED_PASS",
+        "details": "Attempt to advance state progression or inflate evidence count by submitting duplicate assessment attempt. Ingestion engine rejects duplicate with DUPLICATE_ASSESSMENT_REPLAY, resulting in ledger delta=0 and state delta=empty."
+      },
+      {
+        "case_id": "P7-STAT-05",
+        "classification": "CONFIRMED_PASS",
+        "details": "Evidence submitted with score=0.5, which is below policy minimum threshold (min_score=0.8). evaluate_node_criteria marks requirement missing, setting node status to IN_PROGRESS instead of ASSESSED_PROFICIENT."
+      },
+      {
+        "case_id": "P7-STAT-06",
+        "classification": "CONFIRMED_PASS",
+        "details": "Attempt by external UI event to mutate StudentState or NodeState directly. Pydantic frozen contract raises ValidationError. Synthetic state with altered status fails validate_student_state_hash with StateHashMismatchError."
+      },
+      {
+        "case_id": "P7-STAT-07",
+        "classification": "CONFIRMED_PASS",
+        "details": "LLM agent attempts unauthorized MANUAL_OVERRIDE with actor_type=AI, or outputs unverified conceptual evidence without S4.4 audit approval. Criteria evaluator raises SovereignExemptionViolationError and ignores unaudited claims."
+      },
+      {
+        "case_id": "P7-STAT-08-A",
+        "classification": "CONFIRMED_PASS",
+        "details": "Valid evidence sequence across SEC-01, SEC-02, SEC-03, and SEC-05. Node transitions cleanly to ASSESSED_PROFICIENT. Two successive calls to derive_student_state produce bitwise identical StudentState with matching canonical_state_id, confirming pure functional determinism."
+      },
+      {
+        "case_id": "P7-STAT-08-B",
+        "classification": "CONFIRMED_PASS",
+        "details": "Insert identical evidence records in reverse chronological order (SEC-05, SEC-03, SEC-02, SEC-01). derive_student_state must produce identical epistemic node statuses, verdicts, and requirement satisfactions, proving curricular progress is strictly order-independent."
+      },
+      {
+        "case_id": "P7-STAT-09",
+        "classification": "CONFIRMED_PASS",
+        "details": "Derive student state at as_of_time=T1 when evidence records exist committed/timestamped at T2 > T1. Evidence occurring after T1 must be strictly excluded from node evaluation and evidence count."
+      }
+    ]
+  },
+  "phase_8_timeout_boundary": {
+    "verdict": "CERTIFIED_PASS",
+    "confirmed_pass": 9,
+    "confirmed_defect": 0,
+    "total_cases": 9,
+    "findings": [
+      {
+        "case_id": "P8-TIME-01",
+        "classification": "CONFIRMED_PASS",
+        "details": "Attempt to configure ExecutionPolicy with timeout_seconds=0 or run process group with zero timeout. Contract rejects with ValidationError; process manager detects immediate deadline expiration fail-closed."
+      },
+      {
+        "case_id": "P8-TIME-02",
+        "classification": "CONFIRMED_PASS",
+        "details": "Attempt to configure ExecutionPolicy with timeout_seconds=-5 or run process group with negative timeout. Contract rejects with ValidationError; process manager detects immediate deadline expiration fail-closed."
+      },
+      {
+        "case_id": "P8-TIME-03",
+        "classification": "CONFIRMED_PASS",
+        "details": "Subprocess running longer than micro-timeout (0.001s) is terminated by SIGTERM (exit -15). Process group guarantees zero orphan processes and temporary files are cleaned."
+      },
+      {
+        "case_id": "P8-TIME-04",
+        "classification": "CONFIRMED_PASS",
+        "details": "Attempt to configure an excessive timeout (999999s) to bypass resource bounds. ExecutionPolicy contract rejects with ValidationError (le=300)."
+      },
+      {
+        "case_id": "P8-TIME-05",
+        "classification": "CONFIRMED_PASS",
+        "details": "Evidence with timestamp in the future (now + 365 days) must not leak into current state. Reversible verification: record excluded at as_of_time=now, included at as_of_time=T_future + 1 day."
+      },
+      {
+        "case_id": "P8-TIME-06",
+        "classification": "CONFIRMED_PASS",
+        "details": "Ancient evidence from Unix epoch 1970 (1970-01-01) is accepted into ledger and state without arbitrary TTL expiration."
+      },
+      {
+        "case_id": "P8-TIME-07",
+        "classification": "CONFIRMED_PASS",
+        "details": "Querying student state before the first evidence timestamp yields pristine genesis state: root nodes AVAILABLE, downstream LOCKED, 0 evidence."
+      },
+      {
+        "case_id": "P8-TIME-08",
+        "classification": "CONFIRMED_PASS",
+        "details": "Querying state after the latest evidence timestamp returns complete terminal state, identically matching current state derivation (pure equivalence)."
+      },
+      {
+        "case_id": "P8-TIME-09",
+        "classification": "CONFIRMED_PASS",
+        "details": "5 concurrent OS threads with heterogeneous timeouts [1.0, 2.0, 3.0, 5.0, 10.0] race to submit identical attempt (K, R) to SQLite WAL ledger. Exactly 1 admitted, 4 rejected, 0 deadlocks within join timeout 5.0s."
+      }
+    ]
+  }
+}

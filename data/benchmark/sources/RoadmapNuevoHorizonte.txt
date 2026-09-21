@@ -1,0 +1,199 @@
+
+# ROADMAP KASIU TECH — v4 Definitiva (AI-Integrated)
+**Tipo de documento:** Mapa del dominio (norte estratégico). NO es el plan operativo diario.
+**Plan operativo real:** Roadmap consolidado Fase 0 + Materias FADENA.
+**Horizonte realista:** Tronco común 3–4 años; Fases 4–5 sin fecha (horizonte abierto).
+**Regla de versión:** El mapa se ajusta entre fases, nunca en el medio.
+
+## PRINCIPIOS RECTORES
+1. **Deterministic code first. AI second.** Todo lo que pueda resolverse de forma determinista se resuelve así. La IA entra donde aporta: interpretación, correlación, clasificación, contextualización.
+2. **Ningún flujo asistido por IA es válido sin una línea base determinista y evidencia verificable por un humano.**
+3. **Every AI claim must be traceable to evidence.** Cada afirmación, clasificación o hipótesis generada por la IA debe estar vinculada explícitamente a los datos o logs que la originaron.
+4. **Human-in-the-loop siempre.** La IA recomienda; el humano aprueba, ejecuta y verifica.
+5. **Finding ≠ Security.** Un hallazgo solo vale si termina en validación → corrección → prueba → verificación.
+6. **AI integration ≠ curriculum explosion.** La IA aparece dentro de cada fase, no como materia paralela.
+
+## FILOSOFÍA DEL GATEWAY (Regla de Avance)
+> **El Gateway no certifica que estudiaste. Certifica que podés demostrar una capacidad.**
+
+El tipo de demostración escala con la fase:
+| Fase | Tipo de demostración exigida |
+|---|---|
+| **Fase 0-1** | Ejercicio con oráculos verdes + pseudocódigo + código. |
+| **Fase 1.5** | Modelo documentado + verificación de integridad/criptografía. |
+| **Fase 2A+** | Proyecto público con pipeline, métricas (Baseline Delta) y evidencia reproducible. |
+
+---
+
+## ARQUITECTURA DE DECISIÓN AI (AI Task Selection)
+Antes de integrar IA en cualquier proyecto, se debe pasar por este árbol de decisión:
+1. **¿La tarea es determinista?** → SÍ: Código Python. (FIN)
+2. **¿Necesita interpretación lingüística o de contexto?** → SÍ: LLM.
+3. **¿Necesita conocimiento externo específico (ATT&CK, Playbooks, CVEs)?** → SÍ: RAG.
+4. **¿Necesita interactuar con herramientas o APIs externas?** → SÍ: Tool Calling.
+5. **¿Necesita tomar acciones o ejecutar flujos multi-paso?** → SÍ: Agent + Human Approval.
+
+---
+
+## ESCALERA DE COMPETENCIA AI (Transversal y Progresiva)
+
+| Nivel | Nombre | Contenido | Aparece en |
+|---|---|---|---|
+| **AI-0** | AI Literacy | LLMs, tokens, contexto, alucinaciones, structured output, límites, prompt injection, data leakage. | Fase 0 |
+| **AI-1** | AI-Assisted Analysis | Código determinista detecta, IA contextualiza/clasifica. Práctica comparativa (Manual vs Python vs Python+IA). | Fase 0–1 |
+| **AI-2** | AI Engineering | APIs, JSON, structured output, validación de outputs, LLM Provider Abstraction. | Fase 1–2A |
+| **AI-3** | RAG + Security Knowledge | Corpus (ATT&CK, Sigma, advisories), retriever, LLM con fuentes citadas. | Fase 2A–2C |
+| **AI-4** | Agents | Colecta de contexto, hipótesis, recomendación. **Freno:** Solo sobre pipelines deterministas sólidos. Cero acciones destructivas sin aprobación explícita. | Fase 2B–3 |
+| **AI-5** | Autonomous Systems | Orquestación multi-agente, remediación automatizada con HITL, AI SOC. | Fase 4–5 |
+
+*Evolución del dominio:* Security **WITH** AI (usar IA para defender) → Security **OF** AI (proteger los sistemas de IA) → Security **FOR** AI (infraestructura segura para IA).
+
+---
+
+## FASE 0 — PROGRAMACIÓN Y FUNDAMENTOS
+**T0.1** Metodología, lógica y control de flujo.
+**T0.2** Estructuras, algoritmos y fundamentos de detección (EDD, Big O, Patrones, Streams).
+
+**+ CAPA IA (AI-0 y AI-1):**
+- Práctica comparativa: resolver el mismo problema (a) manualmente, (b) en Python, (c) Python + IA. Justificar qué parte debe quedar determinista.
+- IA como generador de casos adversariales ("ronda roja") y revisor de código.
+
+**Gateway 0:** Implementar EDD; justificar Big O; procesar un stream. **+ Comparar solución determinista vs asistida por IA y justificar la arquitectura.**
+**🎓 Certificación:** Cisco NetAcad (Python Essentials 1 & 2).
+
+## FASE 1 — REPRESENTACIÓN, PROTOCOLOS Y SISTEMAS
+**T1.1** Bajo nivel (Bases, memoria, serialización).
+**T1.2** Redes y parsing (OSI, TCP/IP, DNS, HTTP).
+**T1.3** Correo y Phishing (SMTP, SPF/DKIM/DMARC).
+**T1.4** Parsing de paquetes.
+**T1.5** Linux (Filesystem, permisos, bash, logging).
+**T1.6** Networking operacional (Subnetting, sockets, firewalls).
+**T1.7** Windows y AD.
+
+**+ CAPA IA (AI-1 y AI-2):**
+- IA interpreta PCAPs y genera hipótesis. **La evidencia sigue siendo tcpdump/Wireshark/Scapy.**
+- Primera mini-API con *LLM Provider Abstraction* (interfaz que permita cambiar entre OpenAI, Anthropic, Local).
+- Proyecto **F1-AI Network Analyst**: PCAP → Scapy → JSON → IA → ATT&CK → Verificación humana.
+
+**Gateway 1:** Parsing binario, sockets, scripting. **+ Reporte de análisis de red asistido por IA con evidencia trazable.**
+**🎓 Certificaciones:** (ISC)² CC + Fortinet NSE 1-3.
+
+## FASE 1.5 — THREAT MODELING Y CRIPTOGRAFÍA
+**T1.5A** Threat Modeling (STRIDE, DFD, trust boundaries).
+**T1.5B** Criptografía (Hashes, AES, HMAC, RSA, TLS, entropía).
+
+**+ CAPA IA (AI-2):**
+- AI Threat Modeling Assistant. Medir **AI findings vs expert-validated findings** (AI Evaluation).
+- Regla: La IA es tutor/revisor; **nunca autoridad matemática** en cripto.
+
+**Gateway 1.5:** Modelar con STRIDE; verificar integridad. **+ Evaluar críticamente amenazas propuestas por IA y descartar alucinaciones.**
+**🎓 Certificación:** Microsoft SC-900.
+
+## FASE 2A — SIEM, DETECCIÓN E IDS/IPS
+**T2A.1** SIEM (Wazuh).
+**T2A.2** Detection Engineering (Reglas, tuning, FP/FN).
+**T2A.3** Suricata.
+**T2A.4** ATT&CK.
+**T2A.5** Threat Hunting.
+
+**+ CAPA IA (AI-2 y AI-3) — T2A.6 AI-Assisted Detection:**
+- LLM-assisted Sigma rule creation, alert summarization, detection tuning.
+- Proyecto **AI Detection Engineer**: Logs → Parser → Alert → IA (Explain + ATT&CK) → Human validation.
+- **Detection Coverage Assistant**: Detecciones + Telemetría + ATT&CK → Gaps de cobertura.
+
+**Gateway 2A:** Home lab Wazuh+Suricata; 3 detecciones mapeadas. **+ Una detección generada con IA, validada y documentada con Baseline Delta.**
+**🎓 Certificaciones:** Splunk Fundamentals 1 + Qualys VM.
+
+## FASE 2B — INCIDENT RESPONSE Y FORENSE
+**T2B.1** IR (Ciclo, triage).
+**T2B.2** Contención.
+**T2B.3** Erradicación/recuperación.
+**T2B.4** Forense (Memoria, disco, timelines).
+**T2B.5** Forense de red.
+**T2B.6** SOAR.
+**T2B.7** Playbook Phishing/BEC.
+
+**+ CAPA IA (AI-3 y AI-4):**
+- AI Incident Triage. Formato obligatorio: *"Evidencia consistente con X. Confianza: Y. Falta verificar Z."*
+- Forense: **La evidencia original (hash, read-only) jamás es modificada por la IA.**
+
+**Gateway 2B:** Triage completo; informe con cadena de custodia. **+ Triage asistido por IA con confidence y evidencia explícitas.**
+**🎓 Certificación:** BTL1.
+
+## FASE 2C — THREAT INTELLIGENCE
+**T2C.1-3** Ciclo, Diamond Model, Pirámide del Dolor.
+**T2C.4-7** IOC management, MISP, STIX/TAXII.
+
+**+ CAPA IA (AI-3):**
+- Pipeline: Feed → Normalize → Enrich → AI analysis → ATT&CK.
+- Proyecto **AI CTI Analyst**: Reporte → Executive summary + TTPs + fuentes citadas (RAG).
+
+**Gateway 2C:** Ingerir feed, enriquecer, propagar. **+ CTI brief generado con IA, validado contra fuentes y con decaimiento (decay) calculado.**
+
+## FASE 3 — ESPECIALIZACIÓN (Elegir UN track)
+**Track A — Cloud/DevSecOps:** AWS, IAM, Terraform, IaC, K8s, eBPF.
+**Track B — Malware/RE:** x86/x64, PE/ELF, Ghidra, YARA, Purple Team.
+
+**+ CAPA IA (AI-3 y AI-4) — AI Security Engineering:**
+- **Track A:** IaC scanner → AI remediation → test → PR → HITL.
+- **Track B:** Sample → Sandbox → AI-assisted analysis → ATT&CK.
+- **AI AppSec:** Repo vulnerable → SAST → AI hypothesis → patch → test → verification.
+
+**Gateway 3:** Capstone del track. **+ El capstone debe incluir un flujo asistido por IA con validación humana documentada.**
+
+## FASE 4 — ARQUITECTURA Y SENIORITY
+Security architecture, detection architecture, adversary emulation.
+**+ CAPA IA:** AI Security Architecture (diseño de sistemas gobernanles, auditables y seguros).
+
+## FASE 5 — ESPECIALIZACIÓN AVANZADA
+**+ CAPA IA (AI-5):** Autonomous defensive systems, multi-agent SOC, AI red/blue teaming, Security OF/FOR AI.
+
+---
+
+## AI GOVERNANCE (11 Controles Obligatorios)
+Todo proyecto con IA debe documentar en su README:
+1. **Scope:** ¿Qué sistemas puede analizar?
+2. **Authorization:** ¿Quién autorizó el análisis?
+3. **Identity:** ¿Con qué identidad ejecuta?
+4. **Least privilege:** ¿Qué permisos mínimos tiene?
+5. **Data policy:** ¿Qué información puede enviarse al modelo (Cloud vs Local)?
+6. **Logging:** ¿Qué hizo el sistema?
+7. **Human approval:** ¿Qué acciones requieren aprobación?
+8. **Rollback:** ¿Cómo se revierte una acción?
+9. **Evaluation:** ¿Cómo se sabe que la IA funciona?
+10. **Failure mode:** ¿Qué pasa cuando se equivoca?
+11. **Auditability:** ¿Podemos reconstruir exactamente qué ocurrió?
+
+---
+
+## SISTEMA DE EVALUACIÓN Y MÉTRICAS
+**5 Ejes de Evaluación por Proyecto:**
+1. Technical correctness | 2. Security correctness | 3. AI quality | 4. Evidence traceability | 5. Human judgment.
+
+**Métricas AI:**
+- AI precision / AI acceptance rate / AI false-positive rate.
+- Time saved / Evidence coverage / Automation safety.
+- **Baseline Delta:** ¿La IA realmente mejora el sistema respecto a no usar IA? (Ej: Humano = 15 min/alerta vs Humano+IA = 8 min/alerta).
+
+---
+
+## HILOS TRANSVERSALES (Nunca se cierran)
+Python, Bash, PowerShell, Git, Linux, Windows, networking, HTTP/DNS/SMTP, SQL, regex, JSON, APIs, debugging, logs, testing, documentación, ATT&CK, redacción técnica.
+**+ AI Engineering:** LLM APIs, structured outputs, tool calling, RAG, evaluation, prompt engineering, agent architecture, AI security, observability.
+**+ LLM Provider Abstraction:** Diseño de interfaces para no atar proyectos a un solo vendor (OpenAI/Anthropic/Local).
+**+ Cloud vs Local vs Hybrid AI:** Criterios de privacidad para decidir dónde se procesan los datos sensibles.
+
+---
+
+## PORTFOLIO PROGRESIVO
+**Regla de oro:** AI-assisted ≠ AI-generated. El portfolio debe demostrar ingeniería de seguridad donde la IA está sometida a controles, no reemplaza al analista.
+**Secuencia estricta (reutilizando componentes):**
+1. `python-security-foundations` (Parsers, EDD, detectores).
+2. `ai-log-triage` (Parser + LLM + ATT&CK + HITL).
+3. `ai-soc-lab` (Wazuh + Suricata + AI Triage).
+4. `ai-threat-intelligence` (MISP + RAG + CTI).
+5. `ai-dfir-lab` (Memoria/Disco + AI Investigation).
+6. `ai-vulnerability-lab` (SAST + AI Patching + Testing).
+
+## CAPSTONE FINAL
+**KASIU AI DEFENSIVE SOC:** Integración de SecOps (Telemetría → SIEM → AI Triage → Hunt → Response) y Security Engineering (Source Code → AI Analysis → Patch → Verification).

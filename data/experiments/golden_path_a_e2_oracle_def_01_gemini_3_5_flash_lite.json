@@ -1,0 +1,133 @@
+{
+  "scenario_id": "BENCHMARK-ORACLE-DEF-01",
+  "scenario_version": "1.0.0",
+  "timestamp_utc": "2026-09-05T04:02:32.865972+00:00",
+  "canonical_query": "¿Cuáles son los tres estados fundamentales en los que puede encontrarse un proceso?",
+  "oracle_id": "oracle-def-01",
+  "pdf_source": {
+    "filename": "so_procesos.pdf",
+    "expected_sha256": "4f9413043a5e562d43f59db634d9cae5de231c2c1fdd08d3242c5f76cc4eae20",
+    "physical_page": null
+  },
+  "evidence": {
+    "chunks": [
+      "so:proc:56",
+      "so:proc:57"
+    ],
+    "context_hash": "acbf0da328e12e5cce2ad5b51c269f878ecd52c7faf8994b1f9a59cdcd366461",
+    "epistemic_policy": "POLÍTICA EPISTÉMICA: ESTRICTA Y VERIFICABLE (NIVEL OBLIGATORIO).\n1. Responde de forma directa y concisa a la pregunta formulada.\n2. Basa cada una de tus afirmaciones factuales EXCLUSIVAMENTE en las evidencias identificadas con [E1] y [E2].\n3. Cita explícitamente [E1] o [E2] al final de cada oración o afirmación que contenga datos fácticos.\n4. NO introduzcas conceptos, terminología ni detalles externos que no figuren en los fragmentos provistos, aunque sean ciertos en el estándar de C.\n5. NO incluyas código de ejemplo a menos que esté presente en la evidencia.\n6. NO intentes evaluar al estudiante ni declarar avances en el curso."
+  },
+  "configuration": {
+    "provider": "gemini",
+    "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+    "model": "gemini-3.5-flash-lite",
+    "temperature": 0.0,
+    "seed": null,
+    "max_tokens": 2048,
+    "retries": 0,
+    "cache": "disabled",
+    "google_search": "OFF",
+    "dynamic_retrieval": "OFF",
+    "prompt_hash": "823b13a7f5ceae739b0ea5b551f7f8a7efca135980aef6f272b229fc8246b9fc"
+  },
+  "execution": {
+    "latency_ms": 1301.4099239999268,
+    "raw_text": "Basado en las evidencias documentadas, los tres estados fundamentales en los que se puede encontrar un proceso son:\n\n1. **En ejecución:** El proceso está utilizando la CPU en ese preciso instante [E1].\n2. **Listo (ejecutable):** El proceso está detenido de forma temporal para permitir que se ejecute otro proceso, aunque tiene el deseo de hacerlo [E1, E2].\n3. **Bloqueado:** El proceso no puede ejecutarse hasta que ocurra un evento externo determinado, incluso si la CPU se encuentra libre [E1, E2].",
+    "citations": [
+      {
+        "citation_id": "E1",
+        "in_manifest": true,
+        "chunk_id": "so:proc:56"
+      },
+      {
+        "citation_id": "E2",
+        "in_manifest": true,
+        "chunk_id": "so:proc:57"
+      }
+    ],
+    "validation_status": "VALID",
+    "audit": {
+      "overall_verdict": "APPROVED",
+      "nli_executed": true,
+      "nli_judge_id": "live-nli-gemini-3.5-flash-lite",
+      "deterministic_checks": [
+        {
+          "id": "CHECK_INPUT_IDENTITY",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "Input identity strictly aligned across request, response, and context."
+        },
+        {
+          "id": "CHECK_MANIFEST_INTEGRITY",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "All citations resolve to authoritative manifest records with valid hashes."
+        },
+        {
+          "id": "CHECK_P7_MASTERY_MUTATION",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "No student state or curricular advancement claims detected."
+        },
+        {
+          "id": "CHECK_INJECTION_CANARY",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "No canary leakage detected."
+        },
+        {
+          "id": "CHECK_INJECTION_ECHO",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "No injection directive echoes detected in text."
+        },
+        {
+          "id": "CHECK_FACTUAL_GROUNDING",
+          "status": "PASS",
+          "severity": "CRITICAL",
+          "reason": "All factual claims cite packaged evidence tags."
+        }
+      ],
+      "claim_verifications": [
+        {
+          "claim_index": 0,
+          "claim_text": "Basado en las evidencias documentadas, los tres estados fundamentales en los que se puede encontrar un proceso son:",
+          "cited_tags": [],
+          "nli_verdict": "ENTAILED",
+          "rationale": "Non-factual sentence; no evidence required"
+        },
+        {
+          "claim_index": 1,
+          "claim_text": "1. **En ejecución:** El proceso está utilizando la CPU en ese preciso instante [E1].",
+          "cited_tags": [
+            "E1"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "The hypothesis directly restates the information given in point 1 of the premise ('En ejecución (en realidad está usando la CPU en ese instante)')."
+        },
+        {
+          "claim_index": 2,
+          "claim_text": "2. **Listo (ejecutable):** El proceso está detenido de forma temporal para permitir que se ejecute otro proceso, aunque tiene el deseo de hacerlo [E1, E2].",
+          "cited_tags": [
+            "E1",
+            "E2"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "La hipótesis describe fielmente el estado 'Listo' basándose directamente en el texto de la premisa ('Listo (ejecutable; se detuvo temporalmente para dejar que se ejecute otro proceso)') y la observación lógica mencionada ('En ambos casos el proceso está deseoso de ejecutarse')."
+        },
+        {
+          "claim_index": 3,
+          "claim_text": "3. **Bloqueado:** El proceso no puede ejecutarse hasta que ocurra un evento externo determinado, incluso si la CPU se encuentra libre [E1, E2].",
+          "cited_tags": [
+            "E1",
+            "E2"
+          ],
+          "nli_verdict": "ENTAILED",
+          "rationale": "El texto establece claramente que en el estado bloqueado el proceso 'no puede ejecutarse sino hasta que ocurra cierto evento externo' y añade que 'el proceso no se puede ejecutar, incluso aunque la CPU no tenga nada que hacer', lo cual coincide exactamente con la hipótesis."
+        }
+      ]
+    },
+    "final_verdict": "APPROVED"
+  },
+  "status": "COMPLETED"
+}

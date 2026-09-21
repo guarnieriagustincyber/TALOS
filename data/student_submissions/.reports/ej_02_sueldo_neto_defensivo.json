@@ -1,0 +1,56 @@
+{
+  "exercise_id": "ej_02_sueldo_neto_defensivo",
+  "notebook_id": "fase0-soc",
+  "score": 83.3,
+  "passed": true,
+  "checks": [
+    {
+      "name": "syntax",
+      "passed": true,
+      "feedback": "Sintaxis Python válida.",
+      "severity": "ERROR"
+    },
+    {
+      "name": "contract",
+      "passed": true,
+      "feedback": "Contrato Formal con precondiciones y postcondiciones explícitas.",
+      "severity": "ERROR"
+    },
+    {
+      "name": "diagram",
+      "passed": true,
+      "feedback": "Diagrama de flujo Mermaid válido y estructurado.",
+      "severity": "ERROR"
+    },
+    {
+      "name": "pseudocode",
+      "passed": false,
+      "feedback": "El pseudocódigo debe usar estructuras de control claras (SI, MIENTRAS, RETORNAR).",
+      "severity": "WARNING"
+    },
+    {
+      "name": "type_hints",
+      "passed": true,
+      "feedback": "Funciones con Type Hints completos y explícitos.",
+      "severity": "ERROR"
+    },
+    {
+      "name": "complexity",
+      "passed": true,
+      "feedback": "Complejidad asintótica estimada: O(1)",
+      "severity": "INFO"
+    },
+    {
+      "name": "tests",
+      "passed": true,
+      "feedback": "Tests unitarios ejecutados exitosamente (3 aserciones aprobadas).",
+      "severity": "ERROR"
+    }
+  ],
+  "bkt_updated": true,
+  "p_L_before": 0.8478,
+  "p_L_after": 0.9668,
+  "observations": [],
+  "next_exercise": "ej_03_calculo_direccion",
+  "timestamp": "2026-09-18T03:42:07.624883+00:00"
+}

@@ -1,0 +1,51 @@
+{
+  "title": "Concurrency Scope Characterization (SSA-0 Extended)",
+  "scope_a_summary": "Same instance / multi-thread: TOCTOU race window in append_record allows 10-50 duplicate commits (L5.1).",
+  "scope_b": {
+    "scope": "SEPARATE_INSTANCES_SAME_PROCESS",
+    "instance_1_committed": true,
+    "instance_2_committed": false,
+    "instance_2_error": "IdempotentReplayError: Idempotent replay detected: attempt 'REC-SCOPE-B' for student 'student-test-01' on node 'node-test-01' already committed with identical digest ''.",
+    "raw_lines_in_file": 1,
+    "persisted_cardinality": 1,
+    "deduplication_preserved": true,
+    "post_race_reload_status": "OK"
+  },
+  "scope_c": {
+    "scope": "SEPARATE_OS_PROCESSES",
+    "num_processes": 4,
+    "worker_results": [
+      {
+        "status": "COMMITTED",
+        "entry_index": 0
+      },
+      {
+        "status": "REJECTED",
+        "error": "OperationalError",
+        "message": "database is locked"
+      },
+      {
+        "status": "REJECTED",
+        "error": "IdempotentReplayError",
+        "message": "Idempotent replay detected: attempt 'REC-SCOPE-C' for student 'student-test-01' on node 'node-test-01' already committed with identical digest ''."
+      },
+      {
+        "status": "REJECTED",
+        "error": "IdempotentReplayError",
+        "message": "Idempotent replay detected: attempt 'REC-SCOPE-C' for student 'student-test-01' on node 'node-test-01' already committed with identical digest ''."
+      }
+    ],
+    "committed_count": 1,
+    "rejected_count": 3,
+    "raw_lines_in_file": 1,
+    "persisted_cardinality": 1,
+    "deduplication_preserved": true,
+    "post_race_reload_status": "OK"
+  },
+  "architectural_verdict": {
+    "in_memory_state_scope": "INSTANCE_LOCAL (self._seen_record_ids)",
+    "disk_lock_scope": "NONE (no fcntl.flock or file locking)",
+    "thread_lock_scope": "NONE (no threading.Lock or RLock)",
+    "perimeter": "DEFECT_CONFIRMED_ACROSS_ALL_THREE_SCOPES"
+  }
+}

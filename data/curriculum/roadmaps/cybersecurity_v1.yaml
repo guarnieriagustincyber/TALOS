@@ -1,0 +1,121 @@
+roadmap_id: "ROADMAP-CYBERSECURITY-V1"
+title: "Cybersecurity & Systems Engineering Roadmap"
+version: "1.0.0"
+
+nodes:
+  - node_id: "SEC-01-C-PTR"
+    title: "Punteros, Aritmética y Modelo de Memoria en C"
+    description: "Fundamentos de direccionamiento, punteros simples y dobles, aritmética de punteros y representación de tipos de datos en bajo nivel."
+    node_type: "TOPIC"
+    notebook_id: "NB-SEC-01-C-PTR"
+    priority: 1
+    target_competencies:
+      - "COMP-C-POINTERS"
+      - "COMP-MEMORY-LAYOUT"
+    estimated_minutes: 180
+    metadata:
+      language: "c"
+      standard: "c11"
+
+  - node_id: "SEC-02-OS-PROC"
+    title: "Arquitectura de Procesos y Syscalls en Sistemas Operativos"
+    description: "Estructura del espacio de usuario y kernel, llamadas al sistema (fork, exec, wait), señales y ciclo de vida de procesos."
+    node_type: "TOPIC"
+    notebook_id: "NB-SEC-02-OS-PROC"
+    priority: 1
+    target_competencies:
+      - "COMP-LINUX-SYSCALLS"
+      - "COMP-PROCESS-MODEL"
+    estimated_minutes: 240
+    metadata:
+      os: "linux"
+      kernel: "posix"
+
+  - node_id: "SEC-03-MEM-MGMT"
+    title: "Gestión de Memoria Dinámica, Stack, Heap y Vulnerabilidades"
+    description: "Asignación dinámica de memoria (malloc, free), layout del stack/heap, detección de memory leaks y mecanismos de buffer overflow."
+    node_type: "COMPETENCY"
+    notebook_id: "NB-SEC-03-MEM-MGMT"
+    priority: 2
+    target_competencies:
+      - "COMP-HEAP-STACK-ANALYSIS"
+      - "COMP-BUFFER-PROTECTION"
+    estimated_minutes: 300
+    metadata:
+      tools:
+        - "valgrind"
+        - "gdb"
+
+  - node_id: "SEC-04-CONCURR"
+    title: "Concurrencia, Sincronización y Race Conditions"
+    description: "Programación multihilo (POSIX pthreads), primitivas de sincronización (mutexes, semáforos), detección de data races y deadlocks."
+    node_type: "COMPETENCY"
+    notebook_id: "NB-SEC-04-CONCURR"
+    priority: 2
+    target_competencies:
+      - "COMP-CONCURRENCY-SYNC"
+      - "COMP-RACE-DETECTION"
+    estimated_minutes: 240
+    metadata:
+      library: "pthread"
+
+  - node_id: "SEC-05-BIN-SEC"
+    title: "Seguridad Binaria, Protección de Buffers y Hashing de Archivos"
+    description: "Manejo seguro de I/O de archivos binarios, validación de integridad criptográfica mediante hashing SHA-256 y mitigación de buffer overflow."
+    node_type: "LAB"
+    notebook_id: "NB-SEC-05-BIN-SEC"
+    priority: 2
+    target_competencies:
+      - "COMP-BINARY-FILE-IO"
+      - "COMP-CRYPTO-HASHING"
+      - "COMP-BUFFER-BOUNDS"
+    estimated_minutes: 360
+    metadata:
+      environment: "linux_sec_base"
+      hasher: "sha256"
+
+  - node_id: "SEC-06-CAPSTONE"
+    title: "Capstone: Defensa de Sistemas, Mitigación y Análisis Forense Binario"
+    description: "Proyecto integrador: auditoría de procesos concurrentes, inspección forense de binarios en memoria y validación determinista de integridad."
+    node_type: "LAB"
+    notebook_id: "NB-SEC-06-CAPSTONE"
+    priority: 3
+    target_competencies:
+      - "COMP-FORENSIC-ANALYSIS"
+      - "COMP-SYSTEM-DEFENSE"
+      - "COMP-CAPSTONE-MASTERY"
+    estimated_minutes: 480
+    metadata:
+      environment: "linux_sec_capstone"
+      capstone: true
+
+dependencies:
+  - source_node_id: "SEC-01-C-PTR"
+    target_node_id: "SEC-03-MEM-MGMT"
+    dependency_type: "HARD"
+    rationale: "La manipulación de punteros es un prerrequisito indispensable para la gestión de memoria dinámica en stack y heap."
+
+  - source_node_id: "SEC-02-OS-PROC"
+    target_node_id: "SEC-03-MEM-MGMT"
+    dependency_type: "HARD"
+    rationale: "El modelo de memoria virtual del proceso del SO es necesario para entender el layout de memoria."
+
+  - source_node_id: "SEC-02-OS-PROC"
+    target_node_id: "SEC-04-CONCURR"
+    dependency_type: "HARD"
+    rationale: "La arquitectura de procesos es requerida para comprender el ciclo de vida y la sincronización de hilos concurrentes."
+
+  - source_node_id: "SEC-03-MEM-MGMT"
+    target_node_id: "SEC-05-BIN-SEC"
+    dependency_type: "HARD"
+    rationale: "El control estricto de buffers y memoria dinámica es prerrequisito para la I/O segura de binarios y hashing."
+
+  - source_node_id: "SEC-04-CONCURR"
+    target_node_id: "SEC-06-CAPSTONE"
+    dependency_type: "HARD"
+    rationale: "La sincronización y control de carreras críticas son requeridas para la defensa y análisis forense concurrentes."
+
+  - source_node_id: "SEC-05-BIN-SEC"
+    target_node_id: "SEC-06-CAPSTONE"
+    dependency_type: "HARD"
+    rationale: "El hashing criptográfico y la seguridad binaria son indispensables para el proyecto integrador capstone."

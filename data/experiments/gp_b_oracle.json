@@ -1,0 +1,66 @@
+{
+  "campaign_id": "GP-B-V0",
+  "spec_version": "SPEC-GP-B-V0",
+  "canonical_stdin": "STUDY_ENGINE_CANONICAL_INPUT",
+  "expected_clean_digest_sha256": "2c48e8b3297329ee33b7db24c4bb39502fc59ee1e79ba6179ce063493ae45e90",
+  "scenarios": {
+    "B1": {
+      "fixture": "student_bad_artifact.py",
+      "attempt_id": "attempt-prog01-b1",
+      "observation": {
+        "exit_code": 0,
+        "duration_ms_max": 5000.0,
+        "artifact_filename": "output_hash.txt",
+        "artifact_size_bytes": 20
+      },
+      "evaluation": {
+        "live_demo_passed": true,
+        "foundations_passed": false,
+        "overall_passed": false,
+        "overall_level": "N1_INSUFFICIENT"
+      },
+      "evidence": {
+        "outcome": "FAIL",
+        "score": 0.0
+      },
+      "state_after": {
+        "PROG-01": "IN_PROGRESS",
+        "PROG-02": "LOCKED"
+      }
+    },
+    "B2": {
+      "fixture": "student_clean_solution.py",
+      "attempt_id": "attempt-prog01-b2",
+      "observation": {
+        "exit_code": 0,
+        "duration_ms_max": 5000.0,
+        "artifact_filename": "output_hash.txt",
+        "artifact_size_bytes": 64
+      },
+      "evaluation": {
+        "live_demo_passed": true,
+        "foundations_passed": true,
+        "overall_passed": true,
+        "overall_level": "N3_COMPETENT"
+      },
+      "evidence": {
+        "outcome": "PASS",
+        "score": 1.0
+      },
+      "state_after": {
+        "PROG-01": "ASSESSED_PROFICIENT",
+        "PROG-02": "AVAILABLE"
+      }
+    },
+    "B3a": {
+      "replay_of": "B2",
+      "expected_error": "IdempotentReplayError",
+      "ledger_cardinality_after": 1
+    },
+    "B3b": {
+      "replay_of": "B2",
+      "expected_error": "InconsistentReplayError",
+      "ledger_cardinality_after": 1
+    }
+  }
+}

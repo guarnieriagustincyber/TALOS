@@ -1,0 +1,134 @@
+{
+  "campaign_id": "GP-E2E-HITO5",
+  "spec_version": "SPEC-HITO5-V1.0",
+  "timestamp_utc": "2026-09-07T04:22:36.997414+00:00",
+  "phases": {
+    "phase_1_conceptual": {
+      "session_status": "APPROVED",
+      "candidate_count": 5,
+      "retrieved_document_ids": [
+        "so_concurrencia.pdf"
+      ],
+      "retrieved_pages": [
+        1
+      ],
+      "response_text": "Seg\u00fan se documenta en [E1], una condici\u00f3n de carrera ocurre cuando dos o m\u00e1s procesos acceden a un espacio de memoria compartida sin sincronizaci\u00f3n apropiada, produciendo resultados dependientes del orden de ejecuci\u00f3n.",
+      "audit_report_id": "audit_8b06262e53ab",
+      "abstention_reason": null,
+      "audit_trace": {
+        "audit_id": "audit_8b06262e53ab",
+        "request_id": "gen-session-gp-e2e-hito5-1",
+        "notebook_id": "NB-SEC-04-CONCURR",
+        "overall_verdict": "APPROVED",
+        "deterministic_checks": [
+          {
+            "check_id": "CHECK_INPUT_IDENTITY",
+            "status": "PASS",
+            "severity": "CRITICAL",
+            "reason": "Input identity strictly aligned across request, response, and context.",
+            "evidence_data": null
+          },
+          {
+            "check_id": "CHECK_MANIFEST_INTEGRITY",
+            "status": "PASS",
+            "severity": "CRITICAL",
+            "reason": "All citations resolve to authoritative manifest records with valid hashes.",
+            "evidence_data": null
+          },
+          {
+            "check_id": "CHECK_P7_MASTERY_MUTATION",
+            "status": "PASS",
+            "severity": "CRITICAL",
+            "reason": "No student state or curricular advancement claims detected.",
+            "evidence_data": null
+          },
+          {
+            "check_id": "CHECK_INJECTION_CANARY",
+            "status": "PASS",
+            "severity": "CRITICAL",
+            "reason": "No canary leakage detected.",
+            "evidence_data": null
+          },
+          {
+            "check_id": "CHECK_INJECTION_ECHO",
+            "status": "PASS",
+            "severity": "CRITICAL",
+            "reason": "No injection directive echoes detected in text.",
+            "evidence_data": null
+          },
+          {
+            "check_id": "CHECK_FACTUAL_GROUNDING",
+            "status": "PASS",
+            "severity": "CRITICAL",
+            "reason": "All factual claims cite packaged evidence tags.",
+            "evidence_data": null
+          }
+        ],
+        "claim_verifications": [
+          {
+            "claim_index": 0,
+            "claim_text": "Seg\u00fan se documenta en [E1], una condici\u00f3n de carrera ocurre cuando dos o m\u00e1s procesos acceden a un espacio de memoria compartida sin sincronizaci\u00f3n apropiada, produciendo resultados dependientes del orden de ejecuci\u00f3n.",
+            "claim_type": "FACTUAL",
+            "cited_tags": [
+              "E1"
+            ],
+            "lexical_diagnostics": {
+              "status": "LEXICAL_ANOMALY",
+              "token_overlap_ratio": 0.2778,
+              "technical_entities_found": [],
+              "technical_entities_missing": [
+                "memoria"
+              ],
+              "numeric_matches": []
+            },
+            "nli_verdict": "ENTAILED",
+            "nli_confidence": 0.9,
+            "nli_rationale": "Default mock NLI evaluation"
+          }
+        ],
+        "nli_executed": true,
+        "nli_judge_id": "mock-nli-v1",
+        "prompt_hash": null,
+        "evidence_hashes": [
+          "7895061b3952e02e90d0599e44a7940e59fe9cd79f44ad6cb798cd88ed67bf8a",
+          "855dc81394dd199896d3cca766e8aca287cee62c212804fd648dfed9630c4f9b",
+          "2a1af9d3cdf5b749d901f04e97b22242c2de73766a1cbe2bd4271d6e6733aa2d",
+          "91cb4f526b1557cfd4cf4dfa8d0bc1372a948f99efb19141ca2fdbe152b90919",
+          "f3187ebed9d8a320084e6a9fd91acf6069536df64d081e2104da151fa6f60969"
+        ],
+        "audit_latency_ms": 0.44,
+        "auditor_backend": "forensic-auditor-v1"
+      }
+    },
+    "phase_2_practical": {
+      "practice_status": "EVALUATED",
+      "exit_code": 0,
+      "execution_status": "COMPLETED",
+      "assessment_passed": true,
+      "overall_level": "N3_COMPETENT",
+      "evidence_record_id": "ev-6aac0963dff140bb",
+      "updated_node_status": "LOCKED",
+      "rejection_reason": null
+    },
+    "phase_3_state": {
+      "canonical_state_id": "fff61fc8d1831885190a702b8875c58bccfc04e0becb3eccb69093c6fc80a3b5",
+      "node_states": {
+        "SEC-02-OS-PROC": "ASSESSED_PROFICIENT",
+        "SEC-04-CONCURR": "AVAILABLE",
+        "SEC-05-BIN-SEC": "LOCKED"
+      }
+    },
+    "phase_4_ledger": {
+      "ledger_cardinality": 2,
+      "hash_chain_status": "VALID",
+      "anti_replay_idempotent_detected": true,
+      "cardinality_after_replay": 2
+    }
+  },
+  "oracle_comparison": {
+    "mismatch_count": 0,
+    "mismatches": [],
+    "status": "PASS"
+  },
+  "verdict": "CERTIFIED"
+}

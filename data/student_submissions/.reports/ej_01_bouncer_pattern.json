@@ -1,0 +1,56 @@
+{
+  "exercise_id": "ej_01_bouncer_pattern",
+  "notebook_id": "fase0-soc",
+  "score": 100.0,
+  "passed": true,
+  "checks": [
+    {
+      "name": "syntax",
+      "passed": true,
+      "feedback": "Sintaxis Python válida.",
+      "severity": "ERROR"
+    },
+    {
+      "name": "contract",
+      "passed": true,
+      "feedback": "Contrato Formal con precondiciones y postcondiciones explícitas.",
+      "severity": "ERROR"
+    },
+    {
+      "name": "diagram",
+      "passed": true,
+      "feedback": "Diagrama de flujo Mermaid válido y estructurado.",
+      "severity": "ERROR"
+    },
+    {
+      "name": "pseudocode",
+      "passed": true,
+      "feedback": "Pseudocódigo estructurado con palabras clave en español.",
+      "severity": "ERROR"
+    },
+    {
+      "name": "type_hints",
+      "passed": true,
+      "feedback": "Funciones con Type Hints completos y explícitos.",
+      "severity": "ERROR"
+    },
+    {
+      "name": "complexity",
+      "passed": true,
+      "feedback": "Complejidad asintótica estimada: O(1)",
+      "severity": "INFO"
+    },
+    {
+      "name": "tests",
+      "passed": true,
+      "feedback": "Tests unitarios ejecutados exitosamente (5 aserciones aprobadas).",
+      "severity": "ERROR"
+    }
+  ],
+  "bkt_updated": true,
+  "p_L_before": 0.1,
+  "p_L_after": 0.5,
+  "observations": [],
+  "next_exercise": "ej_02_pin_seguro",
+  "timestamp": "2026-09-18T03:02:03.578761+00:00"
+}
