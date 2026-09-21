@@ -774,7 +774,16 @@ def _kc_search_terms(kc: Dict[str, Any]) -> List[str]:
     raw_parts: List[str] = [str(kc.get("title") or ""), str(kc.get("display_name") or "")]
     raw_parts.extend(str(s) for s in (kc.get("subtopics") or []))
     words = re.findall(r"\w+", " ".join(raw_parts).lower())
-    return sorted({w for w in words if len(w) > 3 and w not in SPANISH_STOPWORDS})
+    base = {w for w in words if len(w) > 3 and w not in SPANISH_STOPWORDS}
+    # Variantes sing/plur ingenuas para no perder matches por número gramatical
+    # (ej. query "un puntero" debe matchear el término del catálogo "punteros").
+    terms = set(base)
+    for w in base:
+        if w.endswith("s") and len(w) > 4:
+            terms.add(w[:-1])
+        else:
+            terms.add(w + "s")
+    return sorted(terms)
 
 
 def _match_kc_id(kcs_list: List[Dict[str, Any]], prompt_text: str) -> Optional[str]:
@@ -783,8 +792,11 @@ def _match_kc_id(kcs_list: List[Dict[str, Any]], prompt_text: str) -> Optional[s
     Returns the ``kc_id`` with the most term hits in the query, or ``None``
     when no KC matches. A KC qualifies when either:
     - its exact ``kc_id`` appears in the query, or
-    - >= 2 of its terms appear, or
-    - exactly 1 term appears and it is specific (>= 6 chars, whole word).
+    - >= 2 of its terms appear.
+
+    Single-term hits do NOT qualify: a shared word across domains (e.g.
+    "procesos" = flowchart symbol vs OS scheduling) would otherwise attribute
+    the turn to the wrong KC.
 
     F3 contract: when this returns ``None`` the turn is NOT attributed to any
     KC. ``phase_complete`` then emits ``bkt_context.fallback=True`` with
@@ -800,8 +812,7 @@ def _match_kc_id(kcs_list: List[Dict[str, Any]], prompt_text: str) -> Optional[s
             return kid
         hit_terms = [t for t in _kc_search_terms(kc) if re.search(rf"\b{re.escape(t)}\b", q)]
         hits = len(hit_terms)
-        qualifies = hits >= 2 or (hits == 1 and len(hit_terms[0]) >= 6)
-        if qualifies and hits > best_hits:
+        if hits >= 2 and hits > best_hits:
             best_kc, best_hits = kid, hits
     return best_kc
 

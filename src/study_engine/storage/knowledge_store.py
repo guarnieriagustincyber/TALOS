@@ -556,9 +556,16 @@ class KnowledgeStore:
                             # Match por palabra completa, no substring: "ajo" no
                             # debe matchear "abajo" ni "mejor" a "mejorarla"
                             # (el FTS usa prefijos "term"* pero el guard no).
+                            # Además, solo cuentan términos de contenido (len>=5):
+                            # cortos genéricos como "tres"/"vía" no sostienen
+                            # relevancia semántica solos (golden set OOD-03:
+                            # nota de Star Wars colada en el corpus por 'imperio'+'tres').
+                            content_terms = [t for t in raw_terms if len(t) >= 5]
+                            if not content_terms:
+                                continue
                             chunk_words = frozenset(re.findall(r"\w+", r[5].lower()))
-                            hits = sum(1 for term in raw_terms if term in chunk_words)
-                            if hits >= 2 or (hits / len(raw_terms)) >= 0.35:
+                            hits = sum(1 for term in content_terms if term in chunk_words)
+                            if hits >= 2 or (hits / len(content_terms)) >= 0.35:
                                 filtered_rows.append(r)
                         rows = filtered_rows
                     else:

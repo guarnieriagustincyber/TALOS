@@ -1,0 +1,120 @@
+{
+  "schema": "talos-golden-set-v1",
+  "version": "1.0.0",
+  "notebook_id": "fase0-soc",
+  "docs": "docs/golden_set_v1.md",
+  "queries": [
+    {
+      "id": "K2-01", "case": "K2",
+      "query": "¿cómo uso malloc y free sin leaks?",
+      "expected_abstain": false,
+      "expected_kc_id": "aritmetica_punteros",
+      "expected_fallback": false,
+      "min_citations": 1
+    },
+    {
+      "id": "K2-02", "case": "K2",
+      "query": "¿qué es un puntero doble o puntero a puntero?",
+      "expected_abstain": false,
+      "expected_kc_id": "aritmetica_punteros",
+      "expected_fallback": false,
+      "min_citations": 1
+    },
+    {
+      "id": "K2-03", "case": "K2",
+      "query": "explicame la búsqueda binaria y su complejidad asintótica",
+      "expected_abstain": false,
+      "expected_kc_id": "big_o_complejidad",
+      "expected_fallback": false,
+      "min_citations": 1
+    },
+    {
+      "id": "K2-04", "case": "K2",
+      "query": "¿cómo se representa una decisión en un diagrama de flujo ANSI?",
+      "expected_abstain": false,
+      "expected_kc_id": "fase0_tramo1_metodologia",
+      "expected_fallback": false,
+      "min_citations": 1
+    },
+    {
+      "id": "K2-05", "case": "K2",
+      "query": "¿qué diferencia hay entre un array y un string en memoria?",
+      "expected_abstain": false,
+      "expected_kc_id": "fase0_tramo4_estructuras_lineales",
+      "expected_fallback": false,
+      "min_citations": 1
+    },
+    {
+      "id": "K2-06", "case": "K2",
+      "query": "diferencia entre bucle while y bucle for, ¿cuándo conviene cada uno?",
+      "expected_abstain": false,
+      "expected_kc_id": "fase0_tramo2_logica_control",
+      "expected_fallback": false,
+      "min_citations": 1
+    },
+    {
+      "id": "K2-07", "case": "K2",
+      "query": "ordenamiento burbuja vs quicksort: cuál es más eficiente y por qué",
+      "expected_abstain": false,
+      "expected_kc_id": "big_o_complejidad",
+      "expected_fallback": false,
+      "min_citations": 1
+    },
+    {
+      "id": "K1-01", "case": "K1",
+      "query": "¿Cómo funciona el scheduling SJF?",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1
+    },
+    {
+      "id": "K1-02", "case": "K1",
+      "query": "¿Qué es un deadlock y cuándo ocurre?",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1
+    },
+    {
+      "id": "K1-03", "case": "K1",
+      "query": "Resumime la planificación de procesos del sistema operativo",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1
+    },
+    {
+      "id": "K1-04", "case": "K1",
+      "query": "¿Qué es un semáforo en sistemas operativos?",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1
+    },
+    {
+      "id": "OOD-01", "case": "OOD",
+      "query": "¿Cuál es la mejor receta de pasta con ajo?",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0
+    },
+    {
+      "id": "OOD-02", "case": "OOD",
+      "query": "¿Cómo me preparo físicamente para correr un maratón?",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0
+    },
+    {
+      "id": "OOD-03", "case": "OOD",
+      "query": "contame la historia del imperio romano en tres párrafos",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0
+    }
+  ]
+}
