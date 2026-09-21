@@ -76,6 +76,8 @@ data/student/
 *.db
 *.db-shm
 *.db-wal
+data/colab/pending_*.jsonl
+data/colab/vectors_*.jsonl
 data/benchmark/db/
 
 models/

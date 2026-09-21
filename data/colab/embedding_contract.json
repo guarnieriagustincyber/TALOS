@@ -1,0 +1,16 @@
+{
+  "schema": "talos-embedding-contract-v1",
+  "model": "intfloat/multilingual-e5-small",
+  "model_id": "multilingual-e5-small",
+  "provider_id": "local_onnx",
+  "revision": "onnx: models/multilingual-e5-small/onnx/model.onnx + tokenizer.json (mismo artifact que el reindex inicial de 238k vectores)",
+  "dimensions": 384,
+  "max_length": 512,
+  "normalize_l2": true,
+  "pooling": "mean sobre last_hidden_state con attention_mask",
+  "prefixes": {
+    "query": "query: ",
+    "passage": "passage: "
+  },
+  "notes": "Los embeddings se computan SIEMPRE como passages (corpus). Las queries llevan prefijo 'query: ' solo en retrieval. mismatch de modelo/dim/normalización invalida la sincronización: el índice mezclaría espacios vectoriales incompatibles."
+}
