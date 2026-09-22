@@ -858,6 +858,30 @@ def _match_kc_id(kcs_list: List[Dict[str, Any]], prompt_text: str) -> Optional[s
 # contra TODOS los cuadernos, fundiendo resultados por chunk_id.
 GLOBAL_SCOPE_ID = "__global__"
 
+# COMMIT 3 (fix/scope): intención no curricular — opinión personal, ficción,
+# cotidiano, actualidad. Es INDEPENDIENTE del match léxico de contenido: el
+# corpus menciona Star Wars (ejemplo didáctico) pero "¿Qué opinás de Star Wars?"
+# no es consulta curricular. El umbral vectorial 0.87 no se toca.
+_NON_CURRICULAR_INTENT_RE = re.compile(
+    r"(qu[ée]\s+opin[áa]s|qu[ée]\s+pens[áa]s|te\s+gusta|te\s+copa|"
+    r"star\s+wars|pel[íi]cula|serie\s+de|f[úu]tbol|partido\s+de|"
+    r"noticias?\s+de|clima|pron[óo]stico|receta\s+de|chiste|broma|"
+    r"videojuego|jueguito|m[úu]sica\s+para)",
+    re.IGNORECASE,
+)
+
+
+def _is_non_curricular_intent(prompt_text: str, kcs_list: List[Dict[str, Any]]) -> bool:
+    """Verdadero si la query pide opinión/ficción/cotidiano SIN vocabulario curricular.
+
+    Un patrón no curricular + cero match con el catálogo KC => abstención.
+    Si la query mezcla ("¿qué opinás de la búsqueda binaria?"), el vocabulario
+    curricular gana y la consulta continúa.
+    """
+    if not _NON_CURRICULAR_INTENT_RE.search(prompt_text or ""):
+        return False
+    return _match_kc_id(kcs_list, prompt_text) is None
+
 
 def _prepare_chat_context(
     *,
@@ -931,21 +955,8 @@ def _prepare_chat_context(
             conv_payload=(fastpath, route_kind, context),
         )
 
-    contract = None if target_notebook_id == GLOBAL_SCOPE_ID else store.get_pedagogical_contract(target_notebook_id)
-    context_pack, raw_chunks = _assemble_epistemic_context(
-        store=store,
-        container=container,
-        prompt_text=prompt_text,
-        target_notebook_id=target_notebook_id,
-        active_sources=request.active_sources,
-    )
-
-    # ConversationStyleRouter (Ola 5, E24)
-    from study_engine.pedagogy.style_router import ConversationStyleRouter
-    style_result = ConversationStyleRouter.detect_style(prompt_text)
-
     # BKT Adaptation determination (Fix S4.2)
-    # F3: matching honesto — si ningún KC coincide, matched_kc_id queda None y
+    # F3: matching honesto — si ningún KC matchea, matched_kc_id queda None y
     # el phase_complete lo declara con bkt_context.fallback=True + p_L neutral.
     orch = getattr(container, "pedagogical_orchestrator", None)
     kc_catalog = getattr(orch, "_kc_catalog", {}) if orch is not None else {}
@@ -959,6 +970,36 @@ def _prepare_chat_context(
     else:
         nb_catalog = kc_catalog.get(target_notebook_id, {}) if isinstance(kc_catalog, dict) else {}
         kcs_list = nb_catalog.get("kcs", []) if isinstance(nb_catalog, dict) else []
+
+    # COMMIT 3 (fix/scope): intención no curricular abstiene ANTES del
+    # retrieval y aunque haya match léxico de contenido (independencia total).
+    if _is_non_curricular_intent(prompt_text, kcs_list):
+        context_pack = EpistemicContextPack(
+            formatted_context="",
+            citations=[],
+            chunks=[],
+            abstained=True,
+            abstention_reason=(
+                "Consulta fuera del ámbito curricular (opinión, ficción, actualidad o vida cotidiana). "
+                "TALOS está acotado a la bibliografía del roadmap; planteá la pregunta en términos del programa."
+            ),
+        )
+        raw_chunks: List[Any] = []
+        contract = None if target_notebook_id == GLOBAL_SCOPE_ID else store.get_pedagogical_contract(target_notebook_id)
+    else:
+        contract = None if target_notebook_id == GLOBAL_SCOPE_ID else store.get_pedagogical_contract(target_notebook_id)
+        context_pack, raw_chunks = _assemble_epistemic_context(
+            store=store,
+            container=container,
+            prompt_text=prompt_text,
+            target_notebook_id=target_notebook_id,
+            active_sources=request.active_sources,
+        )
+
+    # ConversationStyleRouter (Ola 5, E24)
+    from study_engine.pedagogy.style_router import ConversationStyleRouter
+    style_result = ConversationStyleRouter.detect_style(prompt_text)
+
     matched_kc_id = _match_kc_id(kcs_list, prompt_text) if kcs_list else None
 
     from study_engine.pedagogy.student_context import (
