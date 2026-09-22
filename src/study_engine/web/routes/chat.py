@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 import re
+from types import SimpleNamespace
 from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Tuple
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -1423,14 +1424,16 @@ async def chat_query(
                         _KC_TURN_STREAKS[history_key] = streak
 
                         from study_engine.pedagogy.exercise_service import (
-                            select_exercise_for_kc,
+                            select_or_generate,
                             should_propose,
                             to_proposal_payload,
                         )
                         if should_propose(streak["count"]):
-                            exercise = select_exercise_for_kc(
+                            exercise = select_or_generate(
                                 getattr(container, "exercise_store", None),
+                                getattr(container, "generated_registry", None),
                                 matched_kc_id,
+                                catalog=getattr(getattr(container, "pedagogical_orchestrator", None), "_kc_catalog", None),
                             )
                             if exercise is not None:
                                 _KC_TURN_STREAKS[history_key] = {"kc_id": matched_kc_id, "count": 0}
@@ -1499,6 +1502,64 @@ async def evaluate_exercise_answer(
 
     exercise_store = getattr(container, "exercise_store", None)
     exercise = exercise_store.get_exercise_by_id(req.exercise_id) if exercise_store else None
+
+    # Fase 6: ejercicios generados (oráculo propio) — path separado y explícito
+    generated = None
+    registry = getattr(container, "generated_registry", None)
+    if exercise is None and registry is not None:
+        generated = registry.get(req.exercise_id)
+
+    if generated is not None:
+        from study_engine.pedagogy.generated_registry import GeneratedOracleGrader
+        grade = GeneratedOracleGrader().grade(req.user_answer, generated["oracle"])
+        is_correct = bool(grade["is_correct"])
+        kc_id = generated["kc_ids"][0] if generated["kc_ids"] else "unknown"
+
+        struggle = getattr(container, "struggle_tracker", None)
+        struggle_consecutive = struggle.record(kc_id, is_correct) if struggle else 0
+
+        prior = container.bkt_tracker.get_state(kc_id)
+        from study_engine.student.contracts import ExerciseFormat as _Fmt
+        bkt_res = container.bkt_tracker.update(
+            kc_id=kc_id,
+            correct=is_correct,
+            source=ObservationSource.EXACT_CORRECTOR,
+            format_type=_Fmt.SYMBOLIC_OPEN,
+            n_options=None,
+        )
+        delta = round(bkt_res.p_L - prior.p_L, 4)
+
+        remediation = None
+        if not is_correct or bkt_res.p_L < 0.5:
+            remediation = _remediation_message(kc_id, SimpleNamespace(prompt=generated["prompt"]), bkt_res.p_L)
+
+        try:
+            from study_engine.pedagogy.session_digest import record_kc_attempt
+            record_kc_attempt(
+                storage=container.student_storage,
+                student_id=CANONICAL_STUDENT_ID,
+                session_id=req.session_id or "sess_default",
+                kc_id=kc_id,
+                correct=is_correct,
+                struggled=bool(struggle and struggle.is_struggling(kc_id)),
+            )
+        except Exception as dig_err:
+            logger.debug("Session digest update falló: %s", dig_err)
+
+        return {
+            "status": "GRADED",
+            "exercise_id": generated["exercise_id"],
+            "kc_id": kc_id,
+            "is_correct": is_correct,
+            "p_L": round(bkt_res.p_L, 4),
+            "delta_p_L": delta,
+            "attempts": bkt_res.attempts,
+            "remediation": remediation,
+            "grader_detail": grade,
+            "source": "generated",
+            "struggle_mode": bool(struggle and struggle.is_struggling(kc_id)),
+            "struggle_consecutive_failures": struggle_consecutive,
+        }
 
     if exercise is None or not exercise.is_presentable() or not getattr(exercise, "expected_answer", ""):
         # Misión Fail-closed: sin clave certificada no hay evaluación

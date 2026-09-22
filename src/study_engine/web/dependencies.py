@@ -290,6 +290,9 @@ class AppContainer:
 
         from study_engine.pedagogy.exercise_service import StruggleTracker
         self.struggle_tracker = StruggleTracker()
+
+        from study_engine.pedagogy.generated_registry import GeneratedExerciseRegistry
+        self.generated_registry = GeneratedExerciseRegistry(self.student_storage)
         self.spaced_scheduler = SpacedRepetitionScheduler(self.student_storage)
         self.pedagogical_memory_tracker = PedagogicalMemoryTracker(self.student_storage)
         self.pedagogical_memory_extractor = PedagogicalMemoryExtractor(self.pedagogical_memory_tracker)

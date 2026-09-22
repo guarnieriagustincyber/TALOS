@@ -61,6 +61,16 @@ def should_propose(streak_count: int) -> bool:
 
 def to_proposal_payload(exercise: Any) -> Dict[str, Any]:
     """Serializa el ejercicio para el evento SSE/REST sin exponer la clave."""
+    if isinstance(exercise, dict):  # generado (Fase 6)
+        return {
+            "exercise_id": exercise["exercise_id"],
+            "kc_id": exercise.get("kc_ids", [None])[0],
+            "title": exercise.get("prompt", "")[:80],
+            "prompt": exercise.get("prompt", ""),
+            "type": exercise.get("kind"),
+            "options": None,
+            "source": "generated",
+        }
     return {
         "exercise_id": exercise.exercise_id,
         "kc_id": exercise.kc_id,
@@ -70,6 +80,39 @@ def to_proposal_payload(exercise: Any) -> Dict[str, Any]:
         "options": list(exercise.options) if exercise.options else None,
         # expected_answer NUNCA se expone al frontend en la propuesta
     }
+
+
+def select_or_generate(
+    exercise_store: Any,
+    registry: Any,
+    kc_id: Optional[str],
+    catalog: Optional[Dict[str, Any]] = None,
+    submissions_root: Optional[Path] = None,
+) -> Optional[Any]:
+    """Prioridad: catálogo estático QUALIFIABLE primero (fail-closed).
+
+    Si NO hay cobertura certificada, busca en el registro de generados y,
+    como último recurso de composición, propone multi-KC cuando el KC matchea
+    una familia de composición.
+    """
+    static = select_exercise_for_kc(exercise_store, kc_id, submissions_root=submissions_root)
+    if static is not None:
+        return static
+
+    if registry is not None and kc_id:
+        try:
+            existing = registry.list_for_kc(kc_id)
+            if existing:
+                return existing[0]
+            # Generación on-the-fly como fallback (Tipo 1 si matchea plantilla)
+            from study_engine.pedagogy.exercise_compiler import compose_multi_kc_exercise
+            generated = compose_multi_kc_exercise([kc_id], catalog=catalog)
+            if generated is not None:
+                registry.save(generated)
+                return generated
+        except Exception as exc:
+            logger.debug("Fallback generado falló para kc %s: %s", kc_id, exc)
+    return None
 
 
 # ---------------------------------------------------------------------------

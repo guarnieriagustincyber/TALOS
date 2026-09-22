@@ -163,6 +163,33 @@ def list_exercises(
     return results
 
 
+class GenerateMultiKcRequest(BaseModel):
+    model_config = ConfigDict(strict=True)
+    kc_ids: List[str] = Field(..., min_length=2, max_length=4)
+    difficulty: Optional[str] = None
+
+
+@router.post("/generate/multi-kc", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
+def generate_multi_kc_exercise(
+    payload: GenerateMultiKcRequest,
+    container: AppContainer = Depends(get_container),
+) -> Dict[str, Any]:
+    """Genera un ejercicio multi-KC (composición causal) y lo persiste."""
+    from study_engine.pedagogy.exercise_compiler import compose_multi_kc_exercise
+
+    catalog = getattr(container.pedagogical_orchestrator, "_kc_catalog", {})
+    exercise = compose_multi_kc_exercise(
+        list(payload.kc_ids), difficulty=payload.difficulty, catalog=catalog
+    )
+    if exercise is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="No hay plantilla de composición para ese conjunto de KCs.",
+        )
+    container.generated_registry.save(exercise)
+    return exercise
+
+
 @router.get("/available", response_model=Dict[str, Any])
 def get_available_exercises(
     notebook_id: str = Query(..., description="ID del cuaderno"),
