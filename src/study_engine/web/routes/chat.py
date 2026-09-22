@@ -137,6 +137,10 @@ _CONV_TURN_BUFFER: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 # cerrar el loop de evaluación.
 _KC_TURN_STREAKS: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
+# Session Digest (Fase 5.4): la directiva de la sesión anterior se inyecta
+# UNA sola vez por history_key (primer turno de la sesión).
+_DIGEST_SHOWN: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
+
 
 class EpistemicContextPack:
     """Pack of epistemic context, citations and chunks for prompt augmentation."""
@@ -914,6 +918,35 @@ def _global_default_contract() -> Any:
     )
 
 
+def maybe_inject_session_digest(
+    container: Any,
+    history_key: str,
+    bkt_directive: Optional[str],
+) -> Optional[str]:
+    """Inyecta el digest de la sesión anterior UNA vez por history_key.
+
+    Devuelve el bkt_directive original (o None) si no hay digest o ya se
+    mostró; si hay directiva nueva, la concatena al final.
+    """
+    if history_key in _DIGEST_SHOWN:
+        return bkt_directive
+    storage = getattr(container, "student_storage", None)
+    if storage is None:
+        return bkt_directive
+    try:
+        from study_engine.pedagogy.session_digest import digest_directive, get_latest_digest
+        digest = get_latest_digest(storage, CANONICAL_STUDENT_ID)
+        directive = digest_directive(digest) if digest else ""
+        _DIGEST_SHOWN[history_key] = True
+        if directive:
+            logger.info("[SESSION-DIGEST] primer turno de sesión digest inyectado (fricción previa: %s)",
+                        digest.get("friction_level"))
+            return f"{bkt_directive}\n\n{directive}" if bkt_directive else directive
+    except Exception as dig_err:
+        logger.debug("No se pudo inyectar session digest: %s", dig_err)
+    return bkt_directive
+
+
 def _prepare_chat_context(
     *,
     store: Any,
@@ -1208,6 +1241,8 @@ async def chat_query(
 
     target_notebook_id = resolved_scope.notebook_id or target_scope_id
     history_key = f"{request.session_id or 'anon'}:{target_notebook_id}"
+
+    bkt_directive = maybe_inject_session_digest(container, history_key, bkt_directive)
     if request.requested_phase == "conceptual" and history_key in _ACTIVE_TURN_HISTORIES:
         _ACTIVE_TURN_HISTORIES[history_key].clear()
 
@@ -1437,6 +1472,7 @@ class ExerciseEvaluateRequest(BaseModel):
     exercise_id: str = Field(..., min_length=1, max_length=128)
     user_answer: str = Field(..., min_length=1, max_length=2000)
     notebook_id: Optional[str] = Field(default=None, description="Contexto opcional del cuaderno")
+    session_id: Optional[str] = Field(default=None, description="ID de sesión para el digest (opcional)")
 
 
 def _remediation_message(kc_id: str, exercise: Any, p_l: float) -> str:
@@ -1498,6 +1534,21 @@ async def evaluate_exercise_answer(
         n_options=len(exercise.options) if exercise.options else None,
     )
     delta = round(bkt_res.p_L - prior.p_L, 4)
+
+    # Session Digest: acumular el intento en la actividad de sesión del KC
+    # (la fuente del perfil cognitivo entre sesiones).
+    try:
+        from study_engine.pedagogy.session_digest import record_kc_attempt
+        record_kc_attempt(
+            storage=container.student_storage,
+            student_id=CANONICAL_STUDENT_ID,
+            session_id=req.session_id or "sess_default",
+            kc_id=kc_id,
+            correct=is_correct,
+            struggled=bool(struggle and struggle.is_struggling(kc_id)),
+        )
+    except Exception as dig_err:
+        logger.debug("Session digest update falló: %s", dig_err)
 
     remediation = None
     if not is_correct or bkt_res.p_L < 0.5:
