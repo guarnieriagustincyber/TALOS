@@ -14,13 +14,17 @@ Invariantes:
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Dict, List, Optional, Tuple
 
+logger = logging.getLogger(__name__)
 
-# Patrón canónico de citas: [E1], [E12], etc.
-# No captura [En] genérico de redacción, solo [E] seguido de dígitos.
-_CITATION_RE = re.compile(r"\[E(\d+)\]")
+
+# Patrón de citas: captura canónicas [E1], [E12] y malformadas conocidas
+# ([E#], [E 3], [E# 0]) para poder rechazarlas explícitamente en vez de
+# dejarlas leakar al frontend como placeholder ilegible.
+_CITATION_RE = re.compile(r"\[E\s*#?\s*(\d*)\s*\]")
 
 # Texto de reemplazo para citas alucinadas
 _INVALID_REPLACEMENT = "[ref. no verificada]"
@@ -94,7 +98,15 @@ class CitationValidator:
         invalid_found: List[str],
     ) -> str:
         """Callback de sustitución: retorna la cita original o el reemplazo."""
-        idx = int(m.group(1))
+        raw = m.group(1) or ""
+        token = m.group(0)
+        # Rechazo por formato: ID vacío ([E], [E#]) o no positivo ([E0], [E# 0])
+        if not raw.isdigit() or int(raw) < 1:
+            logger.warning("Cita malformada detectada y rechazada: %r", token)
+            if token not in invalid_found:
+                invalid_found.append(token)
+            return _INVALID_REPLACEMENT
+        idx = int(raw)
         if idx in valid_indices:
             return m.group(0)  # cita válida, sin cambios
         citation_str = f"[E{idx}]"
@@ -120,7 +132,14 @@ class CitationValidator:
         found_valid: List[str] = []
         found_invalid: List[str] = []
         for m in _CITATION_RE.finditer(text):
-            idx = int(m.group(1))
+            raw = m.group(1) or ""
+            token = m.group(0)
+            if not raw.isdigit() or int(raw) < 1:
+                logger.warning("Cita malformada detectada en auditoría: %r", token)
+                if token not in found_invalid:
+                    found_invalid.append(token)
+                continue
+            idx = int(raw)
             citation_str = f"[E{idx}]"
             if idx in valid_indices:
                 if citation_str not in found_valid:
