@@ -132,6 +132,11 @@ _ACTIVE_TURN_HISTORIES: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 # continuidad conversacional real en el prompt sin inflar el contexto global.
 _CONV_TURN_BUFFER: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
+# Fase 5.3: racha de turnos consecutivos por KC por sesión/cuaderno —
+# cuando llega a N turnos, TALOS propone un ejercicio certificado para
+# cerrar el loop de evaluación.
+_KC_TURN_STREAKS: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
+
 
 class EpistemicContextPack:
     """Pack of epistemic context, citations and chunks for prompt augmentation."""
@@ -1361,6 +1366,30 @@ async def chat_query(
                         notebook_id=target_notebook_id,
                     )
 
+                    # Fase 5.3: loop de evaluación — tras N turnos seguidos sobre
+                    # el mismo KC, proponer ejercicio certificado (fail-closed).
+                    if request.requested_phase in (None, "conceptual") and matched_kc_id:
+                        streak = _KC_TURN_STREAKS.get(history_key) or {"kc_id": None, "count": 0}
+                        if streak.get("kc_id") == matched_kc_id:
+                            streak["count"] = int(streak.get("count", 0)) + 1
+                        else:
+                            streak = {"kc_id": matched_kc_id, "count": 1}
+                        _KC_TURN_STREAKS[history_key] = streak
+
+                        from study_engine.pedagogy.exercise_service import (
+                            select_exercise_for_kc,
+                            should_propose,
+                            to_proposal_payload,
+                        )
+                        if should_propose(streak["count"]):
+                            exercise = select_exercise_for_kc(
+                                getattr(container, "exercise_store", None),
+                                matched_kc_id,
+                            )
+                            if exercise is not None:
+                                _KC_TURN_STREAKS[history_key] = {"kc_id": matched_kc_id, "count": 0}
+                                yield f"data: {json.dumps({'event_type': 'exercise_proposal', 'payload': to_proposal_payload(exercise)})}\n\n"
+
                 yield f"data: {json.dumps(payload)}\n\n"
         except asyncio.CancelledError:
             # Fix 3.3: Cliente desconectado, registrar y salir sin emitir SSE a socket cerrado
@@ -1383,3 +1412,89 @@ async def chat_query(
             "X-Accel-Buffering": "no",
         },
     )
+
+
+# ---------------------------------------------------------------------------
+# Fase 5.3 — Loop de evaluación determinista (graders + BKT)
+# ---------------------------------------------------------------------------
+
+class ExerciseEvaluateRequest(BaseModel):
+    """Respuesta del estudiante a un ejercicio certificado."""
+
+    model_config = ConfigDict(strict=True)
+
+    exercise_id: str = Field(..., min_length=1, max_length=128)
+    user_answer: str = Field(..., min_length=1, max_length=2000)
+    notebook_id: Optional[str] = Field(default=None, description="Contexto opcional del cuaderno")
+
+
+def _remediation_message(kc_id: str, exercise: Any, p_l: float) -> str:
+    """Mensaje corto de remediación post-error (sin LLM)."""
+    prompt_line = (getattr(exercise, "prompt", "") or "").split("\n")[0][:90]
+    return (
+        f"Revisemos el concepto de '{kc_id}': volvé a la explicación anterior y contrastala "
+        f"con el ejercicio '{prompt_line}…'. Nivel actual estimado p_L={p_l:.2f}; "
+        "cuando quieras, pedime una pista con ':hint' o un repaso del tema."
+    )
+
+
+@router.post("/evaluate")
+async def evaluate_exercise_answer(
+    req: ExerciseEvaluateRequest,
+    container: AppContainer = Depends(get_container),
+) -> Dict[str, Any]:
+    """Califica una respuesta de ejercicio con grader determinista y muta BKT.
+
+    Fail-closed (espeja dialogue.py): sin ejercicio certificado o sin clave,
+    retorna UNGRADED y NO muta BKT. Nunca califica con LLM.
+    """
+    from study_engine.student.contracts import ExerciseFormat, ObservationSource
+
+    exercise_store = getattr(container, "exercise_store", None)
+    exercise = exercise_store.get_exercise_by_id(req.exercise_id) if exercise_store else None
+
+    if exercise is None or not exercise.is_presentable() or not getattr(exercise, "expected_answer", ""):
+        # Misión Fail-closed: sin clave certificada no hay evaluación
+        return {
+            "status": "UNGRADED",
+            "exercise_id": req.exercise_id,
+            "is_correct": None,
+            "p_L": None,
+            "delta_p_L": 0.0,
+            "remediation": None,
+            "detail": "Ejercicio inexistente o sin clave certificada: evaluación omitida (fail-closed).",
+        }
+
+    kc_id = exercise.kc_id
+    is_mc = getattr(exercise.exercise_type, "value", str(exercise.exercise_type)) == "MC"
+    if is_mc:
+        grade_res = container.mc_grader.grade(req.user_answer, exercise.expected_answer)
+    else:
+        grade_res = container.exact_grader.grade(req.user_answer, exercise.expected_answer)
+    is_correct = bool(getattr(grade_res, "is_correct", False))
+
+    prior = container.bkt_tracker.get_state(kc_id)
+    fmt = ExerciseFormat.CLOSED_CHOICE if is_mc else ExerciseFormat.SYMBOLIC_OPEN
+    bkt_res = container.bkt_tracker.update(
+        kc_id=kc_id,
+        correct=is_correct,
+        source=ObservationSource.EXACT_CORRECTOR,
+        format_type=fmt,
+        n_options=len(exercise.options) if exercise.options else None,
+    )
+    delta = round(bkt_res.p_L - prior.p_L, 4)
+
+    remediation = None
+    if not is_correct or bkt_res.p_L < 0.5:
+        remediation = _remediation_message(kc_id, exercise, bkt_res.p_L)
+
+    return {
+        "status": "GRADED",
+        "exercise_id": exercise.exercise_id,
+        "kc_id": kc_id,
+        "is_correct": is_correct,
+        "p_L": round(bkt_res.p_L, 4),
+        "delta_p_L": delta,
+        "attempts": bkt_res.attempts,
+        "remediation": remediation,
+    }
