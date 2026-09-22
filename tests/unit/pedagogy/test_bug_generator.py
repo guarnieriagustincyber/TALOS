@@ -8,8 +8,13 @@ def test_cada_plantilla_mutacion_aplica_de_verdad():
     """La mutación debe transformar el código correcto en el buggy (no manual)."""
     for tpl in _BUG_BANK:
         buggy = tpl["correct"].replace(tpl["mutation_find"], tpl["mutation_replace"])
-        assert tpl["probe"] in buggy, f"{tpl['cwe']}: probe no aparece en buggy"
-        assert tpl["probe"] not in tpl["correct"], f"{tpl['cwe']}: correcto ya contenía el bug"
+        assert buggy != tpl["correct"], f"{tpl['cwe']}: no mutó"
+        for must in tpl["must_have_in_buggy"]:
+            assert must in buggy, f"{tpl['cwe']}: falta '{must}' en buggy"
+        for absent in tpl["must_lack_in_buggy"]:
+            assert absent not in buggy, f"{tpl['cwe']}: sigue '{absent}'"
+        # el correcto aún lleva el trozo original
+        assert tpl["mutation_find"] in tpl["correct"]
 
 
 def test_cwe120_genera_codigo_con_strcpy_sin_limite():

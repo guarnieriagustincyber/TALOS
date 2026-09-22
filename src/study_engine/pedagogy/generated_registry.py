@@ -84,17 +84,20 @@ class GeneratedOracleGrader:
 
         if kind == "state_match":
             final_state: Dict[str, Any] = oracle.get("final_state", {})
+            symbolic = set(oracle.get("symbolic_fields", []))
             wrong: List[str] = []
             for var, expected in final_state.items():
-                expected_str = _normalize(str(expected))
-                # valores simbólicos (direcciones) aceptan cualquier mención
-                # explícita de la variable con alias/igualdad razonable
-                symbolic = oracle.get("symbolic_fields", [])
                 if var in symbolic:
-                    if not re.search(rf"\b{re.escape(_normalize(var))}\b", normalized):
-                        wrong.append(var)
+                    # Campos simbólicos (direcciones/alias): no exigibles por
+                    # comparación de texto — quedan fuera del veredicto.
                     continue
-                if expected_str not in normalized:
+                expected_str = _normalize(str(expected))
+                # Formato "var=val" o "var:val" — exigir la asociación
+                # valor<->variable, no solo la presencia del número suelto.
+                compact = normalized.replace(" ", "")
+                var_id = _normalize(str(var))
+                patterns = (f"{var_id}={expected_str}", f"{var_id}:{expected_str}")
+                if not any(p in compact for p in patterns):
                     wrong.append(var)
             return {
                 "is_correct": not wrong,

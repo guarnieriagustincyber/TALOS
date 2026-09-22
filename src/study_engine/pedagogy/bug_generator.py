@@ -42,7 +42,8 @@ _BUG_BANK: List[Dict[str, Any]] = [
         # Mutación: reemplazar copia acotada por strcpy sin guarda
         "mutation_find": "    strncpy(buffer, input, sizeof(buffer) - 1);\n    buffer[sizeof(buffer) - 1] = '\\0';",
         "mutation_replace": "    strcpy(buffer, input);",
-        "probe": "strcpy(buffer, input);",
+        "must_have_in_buggy": ["strcpy(buffer, input);"],
+        "must_lack_in_buggy": ["strncpy(buffer, input, sizeof(buffer) - 1);"],
         "aliases": ["buffer overflow", "desbordamiento de buffer", "desbordamiento de búfer",
                     "cwe-120", "stack smashing", "desborde de búfer", "buffer desbordado"],
         "expected_fix_hint": "usar strncpy/strlcpy con bound + terminador explícito",
@@ -62,7 +63,8 @@ _BUG_BANK: List[Dict[str, Any]] = [
         # Mutación: quitar la guarda contra wraparound
         "mutation_find": "    if (id_actual == UINT_MAX) {\n        return 0;  // wrap explícito y documentado\n    }\n",
         "mutation_replace": "",
-        "probe": "return id_actual + 1;",
+        "must_have_in_buggy": ["return id_actual + 1;"],
+        "must_lack_in_buggy": ["if (id_actual == UINT_MAX)"],
         "aliases": ["integer overflow", "overflow entero", "wraparound", "desbordamiento entero",
                     "cwe-190", "sobrepasa el máximo", "desborde entero"],
         "expected_fix_hint": "validar id_actual < UINT_MAX antes de incrementar",
@@ -86,7 +88,8 @@ _BUG_BANK: List[Dict[str, Any]] = [
         # Mutación: quitar el lock/unlock del critical section
         "mutation_find": "        pthread_mutex_lock(&mtx);\n        contador++;\n        pthread_mutex_unlock(&mtx);",
         "mutation_replace": "        contador++;",
-        "probe": "contador++;",
+        "must_have_in_buggy": ["contador++;"],
+        "must_lack_in_buggy": ["pthread_mutex_lock"],
         "aliases": ["race condition", "condición de carrera", "condicion de carrera",
                     "data race", "cwe-362", "interbloqueo no determinista", "no atómico"],
         "expected_fix_hint": "lock antes de leer/escribir compartida, unlock obligatorio post-uso",
@@ -105,7 +108,8 @@ _BUG_BANK: List[Dict[str, Any]] = [
         # Mutación: usar el puntero después del free (sin NULL-out)
         "mutation_find": "free(s);\ns = NULL;",
         "mutation_replace": "free(s);\nprintf(\"%s\", s);",
-        "probe": "printf(\"%s\", s);",
+        "must_have_in_buggy": ["printf(\"%s\", s);"],
+        "must_lack_in_buggy": ["s = NULL;"],
         "aliases": ["use after free", "use-after-free", "dangling pointer", "puntero colgante",
                     "cwe-416", "uso tras liberar", "uaf"],
         "expected_fix_hint": "poner el puntero a NULL tras free y no usarlo de nuevo",
@@ -138,10 +142,14 @@ def generate_debugging_exercise(
     if chosen is None:
         return None
 
-    # Mutación controlada verificable: el buggy debe ser el correcto mutado.
+    # Mutación controlada verificable: buggy = correcta con mutation_find
+    # reemplazado por mutation_replace; se verifican presencias y ausencias.
     buggy = chosen["correct"].replace(chosen["mutation_find"], chosen["mutation_replace"])
-    assert chosen["probe"] in buggy, "La mutación no aplicó — plantilla rota."
-    assert chosen["probe"] not in chosen["correct"], "El probe no distingue correcto/buggy."
+    assert buggy != chosen["correct"], f"{chosen['cwe']}: la mutación no cambió el código."
+    for must in chosen.get("must_have_in_buggy", []):
+        assert must in buggy, f"{chosen['cwe']}: falta '{must}' en el código buggy."
+    for absent in chosen.get("must_lack_in_buggy", []):
+        assert absent not in buggy, f"{chosen['cwe']}: sigue presente '{absent}' en el buggy."
 
     ex_id = "gen_bug_" + hashlib.sha256(
         (kc_id + chosen["cwe"] + chosen["bug_type"]).encode()

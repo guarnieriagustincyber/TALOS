@@ -217,6 +217,28 @@ def generate_debugging_exercise_ep(
     return exercise
 
 
+class GenerateTraceRequest(BaseModel):
+    model_config = ConfigDict(strict=True)
+    kc_id: str = Field(..., min_length=1)
+    n_mutations: int = Field(default=2, ge=1, le=6)
+    difficulty: Optional[str] = None
+
+
+@router.post("/generate/trace", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
+def generate_trace_exercise_ep(
+    payload: GenerateTraceRequest,
+    container: AppContainer = Depends(get_container),
+) -> Dict[str, Any]:
+    """Genera un ejercicio de predicción de estado (trace-table) determinista."""
+    from study_engine.pedagogy.state_predictor import generate_trace_exercise
+
+    exercise = generate_trace_exercise(
+        payload.kc_id, n_mutations=payload.n_mutations, difficulty=payload.difficulty
+    )
+    container.generated_registry.save(exercise)
+    return exercise
+
+
 @router.get("/available", response_model=Dict[str, Any])
 def get_available_exercises(
     notebook_id: str = Query(..., description="ID del cuaderno"),
