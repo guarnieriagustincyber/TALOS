@@ -102,6 +102,26 @@
       "note": "Declaración meta: abstiene contenido pero persiste preferencia (COMMIT 1)."
     },
     {
+      "id": "K5-01", "case": "K5",
+      "query": "Explicame cómo funciona el scheduling SJF",
+      "scope": {"scope_type": "folder", "scope_id": "f_prog"},
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 1,
+      "note": "Cross-materia: scope Programación, material en bóveda fase0-soc (COMMIT 2 scope global)."
+    },
+    {
+      "id": "K6-01", "case": "K6",
+      "query": "¿cómo funciona el algoritmo de planificación round robin y su quantum?",
+      "notebook_id": "fadena-so2",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 1,
+      "note": "Valida groundedness en cuaderno con PDFs recién ingeridos (multi-notebook)."
+    },
+    {
       "id": "OOD-01", "case": "OOD",
       "query": "¿Cuál es la mejor receta de pasta con ajo?",
       "expected_abstain": true,

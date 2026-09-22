@@ -490,7 +490,42 @@ def _assemble_epistemic_context(
 
         retrieval_limit, min_sources = _resolve_retrieval_depth(search_query)
         search_results = []
-        if hasattr(store, "search_hybrid"):
+        if target_notebook_id == GLOBAL_SCOPE_ID:
+            # Scope global (COMMIT 2): correr retrieval híbrido por cuaderno y
+            # fundir por chunk_id preservando el mejor rank de cada uno. La
+            # caché de matrices por cuaderno hace esto viable en CPU.
+            try:
+                with store.engine.transaction() as conn:
+                    cur = conn.cursor()
+                    cur.execute(
+                        "SELECT DISTINCT notebook_id FROM notebook_sources ORDER BY notebook_id;"
+                    )
+                    all_notebooks = [r[0] for r in cur.fetchall()]
+            except Exception as nb_err:
+                logger.warning("No se pudo listar cuadernos para scope global: %s", nb_err)
+                all_notebooks = []
+
+            merged: Dict[str, Tuple[int, Any]] = {}
+            for nb_id in all_notebooks:
+                try:
+                    nb_results = store.search_hybrid(
+                        query=search_query,
+                        notebook_id=nb_id,
+                        limit=retrieval_limit,
+                        min_sources=min_sources,
+                    ) if hasattr(store, "search_hybrid") else store.search(
+                        query=search_query, notebook_id=nb_id, limit=retrieval_limit
+                    )
+                except Exception as nb_search_err:
+                    logger.debug("Scope global: fallo retrieval en %s: %s", nb_id, nb_search_err)
+                    continue
+                for rank, res in enumerate(nb_results):
+                    cid = getattr(res, "chunk_id", None) or getattr(res, "id", None) or str(rank)
+                    if cid not in merged or merged[cid][0] > rank:
+                        merged[cid] = (rank, res)
+            search_results = [res for rank, res in sorted(merged.values(), key=lambda t: t[0])]
+            search_results = search_results[: max(retrieval_limit, min_sources * 2)]
+        elif hasattr(store, "search_hybrid"):
             try:
                 search_results = store.search_hybrid(
                     query=search_query,
@@ -817,6 +852,13 @@ def _match_kc_id(kcs_list: List[Dict[str, Any]], prompt_text: str) -> Optional[s
     return best_kc
 
 
+# Marcador de scope global (COMMIT 2 fix/scope): una query técnica emitida con
+# scope de carpeta (roadmap, Programación) no se desvía al usuario al cuaderno
+# "correcto"; el roadmap es acceso global por defecto y el retrieval corre
+# contra TODOS los cuadernos, fundiendo resultados por chunk_id.
+GLOBAL_SCOPE_ID = "__global__"
+
+
 def _prepare_chat_context(
     *,
     store: Any,
@@ -837,6 +879,10 @@ def _prepare_chat_context(
     notebook catalog matches the query (see ``_match_kc_id``). The SSE
     ``phase_complete`` payload then reports ``bkt_context.fallback=True``
     with neutral values instead of attributing the turn to an arbitrary KC.
+
+    COMMIT 2: folder scopes solo deflectan queries organizacionales. Si la
+    query es técnica, el routing continúa por el pipeline normal con scope
+    global (retrieval cross-notebook sobre todo el corpus).
     """
     if target_scope_id == "folder_root" and hasattr(store, "contains_folder") and not store.contains_folder("folder_root"):
         from datetime import datetime, timezone
@@ -857,6 +903,7 @@ def _prepare_chat_context(
         scope_id=target_scope_id,
     )
 
+    global_scope = False
     if resolved_scope.scope_type == ScopeType.FOLDER:
         from study_engine.hierarchy.folder_orchestrator import FolderOrchestrator
         target_folder_id = resolved_scope.folder_id or target_scope_id
@@ -866,9 +913,12 @@ def _prepare_chat_context(
             ledger=getattr(container, "ledger", None),
         )
         decision = orch.route_query(prompt_text)
-        return _pack_prepare_context(resolved_scope, folder_decision=decision)
+        if decision.get("action") != "delegate_to_notebook":
+            return _pack_prepare_context(resolved_scope, folder_decision=decision)
+        # Query técnica bajo scope de carpeta -> acceso global por defecto.
+        global_scope = True
 
-    target_notebook_id = resolved_scope.notebook_id or target_scope_id
+    target_notebook_id = GLOBAL_SCOPE_ID if global_scope else (resolved_scope.notebook_id or target_scope_id)
 
     # FAST-PATH CONVERSACIONAL (Fase 1: Sub-100ms Gatekeeping)
     from study_engine.tutor.fastpath_service import FastPathConversationalService
@@ -881,7 +931,7 @@ def _prepare_chat_context(
             conv_payload=(fastpath, route_kind, context),
         )
 
-    contract = store.get_pedagogical_contract(target_notebook_id)
+    contract = None if target_notebook_id == GLOBAL_SCOPE_ID else store.get_pedagogical_contract(target_notebook_id)
     context_pack, raw_chunks = _assemble_epistemic_context(
         store=store,
         container=container,
@@ -899,8 +949,16 @@ def _prepare_chat_context(
     # el phase_complete lo declara con bkt_context.fallback=True + p_L neutral.
     orch = getattr(container, "pedagogical_orchestrator", None)
     kc_catalog = getattr(orch, "_kc_catalog", {}) if orch is not None else {}
-    nb_catalog = kc_catalog.get(target_notebook_id, {}) if isinstance(kc_catalog, dict) else {}
-    kcs_list = nb_catalog.get("kcs", []) if isinstance(nb_catalog, dict) else []
+    if target_notebook_id == GLOBAL_SCOPE_ID:
+        # Scope global: matchear contra la unión de todos los catálogos KC.
+        kcs_list = [
+            kc
+            for nb_entry in (kc_catalog.values() if isinstance(kc_catalog, dict) else [])
+            for kc in (nb_entry.get("kcs", []) if isinstance(nb_entry, dict) else [])
+        ]
+    else:
+        nb_catalog = kc_catalog.get(target_notebook_id, {}) if isinstance(kc_catalog, dict) else {}
+        kcs_list = nb_catalog.get("kcs", []) if isinstance(nb_catalog, dict) else []
     matched_kc_id = _match_kc_id(kcs_list, prompt_text) if kcs_list else None
 
     from study_engine.pedagogy.student_context import (
@@ -911,7 +969,7 @@ def _prepare_chat_context(
         target_kc_id=matched_kc_id,
         bkt_tracker=getattr(container, "bkt_tracker", None),
         kc_catalog=kc_catalog,
-        notebook_id=target_notebook_id,
+        notebook_id=None if target_notebook_id == GLOBAL_SCOPE_ID else target_notebook_id,
     )
     bkt_directive = build_bkt_adaptation_directive(context_mode, bkt_meta)
 

@@ -34,7 +34,13 @@ REPORTS_DIR = REPO_ROOT / "reports"
 FIRST_TOKEN_BUDGET_MS = 3000
 
 
-def run_query(base_url: str, notebook_id: str, query: str, timeout_s: float = 120.0) -> Dict[str, Any]:
+def run_query(
+    base_url: str,
+    notebook_id: str,
+    query: str,
+    timeout_s: float = 120.0,
+    scope_override: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """Ejecuta una query SSE y extrae métricas del stream."""
     t0 = time.perf_counter()
     first_token_ms: Optional[int] = None
@@ -45,10 +51,20 @@ def run_query(base_url: str, notebook_id: str, query: str, timeout_s: float = 12
     final_event = None
     saw_error = False
 
+    payload: Dict[str, Any] = {"query": query, "notebook_id": notebook_id, "requested_phase": "conceptual"}
+    # K5 y casos cross-scope: permitir override explícito desde el golden set
+    if scope_override:
+        payload = {
+            "query": query,
+            "requested_phase": "conceptual",
+            "scope_type": scope_override.get("scope_type"),
+            "scope_id": scope_override.get("scope_id"),
+        }
+
     with httpx.stream(
         "POST",
         f"{base_url}/api/chat/query",
-        json={"query": query, "notebook_id": notebook_id, "requested_phase": "conceptual"},
+        json=payload,
         timeout=timeout_s,
     ) as r:
         r.raise_for_status()
@@ -160,7 +176,12 @@ def main() -> int:
     for entry in gs["queries"]:
         t_start = time.perf_counter()
         try:
-            result = run_query(args.base_url, notebook_id, entry["query"])
+            result = run_query(
+                args.base_url,
+                entry.get("notebook_id") or notebook_id,
+                entry["query"],
+                scope_override=entry.get("scope"),
+            )
         except Exception as exc:
             result = {"saw_error": True, "abstained": None, "bkt_context": None,
                       "n_citations": -1, "final_event": f"HARNESS:{type(exc).__name__}",
