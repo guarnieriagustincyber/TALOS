@@ -3,7 +3,8 @@
 from pathlib import Path
 import sqlite3
 import struct
-from typing import Any, List, Optional, Protocol, Tuple, Union, runtime_checkable
+import threading
+from typing import Any, Dict, List, Optional, Protocol, Tuple, Union, runtime_checkable
 
 from pydantic import Field, field_validator
 
@@ -65,6 +66,16 @@ class SQLiteVectorStore:
         self._conn.execute("PRAGMA synchronous = NORMAL;")
         self._initialize_schema()
 
+        # Caché de matrices por (notebook_id, provider_id, model_id).
+        # Cargar ~432MB de vectores por query no escala; la matriz se
+        # reutiliza mientras PRAGMA data_version no cambie. data_version se
+        # incrementa cuando OTRA conexión commitea (WAL) — cubre el caso del
+        # CLI `talos sync-vectors` corriendo en otro proceso mientras el
+        # servidor está vivo. Commits de ESTA conexión (save_records)
+        # invalidan explícitamente los notebooks afectados.
+        self._matrix_cache: Dict[Tuple[str, Optional[str], Optional[str]], Tuple[int, List[str], Any]] = {}
+        self._matrix_lock = threading.Lock()
+
     def _initialize_schema(self) -> None:
         # PK compuesta (chunk_id, notebook_id): una misma fuente puede pertenecer
         # a múltiples notebooks, y cada chunk debe ser recuperable semánticamente
@@ -123,6 +134,14 @@ class SQLiteVectorStore:
         cursor = self._conn.cursor()
         cursor.executemany(sql, data)
         self._conn.commit()
+
+        # PRAGMA data_version no cambia ante commits de ESTA misma conexión:
+        # invalidar explícitamente los notebooks afectados para que la matriz
+        # cacheada no quede obsoleta (cubre el path de sync-vectors).
+        affected = {r.notebook_id for r in records}
+        with self._matrix_lock:
+            for k in [k for k in self._matrix_cache if k[0] in affected]:
+                del self._matrix_cache[k]
         return len(records)
 
     def get_by_notebook(
@@ -172,8 +191,20 @@ class SQLiteVectorStore:
         provider_id: Optional[str] = None,
         model_id: Optional[str] = None,
     ) -> Tuple[List[str], Any]:
-        """Fetch chunk IDs and stacked 2D float32 NumPy matrix directly from binary BLOBs."""
+        """Fetch chunk IDs and stacked 2D float32 NumPy matrix directly from binary BLOBs.
+
+        Caché en memoria por (notebook_id, provider_id, model_id): la matriz
+        se recarga solo si cambió `PRAGMA data_version` (commit de otra
+        conexión/proceso) o si `save_records` invalidó el notebook.
+        """
         import numpy as np
+
+        key = (notebook_id, provider_id, model_id)
+        data_version = int(self._conn.execute("PRAGMA data_version;").fetchone()[0])
+        with self._matrix_lock:
+            cached = self._matrix_cache.get(key)
+            if cached is not None and cached[0] == data_version:
+                return cached[1], cached[2]
 
         query = """
         SELECT chunk_id, dimensions, vector
@@ -199,6 +230,8 @@ class SQLiteVectorStore:
         chunk_ids = [r[0] for r in rows if len(r[2]) == dim * 4]
         raw_concat = b"".join(r[2] for r in rows if len(r[2]) == dim * 4)
         matrix = np.frombuffer(raw_concat, dtype=np.float32).reshape((len(chunk_ids), dim))
+        with self._matrix_lock:
+            self._matrix_cache[key] = (data_version, chunk_ids, matrix)
         return chunk_ids, matrix
 
     def get_by_chunk_id(self, chunk_id: str) -> Optional[VectorRecord]:
