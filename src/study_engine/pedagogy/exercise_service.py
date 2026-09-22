@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+import threading
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -69,3 +70,60 @@ def to_proposal_payload(exercise: Any) -> Dict[str, Any]:
         "options": list(exercise.options) if exercise.options else None,
         # expected_answer NUNCA se expone al frontend en la propuesta
     }
+
+
+# ---------------------------------------------------------------------------
+# Protocolo de Lucha (Fase 5.3b / audit pedagógico)
+# ---------------------------------------------------------------------------
+
+STRUGGLE_THRESHOLD = 3
+
+STRUGGLE_DIRECTIVE = (
+    "=== PROTOCOLO DE LUCHA (STRUGGLE MODE) ===\n"
+    "El usuario falló este concepto 3 veces. PROHIBIDO repetir la explicación teórica.\n"
+    "1) Nombra el patrón de error observado.\n"
+    "2) Cambia radicalmente la modalidad (usa una analogía de aduanas o un "
+    "diagrama ASCII de memoria).\n"
+    "3) Termina pidiendo al usuario que prediga el estado de la memoria o "
+    "registros ANTES de dar la solución."
+)
+
+
+class StruggleTracker:
+    """Rastrea fallos consecutivos por KC en la sesión de estudio.
+
+    - record(kc_id, correct=False) incrementa; correct=True resetea ese KC.
+    - Un intento sobre OTRO KC resetea el foco (el estudiante cambió de tema).
+    - is_struggling(kc_id) es True solo si el KC activo acumuló >=3 fallos.
+    """
+
+    def __init__(self, threshold: int = STRUGGLE_THRESHOLD) -> None:
+        self.threshold = threshold
+        self._lock = threading.Lock()
+        self._focus_kc: Optional[str] = None
+        self._consecutive_failures = 0
+
+    def record(self, kc_id: str, correct: bool) -> int:
+        """Registra un intento y devuelve el conteo de fallos consecutivos."""
+        if not kc_id:
+            return 0
+        with self._lock:
+            if self._focus_kc != kc_id:
+                # Cambio de KC => resetea la racha previa
+                self._focus_kc = kc_id
+                self._consecutive_failures = 0
+            if correct:
+                self._consecutive_failures = 0
+            else:
+                self._consecutive_failures += 1
+            return self._consecutive_failures
+
+    def is_struggling(self, kc_id: Optional[str]) -> bool:
+        if not kc_id:
+            return False
+        with self._lock:
+            return self._focus_kc == kc_id and self._consecutive_failures >= self.threshold
+
+    def directive(self, kc_id: Optional[str]) -> str:
+        """Directiva de prompt (vacía si no hay lucha activa)."""
+        return STRUGGLE_DIRECTIVE if self.is_struggling(kc_id) else ""

@@ -282,7 +282,14 @@ class AppContainer:
 
         db_path = ":memory:" if self.use_mock else (self.working_dir / "student_state.db")
         self.student_storage = StudentStorage(db_path)
-        self.bkt_tracker = BKTTracker(self.student_storage)
+
+        # Parámetros BKT configurables (config/bkt_params.json): modo estricto
+        # (ningún intento incorrecto sube P(L) por sí solo).
+        from study_engine.student.bkt_tracker import load_bkt_params
+        self.bkt_tracker = BKTTracker(self.student_storage, default_params=load_bkt_params())
+
+        from study_engine.pedagogy.exercise_service import StruggleTracker
+        self.struggle_tracker = StruggleTracker()
         self.spaced_scheduler = SpacedRepetitionScheduler(self.student_storage)
         self.pedagogical_memory_tracker = PedagogicalMemoryTracker(self.student_storage)
         self.pedagogical_memory_extractor = PedagogicalMemoryExtractor(self.pedagogical_memory_tracker)

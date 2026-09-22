@@ -1051,6 +1051,17 @@ def _prepare_chat_context(
     )
     bkt_directive = build_bkt_adaptation_directive(context_mode, bkt_meta)
 
+    # Protocolo de Lucha (Fase 5.3b): si el estudiante encadena >=3 fallos en
+    # este KC, se inyecta la directiva estricta al prompt del siguiente turno.
+    struggle = getattr(container, "struggle_tracker", None)
+    if struggle and matched_kc_id and struggle.is_struggling(matched_kc_id):
+        logger.info("[STRUGGLE] KC %s con %s fallos consecutivos; inyectando protocolo.",
+                    matched_kc_id, "3+")
+        bkt_directive = (
+            f"{bkt_directive}\n\n{struggle.directive(matched_kc_id)}"
+            if bkt_directive else struggle.directive(matched_kc_id)
+        )
+
     # Inyectar memoria soberana de largo plazo (Fase 6 - Mem0 Soberano)
     mem0_directive = ""
     try:
@@ -1473,6 +1484,10 @@ async def evaluate_exercise_answer(
         grade_res = container.exact_grader.grade(req.user_answer, exercise.expected_answer)
     is_correct = bool(getattr(grade_res, "is_correct", False))
 
+    # Fase 5.3b: rastrear fallos consecutivos para el Protocolo de Lucha
+    struggle = getattr(container, "struggle_tracker", None)
+    struggle_consecutive = struggle.record(kc_id, is_correct) if struggle else 0
+
     prior = container.bkt_tracker.get_state(kc_id)
     fmt = ExerciseFormat.CLOSED_CHOICE if is_mc else ExerciseFormat.SYMBOLIC_OPEN
     bkt_res = container.bkt_tracker.update(
@@ -1497,4 +1512,6 @@ async def evaluate_exercise_answer(
         "delta_p_L": delta,
         "attempts": bkt_res.attempts,
         "remediation": remediation,
+        "struggle_mode": bool(struggle and struggle.is_struggling(kc_id)),
+        "struggle_consecutive_failures": struggle_consecutive,
     }

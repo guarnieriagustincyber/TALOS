@@ -31,14 +31,15 @@ from study_engine.web.routes.notebook import router as notebook_router
 from study_engine.web.routes.student_exercises import router as student_exercises_router
 
 logger = logging.getLogger(__name__)
-if not logger.handlers:
+if not logging.getLogger("study_engine.web").handlers:
     # El proyecto no configura logging y el root queda en WARNING: sin esto,
-    # los markers operativos de startup (p.ej. warmup de retrieval) quedan
-    # invisibles aunque sean la única señal de readiness.
+    # los markers operativos (warmup, struggle protocol, auditorías) quedan
+    # invisibles aunque sean la única señal operativa del proceso.
     _h = logging.StreamHandler()
     _h.setFormatter(logging.Formatter("%(levelname)s: %(name)s: %(message)s"))
-    logger.addHandler(_h)
-    logger.setLevel(logging.INFO)
+    _web_logger = logging.getLogger("study_engine.web")
+    _web_logger.addHandler(_h)
+    _web_logger.setLevel(logging.INFO)
 
 
 def _warmup_notebooks(store: Any) -> List[str]:
@@ -93,6 +94,13 @@ def create_app() -> FastAPI:
         """Eagerly initialize singleton container to ensure zero cold-start latency for UI requests."""
         from study_engine.web.dependencies import get_container
         container = get_container()
+
+        # Fase 5.3b: forzar carga síncrona del catálogo KC antes de aceptar
+        # queries (había un race post-restart: kc=None en el primer turno).
+        kc_catalog = getattr(container.pedagogical_orchestrator, "_kc_catalog", {})
+        n_kcs = sum(len(v.get("kcs", [])) for v in kc_catalog.values() if isinstance(v, dict))
+        logger.info("Catálogo KC cargado: %d notebooks, %d KCs", len(kc_catalog), n_kcs)
+
         _schedule_retrieval_warmup(container)
 
     def _schedule_retrieval_warmup(container: Any) -> None:

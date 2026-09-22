@@ -12,8 +12,13 @@ INVARIANTS:
 """
 
 from datetime import datetime, timezone
+import json
+import logging
+from pathlib import Path
 import threading
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 
 from study_engine.student.contracts import (
@@ -30,6 +35,26 @@ DEFAULT_BKT_PARAMS = {
     "p_G": 0.25,  # Default guess probability (4-option multiple choice)
     "p_S": 0.1,   # Slip probability (knowing but making an error)
 }
+
+BKT_PARAMS_PATH = Path(__file__).resolve().parents[3] / "config" / "bkt_params.json"
+
+
+def load_bkt_params(path: Optional[Path] = None) -> Dict[str, Any]:
+    """Carga parámetros BKT desde config/bkt_params.json (fallback: defaults).
+
+    Configurable sin tocar código; si el archivo no existe o es inválido se
+    usan los defaults históricos (no rompe).
+    """
+    p = Path(path) if path else BKT_PARAMS_PATH
+    try:
+        if p.exists():
+            data = json.loads(p.read_text(encoding="utf-8"))
+            params = dict(DEFAULT_BKT_PARAMS)
+            params.update(data.get("params", {}))
+            return params
+    except Exception as exc:
+        logger.warning("bkt_params.json inválido, usando defaults: %s", exc)
+    return dict(DEFAULT_BKT_PARAMS)
 
 
 class BKTTracker:
@@ -173,8 +198,15 @@ class BKTTracker:
             else:
                 p_L_obs = numerator / denominator
 
-            # Transition to learned state
-            p_L_next = p_L_obs + (1.0 - p_L_obs) * p_T
+            # Transition to learned state.
+            # Modo estricto (config/bkt_params.json): un intento INCORRECTO
+            # nunca sube P(L) por "haber intentado" — el aprendizaje por
+            # transición (p_T) solo se aplica cuando la evidencia es positiva.
+            strict = bool(self.params.get("strict_no_learn_on_incorrect", False))
+            if strict and not obs_correct:
+                p_L_next = p_L_obs
+            else:
+                p_L_next = p_L_obs + (1.0 - p_L_obs) * p_T
 
             # Clamping to valid probability interval [0.0, 1.0]
             p_L_next = max(0.0, min(1.0, p_L_next))
