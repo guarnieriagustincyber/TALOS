@@ -82,3 +82,32 @@ def test_oraculo_determinista_multikc():
 
     # Determinismo: misma entrada => mismo dict
     assert grader.grade(completa, ex["oracle"]) == r1
+
+
+def test_selector_fallback_a_generado_cuando_catalogo_vacio(tmp_path):
+    """Integración Fase 6: catálogo estático vacío -> registry -> genera on-the-fly."""
+    from study_engine.pedagogy.exercise_service import select_or_generate
+    from study_engine.pedagogy.exercise_store import ExerciseStore
+    from study_engine.pedagogy.generated_registry import GeneratedExerciseRegistry
+    from study_engine.student.storage import StudentStorage
+
+    empty_store = ExerciseStore(storage_path=tmp_path / "vacio.json")  # sin ejercicios
+    registry = GeneratedExerciseRegistry(StudentStorage(str(tmp_path / "s.db")))
+
+    # KC sin cobertura certificada pero matcheable a la plantilla multi-KC
+    out = select_or_generate(
+        empty_store,
+        registry,
+        "aritmetica_punteros",
+        catalog={"fase0-soc": {"kcs": [
+            {"kc_id": "aritmetica_punteros", "title": "Aritmética de punteros",
+             "subtopics": ["malloc", "free"]},
+        ]}},
+    )
+    assert out is not None and out["source"] == "generated"
+
+    # Segunda llamada: NO regenera — usa lo persistido en el registro
+    out2 = select_or_generate(empty_store, registry, "aritmetica_punteros",
+                              catalog={"fase0-soc": {"kcs": [
+                                  {"kc_id": "aritmetica_punteros", "title": "x"}]}})
+    assert out2["exercise_id"] == out["exercise_id"]
