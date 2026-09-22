@@ -883,6 +883,32 @@ def _is_non_curricular_intent(prompt_text: str, kcs_list: List[Dict[str, Any]]) 
     return _match_kc_id(kcs_list, prompt_text) is None
 
 
+def _global_default_contract() -> Any:
+    """Contrato pedagógico neutral para scope global (roadmap cross-notebook).
+
+    El pipeline requiere un contract (get_phase, SocraticGuard, system prompt);
+    en scope global no hay contrato de cuaderno, así que se sintetiza uno
+    genérico con la fase 'conceptual' y el tono soberano por defecto.
+    """
+    from study_engine.pedagogy.contract import PedagogicalContract
+    from study_engine.pedagogy.response_phase import ResponsePhase
+
+    return PedagogicalContract(
+        notebook_id=GLOBAL_SCOPE_ID,
+        base_system_prompt=(
+            "Sos TALOS, tutor soberano en modo roadmap global: respondé con rigor, "
+            "socrático y siempre anclado a la evidencia citada del corpus recuperado."
+        ),
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=3500,
+                phase_prompt_template="Resolvé pedagógicamente: {concept}",
+            )
+        ],
+    )
+
+
 def _prepare_chat_context(
     *,
     store: Any,
@@ -985,9 +1011,7 @@ def _prepare_chat_context(
             ),
         )
         raw_chunks: List[Any] = []
-        contract = None if target_notebook_id == GLOBAL_SCOPE_ID else store.get_pedagogical_contract(target_notebook_id)
     else:
-        contract = None if target_notebook_id == GLOBAL_SCOPE_ID else store.get_pedagogical_contract(target_notebook_id)
         context_pack, raw_chunks = _assemble_epistemic_context(
             store=store,
             container=container,
@@ -995,6 +1019,14 @@ def _prepare_chat_context(
             target_notebook_id=target_notebook_id,
             active_sources=request.active_sources,
         )
+
+    # El pipeline SIEMPRE necesita un contrato (SocraticGuard, get_phase);
+    # en scope global se usa el contrato neutral sintético.
+    contract = (
+        _global_default_contract()
+        if target_notebook_id == GLOBAL_SCOPE_ID
+        else store.get_pedagogical_contract(target_notebook_id)
+    )
 
     # ConversationStyleRouter (Ola 5, E24)
     from study_engine.pedagogy.style_router import ConversationStyleRouter

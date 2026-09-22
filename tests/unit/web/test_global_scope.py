@@ -84,7 +84,8 @@ def test_folder_technical_query_goes_global_and_retrieves_cross_notebook():
 
     # No se deflectó al usuario: el pipeline continuó con scope global
     assert folder_decision is None
-    assert contract is None  # sin contrato de cuaderno en modo global
+    # contrato sintético neutral (el pipeline requiere uno; antes: crash 500)
+    assert contract is not None and contract.notebook_id == GLOBAL_SCOPE_ID
     assert context_pack is not None and not getattr(context_pack, "abstained", False)
     # Y el chunk vino del cuaderno BÓVEDA, no del cuaderno del folder
     assert any(c["source_id"] == "src_soc" for c in raw_chunks)

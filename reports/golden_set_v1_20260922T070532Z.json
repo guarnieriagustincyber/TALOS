@@ -1,0 +1,565 @@
+{
+  "summary": {
+    "total": 18,
+    "passed": 17,
+    "failed": 1,
+    "by_case": {
+      "K2": {
+        "n": 7,
+        "pass": 7
+      },
+      "K1": {
+        "n": 4,
+        "pass": 4
+      },
+      "K4": {
+        "n": 1,
+        "pass": 1
+      },
+      "K3": {
+        "n": 1,
+        "pass": 1
+      },
+      "K5": {
+        "n": 1,
+        "pass": 0
+      },
+      "K6": {
+        "n": 1,
+        "pass": 1
+      },
+      "OOD": {
+        "n": 3,
+        "pass": 3
+      }
+    },
+    "kc_accuracy": 1.0,
+    "first_token_p50_ms": 1539,
+    "first_token_max_ms": 30726,
+    "first_token_within_budget": false
+  },
+  "rows": [
+    {
+      "id": "K2-01",
+      "case": "K2",
+      "query": "¿cómo uso malloc y free sin leaks?",
+      "expected_abstain": false,
+      "expected_kc_id": "aritmetica_punteros",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 30726,
+        "total_ms": 35623,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "aritmetica_punteros",
+          "context_mode": "basic",
+          "p_L": 0.1,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 6,
+        "invalid_citations": [
+          "[E652]",
+          "[E2719]",
+          "[E604]",
+          "[E1501]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-02",
+      "case": "K2",
+      "query": "¿qué es un puntero doble o puntero a puntero?",
+      "expected_abstain": false,
+      "expected_kc_id": "aritmetica_punteros",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 995,
+        "total_ms": 4947,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "aritmetica_punteros",
+          "context_mode": "basic",
+          "p_L": 0.1,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 6,
+        "invalid_citations": [
+          "[E4341]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-03",
+      "case": "K2",
+      "query": "explicame la búsqueda binaria y su complejidad asintótica",
+      "expected_abstain": false,
+      "expected_kc_id": "big_o_complejidad",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1877,
+        "total_ms": 6654,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "big_o_complejidad",
+          "context_mode": "prerequisite_reinforcement",
+          "p_L": 0.1,
+          "unmet_prerequisites": [
+            [
+              "aritmetica_punteros",
+              0.1
+            ]
+          ],
+          "fallback": false
+        },
+        "n_citations": 6,
+        "invalid_citations": [
+          "[E4341]",
+          "[E2457]",
+          "[E3105]",
+          "[E230]",
+          "[E3106]",
+          "[E417]",
+          "[E416]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-04",
+      "case": "K2",
+      "query": "¿cómo se representa una decisión en un diagrama de flujo ANSI?",
+      "expected_abstain": false,
+      "expected_kc_id": "fase0_tramo1_metodologia",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1539,
+        "total_ms": 3955,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "fase0_tramo1_metodologia",
+          "context_mode": "advanced",
+          "p_L": 0.9987,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 1,
+        "invalid_citations": [
+          "[E95]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-05",
+      "case": "K2",
+      "query": "¿qué diferencia hay entre un array y un string en memoria?",
+      "expected_abstain": false,
+      "expected_kc_id": "fase0_tramo4_estructuras_lineales",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1260,
+        "total_ms": 5279,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "fase0_tramo4_estructuras_lineales",
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 2,
+        "invalid_citations": [
+          "[E269]",
+          "[E268]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-06",
+      "case": "K2",
+      "query": "diferencia entre bucle while y bucle for, ¿cuándo conviene cada uno?",
+      "expected_abstain": false,
+      "expected_kc_id": "fase0_tramo2_logica_control",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1276,
+        "total_ms": 5617,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "fase0_tramo2_logica_control",
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 6,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-07",
+      "case": "K2",
+      "query": "ordenamiento burbuja vs quicksort: cuál es más eficiente y por qué",
+      "expected_abstain": false,
+      "expected_kc_id": "big_o_complejidad",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1035,
+        "total_ms": 6402,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "big_o_complejidad",
+          "context_mode": "prerequisite_reinforcement",
+          "p_L": 0.1,
+          "unmet_prerequisites": [
+            [
+              "aritmetica_punteros",
+              0.1
+            ]
+          ],
+          "fallback": false
+        },
+        "n_citations": 6,
+        "invalid_citations": [
+          "[E269]",
+          "[E56]",
+          "[E216]",
+          "[E558]",
+          "[E202]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K1-01",
+      "case": "K1",
+      "query": "¿Cómo funciona el scheduling SJF?",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1719,
+        "total_ms": 7268,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": null,
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": true
+        },
+        "n_citations": 6,
+        "invalid_citations": [
+          "[E5467]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K1-02",
+      "case": "K1",
+      "query": "¿Qué es un deadlock y cuándo ocurre?",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 25476,
+        "total_ms": 31809,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": null,
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": true
+        },
+        "n_citations": 6,
+        "invalid_citations": [
+          "[E2721]",
+          "[E2722]",
+          "[E1223]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K1-03",
+      "case": "K1",
+      "query": "Resumime la planificación de procesos del sistema operativo",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 15953,
+        "total_ms": 20748,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": null,
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": true
+        },
+        "n_citations": 14,
+        "invalid_citations": [
+          "[E3257]",
+          "[E716]",
+          "[E373]",
+          "[E340]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K1-04",
+      "case": "K1",
+      "query": "¿Qué es un semáforo en sistemas operativos?",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1694,
+        "total_ms": 5446,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": null,
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": true
+        },
+        "n_citations": 6,
+        "invalid_citations": [
+          "[E2722]",
+          "[E1223]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K4-01",
+      "case": "K4",
+      "query": "Prefiero que me expliques todo con analogías de comercio exterior",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "note": "Declaración meta: abstiene contenido pero persiste preferencia (COMMIT 1).",
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 324,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K3-01",
+      "case": "K3",
+      "query": "¿Qué opinás de Star Wars?",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "note": "Match léxico de contenido (nota SW en corpus) PERO intención no curricular (COMMIT 3).",
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 422,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K5-01",
+      "case": "K5",
+      "query": "Explicame cómo funciona el scheduling SJF",
+      "scope": {
+        "scope_type": "folder",
+        "scope_id": "f_prog"
+      },
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 1,
+      "note": "Cross-materia: scope Programación, material en bóveda fase0-soc (COMMIT 2 scope global).",
+      "result": {
+        "saw_error": true,
+        "abstained": null,
+        "bkt_context": null,
+        "n_citations": -1,
+        "final_event": "HARNESS:HTTPStatusError",
+        "invalid_citations": [],
+        "first_token_ms": null,
+        "total_ms": -1
+      },
+      "pass": false,
+      "failures": [
+        "evento 'error' en el stream",
+        "abstained=None != esperado False",
+        "final_event=HARNESS:HTTPStatusError != phase_complete",
+        "citas -1 < min 1"
+      ]
+    },
+    {
+      "id": "K6-01",
+      "case": "K6",
+      "query": "¿cómo funciona el algoritmo de planificación round robin y su quantum?",
+      "notebook_id": "fadena-so2",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 1,
+      "note": "Valida groundedness en cuaderno con PDFs recién ingeridos (multi-notebook).",
+      "result": {
+        "first_token_ms": 1172,
+        "total_ms": 6954,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "so2_planificacion_cpu",
+          "context_mode": "prerequisite_reinforcement",
+          "p_L": 0.1,
+          "unmet_prerequisites": [
+            [
+              "so2_gestion_procesos_pcb",
+              0.1
+            ]
+          ],
+          "fallback": false
+        },
+        "n_citations": 2,
+        "invalid_citations": [
+          "[E12]",
+          "[E13]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "OOD-01",
+      "case": "OOD",
+      "query": "¿Cuál es la mejor receta de pasta con ajo?",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 135,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "OOD-02",
+      "case": "OOD",
+      "query": "¿Cómo me preparo físicamente para correr un maratón?",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 227,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "OOD-03",
+      "case": "OOD",
+      "query": "contame la historia del imperio romano en tres párrafos",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 183,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    }
+  ]
+}
