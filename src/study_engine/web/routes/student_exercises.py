@@ -190,6 +190,33 @@ def generate_multi_kc_exercise(
     return exercise
 
 
+class GenerateDebugRequest(BaseModel):
+    model_config = ConfigDict(strict=True)
+    kc_id: str = Field(..., min_length=1)
+    bug_type: Optional[str] = Field(
+        default=None,
+        description="buffer_overflow|integer_overflow|race_condition|use_after_free (auto si no se indica)",
+    )
+
+
+@router.post("/generate/debugging", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
+def generate_debugging_exercise_ep(
+    payload: GenerateDebugRequest,
+    container: AppContainer = Depends(get_container),
+) -> Dict[str, Any]:
+    """Genera un ejercicio de depuración adversaria (código con bug inyectado)."""
+    from study_engine.pedagogy.bug_generator import generate_debugging_exercise
+
+    exercise = generate_debugging_exercise(payload.kc_id, bug_type=payload.bug_type)
+    if exercise is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="No hay plantilla de bug para ese KC/tipo.",
+        )
+    container.generated_registry.save(exercise)
+    return exercise
+
+
 @router.get("/available", response_model=Dict[str, Any])
 def get_available_exercises(
     notebook_id: str = Query(..., description="ID del cuaderno"),
