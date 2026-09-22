@@ -139,6 +139,21 @@ class KCAdminStore:
         }
 
 
+    def delete_manual_kc(self, notebook_id: str, kc_id: str) -> bool:
+        """Borra un KC manual de la DB. Devuelve True si se borró algo.
+
+        Los KCs canónicos del JSON viven en archivo versionado (no en esta
+        tabla), así que no son alcanzables por este método. El filtro
+        ``origin='manual'`` queda como segunda barrera de seguridad.
+        """
+        with self.engine.transaction() as conn:
+            cur = conn.execute(
+                "DELETE FROM notebook_kcs WHERE notebook_id = ? AND kc_id = ? AND origin = 'manual';",
+                (notebook_id, kc_id),
+            )
+            return cur.rowcount > 0
+
+
 def merge_manual_kcs(catalog: Dict[str, Any], db_kcs: Dict[str, List[Dict[str, Any]]]) -> None:
     """Funde KCs manuales (DB) dentro del catálogo in-place.
 

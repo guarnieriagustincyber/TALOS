@@ -311,8 +311,183 @@ def verify_index(
 
 
 # ---------------------------------------------------------------------------
-# CLI
+# talos kc — gestión de Knowledge Components (Fase 5.2)
 # ---------------------------------------------------------------------------
+
+DEFAULT_STUDENT_DB = REPO_ROOT / "data" / "web_state" / "student_state.db"
+
+_DIFFICULTY_MAP = {
+    "basic": "basico",
+    "intermediate": "intermedio",
+    "advanced": "avanzado",
+    "basico": "basico",
+    "intermedio": "intermedio",
+    "avanzado": "avanzado",
+}
+
+
+def _slugify(text: str) -> str:
+    import re as _re
+    import unicodedata as _ud
+
+    norm = _ud.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    slug = _re.sub(r"[^a-z0-9]+", "_", norm.lower()).strip("_")
+    return slug or "kc_manual"
+
+
+def _open_kc_store(knowledge_db: Path):
+    from study_engine.curriculum.kc_admin import KCAdminStore
+    from study_engine.storage.sqlite_engine import SQLiteStorageEngine
+
+    return KCAdminStore(SQLiteStorageEngine(Path(knowledge_db)))
+
+
+def _kc_bkt_status(student_db: Path) -> Dict[str, float]:
+    """p_L por kc_id (si existe la DB de estudiante)."""
+    import sqlite3 as _sq
+
+    if not Path(student_db).exists():
+        return {}
+    con = _sq.connect(f"file:{student_db}?mode=ro", uri=True)
+    try:
+        return {r[0]: r[1] for r in con.execute("SELECT kc_id, p_L FROM bkt_states")}
+    except Exception:
+        return {}
+    finally:
+        con.close()
+
+
+def _kc_status_label(p_l: Optional[float]) -> str:
+    if p_l is None:
+        return "not_started"
+    if p_l >= 0.8:
+        return "mastered"
+    if p_l >= 0.4:
+        return "in_progress"
+    return "not_started"
+
+
+def _cmd_kc_list(args: argparse.Namespace) -> int:
+    store = _open_kc_store(Path(args.knowledge_db))
+    manual = {k["kc_id"]: k for k in store.list_manual_kcs(args.notebook_id)}
+
+    # Catálogo canónico JSON
+    catalog_path = REPO_ROOT / "config" / "notebook_kc_catalog.json"
+    json_kcs: List[Dict[str, Any]] = []
+    if catalog_path.exists():
+        data = json.loads(catalog_path.read_text(encoding="utf-8"))
+        json_kcs = (data.get(args.notebook_id, {}) or {}).get("kcs", []) or []
+
+    rows: List[Dict[str, Any]] = []
+    for kc in json_kcs:
+        rows.append({
+            "kc_id": kc.get("kc_id", ""),
+            "title": kc.get("title") or kc.get("display_name") or "",
+            "difficulty": "—",
+            "origin": "json",
+        })
+    rows += [
+        {
+            "kc_id": k["kc_id"],
+            "title": k["title"],
+            "difficulty": k.get("difficulty") or "—",
+            "origin": k["origin"],
+        }
+        for k in manual.values()
+    ]
+
+    if not rows:
+        print(f"No hay KCs definidos para este notebook ('{args.notebook_id}').")
+        return 0
+
+    bkt = _kc_bkt_status(Path(args.student_db))
+    headers = ("KC_ID", "DIFICULTAD", "ORIGEN", "ESTADO BKT", "TÍTULO")
+    widths = [
+        min(max([len(headers[i])] + [len(str(r[c])) for r in rows]), 28) + 2
+        for i, c in enumerate(("kc_id", "difficulty", "origin"))
+    ]
+
+    print(f"KCs de '{args.notebook_id}' ({len(rows)}):")
+    for r in rows:
+        status = _kc_status_label(bkt.get(r["kc_id"]))
+        line = (
+            f"  {r['kc_id']:<{widths[0]}} {r['difficulty']:<{widths[1]}} "
+            f"{r['origin']:<{widths[2]}} {status:<12} {r['title'][:56]}"
+        )
+        print(line)
+    return 0
+
+
+def _cmd_kc_add(args: argparse.Namespace) -> int:
+    store = _open_kc_store(Path(args.knowledge_db))
+
+    # Validar que el notebook exista
+    import sqlite3 as _sq
+    con = _sq.connect(f"file:{args.knowledge_db}?mode=ro", uri=True)
+    try:
+        exists = con.execute("SELECT 1 FROM notebooks WHERE id = ?", (args.notebook_id,)).fetchone()
+    finally:
+        con.close()
+    if not exists:
+        print(f"Error: el notebook '{args.notebook_id}' no existe (404).")
+        return 1
+
+    difficulty = _DIFFICULTY_MAP.get((args.diff or "").lower()) if args.diff else None
+    if args.diff and difficulty is None:
+        print(f"Error: dificultad inválida '{args.diff}'. Válidas: basic, intermediate, advanced.")
+        return 2
+
+    prereqs = [p.strip() for p in (args.prereq or "").split(",") if p.strip()] or None
+    subtopics = [s.strip() for s in (args.subtopics or "").split(",") if s.strip()] or None
+
+    # Catálogo efectivo (JSON + manuales) para dedupe
+    catalog_path = REPO_ROOT / "config" / "notebook_kc_catalog.json"
+    existing: List[Dict[str, Any]] = []
+    if catalog_path.exists():
+        data = json.loads(catalog_path.read_text(encoding="utf-8"))
+        existing = (data.get(args.notebook_id, {}) or {}).get("kcs", []) or []
+    existing += store.list_manual_kcs(args.notebook_id)
+
+    from study_engine.curriculum.kc_admin import DuplicateKCError
+
+    kc_id = args.kc_id or _slugify(args.title)
+    try:
+        rec = store.add_kc(
+            notebook_id=args.notebook_id,
+            kc_id=kc_id,
+            title=args.title,
+            prerequisites=prereqs,
+            subtopics=subtopics,
+            estimated_time=args.time,
+            difficulty=difficulty,
+            existing_kcs=existing,
+        )
+    except DuplicateKCError:
+        print(f"Error: El KC '{kc_id}' ya existe en este notebook (409).")
+        return 4
+    except ValueError as exc:
+        print(f"Error de validación: {exc}")
+        return 2
+
+    print(f"✅ KC '{rec['kc_id']}' agregado exitosamente al notebook '{args.notebook_id}'.")
+    return 0
+
+
+def _cmd_kc_delete(args: argparse.Namespace) -> int:
+    store = _open_kc_store(Path(args.knowledge_db))
+    deleted = store.delete_manual_kc(args.notebook_id, args.kc_id)
+    if deleted:
+        print(f"🗑️  KC manual '{args.kc_id}' eliminado de '{args.notebook_id}'.")
+        print("   Nota: si el backend está vivo, refrescá o reiniciá para reemerger el catálogo.")
+        return 0
+    print(
+        f"Error: no existe KC manual '{args.kc_id}' en '{args.notebook_id}'. "
+        "(Los KCs canónicos del JSON no se pueden borrar por este comando.)"
+    )
+    return 4
+
+
+
 
 def _cmd_export_pending(args: argparse.Namespace) -> int:
     out_path, count = export_pending(
@@ -382,6 +557,31 @@ def build_parser() -> argparse.ArgumentParser:
     p_ver = sub.add_parser("verify-index", help="Verifica cobertura, integridad y gate de abstención")
     p_ver.add_argument("--no-control-queries", action="store_true", help="Salta las 3 queries de control")
     p_ver.set_defaults(func=_cmd_verify_index)
+
+    # talos kc — gestión de Knowledge Components (Fase 5.2)
+    p_kc = sub.add_parser("kc", help="Gestiona Knowledge Components de un notebook")
+    p_kc.add_argument("--student-db", default=str(DEFAULT_STUDENT_DB),
+                      help="DB de estudiante para estados BKT (solo lectura)")
+    kc_sub = p_kc.add_subparsers(dest="kc_command", required=True)
+
+    p_kc_list = kc_sub.add_parser("list", help="Lista KCs de un notebook")
+    p_kc_list.add_argument("notebook_id")
+    p_kc_list.set_defaults(func=_cmd_kc_list)
+
+    p_kc_add = kc_sub.add_parser("add", help="Agrega un KC manual al notebook")
+    p_kc_add.add_argument("notebook_id")
+    p_kc_add.add_argument("--title", required=True)
+    p_kc_add.add_argument("--kc-id", default=None, help="ID explícito (default: slug del título)")
+    p_kc_add.add_argument("--prereq", default=None, help="Prerequisitos separados por coma")
+    p_kc_add.add_argument("--subtopics", default=None, help="Subtemas separados por coma")
+    p_kc_add.add_argument("--time", type=int, default=None, help="Minutos estimados")
+    p_kc_add.add_argument("--diff", default=None, help="basic|intermediate|advanced")
+    p_kc_add.set_defaults(func=_cmd_kc_add)
+
+    p_kc_del = kc_sub.add_parser("delete", help="Elimina un KC manual (no borra canónicos JSON)")
+    p_kc_del.add_argument("notebook_id")
+    p_kc_del.add_argument("kc_id")
+    p_kc_del.set_defaults(func=_cmd_kc_delete)
 
     return parser
 
