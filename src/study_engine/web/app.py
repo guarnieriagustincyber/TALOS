@@ -26,6 +26,7 @@ from study_engine.web.routes.telemetry import router as telemetry_router
 from study_engine.web.routes.pedagogy import router as pedagogy_router
 from study_engine.web.routes.dialogue import router as dialogue_router
 from study_engine.web.routes.study_session import router as study_session_router
+from study_engine.web.routes.notebook import admin_router as curriculum_admin_router
 from study_engine.web.routes.notebook import router as notebook_router
 from study_engine.web.routes.student_exercises import router as student_exercises_router
 
@@ -153,6 +154,7 @@ def create_app() -> FastAPI:
     app.include_router(dialogue_router)
     app.include_router(study_session_router)
     app.include_router(notebook_router)
+    app.include_router(curriculum_admin_router)
     app.include_router(student_exercises_router)
 
     # Mount static assets directory

@@ -10,9 +10,12 @@ Manages singleton lifecycle for:
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 import sys
+
+logger = logging.getLogger(__name__)
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
 
@@ -359,6 +362,19 @@ class AppContainer:
             exercise_store=self.exercise_store,
             bkt_tracker=self.bkt_tracker,
         )
+
+        # Fase 5.1: KCs manuales (tabla notebook_kcs) fundidos con el catálogo
+        # JSON canónico; el orquestador/matcher/BKT ven el syllabus completo.
+        from study_engine.curriculum.kc_admin import KCAdminStore, merge_manual_kcs
+
+        self.kc_admin = KCAdminStore(self.knowledge_store.engine)
+        try:
+            merge_manual_kcs(
+                self.pedagogical_orchestrator._kc_catalog,
+                self.kc_admin.catalog_dump(),
+            )
+        except Exception as kc_err:
+            logger.warning("No se pudieron fundir KCs manuales al boot: %s", kc_err)
 
     def _init_dialogue_and_session(self) -> None:
         """Configure Socratic Dialogue Engine and Unified Study Session Orchestrator."""

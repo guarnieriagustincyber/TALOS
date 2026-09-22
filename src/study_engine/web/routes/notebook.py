@@ -1,14 +1,18 @@
 """FastAPI router for sovereign Notebook queries (Domain Distribution & Epistemic Stats)."""
 
 import json
+import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from pydantic import BaseModel, ConfigDict, Field
 import pymupdf
 
 from study_engine.utils.pdf_utils import extract_pdf_cover, save_and_hash_uploaded_pdf, validate_and_hash_pdf
 from study_engine.web.dependencies import AppContainer, get_container
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/notebook", tags=["Notebook"])
 
@@ -603,3 +607,121 @@ def get_curriculum_progress(
 
     return list(units_dict.values())
 
+
+
+# ---------------------------------------------------------------------------
+# Fase 5.1 — Administración manual del syllabus (KCs) y currícula por cuaderno
+# (rutas plurales dedicadas, independientes del router /api/notebook)
+# ---------------------------------------------------------------------------
+
+admin_router = APIRouter(prefix="/api/notebooks", tags=["Curriculum Admin"])
+
+
+class KCCreatePayload(BaseModel):
+    """Payload para alta manual de un Knowledge Component."""
+
+    model_config = ConfigDict(strict=True)
+
+    kc_id: str = Field(..., min_length=3, max_length=64, description="Identificador estable del KC (slug).")
+    title: str = Field(..., min_length=3, max_length=200)
+    prerequisites: Optional[List[str]] = Field(default=None)
+    subtopics: Optional[List[str]] = Field(default=None)
+    estimated_time: Optional[int] = Field(default=None, ge=5, le=600, description="Minutos estimados.")
+    difficulty: Optional[str] = Field(default=None, description="basico|intermedio|avanzado")
+
+
+def _kc_effective_kcs(container: AppContainer, notebook_id: str) -> List[Dict[str, Any]]:
+    """Catálogo efectivo del cuaderno (JSON canónico + KCs manuales ya fundidos)."""
+    catalog = getattr(container.pedagogical_orchestrator, "_kc_catalog", {})
+    entry = catalog.get(notebook_id, {}) if isinstance(catalog, dict) else {}
+    kcs = entry.get("kcs", []) if isinstance(entry, dict) else []
+    return kcs if isinstance(kcs, list) else []
+
+
+def _kc_status(container: AppContainer, notebook_id: str, kc_id: str) -> str:
+    """Estado del KC: mastered (p_L>=0.8) / in_progress (p_L>=0.4) / not_started.
+
+    El umbral refleja el criterio BKT ya usado por el curriculum view; es una
+    lectura derivada del tracker, no una mutación.
+    """
+    try:
+        p_l = container.bkt_tracker.get_state(kc_id).p_L
+    except Exception:
+        return "not_started"
+    if p_l >= 0.8:
+        return "mastered"
+    if p_l >= 0.4:
+        return "in_progress"
+    return "not_started"
+
+
+@admin_router.get("/{notebook_id}/curriculum")
+def get_notebook_curriculum(
+    notebook_id: str,
+    container: AppContainer = Depends(get_container),
+) -> Dict[str, Any]:
+    """Lista los KCs del cuaderno (JSON canónico + manuales). Lista vacía si no hay."""
+    clean_id = notebook_id.strip()
+    kcs = _kc_effective_kcs(container, clean_id)
+    return {
+        "notebook_id": clean_id,
+        "total": len(kcs),
+        "kcs": [
+            {
+                "kc_id": k.get("kc_id"),
+                "title": k.get("title") or k.get("display_name") or k.get("kc_id"),
+                "prerequisites": k.get("prerequisites") or [],
+                "estimated_time": k.get("estimated_time"),
+                "difficulty": k.get("difficulty"),
+                "status": _kc_status(container, clean_id, k.get("kc_id", "")),
+            }
+            for k in kcs
+        ],
+    }
+
+
+@admin_router.post("/{notebook_id}/knowledge-components", status_code=status.HTTP_201_CREATED)
+def create_knowledge_component(
+    notebook_id: str,
+    payload: KCCreatePayload,
+    container: AppContainer = Depends(get_container),
+) -> Dict[str, Any]:
+    """Alta manual de KC: valida duplicados, persiste y refresca el catálogo en memoria."""
+    clean_id = notebook_id.strip()
+    if not container.knowledge_store.contains_notebook(clean_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Notebook '{clean_id}' no existe.",
+        )
+
+    from study_engine.curriculum.kc_admin import DuplicateKCError
+
+    existing = _kc_effective_kcs(container, clean_id)
+    try:
+        rec = container.kc_admin.add_kc(
+            notebook_id=clean_id,
+            kc_id=payload.kc_id,
+            title=payload.title,
+            prerequisites=payload.prerequisites,
+            subtopics=payload.subtopics,
+            estimated_time=payload.estimated_time,
+            difficulty=payload.difficulty,
+            existing_kcs=existing,
+        )
+    except DuplicateKCError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+
+    # Invalidar el catálogo cacheado en memoria: el matcher de BKT (chat) y el
+    # curriculum view ven el KC nuevo sin reiniciar. BKT por KC no guarda caché
+    # propia — el estado BKT del KC nuevo arranca en p_L0 como corresponde.
+    catalog = getattr(container.pedagogical_orchestrator, "_kc_catalog", None)
+    if isinstance(catalog, dict):
+        entry = catalog.setdefault(clean_id, {"kcs": []})
+        if isinstance(entry.get("kcs"), list) and all(
+            k.get("kc_id") != rec["kc_id"] for k in entry["kcs"]
+        ):
+            entry["kcs"].append(rec)
+    logger.info("KC manual creado: notebook=%s kc_id=%s", clean_id, rec["kc_id"])
+    return rec

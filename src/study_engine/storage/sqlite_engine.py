@@ -148,6 +148,24 @@ CREATE TABLE IF NOT EXISTS pedagogical_contracts (
     updated_at TEXT NOT NULL,
     FOREIGN KEY (notebook_id) REFERENCES notebooks(id) ON DELETE CASCADE
 );
+
+-- 8. Knowledge Components manuales del usuario (Fase 5.1)
+-- KCs agregados manualmente por el usuario vía API; se funden con el catálogo
+-- JSON canónico (config/notebook_kc_catalog.json) al inicializar el orquestador
+-- y tras cada alta (ver curriculum/kc_admin.py).
+CREATE TABLE IF NOT EXISTS notebook_kcs (
+    notebook_id TEXT NOT NULL,
+    kc_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    prerequisites_json TEXT NOT NULL DEFAULT '[]',
+    subtopics_json TEXT NOT NULL DEFAULT '[]',
+    estimated_time_min INTEGER,
+    difficulty TEXT,
+    origin TEXT NOT NULL DEFAULT 'manual',
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (notebook_id, kc_id),
+    FOREIGN KEY (notebook_id) REFERENCES notebooks(id) ON DELETE CASCADE
+);
 """
 
 
@@ -155,7 +173,7 @@ CREATE TABLE IF NOT EXISTS pedagogical_contracts (
 class SQLiteStorageEngine:
     """Low-level SQLite connection and schema manager for Study Engine knowledge stores."""
 
-    SCHEMA_VERSION: int = 3
+    SCHEMA_VERSION: int = 4  # v4: notebook_kcs (KCs manuales, Fase 5.1)
 
     def __init__(self, db_path: Union[str, Path] = ":memory:"):
         self.db_path = Path(db_path) if db_path != ":memory:" else ":memory:"

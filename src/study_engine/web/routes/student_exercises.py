@@ -163,6 +163,40 @@ def list_exercises(
     return results
 
 
+@router.get("/available", response_model=Dict[str, Any])
+def get_available_exercises(
+    notebook_id: str = Query(..., description="ID del cuaderno"),
+    container: AppContainer = Depends(get_container),
+) -> Dict[str, Any]:
+    """Ejercicios QUALIFIABLE disponibles para los KCs del cuaderno (Fase 5.1).
+
+    Conecta con el ExerciseStore certificado (fail-closed: solo QUALIFIABLE).
+    Matchea por kc_id exacto contra el catálogo efectivo del cuaderno, o por
+    prefijo ``{notebook_id}-`` para catálogos namespaced legados.
+    """
+    clean_id = notebook_id.strip()
+    kc_catalog = getattr(container.pedagogical_orchestrator, "_kc_catalog", {})
+    nb_entry = kc_catalog.get(clean_id, {}) if isinstance(kc_catalog, dict) else {}
+    nb_kcs = {k.get("kc_id") for k in nb_entry.get("kcs", []) if isinstance(k, dict)}
+
+    items: List[Dict[str, Any]] = []
+    store = getattr(container, "exercise_store", None)
+    if store is not None:
+        for ex in store.list_all():
+            if not ex.is_presentable():
+                continue
+            if nb_kcs and ex.kc_id not in nb_kcs and not ex.kc_id.startswith(f"{clean_id}-"):
+                continue
+            items.append({
+                "exercise_id": ex.exercise_id,
+                "kc_id": ex.kc_id,
+                "title": (ex.prompt or "")[:80],
+                "type": getattr(ex.exercise_type, "value", str(ex.exercise_type)),
+                "difficulty": None,  # el certificado no lleva dificultad hoy
+            })
+    return {"notebook_id": clean_id, "total": len(items), "exercises": items}
+
+
 @router.get("/{exercise_id}", response_model=ExerciseDetailDto)
 def get_exercise_detail(
     exercise_id: str,
