@@ -287,6 +287,12 @@ class GeminiBackend(ProviderBackend):
                         choices = chunk_data.get("choices", [])
                         if not choices:
                             continue
+                        # COMMIT 5: capturar finish_reason (stop/length/error)
+                        # para observabilidad del stream; el pipeline lo lee al
+                        # cerrar y emite evento "truncated" si fue por límite.
+                        fr = choices[0].get("finish_reason")
+                        if fr:
+                            self._last_finish_reason = fr
                         delta = choices[0].get("delta", {})
                         content_piece = delta.get("content", "")
                         if content_piece:

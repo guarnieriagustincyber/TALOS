@@ -266,6 +266,12 @@ class CircuitBreakerBackend:
                 if is_primary:
                     self.circuit_breaker.record_usage(max(1, emitted_chars // 4))
                     self.circuit_breaker.record_success()
+                # COMMIT 5: propagar finish_reason del backend usado (p.ej.
+                # "length") para que el pipeline emita evento "truncated".
+                self._last_finish_reason = getattr(backend, "_last_finish_reason", None)
+                if self._last_finish_reason:
+                    logger.info("[STREAM] finish_reason=%s (backend=%s)",
+                                self._last_finish_reason, type(backend).__name__)
                 return
             except Exception as exc:
                 if emitted_any:

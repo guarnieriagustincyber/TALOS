@@ -31,6 +31,7 @@ class StreamEventType(str):
     STREAM_ABORTED = "stream_aborted"
     ERROR = "error"
     ABSTENTION = "abstention"
+    TRUNCATED = "truncated"
 
 
 class StreamEvent(BaseModel):
@@ -48,6 +49,7 @@ class StreamEvent(BaseModel):
         "stream_aborted",
         "error",
         "abstention",
+        "truncated",
     ]
     payload: Dict[str, Any]
 
@@ -1112,6 +1114,23 @@ class StructuredResponsePipeline:
                         },
                     )
                     break
+
+            # COMMIT 5 (feat/stream): finish_reason observable al cierre.
+            # finish_reason="length" => el proveedor cortó por max_tokens:
+            # emitir evento "truncated" para que el frontend pueda avisar.
+            finish_reason = getattr(self.llm, "_last_finish_reason", None)
+            logger.info("[STREAM] fase=%s finish_reason=%s tokens=%s",
+                        phase.phase_id, finish_reason, token_count)
+            if finish_reason == "length":
+                yield StreamEvent(
+                    event_type="truncated",
+                    payload={
+                        "phase": phase.phase_id,
+                        "finish_reason": "length",
+                        "tokens_generated": token_count,
+                        "message": "La respuesta quedó truncada por límite de tokens del proveedor.",
+                    },
+                )
 
             # Perform S4.4 Forensic Audit if auditor is injected and phase is conceptual
             audit_verdict = "APPROVED"
