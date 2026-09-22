@@ -1092,6 +1092,22 @@ async def chat_query(
             from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
             is_offline_oracle = isinstance(llm_backend, OfflinePedagogicalBackend)
             if context_pack is not None and getattr(context_pack, "abstained", False) and not is_offline_oracle:
+                # COMMIT 1 (fix/memory): las declaraciones meta del estudiante
+                # ("prefiero analogías de...") no pueden morir en el gate de
+                # abstención: persistimos memoria aunque el contenido abstenga.
+                # process_turn_memories solo lee la query del usuario para
+                # preferencias/patrones; no depende de chunks recuperados.
+                _trigger_background_memory_extraction(
+                    container=container,
+                    student_id=CANONICAL_STUDENT_ID,
+                    prompt_text=prompt_text,
+                    response_text="",
+                    active_kc=matched_kc_id,
+                    pedagogical_mode=None,
+                    llm_backend=None,
+                    notebook_id=target_notebook_id,
+                )
+
                 reason = getattr(context_pack, "abstention_reason", "QUERY_OUT_OF_SCOPE")
                 abstention_decision = getattr(pipeline, "_last_abstention_decision", None)
                 if abstention_decision and getattr(abstention_decision, "abstention_reason", None):

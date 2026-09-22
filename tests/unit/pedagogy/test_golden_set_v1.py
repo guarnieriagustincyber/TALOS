@@ -33,7 +33,7 @@ def test_schema_completo():
         for field in ("id", "case", "query", "expected_abstain", "expected_kc_id",
                       "expected_fallback", "min_citations"):
             assert field in q, f"{q.get('id')}: falta campo {field}"
-        assert q["case"] in ("K1", "K2", "OOD")
+        assert q["case"] in ("K1", "K2", "K3", "K4", "K5", "K6", "OOD")
 
 
 def test_casos_k1_k2_ood_presentes():

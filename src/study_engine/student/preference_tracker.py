@@ -41,6 +41,10 @@ _STYLE_PATTERNS = {
         re.compile(r"\b(bajo\s+nivel|silicio|hardware|registros|transistores|como\s+funciona\s+f[ií]sicamente)\b", re.IGNORECASE),
         "Afinidad alta con analogías mecánicas y aterrizaje a nivel de hardware, transistores y registros de CPU.",
     ],
+    "analogy_driven_explanations": [
+        re.compile(r"\b(analog[íi]a|analogías|met[áa]fora|met[áa]foras|ejemplificar)\b", re.IGNORECASE),
+        "Prefiere que los conceptos se expliquen anclados en analogías y metáforas concretas.",
+    ],
 }
 
 

@@ -93,6 +93,15 @@
       "min_citations": 1
     },
     {
+      "id": "K4-01", "case": "K4",
+      "query": "Prefiero que me expliques todo con analogías de comercio exterior",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "note": "Declaración meta: abstiene contenido pero persiste preferencia (COMMIT 1)."
+    },
+    {
       "id": "OOD-01", "case": "OOD",
       "query": "¿Cuál es la mejor receta de pasta con ajo?",
       "expected_abstain": true,
