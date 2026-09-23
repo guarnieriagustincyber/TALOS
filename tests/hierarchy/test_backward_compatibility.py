@@ -62,8 +62,9 @@ def test_legacy_database_migration_to_v3(tmp_path: Path):
 
     engine.initialize_schema()
 
-    # Version bumped to 3
-    assert engine.get_schema_version() == 3
+    # Database migrates through v3 up to the live engine schema version
+    assert engine.get_schema_version() == SQLiteStorageEngine.SCHEMA_VERSION
+    assert engine.get_schema_version() >= 3
 
     # 3. Open with KnowledgeStore and verify legacy notebook survived and has folder_root
     store = KnowledgeStore(db_path=db_file)
