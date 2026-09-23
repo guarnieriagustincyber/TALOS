@@ -54,7 +54,8 @@ SPANISH_STOPWORDS: Set[str] = {
     "funciona", "funcionan", "funcione", "funcionen", "funcionamiento",
     "seccion", "sección", "secciones", "describe", "describir", "descripción",
     "ocurre", "sucede", "pasa", "exactamente", "paso", "versus", "vs", "cuenta",
-    "relaciona", "relacionan", "relación", "genera", "generar"
+    "relaciona", "relacionan", "relación", "genera", "generar",
+    "opina", "opinas", "opinás", "opinan", "opinar", "opinion", "opinión"
 }
 
 

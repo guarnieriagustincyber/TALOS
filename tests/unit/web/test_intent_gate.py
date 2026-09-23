@@ -59,7 +59,7 @@ def _store_with_starwars_chunk():
         Chunk(id="c_sw", document_id="d1", source_id="src1",
               content="Ejemplo de arreglo: Thrawn es el estratega del imperio galáctico de Star Wars.", index=0),
         Chunk(id="c_bb", document_id="d1", source_id="src1",
-              content="La búsqueda binaria divide el espacio de búsqueda a la mitad en cada paso.", index=1),
+              content="La búsqueda binaria en un arreglo divide el espacio de búsqueda a la mitad en cada paso.", index=1),
     ]
     store.store_ingestion_bundle(rec, [doc], chunks, notebook_id="nb1")
     return store
