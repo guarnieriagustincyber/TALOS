@@ -30,6 +30,10 @@ router = APIRouter(prefix="/api/chat", tags=["Chat"])
 # 9 matched_kc_id, 10 bkt_meta
 PREPARE_CONTEXT_ARITY = 11
 
+FALLBACK_DISCLAIMER = (
+    "No pude confirmar un concepto específico del cuaderno; respondo con base conceptual general de fuentes verificadas."
+)
+
 
 def _pack_prepare_context(
     resolved_scope: Any,
@@ -1337,6 +1341,14 @@ async def chat_query(
             citation_validator = CitationValidator()
             stream_citation_buf = StreamCitationBuffer(citation_validator, raw_chunks)
 
+            # Disclaimer determinista hablado ante fallback sin KC confirmado (Commit 3)
+            fallback_prefix = (
+                f"{FALLBACK_DISCLAIMER}\n\n"
+                if matched_kc_id is None
+                else ""
+            )
+            disclaimer_emitted = False
+
             async for event in pipeline.generate_phased_response(
                 user_query=prompt_text,
                 context_pack=context_pack,
@@ -1353,6 +1365,15 @@ async def chat_query(
 
                 if event.event_type == "phase_token":
                     token_str = event.payload.get("token", "")
+                    if fallback_prefix and not disclaimer_emitted:
+                        disclaimer_emitted = True
+                        accumulated_response_text += fallback_prefix
+                        tok_payload = {
+                            "event_type": "phase_token",
+                            "payload": {**event.payload, "token": fallback_prefix},
+                        }
+                        yield f"data: {json.dumps(tok_payload)}\n\n"
+
                     emitted_tokens = stream_citation_buf.process_token(token_str)
                     for em_tok in emitted_tokens:
                         accumulated_response_text += em_tok
@@ -1364,6 +1385,15 @@ async def chat_query(
                     continue
 
                 if event.event_type == "phase_complete":
+                    if fallback_prefix and not disclaimer_emitted:
+                        disclaimer_emitted = True
+                        accumulated_response_text = fallback_prefix + accumulated_response_text
+                        tok_payload = {
+                            "event_type": "phase_token",
+                            "payload": {"phase": request.requested_phase or "conceptual", "token": fallback_prefix},
+                        }
+                        yield f"data: {json.dumps(tok_payload)}\n\n"
+
                     # 1. Flushear cualquier fragmento retenido en el lookahead buffer
                     for fl_tok in stream_citation_buf.flush():
                         accumulated_response_text += fl_tok
