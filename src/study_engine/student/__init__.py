@@ -18,7 +18,6 @@ from study_engine.student.contracts import (
     RemediationInterrupt,
     RemediationOption,
 )
-from study_engine.student.depth_modulator import DepthModulator
 from study_engine.student.laguna_detector import LagunaDetector
 from study_engine.student.observation_bridge import ObservationBridge
 from study_engine.student.readiness_probe import ReadinessProbe
@@ -35,7 +34,6 @@ __all__ = [
     "AnchorState",
     "BKTState",
     "BKTTracker",
-    "DepthModulator",
     "ExerciseFormat",
     "LagunaDetector",
     "ObservationBridge",

@@ -30,7 +30,10 @@ from study_engine.student.contracts import (
     ReadinessDecision,
     RemediationOption,
 )
-from study_engine.student.depth_modulator import DepthModulator
+from study_engine.pedagogy.student_context import (
+    determine_pedagogical_context_mode,
+    build_bkt_adaptation_directive,
+)
 from study_engine.student.laguna_detector import LagunaDetector
 from study_engine.student.observation_bridge import ObservationBridge
 from study_engine.student.readiness_probe import ReadinessProbe
@@ -169,31 +172,32 @@ def run_e3_benchmark() -> Dict[str, Any]:
         "passed": laguna_acc >= 0.90,
     }
 
-    # 6. DepthModulator Directives
-    print("[6/10] Evaluating DepthModulator Pedagogical Alignment...")
+    # 6. Pedagogical Context Mode Directives (student_context as sole authority)
+    print("[6/10] Evaluating Pedagogical Context Mode Alignment (student_context)...")
     t_depth = BKTTracker()
-    modulator = DepthModulator(bkt=t_depth)
     # Train topic to >= 0.80
     for _ in range(7):
         t_depth.update(kc_id="TOPIC_ADV", correct=True)
     # Train topic to ~0.50
     t_depth.update(kc_id="TOPIC_STD", correct=True)
-    # Topic low
-    state_low = t_depth.get_state("TOPIC_LOW")
 
-    dir_adv = " ".join(modulator.get_directives("TOPIC_ADV"))
-    dir_std = " ".join(modulator.get_directives("TOPIC_STD"))
-    dir_low = " ".join(modulator.get_directives("TOPIC_LOW"))
+    mode_adv, meta_adv = determine_pedagogical_context_mode("TOPIC_ADV", bkt_tracker=t_depth)
+    mode_std, meta_std = determine_pedagogical_context_mode("TOPIC_STD", bkt_tracker=t_depth)
+    mode_low, meta_low = determine_pedagogical_context_mode("TOPIC_LOW", bkt_tracker=t_depth)
+
+    dir_adv = build_bkt_adaptation_directive(mode_adv, meta_adv)
+    dir_std = build_bkt_adaptation_directive(mode_std, meta_std)
+    dir_low = build_bkt_adaptation_directive(mode_low, meta_low)
 
     depth_ok = (
-        "domina este tema" in dir_adv
-        and "noción básica" in dir_std
-        and "aprendiendo desde cero" in dir_low
+        "NIVEL AVANZADO" in dir_adv
+        and "NIVEL INTERMEDIO" in dir_std
+        and "NIVEL INTERMEDIO" in dir_low  # unassessed cold-start
     )
     results["depth_modulator"] = {
-        "advanced_aligned": "domina este tema" in dir_adv,
-        "standard_aligned": "noción básica" in dir_std,
-        "foundations_aligned": "aprendiendo desde cero" in dir_low,
+        "advanced_aligned": "NIVEL AVANZADO" in dir_adv,
+        "standard_aligned": "NIVEL INTERMEDIO" in dir_std,
+        "foundations_aligned": "NIVEL INTERMEDIO" in dir_low,
         "passed": depth_ok,
     }
 
