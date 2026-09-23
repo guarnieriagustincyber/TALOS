@@ -1,0 +1,523 @@
+{
+  "summary": {
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "by_case": {
+      "K2": {
+        "n": 7,
+        "pass": 7
+      },
+      "K1": {
+        "n": 4,
+        "pass": 4
+      },
+      "K4": {
+        "n": 1,
+        "pass": 1
+      },
+      "K3": {
+        "n": 1,
+        "pass": 1
+      },
+      "K5": {
+        "n": 1,
+        "pass": 1
+      },
+      "K6": {
+        "n": 1,
+        "pass": 1
+      },
+      "OOD": {
+        "n": 3,
+        "pass": 3
+      }
+    },
+    "kc_accuracy": 1.0,
+    "first_token_p50_ms": 2331,
+    "first_token_max_ms": 17609,
+    "first_token_within_budget": false
+  },
+  "rows": [
+    {
+      "id": "K2-01",
+      "case": "K2",
+      "query": "¿cómo uso malloc y free sin leaks?",
+      "expected_abstain": false,
+      "expected_kc_id": "aritmetica_punteros",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 2155,
+        "total_ms": 6932,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "aritmetica_punteros",
+          "context_mode": "advanced",
+          "p_L": 0.9654931290306896,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 1,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-02",
+      "case": "K2",
+      "query": "¿qué es un puntero doble o puntero a puntero?",
+      "expected_abstain": false,
+      "expected_kc_id": "aritmetica_punteros",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 2141,
+        "total_ms": 6570,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "aritmetica_punteros",
+          "context_mode": "advanced",
+          "p_L": 0.9654931290306896,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 6,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-03",
+      "case": "K2",
+      "query": "explicame la búsqueda binaria y su complejidad asintótica",
+      "expected_abstain": false,
+      "expected_kc_id": "big_o_complejidad",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1869,
+        "total_ms": 6607,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "big_o_complejidad",
+          "context_mode": "intermediate",
+          "p_L": 0.1,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 6,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-04",
+      "case": "K2",
+      "query": "¿cómo se representa una decisión en un diagrama de flujo ANSI?",
+      "expected_abstain": false,
+      "expected_kc_id": "fase0_tramo1_metodologia",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1831,
+        "total_ms": 5317,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "fase0_tramo1_metodologia",
+          "context_mode": "advanced",
+          "p_L": 0.9987,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 1,
+        "invalid_citations": [
+          "[Encender luz roja / Bloquear]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-05",
+      "case": "K2",
+      "query": "¿qué diferencia hay entre un array y un string en memoria?",
+      "expected_abstain": false,
+      "expected_kc_id": "fase0_tramo4_estructuras_lineales",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 3237,
+        "total_ms": 18933,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "fase0_tramo4_estructuras_lineales",
+          "context_mode": "advanced",
+          "p_L": 0.9847826086956522,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 2,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-06",
+      "case": "K2",
+      "query": "diferencia entre bucle while y bucle for, ¿cuándo conviene cada uno?",
+      "expected_abstain": false,
+      "expected_kc_id": "fase0_tramo2_logica_control",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 3333,
+        "total_ms": 7538,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "fase0_tramo2_logica_control",
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 6,
+        "invalid_citations": [
+          "[E181]",
+          "[E201]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K2-07",
+      "case": "K2",
+      "query": "ordenamiento burbuja vs quicksort: cuál es más eficiente y por qué",
+      "expected_abstain": false,
+      "expected_kc_id": "big_o_complejidad",
+      "expected_fallback": false,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 2331,
+        "total_ms": 6750,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "big_o_complejidad",
+          "context_mode": "intermediate",
+          "p_L": 0.1,
+          "unmet_prerequisites": [],
+          "fallback": false
+        },
+        "n_citations": 4,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K1-01",
+      "case": "K1",
+      "query": "¿Cómo funciona el scheduling SJF?",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1041,
+        "total_ms": 4703,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": null,
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": true
+        },
+        "n_citations": 1,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K1-02",
+      "case": "K1",
+      "query": "¿Qué es un deadlock y cuándo ocurre?",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 17609,
+        "total_ms": 22140,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": null,
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": true
+        },
+        "n_citations": 6,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K1-03",
+      "case": "K1",
+      "query": "Resumime la planificación de procesos del sistema operativo",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 1286,
+        "total_ms": 6173,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": null,
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": true
+        },
+        "n_citations": 14,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K1-04",
+      "case": "K1",
+      "query": "¿Qué es un semáforo en sistemas operativos?",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": true,
+      "min_citations": 1,
+      "result": {
+        "first_token_ms": 2424,
+        "total_ms": 6745,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": null,
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": true
+        },
+        "n_citations": 6,
+        "invalid_citations": [],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K4-01",
+      "case": "K4",
+      "query": "Prefiero que me expliques todo con analogías de comercio exterior",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "note": "Declaración meta: abstiene contenido pero persiste preferencia (COMMIT 1).",
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 167,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K3-01",
+      "case": "K3",
+      "query": "¿Qué opinás de Star Wars?",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "note": "Match léxico de contenido (nota SW en corpus) PERO intención no curricular (COMMIT 3).",
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 273,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K5-01",
+      "case": "K5",
+      "query": "Explicame cómo funciona el scheduling SJF",
+      "scope": {
+        "scope_type": "folder",
+        "scope_id": "f_prog"
+      },
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 1,
+      "note": "Cross-materia: scope Programación, material en bóveda fase0-soc (COMMIT 2 scope global).",
+      "result": {
+        "first_token_ms": 3730,
+        "total_ms": 6358,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": null,
+          "context_mode": "intermediate",
+          "p_L": 0.5,
+          "unmet_prerequisites": [],
+          "fallback": true
+        },
+        "n_citations": 2,
+        "invalid_citations": [
+          "[Ejecución Ininterrumpida en CPU]",
+          "[Espera en Cola]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "K6-01",
+      "case": "K6",
+      "query": "¿cómo funciona el algoritmo de planificación round robin y su quantum?",
+      "notebook_id": "fadena-so2",
+      "expected_abstain": false,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 1,
+      "note": "Valida groundedness en cuaderno con PDFs recién ingeridos (multi-notebook).",
+      "result": {
+        "first_token_ms": 2584,
+        "total_ms": 6344,
+        "abstained": false,
+        "bkt_context": {
+          "kc_id": "so2_planificacion_cpu",
+          "context_mode": "prerequisite_reinforcement",
+          "p_L": 0.1,
+          "unmet_prerequisites": [
+            [
+              "so2_gestion_procesos_pcb",
+              0.1
+            ]
+          ],
+          "fallback": false
+        },
+        "n_citations": 2,
+        "invalid_citations": [
+          "[E12]"
+        ],
+        "final_event": "phase_complete",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "OOD-01",
+      "case": "OOD",
+      "query": "¿Cuál es la mejor receta de pasta con ajo?",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 112,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "OOD-02",
+      "case": "OOD",
+      "query": "¿Cómo me preparo físicamente para correr un maratón?",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 152,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    },
+    {
+      "id": "OOD-03",
+      "case": "OOD",
+      "query": "contame la historia del imperio romano en tres párrafos",
+      "expected_abstain": true,
+      "expected_kc_id": null,
+      "expected_fallback": null,
+      "min_citations": 0,
+      "result": {
+        "first_token_ms": null,
+        "total_ms": 167,
+        "abstained": true,
+        "bkt_context": null,
+        "n_citations": 0,
+        "invalid_citations": [],
+        "final_event": "abstention",
+        "saw_error": false
+      },
+      "pass": true,
+      "failures": []
+    }
+  ]
+}
