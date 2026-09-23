@@ -241,3 +241,59 @@ def build_bkt_adaptation_directive(mode: str, meta: Dict[str, Any]) -> str:
             "- Desarrollá una síntesis equilibrada entre intuición conceptual clara y mecanismos formales rigurosos.\n"
         )
 
+
+def get_scaffolding_directive(
+    dependency_profile: Optional[Dict[str, Any]],
+    target_kc_id: Optional[str] = None,
+    p_L: Optional[float] = None,
+) -> Optional[str]:
+    """Genera la directiva pedagógica de modulación de andamiaje (fading) según el perfil metacognitivo."""
+    if not dependency_profile:
+        return None
+
+    classification = dependency_profile.get("classification", "moderada")
+    evasion_kcs = set(dependency_profile.get("evasion_kcs") or [])
+    overconfident_kcs = set(dependency_profile.get("overconfident_kcs") or [])
+
+    lines: List[str] = []
+
+    if classification == "alta":
+        lines.extend([
+            "=== DIRECTIVA METACOGNITIVA: ANDAMIAJE REFORZADO (ALTA DEPENDENCIA DE SOLUCIÓN) ===",
+            "- El estudiante recurre prematuramente al solucionario (ratio intentos/solución < 2.0).",
+            "- NUNCA proporciones código de solución directo ni respuestas completas de inmediato.",
+            "- Aplica 'fading' estricto: suministra únicamente pistas graduales (hints progresivos de nivel 1 a 3),",
+            "  formula preguntas guía socráticas que lo lleven al siguiente paso lógico,",
+            "  y exige explícitamente un intento de razonamiento antes de avanzar.",
+        ])
+    elif classification == "baja":
+        lines.extend([
+            "=== DIRECTIVA METACOGNITIVA: DESAFÍO DIRECTO / ALTA AUTONOMÍA ===",
+            "- El estudiante muestra alta perseverancia y autonomía analítica (ratio intentos/solución > 5.0).",
+            "- Evita el sobre-andamiaje o pistas no solicitadas que interrumpan su flujo de resolución.",
+            "- Plantea desafíos técnicos directos, contraejemplos de borde (edge cases) y preguntas",
+            "  de optimización y arquitectura profunda.",
+        ])
+    else:  # moderada
+        lines.extend([
+            "=== DIRECTIVA METACOGNITIVA: ANDAMIAJE MODERADO ===",
+            "- El estudiante mantiene un equilibrio saludable entre intentos y consulta de referencias.",
+            "- Ofrece retroalimentación diagnóstica específica y pistas intermedias cuando se detecte bloqueo.",
+        ])
+
+    # Modulaciones contextuales por KC específico (M1)
+    if target_kc_id and target_kc_id in evasion_kcs:
+        lines.append(
+            f"- ALERTA DE EVASIÓN en '{target_kc_id}': El estudiante tiende a consultar la solución sin insistir. "
+            "Descompone el problema en micro-pasos verificables para reducir la sobrecarga cognitiva."
+        )
+
+    if target_kc_id and target_kc_id in overconfident_kcs:
+        lines.append(
+            f"- ALERTA DE SOBRECONFIANZA en '{target_kc_id}': Múltiples fallos consecutivos sin pedir ayuda. "
+            "Confronta supuestos amablemente con un caso de prueba contraejemplo que evidencie el error conceptual."
+        )
+
+    return "\n".join(lines)
+
+

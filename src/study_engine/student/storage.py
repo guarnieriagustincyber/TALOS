@@ -13,6 +13,7 @@ import sqlite3
 import threading
 from typing import Any, Dict, List, Optional, Union
 
+from study_engine.config import CANONICAL_STUDENT_ID
 from study_engine.student.contracts import (
     AnchorState,
     BKTState,
@@ -519,7 +520,7 @@ class StudentStorage:
     def record_exercise_attempt(
         self,
         content_id: str,
-        student_id: str = "agustin",
+        student_id: str = CANONICAL_STUDENT_ID,
         success: bool = False,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> int:
@@ -539,7 +540,7 @@ class StudentStorage:
                 )
                 return cursor.lastrowid
 
-    def has_exercise_attempt(self, content_id: str, student_id: str = "agustin") -> bool:
+    def has_exercise_attempt(self, content_id: str, student_id: str = CANONICAL_STUDENT_ID) -> bool:
         """Check if student has recorded at least one attempt for this content unit."""
         conn = self._get_connection()
         cursor = conn.cursor()
@@ -565,7 +566,7 @@ class StudentStorage:
     def log_solution_access(
         self,
         content_id: str,
-        student_id: str = "agustin",
+        student_id: str = CANONICAL_STUDENT_ID,
         forced: bool = False,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> int:
@@ -615,3 +616,132 @@ class StudentStorage:
             }
             for r in rows
         ]
+
+    def calculate_solution_dependency(
+        self,
+        student_id: str = CANONICAL_STUDENT_ID,
+    ) -> Dict[str, Any]:
+        """Calcula el perfil de dependencia de solucionario y autonomía metacognitiva (Slice 6.0.6 / M1-M10)."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT id, content_id, forced, metadata FROM solution_access_log WHERE student_id = ?",
+            (student_id,),
+        )
+        sol_rows = cursor.fetchall()
+
+        cursor.execute(
+            "SELECT id, content_id, success, metadata FROM student_exercise_attempts WHERE student_id = ?",
+            (student_id,),
+        )
+        att_rows = cursor.fetchall()
+
+        total_attempts = len(att_rows)
+        successful_attempts = sum(1 for r in att_rows if r[2] == 1)
+        total_solutions = len(sol_rows)
+        forced_solutions = sum(1 for r in sol_rows if r[2] == 1)
+
+        # M7: Cold start estricto
+        if total_attempts == 0 and total_solutions == 0:
+            return {
+                "student_id": student_id,
+                "total_attempts": 0,
+                "successful_attempts": 0,
+                "total_solutions": 0,
+                "forced_solutions": 0,
+                "ratio": 0.0,
+                "raw_ratio": 0.0,
+                "classification": "moderada",  # Neutral por defecto
+                "autonomy_score": 0.5,
+                "evasion_kcs": [],
+                "overconfident_kcs": [],
+                "is_overconfident": False,
+            }
+
+        # M2: Cálculo de ratio y clasificación
+        if total_solutions == 0:
+            ratio = float("inf") if total_attempts > 0 else 0.0
+            classification = "baja"
+        else:
+            ratio = round(total_attempts / total_solutions, 4)
+            if ratio < 2.0 or total_attempts == 0:
+                classification = "alta"
+            elif 2.0 <= ratio <= 5.0:
+                classification = "moderada"
+            else:
+                classification = "baja"
+
+        autonomy_score = calculate_autonomy_score(
+            total_attempts, total_solutions, ratio if ratio != float("inf") else 10.0
+        )
+
+        # M1: Agregación por KC y umbrales de evasión / sobreconfianza
+        kc_stats: Dict[str, Dict[str, int]] = {}
+
+        def _record_kc(kc: str, is_attempt: bool, is_success: bool, is_solution: bool) -> None:
+            if not kc:
+                return
+            if kc not in kc_stats:
+                kc_stats[kc] = {
+                    "attempts": 0,
+                    "successful_attempts": 0,
+                    "solutions": 0,
+                }
+            if is_attempt:
+                kc_stats[kc]["attempts"] += 1
+                if is_success:
+                    kc_stats[kc]["successful_attempts"] += 1
+            if is_solution:
+                kc_stats[kc]["solutions"] += 1
+
+        for r in att_rows:
+            meta = json.loads(r[3]) if r[3] else {}
+            kcs = meta.get("kc_ids") or ([meta.get("kc_id")] if meta.get("kc_id") else [])
+            for k in kcs:
+                _record_kc(str(k), is_attempt=True, is_success=(r[2] == 1), is_solution=False)
+
+        for r in sol_rows:
+            meta = json.loads(r[3]) if r[3] else {}
+            kcs = meta.get("kc_ids") or ([meta.get("kc_id")] if meta.get("kc_id") else [])
+            for k in kcs:
+                _record_kc(str(k), is_attempt=False, is_success=False, is_solution=True)
+
+        evasion_kcs = [
+            kc_id for kc_id, stats in sorted(kc_stats.items())
+            if stats["attempts"] >= 2
+            and (stats["solutions"] / stats["attempts"]) > 0.5
+        ]
+
+        overconfident_kcs = [
+            kc_id for kc_id, stats in sorted(kc_stats.items())
+            if stats["attempts"] >= 3
+            and stats["successful_attempts"] == 0
+            and stats["solutions"] == 0
+        ]
+
+        return {
+            "student_id": student_id,
+            "total_attempts": total_attempts,
+            "successful_attempts": successful_attempts,
+            "total_solutions": total_solutions,
+            "forced_solutions": forced_solutions,
+            "ratio": 0.0 if ratio == float("inf") else ratio,
+            "raw_ratio": ratio,
+            "classification": classification,
+            "autonomy_score": autonomy_score,
+            "evasion_kcs": evasion_kcs,
+            "overconfident_kcs": overconfident_kcs,
+            "is_overconfident": len(overconfident_kcs) > 0,
+        }
+
+
+def calculate_autonomy_score(total_attempts: int, total_solutions: int, ratio: float) -> float:
+    """Calcula el score de autonomía (0.0 a 1.0) conforme a M2."""
+    if total_solutions == 0 and total_attempts == 0:
+        return 0.5  # Cold start neutral
+    elif total_solutions == 0 and total_attempts > 0:
+        return 1.0  # Alta autonomía (nunca pidió solución)
+    else:
+        return min(1.0, round(ratio / 10.0, 4))  # Escala lineal hasta ratio=10
+

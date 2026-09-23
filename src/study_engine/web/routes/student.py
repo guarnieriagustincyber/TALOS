@@ -1,10 +1,12 @@
 """Student Cognitive State, Spaced Repetition, and Remediation Endpoints."""
 
 from datetime import datetime, timezone
+import os
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
+from study_engine.config import CANONICAL_STUDENT_ID
 from study_engine.web.dependencies import AppContainer, get_container
 
 router = APIRouter(prefix="/api/student", tags=["Student"])
@@ -160,4 +162,34 @@ def respond_remediation(
         "choice": choice_enum.value,
         "next_action": f"Ejecutando política de remediación: {choice_enum.value}",
     }
+
+
+@router.get("/metacognitive-profile", response_model=Dict[str, Any])
+def get_metacognitive_profile(
+    student_id: str = Query(default=CANONICAL_STUDENT_ID),
+    x_admin_token: Optional[str] = Header(None, alias="X-Admin-Token"),
+    container: AppContainer = Depends(get_container),
+) -> Dict[str, Any]:
+    """Consulta el perfil metacognitivo del estudiante y métricas de dependencia/autonomía (M4)."""
+    admin_token = os.getenv("TALOS_ADMIN_TOKEN", "talos-admin-secret-dev")
+    if not x_admin_token or x_admin_token != admin_token:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: se requiere header X-Admin-Token válido para consultar el perfil metacognitivo.",
+        )
+
+    storage = getattr(container, "student_storage", None)
+    if storage is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Storage del estudiante no inicializado.",
+        )
+
+    profile = storage.calculate_solution_dependency(student_id)
+    from study_engine.pedagogy.student_context import get_scaffolding_directive
+    preview = get_scaffolding_directive(profile)
+    res = dict(profile)
+    res["scaffolding_directive_preview"] = preview
+    return res
+
 

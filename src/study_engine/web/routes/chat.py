@@ -1,6 +1,7 @@
 """Interactive Chat & Streaming Phased Pedagogical Endpoints (Fase 5.8)."""
 
 import asyncio
+from datetime import datetime, timezone
 import json
 import logging
 import re
@@ -1061,7 +1062,6 @@ def _prepare_chat_context(
     global (retrieval cross-notebook sobre todo el corpus).
     """
     if target_scope_id == "folder_root" and hasattr(store, "contains_folder") and not store.contains_folder("folder_root"):
-        from datetime import datetime, timezone
         from study_engine.hierarchy.folder import Folder
         now = datetime.now(timezone.utc)
         store.create_folder(
@@ -1192,13 +1192,35 @@ def _prepare_chat_context(
     # Protocolo de Lucha (Fase 5.3b): si el estudiante encadena >=3 fallos en
     # este KC, se inyecta la directiva estricta al prompt del siguiente turno.
     struggle = getattr(container, "struggle_tracker", None)
-    if struggle and matched_kc_id and struggle.is_struggling(matched_kc_id):
+    struggle_active = bool(struggle and matched_kc_id and struggle.is_struggling(matched_kc_id))
+    if struggle_active:
         logger.info("[STRUGGLE] KC %s con %s fallos consecutivos; inyectando protocolo.",
                     matched_kc_id, "3+")
         bkt_directive = (
             f"{bkt_directive}\n\n{struggle.directive(matched_kc_id)}"
             if bkt_directive else struggle.directive(matched_kc_id)
         )
+    elif hasattr(container, "student_storage") and container.student_storage is not None:
+        # M8 & M3: Si el Protocolo de Lucha NO está activo, inyectar directiva metacognitiva (fading)
+        try:
+            from study_engine.pedagogy.student_context import get_scaffolding_directive
+            profile = container.student_storage.calculate_solution_dependency(CANONICAL_STUDENT_ID)
+            p_val = bkt_meta.get("p_L") if bkt_meta else None
+            scaffolding_directive = get_scaffolding_directive(profile, target_kc_id=matched_kc_id, p_L=p_val)
+            if scaffolding_directive:
+                bkt_directive = f"{bkt_directive}\n\n{scaffolding_directive}" if bkt_directive else scaffolding_directive
+                # M6: Log estructurado JSON para auditoría forense
+                logger.info(json.dumps({
+                    "event": "METACOGNITIVE_SCAFFOLDING",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "student_id": CANONICAL_STUDENT_ID,
+                    "classification": profile.get("classification"),
+                    "ratio": round(float(profile.get("ratio", 0.0)), 2),
+                    "autonomy_score": round(float(profile.get("autonomy_score", 0.5)), 2),
+                    "directive_injected": True,
+                }))
+        except Exception as meta_err:
+            logger.debug("Chat route: error generando directiva metacognitiva: %s", meta_err)
 
     # Inyectar memoria soberana de largo plazo (Fase 6 - Mem0 Soberano)
     mem0_directive = ""
