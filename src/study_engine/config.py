@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     xkiro_api_key: Optional[str] = Field(default=None, validation_alias="XKIRO_API_KEY")
     xkiro_model: str = Field(default="qwen/qwen3.8-max:free", validation_alias="XKIRO_MODEL")
     xkiro_base_url: str = Field(default="https://api.xkiro.com/v1", validation_alias="XKIRO_BASE_URL")
+    jina_api_key: Optional[str] = Field(default=None, validation_alias="JINA_API_KEY")
+    jina_rerank_model: str = Field(default="jina-reranker-v2-base-multilingual", validation_alias="JINA_RERANK_MODEL")
 
     # Provider defaults
     default_provider: str = Field(default="groq", validation_alias="STUDY_ENGINE_LLM_PROVIDER")

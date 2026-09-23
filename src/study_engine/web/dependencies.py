@@ -121,6 +121,15 @@ class AppContainer:
         self.curriculum_registry: CurriculumRegistry = self.context["registry"]
         self.knowledge_store = self.context["store"]
 
+        from study_engine.config import settings
+        from study_engine.retrieval.fabric import RetrievalFabricLite
+        from study_engine.retrieval.reranker import JinaReranker
+        reranker = JinaReranker(api_key=settings.jina_api_key, model=settings.jina_rerank_model)
+        self.retrieval_fabric = RetrievalFabricLite(
+            store=self.knowledge_store,
+            reranker=reranker,
+        )
+
     def _init_local_routing(self) -> None:
         """Configure LocalOrchestrator and SemanticRouter (Fase 5.5 & 5.7)."""
         from study_engine.tutor.local_orchestrator import LocalOrchestrator

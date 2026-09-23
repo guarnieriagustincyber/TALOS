@@ -71,12 +71,14 @@ class RetrievalService:
         vector_store: Optional[SQLiteVectorStore] = None,
         provider: Optional[EmbeddingProvider] = None,
         dense_threshold: Optional[float] = None,
+        fabric: Optional[Any] = None,
     ) -> None:
         """Initialize RetrievalService.
 
         If retriever is not provided, defaults to HybridRetriever (RRF).
         """
         self._store = store
+        self._fabric = fabric
         self._last_rejections: List[Dict[str, Any]] = []
 
         config = load_retrieval_config()
@@ -120,6 +122,11 @@ class RetrievalService:
     def last_rejections(self) -> List[Dict[str, Any]]:
         """Telemetry records of candidates rejected by the relevance gate."""
         return list(self._last_rejections)
+
+    @property
+    def fabric(self) -> Optional[Any]:
+        """Access the optional RetrievalFabricLite instance."""
+        return self._fabric
 
     def retrieve_evidence(
         self,
@@ -278,7 +285,18 @@ class RetrievalService:
             )
             return final_items
 
-        # Standard (Legacy) Retrieval Branch
+        # Standard Retrieval Branch (delegates to Fabric if configured)
+        if self._fabric is not None:
+            final_items = self._fabric.retrieve(
+                query=effective_query,
+                notebook_id=effective_notebook_id,
+                top_k=effective_top_k,
+            )
+            logger.info(
+                f"Retrieval Fabric: query='{query}', notebook={effective_notebook_id}, results={len(final_items)}"
+            )
+            return final_items
+
         request = RetrievalRequest(
             query=effective_query,
             notebook_id=effective_notebook_id,
