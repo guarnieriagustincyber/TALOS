@@ -166,6 +166,23 @@ CREATE TABLE IF NOT EXISTS notebook_kcs (
     PRIMARY KEY (notebook_id, kc_id),
     FOREIGN KEY (notebook_id) REFERENCES notebooks(id) ON DELETE CASCADE
 );
+
+-- 9. Content Registry (Slice 6.0.5)
+CREATE TABLE IF NOT EXISTS content_registry (
+    content_id TEXT PRIMARY KEY NOT NULL,
+    source_id TEXT NOT NULL,
+    unit_type TEXT NOT NULL,
+    statement_text TEXT NOT NULL,
+    chunk_ids TEXT NOT NULL,
+    solution_chunk_ids TEXT,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    metadata TEXT NOT NULL DEFAULT '{}',
+    FOREIGN KEY (source_id) REFERENCES sources(source_id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_content_reg_source ON content_registry(source_id);
+CREATE INDEX IF NOT EXISTS idx_content_reg_type ON content_registry(unit_type);
+CREATE INDEX IF NOT EXISTS idx_content_reg_status ON content_registry(status);
 """
 
 
@@ -173,7 +190,7 @@ CREATE TABLE IF NOT EXISTS notebook_kcs (
 class SQLiteStorageEngine:
     """Low-level SQLite connection and schema manager for Study Engine knowledge stores."""
 
-    SCHEMA_VERSION: int = 4  # v4: notebook_kcs (KCs manuales, Fase 5.1)
+    SCHEMA_VERSION: int = 5  # v5: content_registry (Identidad exacta + anti-leakage, Slice 6.0.5)
 
     def __init__(self, db_path: Union[str, Path] = ":memory:"):
         self.db_path = Path(db_path) if db_path != ":memory:" else ":memory:"
@@ -258,6 +275,12 @@ class SQLiteStorageEngine:
         if current_v < 3:
             self._migrate_to_v3(cur)
 
+        if current_v < 4:
+            self._migrate_to_v4(cur)
+
+        if current_v < 5:
+            self._migrate_to_v5(cur)
+
         # Ensure default root folder always exists
         cur.execute(
             """
@@ -307,6 +330,48 @@ class SQLiteStorageEngine:
             cursor.execute("ALTER TABLE notebooks ADD COLUMN folder_id TEXT NOT NULL DEFAULT 'folder_root';")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_notebooks_folder ON notebooks(folder_id);")
             cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_notebooks_name_folder ON notebooks(name, folder_id);")
+
+    def _migrate_to_v4(self, cursor: sqlite3.Cursor) -> None:
+        """v3 -> v4: ensure notebook_kcs table exists."""
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS notebook_kcs (
+                notebook_id TEXT NOT NULL,
+                kc_id TEXT NOT NULL,
+                title TEXT NOT NULL,
+                prerequisites_json TEXT NOT NULL DEFAULT '[]',
+                subtopics_json TEXT NOT NULL DEFAULT '[]',
+                estimated_time_min INTEGER,
+                difficulty TEXT,
+                origin TEXT NOT NULL DEFAULT 'manual',
+                created_at TEXT NOT NULL,
+                PRIMARY KEY (notebook_id, kc_id),
+                FOREIGN KEY (notebook_id) REFERENCES notebooks(id) ON DELETE CASCADE
+            );
+            """
+        )
+
+    def _migrate_to_v5(self, cursor: sqlite3.Cursor) -> None:
+        """v4 -> v5: ensure content_registry table and indexes exist."""
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS content_registry (
+                content_id TEXT PRIMARY KEY NOT NULL,
+                source_id TEXT NOT NULL,
+                unit_type TEXT NOT NULL,
+                statement_text TEXT NOT NULL,
+                chunk_ids TEXT NOT NULL,
+                solution_chunk_ids TEXT,
+                status TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                metadata TEXT NOT NULL DEFAULT '{}',
+                FOREIGN KEY (source_id) REFERENCES sources(source_id) ON DELETE CASCADE
+            );
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_content_reg_source ON content_registry(source_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_content_reg_type ON content_registry(unit_type);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_content_reg_status ON content_registry(status);")
 
     @contextmanager
     def transaction(self, mode: str = "IMMEDIATE") -> Generator[sqlite3.Connection, None, None]:

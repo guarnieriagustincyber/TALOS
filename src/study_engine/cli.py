@@ -540,6 +540,119 @@ def _cmd_verify_index(args: argparse.Namespace) -> int:
     return 0 if report["ok"] else 1
 
 
+# ---------------------------------------------------------------------------
+# talos content — unidades curriculares y solucionarios (Slice 6.0.5)
+# ---------------------------------------------------------------------------
+
+def _open_knowledge_store(knowledge_db: Path):
+    from study_engine.storage.knowledge_store import KnowledgeStore
+
+    store = KnowledgeStore(Path(knowledge_db))
+    store.initialize()
+    return store
+
+
+def _open_student_storage(student_db: Path):
+    from study_engine.student.storage import StudentStorage
+
+    return StudentStorage(Path(student_db))
+
+
+def _resolve_content_item(store: Any, ref: str):
+    ref_clean = ref.strip()
+    # 1. Direct get by exact content_id
+    item = store.content_registry.get(ref_clean)
+    if item is not None:
+        return item
+
+    # 2. Extract reference with known content_ids
+    from study_engine.retrieval.reference_extractor import extract_reference
+
+    known_items = store.content_registry.list_all()
+    known_ids = [it.content_id for it in known_items]
+    res = extract_reference(ref_clean, known_content_ids=known_ids)
+    if res and res.content_id:
+        item = store.content_registry.get(res.content_id)
+        if item is not None:
+            return item
+        for it in known_items:
+            if it.content_id.lower() == res.content_id.lower():
+                return it
+    return None
+
+
+def _cmd_content_show(args: argparse.Namespace) -> int:
+    store = _open_knowledge_store(Path(args.knowledge_db))
+    item = _resolve_content_item(store, args.reference)
+    if item is None:
+        print(f"Error: Contenido '{args.reference}' no encontrado en el registro.", file=sys.stderr)
+        return 1
+
+    chunk_repo = getattr(store, "chunks", None) or getattr(getattr(store, "repositories", None), "chunks", None)
+    stmt_chunks, _ = store.content_registry.get_statement_chunks(item.content_id, chunk_repo)
+
+    print("=" * 70)
+    print(f"ID: {item.content_id} | Tipo: {item.unit_type.value.upper()} | Estado: {item.status.value.upper()}")
+    print(f"Fuente: {item.source_id}")
+    print("=" * 70)
+    print("\n[ENUNCIADO]:")
+    print(item.statement_text)
+    if stmt_chunks:
+        print("\n[FRAGMENTOS DE CONTENIDO]:")
+        for idx, chk in enumerate(stmt_chunks, 1):
+            p_str = f"Pág {chk.page_start}" if getattr(chk, "page_start", None) else ""
+            print(f"\n--- Fragmento {idx} ({p_str}) [Chunk ID: {chk.id}] ---")
+            print(chk.content.strip())
+    print("\n" + "=" * 70)
+    return 0
+
+
+def _cmd_content_solution(args: argparse.Namespace) -> int:
+    store = _open_knowledge_store(Path(args.knowledge_db))
+    item = _resolve_content_item(store, args.reference)
+    if item is None:
+        print(f"Error: Contenido '{args.reference}' no encontrado en el registro.", file=sys.stderr)
+        return 1
+
+    student_storage = _open_student_storage(Path(args.student_db))
+    has_attempt = student_storage.has_exercise_attempt(item.content_id)
+
+    if not has_attempt and not args.force:
+        print(
+            f"ACCESO DENEGADO: No podés ver la solución de '{item.content_id}' sin haber registrado al menos un intento de resolución previo.\n"
+            f"Para forzar la visualización (quedará registrado en auditoría), ejecutá:\n"
+            f"  talos content solution \"{args.reference}\" --force",
+            file=sys.stderr,
+        )
+        return 2
+
+    # Registrar acceso a solucionario
+    student_storage.log_solution_access(
+        content_id=item.content_id,
+        forced=bool(args.force),
+        metadata={"ref_input": args.reference, "has_attempt": has_attempt},
+    )
+
+    chunk_repo = getattr(store, "chunks", None) or getattr(getattr(store, "repositories", None), "chunks", None)
+    sol_chunks = store.content_registry.get_solution_chunks(item.content_id, chunk_repo)
+
+    print("=" * 70)
+    audit_mode = "FORZADO (SIN INTENTO PREVIO)" if (args.force and not has_attempt) else "AUTORIZADO (CON INTENTO PREVIO)"
+    print(f"SOLUCIONARIO: {item.content_id} | Acceso: {audit_mode}")
+    print(f"Fuente: {item.source_id}")
+    print("=" * 70)
+
+    if not sol_chunks:
+        print(f"\nNo hay fragmentos de solución registrados en el sistema para '{item.content_id}'.")
+    else:
+        for idx, chk in enumerate(sol_chunks, 1):
+            p_str = f"Pág {chk.page_start}" if getattr(chk, "page_start", None) else ""
+            print(f"\n--- Solución Fragmento {idx} ({p_str}) [Chunk ID: {chk.id}] ---")
+            print(chk.content.strip())
+    print("\n" + "=" * 70)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="talos", description="TALOS CLI — ciclo Colab de embeddings")
     parser.add_argument("--knowledge-db", default=str(DEFAULT_KNOWLEDGE_DB))
@@ -582,6 +695,21 @@ def build_parser() -> argparse.ArgumentParser:
     p_kc_del.add_argument("notebook_id")
     p_kc_del.add_argument("kc_id")
     p_kc_del.set_defaults(func=_cmd_kc_delete)
+
+    # talos content — gestión y visualización de unidades del content_registry (Slice 6.0.5)
+    p_content = sub.add_parser("content", help="Gestión y visualización de unidades curriculares del content_registry")
+    p_content.add_argument("--student-db", default=str(DEFAULT_STUDENT_DB),
+                           help="DB de estudiante para verificación y log de intentos")
+    content_sub = p_content.add_subparsers(dest="content_command", required=True)
+
+    p_content_show = content_sub.add_parser("show", help="Muestra enunciado y metadatos (filtrado, jamás solucionario)")
+    p_content_show.add_argument("reference", help="Referencia textual (ej: 'guia 4 ejercicio 3', 'sec 3.1') o content_id")
+    p_content_show.set_defaults(func=_cmd_content_show)
+
+    p_content_solution = content_sub.add_parser("solution", help="Muestra el solucionario si el estudiante ya lo intentó o con --force")
+    p_content_solution.add_argument("reference", help="Referencia textual o content_id")
+    p_content_solution.add_argument("--force", action="store_true", help="Fuerza la visualización sin intento previo (registrado en auditoría)")
+    p_content_solution.set_defaults(func=_cmd_content_solution)
 
     return parser
 

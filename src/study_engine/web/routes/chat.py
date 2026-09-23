@@ -157,12 +157,16 @@ class EpistemicContextPack:
         chunks: list,
         abstained: bool = False,
         abstention_reason: Optional[str] = None,
+        reference_disclaimer: Optional[str] = None,
+        resolved_item: Optional[Any] = None,
     ):
         self.formatted_context = formatted_context
         self.citations = citations
         self.chunks = chunks
         self.abstained = abstained
         self.abstention_reason = abstention_reason
+        self.reference_disclaimer = reference_disclaimer
+        self.resolved_item = resolved_item
 
 
 class OfflineKnowledgeBackend:
@@ -488,6 +492,32 @@ def _assemble_epistemic_context(
         if cmd is not None and cmd.target_arg:
             search_query = cmd.target_arg
 
+        from study_engine.retrieval.reference_extractor import extract_reference
+        from study_engine.retrieval.presentation_filter import filter_presentation
+        from study_engine.contracts.content_registry import ContentStatus, UnitType
+        from study_engine.contracts.search import SearchResult
+
+        known_ids = []
+        if hasattr(store, "content_registry") and store.content_registry:
+            try:
+                known_items = store.content_registry.list_all()
+                known_ids = [it.content_id for it in known_items]
+            except Exception as e:
+                logger.debug("Error listing known content items: %s", e)
+                known_ids = []
+
+        ref_res = extract_reference(search_query, known_content_ids=known_ids)
+        resolved_item = None
+        reference_disclaimer = None
+
+        if ref_res is not None and ref_res.matched:
+            if ref_res.confidence >= 0.95 and ref_res.status == ContentStatus.OK and ref_res.content_id:
+                if hasattr(store, "content_registry") and store.content_registry:
+                    resolved_item = store.content_registry.get(ref_res.content_id)
+            if resolved_item is None:
+                raw_ref_str = ref_res.raw_ref or ref_res.content_id or "contenido solicitado"
+                reference_disclaimer = f"No puedo confirmar que esto sea exactamente el {raw_ref_str}; te respondo basándome en el tema general de las fuentes verificadas."
+
         src_meta_cache: Dict[str, Dict[str, str]] = {}
         try:
             with store.engine.transaction() as conn:
@@ -502,72 +532,102 @@ def _assemble_epistemic_context(
         except Exception as meta_err:
             logger.warning("Fallo al consultar metadatos de fuentes: %s", meta_err)
 
-        retrieval_limit, min_sources = _resolve_retrieval_depth(search_query)
         search_results = []
-        if target_notebook_id == GLOBAL_SCOPE_ID:
-            # Scope global (COMMIT 2): correr retrieval híbrido por cuaderno y
-            # fundir por chunk_id preservando el mejor rank de cada uno. La
-            # caché de matrices por cuaderno hace esto viable en CPU.
-            try:
-                with store.engine.transaction() as conn:
-                    cur = conn.cursor()
-                    cur.execute(
-                        "SELECT DISTINCT notebook_id FROM notebook_sources ORDER BY notebook_id;"
+        if resolved_item is not None:
+            chunk_repo = getattr(store, "chunks", None) or getattr(getattr(store, "repositories", None), "chunks", None)
+            stmt_chunks, had_sol = store.content_registry.get_statement_chunks(resolved_item.content_id, chunk_repo)
+            if not stmt_chunks and had_sol:
+                return EpistemicContextPack(
+                    formatted_context="",
+                    citations=[],
+                    chunks=[],
+                    abstained=True,
+                    abstention_reason="QUERY_OUT_OF_SCOPE",
+                    reference_disclaimer=reference_disclaimer,
+                    resolved_item=resolved_item,
+                ), []
+            if stmt_chunks:
+                for rank, chk in enumerate(stmt_chunks):
+                    chk_content = getattr(chk, "content", "")
+                    sr = SearchResult(
+                        content=chk_content,
+                        index=getattr(chk, "index", rank) or rank,
+                        chunk_id=getattr(chk, "id", f"chk_{rank}"),
+                        document_id=getattr(chk, "document_id", "doc") or "doc",
+                        source_id=getattr(chk, "source_id", resolved_item.source_id),
+                        snippet=chk_content[:200],
+                        page_start=getattr(chk, "page_start", 1),
+                        page_end=getattr(chk, "page_end", 1),
+                        score=1.0,
                     )
-                    all_notebooks = [r[0] for r in cur.fetchall()]
-            except Exception as nb_err:
-                logger.warning("No se pudo listar cuadernos para scope global: %s", nb_err)
-                all_notebooks = []
+                    search_results.append(sr)
 
-            merged: Dict[str, Tuple[int, Any]] = {}
-            for nb_id in all_notebooks:
+        if not search_results:
+            retrieval_limit, min_sources = _resolve_retrieval_depth(search_query)
+            if target_notebook_id == GLOBAL_SCOPE_ID:
+                # Scope global (COMMIT 2): correr retrieval híbrido por cuaderno y
+                # fundir por chunk_id preservando el mejor rank de cada uno. La
+                # caché de matrices por cuaderno hace esto viable en CPU.
                 try:
-                    nb_results = store.search_hybrid(
+                    with store.engine.transaction() as conn:
+                        cur = conn.cursor()
+                        cur.execute(
+                            "SELECT DISTINCT notebook_id FROM notebook_sources ORDER BY notebook_id;"
+                        )
+                        all_notebooks = [r[0] for r in cur.fetchall()]
+                except Exception as nb_err:
+                    logger.warning("No se pudo listar cuadernos para scope global: %s", nb_err)
+                    all_notebooks = []
+
+                merged: Dict[str, Tuple[int, Any]] = {}
+                for nb_id in all_notebooks:
+                    try:
+                        nb_results = store.search_hybrid(
+                            query=search_query,
+                            notebook_id=nb_id,
+                            limit=retrieval_limit,
+                            min_sources=min_sources,
+                        ) if hasattr(store, "search_hybrid") else store.search(
+                            query=search_query, notebook_id=nb_id, limit=retrieval_limit
+                        )
+                    except Exception as nb_search_err:
+                        logger.debug("Scope global: fallo retrieval en %s: %s", nb_id, nb_search_err)
+                        continue
+                    for rank, res in enumerate(nb_results):
+                        cid = getattr(res, "chunk_id", None) or getattr(res, "id", None) or str(rank)
+                        if cid not in merged or merged[cid][0] > rank:
+                            merged[cid] = (rank, res)
+                search_results = [res for rank, res in sorted(merged.values(), key=lambda t: t[0])]
+                search_results = search_results[: max(retrieval_limit, min_sources * 2)]
+            elif hasattr(store, "search_hybrid"):
+                try:
+                    search_results = store.search_hybrid(
                         query=search_query,
-                        notebook_id=nb_id,
+                        notebook_id=target_notebook_id,
                         limit=retrieval_limit,
                         min_sources=min_sources,
-                    ) if hasattr(store, "search_hybrid") else store.search(
-                        query=search_query, notebook_id=nb_id, limit=retrieval_limit
                     )
-                except Exception as nb_search_err:
-                    logger.debug("Scope global: fallo retrieval en %s: %s", nb_id, nb_search_err)
-                    continue
-                for rank, res in enumerate(nb_results):
-                    cid = getattr(res, "chunk_id", None) or getattr(res, "id", None) or str(rank)
-                    if cid not in merged or merged[cid][0] > rank:
-                        merged[cid] = (rank, res)
-            search_results = [res for rank, res in sorted(merged.values(), key=lambda t: t[0])]
-            search_results = search_results[: max(retrieval_limit, min_sources * 2)]
-        elif hasattr(store, "search_hybrid"):
-            try:
-                search_results = store.search_hybrid(
-                    query=search_query,
-                    notebook_id=target_notebook_id,
-                    limit=retrieval_limit,
-                    min_sources=min_sources,
-                )
-            except Exception as hybrid_err:
-                logger.debug("Fallo en search_hybrid, fallback a search(): %s", hybrid_err)
-                search_results = []
+                except Exception as hybrid_err:
+                    logger.debug("Fallo en search_hybrid, fallback a search(): %s", hybrid_err)
+                    search_results = []
 
-        if not search_results and hasattr(store, "search"):
-            try:
-                search_results = store.search(
-                    query=search_query,
-                    notebook_id=target_notebook_id,
-                    limit=retrieval_limit,
-                )
-            except Exception as search_err:
-                logger.warning("Fallo en búsqueda de cuaderno %s: %s", target_notebook_id, search_err)
-                search_results = []
+            if not search_results and hasattr(store, "search"):
+                try:
+                    search_results = store.search(
+                        query=search_query,
+                        notebook_id=target_notebook_id,
+                        limit=retrieval_limit,
+                    )
+                except Exception as search_err:
+                    logger.warning("Fallo en búsqueda de cuaderno %s: %s", target_notebook_id, search_err)
+                    search_results = []
 
-        if not search_results and not target_notebook_id and hasattr(store, "search"):
-            try:
-                search_results = store.search(query=search_query, limit=retrieval_limit)
-            except Exception as fallback_err:
-                logger.warning("Fallo en búsqueda global fallback: %s", fallback_err)
-                search_results = []
+            if not search_results and not target_notebook_id and hasattr(store, "search"):
+                try:
+                    search_results = store.search(query=search_query, limit=retrieval_limit)
+                except Exception as fallback_err:
+                    logger.warning("Fallo en búsqueda global fallback: %s", fallback_err)
+                    search_results = []
 
         # Filtrar por active_sources si fue especificado (E25 / INV-W5-4)
         if active_sources:
@@ -580,6 +640,21 @@ def _assemble_epistemic_context(
                 )
             ]
 
+        # Filtrado de presentación mandatorio (Slice 6.0.5 - Anti-leakage universal)
+        if search_results and hasattr(store, "content_registry") and store.content_registry:
+            filtered_results, had_sol = filter_presentation(search_results, store.content_registry)
+            if not filtered_results and had_sol:
+                return EpistemicContextPack(
+                    formatted_context="",
+                    citations=[],
+                    chunks=[],
+                    abstained=True,
+                    abstention_reason="QUERY_OUT_OF_SCOPE",
+                    reference_disclaimer=reference_disclaimer,
+                    resolved_item=resolved_item,
+                ), []
+            search_results = filtered_results
+
         # Enmienda E23 & E26: Expansión de sección mediante SectionExpander
         expanded_chunks = []
         expanded_context_text = ""
@@ -591,6 +666,10 @@ def _assemble_epistemic_context(
                     seed_results=search_results,
                     source_meta_cache=src_meta_cache,
                 )
+                if expanded_chunks and hasattr(store, "content_registry") and store.content_registry:
+                    sol_ids = store.content_registry.get_solution_chunk_ids()
+                    if sol_ids:
+                        expanded_chunks = [c for c in expanded_chunks if getattr(c, "id", "") not in sol_ids]
             except Exception as exp_err:
                 logger.warning("Error durante SectionExpander: %s", exp_err)
                 expanded_chunks = []
@@ -658,6 +737,8 @@ def _assemble_epistemic_context(
                 chunks=[],
                 abstained=True,
                 abstention_reason="QUERY_OUT_OF_SCOPE",
+                reference_disclaimer=reference_disclaimer,
+                resolved_item=resolved_item,
             ), []
 
         if citations_formatted:
@@ -667,6 +748,8 @@ def _assemble_epistemic_context(
                 citations=search_results,
                 chunks=raw_chunks,
                 abstained=False,
+                reference_disclaimer=reference_disclaimer,
+                resolved_item=resolved_item,
             )
             setattr(pack, "expanded_chunks", expanded_chunks)
             setattr(pack, "expanded_context_text", expanded_context_text)
@@ -1076,6 +1159,9 @@ def _prepare_chat_context(
     style_result = ConversationStyleRouter.detect_style(prompt_text)
 
     matched_kc_id = _match_kc_id(kcs_list, prompt_text) if kcs_list else None
+    if not matched_kc_id and context_pack and getattr(context_pack, "resolved_item", None):
+        res_item = context_pack.resolved_item
+        matched_kc_id = _match_kc_id(kcs_list, getattr(res_item, "statement_text", ""))
 
     from study_engine.pedagogy.student_context import (
         determine_pedagogical_context_mode,
@@ -1087,7 +1173,21 @@ def _prepare_chat_context(
         kc_catalog=kc_catalog,
         notebook_id=None if target_notebook_id == GLOBAL_SCOPE_ID else target_notebook_id,
     )
-    bkt_directive = build_bkt_adaptation_directive(context_mode, bkt_meta)
+
+    # Cold-Start C4: Si el item resuelto mapea a un KC curricular donde el estudiante tiene attempts == 0
+    if context_pack and getattr(context_pack, "resolved_item", None) and bkt_meta.get("attempts", 0) == 0:
+        context_mode = "intermediate"
+        bkt_meta["context_mode"] = "intermediate"
+        bkt_directive = build_bkt_adaptation_directive(context_mode, bkt_meta)
+        accelerated_proposal = (
+            "=== PROPUESTA PEDAGÓGICA ACELERADA (COLD-START C4) ===\n"
+            "- El estudiante solicita un ejercicio curricular nuevo sin intentos previos registrados.\n"
+            "- Guiá al estudiante para plantear el ejercicio y verificar su razonamiento en un máximo de 2 intercambios.\n"
+            "- No reveles la respuesta final ni el código de solución completo."
+        )
+        bkt_directive = f"{bkt_directive}\n\n{accelerated_proposal}" if bkt_directive else accelerated_proposal
+    else:
+        bkt_directive = build_bkt_adaptation_directive(context_mode, bkt_meta)
 
     # Protocolo de Lucha (Fase 5.3b): si el estudiante encadena >=3 fallos en
     # este KC, se inyecta la directiva estricta al prompt del siguiente turno.
@@ -1341,12 +1441,18 @@ async def chat_query(
             citation_validator = CitationValidator()
             stream_citation_buf = StreamCitationBuffer(citation_validator, raw_chunks)
 
-            # Disclaimer determinista hablado ante fallback sin KC confirmado (Commit 3)
+            # Disclaimer determinista hablado ante fallback sin KC confirmado (Commit 3) y/o referencia aproximada (Slice 6.0.5)
             fallback_prefix = (
                 f"{FALLBACK_DISCLAIMER}\n\n"
                 if matched_kc_id is None
                 else ""
             )
+            ref_disclaimer = getattr(context_pack, "reference_disclaimer", None) if context_pack else None
+            lead_prefix = ""
+            if ref_disclaimer:
+                lead_prefix += f"{ref_disclaimer}\n\n"
+            if fallback_prefix:
+                lead_prefix += fallback_prefix
             disclaimer_emitted = False
 
             async for event in pipeline.generate_phased_response(
@@ -1365,12 +1471,12 @@ async def chat_query(
 
                 if event.event_type == "phase_token":
                     token_str = event.payload.get("token", "")
-                    if fallback_prefix and not disclaimer_emitted:
+                    if lead_prefix and not disclaimer_emitted:
                         disclaimer_emitted = True
-                        accumulated_response_text += fallback_prefix
+                        accumulated_response_text += lead_prefix
                         tok_payload = {
                             "event_type": "phase_token",
-                            "payload": {**event.payload, "token": fallback_prefix},
+                            "payload": {**event.payload, "token": lead_prefix},
                         }
                         yield f"data: {json.dumps(tok_payload)}\n\n"
 
@@ -1385,12 +1491,12 @@ async def chat_query(
                     continue
 
                 if event.event_type == "phase_complete":
-                    if fallback_prefix and not disclaimer_emitted:
+                    if lead_prefix and not disclaimer_emitted:
                         disclaimer_emitted = True
-                        accumulated_response_text = fallback_prefix + accumulated_response_text
+                        accumulated_response_text = lead_prefix + accumulated_response_text
                         tok_payload = {
                             "event_type": "phase_token",
-                            "payload": {"phase": request.requested_phase or "conceptual", "token": fallback_prefix},
+                            "payload": {"phase": request.requested_phase or "conceptual", "token": lead_prefix},
                         }
                         yield f"data: {json.dumps(tok_payload)}\n\n"
 

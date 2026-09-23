@@ -72,6 +72,8 @@ class KnowledgeStore:
         self.documents = SQLiteDocumentRepository(self.engine)
         self.chunks = SQLiteChunkRepository(self.engine)
         self.lexical_index = SQLiteLexicalIndex(self.engine)
+        from study_engine.storage.content_registry import ContentRegistryRepository
+        self.content_registry = ContentRegistryRepository(self.engine)
 
     def initialize(self) -> None:
         """Initialize all tables, indexes, and FTS5 triggers idempotently."""
@@ -472,6 +474,13 @@ class KnowledgeStore:
 
             if chunks:
                 self.chunks.save_chunks(chunks)
+                try:
+                    from study_engine.storage.content_parser import parse_content_items
+                    items = parse_content_items(chunks, record.source_id)
+                    for item in items:
+                        self.content_registry.save(item)
+                except Exception as err:
+                    logger.warning("[CONTENT REGISTRY HOOK] Error parsing content items: %s", err)
 
         return len(chunks)
 

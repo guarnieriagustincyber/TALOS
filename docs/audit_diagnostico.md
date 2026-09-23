@@ -11,14 +11,14 @@
 
 | Punto de entrada | (a) Resolución | (b) ¿Cruza "no debe verse todavía"? | (c) Fail-closed ante ambigüedad | Evidencia |
 |---|---|---|---|---|
-| POST /api/chat/query (notebook) | Mixto: identidad exacta para scope (ScopeResolver) + similitud semántica para contenido (vector 0.87 + FTS guarda palabra-completa) | **needs_review** — los chunks que entran al prompt no se filtran por banda R2/p_L: la evidencia cruda alcanza al LLM pero el depth adapter restringe la voz. Pregunta: "¿la correctitud R2 debe gobernar qué chunks se presentan y no solo el tono?" | ok — abstención E2 si 0 chunks (chat.py:`_assemble_epistemic_context` E2) + gate pre-LLM | `web/routes/chat.py:503-540` (global), `storage/knowledge_store.py` (hybrid+guards); E25/E2 tests security |
+| POST /api/chat/query (notebook) | Mixto: identidad exacta curricular (ContentRegistryRepository + ReferenceExtractor) + scope (ScopeResolver) + similitud semántica (vector 0.87 + FTS guarda cobertura) | ok — filtro de presentación universal pre-prompt elimina chunks de solucionario de seed y expansiones; fail-closed a abstención E2 si no quedan chunks de enunciado | ok — abstención E2 si 0 chunks (chat.py:`_assemble_epistemic_context` E2) + disclaimer de no-exactitud si fuzzy o missing | `web/routes/chat.py`, `retrieval/presentation_filter.py`, `storage/content_registry.py`; tests `tests/unit/web/test_chat_content_registry.py` |
 | Fast-path conversacional (follow-ups "dale/sí") | Identidad: solo reglas regex + micro-LLM con output_guard; no retrieval | ok — no abre contenido nuevo; fallback determinista <1ms | ok — guard + fallback | `tutor/fastpath_service.py:127-160` (detect), `234-263` (generate+fallback) |
 | POST /api/chat/evaluate | Identidad exacta (exercise_id) | ok — `is_presentable()` fail-closed; UNGRADED sin mutar BKT si no hay clave certificada | ok | `web/routes/chat.py:1492-1560`; `test_exercise_loop.py` |
 | CLI `talos kc` (list/add/delete) | Identidad exacta (kc_id slug) | ok — los canónicos JSON son inalcanzables por delete (barrera origin='manual') | ok — duplicado → 409-semántico (exit 4) | `cli.py` `_cmd_kc_*`, `curriculum/kc_admin.py` |
 | CLI ingesta (`export-pending` / `sync-vectors` / `verify-index`) | Identidad exacta (chunk_id, notebook_id, contract hash) | ok — solo INSERT de vectores nuevos, valida contract antes de tocar la DB | ok — sync ininterrumpido vía una sola transacción + pre-validación completa | `cli.py` `_parse_vectors_file`, `sync_vectors`; tests `test_colab_cycle.py` |
 | Inyección session_digest | Identidad (student_id, último digest por timestamp) | needs_review — digest de sesión A puede mencionar KCs que en la sesión B aún no se vieron (¿recordar debilidades es leakage pedagógico aceptable?) | ok | `web/routes/chat.py` `maybe_inject_session_digest` |
 | Inyección struggle (Protocolo de Lucha) | Identidad (kc_id de /evaluate) | ok | ok — solo si >=3 fallos consecutivos del mismo KC | `pedagogy/exercise_service.py` `StruggleTracker`; `web/routes/chat.py` inyección post-BKT |
-| Planeado: certify / submit / ex-show | na | na | na | no existen en `web/routes` (grep `certify` = 0). ex-show vive solo como templates + audit script |
+| CLI `talos content` (show / solution) | Identidad exacta (ContentItem content_id / alias) vía ContentRegistryRepository | ok — `talos content show` nunca muestra solucionario; `talos content solution` exige intento previo o `--force` con log de auditoría (exit code 2 si denegado) | ok — fail-closed ante referencia inexistente o intento faltante | `cli.py:610-653`, `student/storage.py`; tests `tests/cli/test_content_cli.py` |
 
 ### Pregunta explícita por camino — P(L) ausente
 
@@ -41,13 +41,14 @@ Verificado = test o archivo:línea en código actual. "sin testear" ≠ decay: s
 | Invariante \ Módulo | retrieval (hybrid/vector/fts) | chat (SSE epistémico) | fast-path | evaluate (graders) | BKT/Struggle | Mem0/Digest | ExerciseStore/ex-generators |
 |---|---|---|---|---|---|---|---|
 | LLM nunca escribe estado/corrección/dominio | ok (`structured_pipeline.py` guards + abstención pre-LLM; `test_long_context_invariants`) | ok (cita solo de pack) | ok (guard + fallback estático) | ok (fail-closed; mutation solo por grader determinista `chat.py:1527-1555`) | ok (`bkt_tracker.py`: ValueError si source=UNVERIFIED_DIALOGUE, `:143-147`) | ok | ok (generados con oracle determinista) |
-| Fail-closed ante ambigüedad | needs_review (R1: ver abajo) | ok (E2/E25 abstención al 0-chunk) | ok | ok | ok | ok | ok (none si no hay plantilla) |
+| Fail-closed ante ambigüedad | ok (E2 abstención al 0-chunk curricular o semántico) | ok (E2/E25 abstención al 0-chunk) | ok | ok | ok | ok | ok (none si no hay plantilla) |
 | Toda afirmación cita [E#] verificado | na | ok (corregido en Commit 1 con buffer lookahead y reescritura canónica) | na | na | na | na | na |
 | R1 acceso global en roadmap | ok (verificado código actual: `chat.py:869` sentinel + `:1005-1008` folder→global + `:503-540` fusión cross-notebook; commit ccbb8d0) | ok | na | na | na | na | na |
 | R2 profundidad gobernada por learner state | ok (unificado en Commit 4: cold-start intermediate, propuesta acelerada a 2 turnos, sin asunción de déficit) | ok (directiva) | na | na | na | na | na |
 | Grader determinista único árbitro | na | na | na | ok (`chat.py:1527+`, graders MC/Exact; generados con oracle propio) | ok | na | ok |
 | Código no confiable solo en sandbox | na | ok (nunca ejecuta: no hay executor en chat) | na | na | na | na | na (templates estáticas; nunca ejecutan) |
 | Certificación única vía certify | na | na | na | na | na | na | ok (oráculo persistido en SQLite sin fuga en HTTP - Commit 2) |
+| Filtro universal de solucionario (no leakage) | ok (filtrado forzado en repositorios y chat; tests `test_presentation_filter.py`, `test_content_registry.py`) | ok (remoción en seed + expansión; fail-closed a E2) | na | ok | na | na | ok (show/solution blindado en CLI; exit 2 denegado) |
 
 ### REGLA R1 (tal cual pedido)
 
@@ -139,12 +140,12 @@ Total: **655 passed, 0 failed**. El perímetro transaccional y de fail-closed qu
 > **2.372 PASSED** + **8 SKIPPED** + **0 FAILED** = **2.380 TESTS TOTALES RECOLECTADOS**.
 > El Golden Set v1 se reporta por separado como evaluación en vivo end-to-end fuera del total estático de tests.
 
-### Tabla Consolidada por Suite del Repositorio (Baseline Consolidado Oficial)
+### Tabla Consolidada por Suite del Repositorio (Baseline Consolidado Post-Slice 6.0.5)
 
 | Suite | Total Recolectado | Passed | Failed | Skipped | Clasificación de Gate | Nota / Detalle |
 |---|:---:|:---:|:---:|:---:|---|---|
-| `tests/unit` | 793 | 793 | 0 | 0 | **Release Gate (Bloqueante)** | Aislamiento unitario estricto |
-| `tests/contract` | 429 | 429 | 0 | 0 | **Release Gate (Bloqueante)** | Tipado, boundaries y schemas canónicos |
+| `tests/unit` | 796 | 796 | 0 | 0 | **Release Gate (Bloqueante)** | Aislamiento unitario estricto (+3 chat content registry) |
+| `tests/contract` | 432 | 432 | 0 | 0 | **Release Gate (Bloqueante)** | Tipado, boundaries y schemas canónicos (+3 content registry) |
 | `tests/security` | 52 | 52 | 0 | 0 | **Release Gate (Bloqueante)** | Sanitización PII, inyecciones y contratos estrictos |
 | `tests/adversarial` | 655 | 655 | 0 | 0 | **Release Gate (Bloqueante)** | Incluye `crisol` (27) y `crisol_chaos` (22) como subdirectorios |
 | `tests/pedagogy` | 65 | 65 | 0 | 0 | **Release Gate (Bloqueante)** | Pipeline socrático, fases y streaming SSE |
@@ -158,14 +159,15 @@ Total: **655 passed, 0 failed**. El perímetro transaccional y de fail-closed qu
 | `tests/context` | 19 | 19 | 0 | 0 | Suite Integrada | Compilador de contexto y router de intención |
 | `tests/performance` | 17 | 17 | 0 | 0 | Informativa | TTFT desagregado, benchmarks y presupuestos |
 | `tests/llm` | 13 | 13 | 0 | 0 | Suite Integrada | Aislamiento de entorno fixture monkeypatch `XKIRO_MODEL` |
+| `tests/retrieval` | 12 | 11 | 0 | 1 | Suite Integrada | +10 (presentation filter + reference extractor); 1 skip BACKLOG-CTX-001 |
 | `tests/protected` | 9 | 9 | 0 | 0 | Suite Integrada | Raíz de confianza y contratos inmutables |
 | `tests/session` | 9 | 9 | 0 | 0 | Suite Integrada | Sesiones unificadas y submissions |
+| `tests/storage` | 8 | 8 | 0 | 0 | Suite Integrada | Repositorios SQLite y bajo nivel (+3 content registry repo) |
 | `tests/memory` | 7 | 7 | 0 | 0 | Suite Integrada | Extracción de misconceptions y memoria episódica |
 | `tests/benchmark` | 6 | 6 | 0 | 0 | Informativa | Perfilado de ingesta y almacenamiento |
-| `tests/storage` | 5 | 5 | 0 | 0 | Suite Integrada | Repositorios SQLite y bajo nivel |
-| `tests/retrieval` | 2 | 1 | 0 | 1 | Suite Integrada | 1 skip documentado bajo `BACKLOG-CTX-001` (ventana de expansión) |
+| `tests/cli` | 4 | 4 | 0 | 0 | Suite Integrada | CLI content show / solution (+4 tests) |
 | `tests/ci` | 1 | 1 | 0 | 0 | Suite Integrada | Verificación de entorno CI |
-| **TOTAL REPOSITORIO** | **2.380** | **2.372** | **0** | **8** | — | **Suma exacta de las 22 suites en corrida única consolidada** |
+| **TOTAL REPOSITORIO** | **2.403** | **2.395** | **0** | **8** | — | **Suma exacta de las 23 suites en corrida única consolidada** |
 
 ---
 
@@ -183,7 +185,7 @@ Total: **655 passed, 0 failed**. El perímetro transaccional y de fail-closed qu
    El Gate de Release del repositorio queda formalmente definido como **UNA SOLA INVOCACIÓN CONSOLIDADA: `pytest tests/`**.
    - **Regla vinculante:** Esa corrida única y completa en un solo proceso es la **única que certifica oficialmente** la integridad de la rama `main` y autoriza entregas o transiciones de milestone.
    - **Corridas por suite o directorio:** Las ejecuciones por subcarpeta (`pytest tests/unit`, `pytest tests/hierarchy`, etc.) son de carácter **estrictamente informativo o de diagnóstico local** para acelerar el ciclo de desarrollo, y bajo ninguna circunstancia reemplazan la corrida consolidada.
-   - **Baseline Oficial Vigente:** `pytest tests/` $\rightarrow$ **2.372 passed, 8 skipped, 0 failed (exit code 0)** en 277s.
+   - **Baseline Oficial Vigente:** `pytest tests/` $\rightarrow$ **2.395 passed, 8 skipped, 0 failed (exit code 0)** en 292s.
    - **Criterio soberano de integración en vivo:** **Golden Set v1 = 18/18 PASS** ($p50 = 2.331\text{ ms}$, budget $\le 3.000\text{ ms}$).
 
 2. **REGLA DE INGENIERÍA DE PRUEBAS (Contratos Vivos vs Literales Copiados):**
@@ -262,5 +264,88 @@ Se extendió la suite de integración en `tests/integration/test_relevance_gate_
   - **Declaración explícita de riesgo:** *"el golden set no cubre esta palanca"*.
 - **Acción preventiva en este slice:**
   El test `test_section_expander_fuses_windows_and_formats_explicit_metadata` fue decorado con `@pytest.mark.skip` documentado bajo este identificador, computando 8 skips oficiales en el gate consolidado sin ocultar la deuda técnica ni bloquear el avance hacia `content_registry`.
+
+---
+
+## SLICE 6.0.5: CONTENT REGISTRY (Identidad Exacta Curricular + Filtro de Presentación Universal)
+
+### 1. Objetivos e Invariantes Cumplidos
+1. **Identidad Curricular Exacta:** Resolución determinista de referencias curriculares (ejercicios y secciones) mediante `ContentRegistryRepository` y `ReferenceExtractor`.
+2. **Filtro Universal de Solucionario (Zero Leakage):** Eliminación forzada de cualquier chunk de solucionario en los accesores del repositorio y en el ensamble pre-prompt del chat (`chat.py`), tanto para fragmentos semilla como para el radio de expansión.
+3. **Fail-Closed Ante Filtrado Total:** Si la consulta solo recupera chunks de solucionario y ningún chunk de enunciado sobrevive, el sistema aborta de inmediato por abstención epistémica E2 (`QUERY_OUT_OF_SCOPE`).
+4. **Compuerta de Solucionario Estricta (CLI):** `talos content solution` exige haber registrado al menos un intento de resolución previo o la bandera explícita `--force` (auditada en `solution_access_log`). En caso de rechazo, devuelve estrictamente exit code 2.
+
+---
+
+### 2. Resultados Oficiales del Backfill en Producción (`data/web_state/knowledge_store.db`)
+- **Total de unidades curriculares indexadas:** **8.334**
+  - Ejercicios (`unit_type = 'exercise'`): **270**
+  - Secciones (`unit_type = 'section'`): **8.064**
+- **Estado de revisión:**
+  - **OK (`status = 'ok'`):** **8.334** (100.0%)
+  - **NEEDS_REVIEW (`status = 'needs_review'`):** **0** (0.0%)
+
+#### Desglose Exhaustivo por Fuente (45 Fuentes Curriculares)
+
+| Fuente (`source_id`) | OK | Needs Review | Total |
+|---|:---:|:---:|:---:|
+| `src_silberschatz_fundamentos_bd` | 1.184 | **0** | 1.184 |
+| `src_castro_fusario_comunicaciones_redes` | 1.052 | **0** | 1.052 |
+| `src_elmasri_navathe_sistemas_bd` | 974 | **0** | 974 |
+| `src_date_intro_sistemas_bd_7ed` | 790 | **0** | 790 |
+| `src_comer_internetworking_tcpip_v1` | 667 | **0** | 667 |
+| `src_ramakrishnan_gehrke_dbms` | 644 | **0** | 644 |
+| `src_joyanes_fundamentos` | 569 | **0** | 569 |
+| `src_coronel_database_systems_11ed` | 564 | **0** | 564 |
+| `src_stallings_os_internals_7ed` | 296 | **0** | 296 |
+| `src_goodrich_dsa_python` | 293 | **0** | 293 |
+| `src_kurose_computer_networking` | 271 | **0** | 271 |
+| `src_stallman_gnu_c_manual` | 248 | **0** | 248 |
+| `src-guia-2025-c04f44ef` | 166 | **0** | 166 |
+| `src_marques_bases_de_datos` | 119 | **0** | 119 |
+| `src_stallings_comunicaciones_redes_7ed` | 99 | **0** | 99 |
+| `src_stallings_computer_security` | 97 | **0** | 97 |
+| `src_corletti_seguridad_redes` | 85 | **0** | 85 |
+| `src_ramalho_fluent_python` | 32 | **0** | 32 |
+| `src_3102eb1e89e2229e` | 25 | **0** | 25 |
+| `src_fadena_so2_clase2` | 20 | **0** | 20 |
+| `src_0fc90b2695369475` | 19 | **0** | 19 |
+| `src_tori_hacking_etico` | 14 | **0** | 14 |
+| `src_sweigart_automate_boring_stuff` | 12 | **0** | 12 |
+| `src_a01b9809f37fb47b` | 11 | **0** | 11 |
+| `src_a9a056742dcf69ae` | 9 | **0** | 9 |
+| `src_d253687930308e41` | 9 | **0** | 9 |
+| `src_032c52bff94a0743` | 7 | **0** | 7 |
+| `src_6dbdc8e943261fa7` | 7 | **0** | 7 |
+| `src_bel_algoritmos_estructuras_python` | 7 | **0** | 7 |
+| `src_9e866bf082e52dd7` | 6 | **0** | 6 |
+| `src_f009c4e75f5ca3f2` | 6 | **0** | 6 |
+| `src_urrutia_programacion_c_principiantes` | 5 | **0** | 5 |
+| `src_fadena_prog_archivos` | 4 | **0** | 4 |
+| `src_marzal_intro_programacion_c` | 4 | **0** | 4 |
+| `src_52ff5ff3e07c1da5` | 3 | **0** | 3 |
+| `src_da10b53f20f2a647` | 3 | **0** | 3 |
+| `src_e9682dece40b58ab` | 2 | **0** | 2 |
+| `src_fadena_prog_arboles` | 2 | **0** | 2 |
+| `src_fadena_so_concurrencia` | 2 | **0** | 2 |
+| `src_spraul_think_like_a_programmer` | 2 | **0** | 2 |
+| `src_fadena_leng_clase1` | 1 | **0** | 1 |
+| `src_fadena_leng_clase2` | 1 | **0** | 1 |
+| `src_fadena_so2_clase1` | 1 | **0** | 1 |
+| `src_fadena_so_memoria` | 1 | **0** | 1 |
+| `src_fadena_so_procesos` | 1 | **0** | 1 |
+| **TOTAL** | **8.334** | **0** | **8.334** |
+
+---
+
+### 3. Resoluciones de Diseño e Integridad de Arquitectura
+1. **Extractor de Referencias:** Exclusivamente rule-based mediante `reference_extractor.py`. Capa A (regexes literales con score 1.0) y Capa B (fuzzy match con umbral estricto $\ge 0.95$ para resolución directa; puntuaciones entre 0.70 y 0.95 se marcan con `needs_review` y emiten disclaimer; $< 0.70$ descarta el match). Cero llamadas a LLMs.
+2. **Filtro de Presentación:** Centralizado en `presentation_filter.py` e integrado en los métodos de acceso de `ContentRegistryRepository` (`get_statement_chunks()`, `list_statement_chunks()`) y en `chat.py`. Remueve tanto chunks de solución asociados al `ContentItem` como cualquier chunk con metadatos o tags de solucionario.
+3. **Invalidación de Caché Atómica:** En `ContentRegistryRepository`, los métodos `save()` y las operaciones por lote invalidan `_solution_chunk_ids_cache = None`, reconstruyéndose perezosamente (lazy) en la siguiente invocación de `get_solution_chunk_ids()`.
+4. **Esquema de Datos y Persistencia:** `SQLiteStorageEngine.SCHEMA_VERSION` incrementado a 5, con migración `_migrate_to_v5()` idempotente que crea la tabla `content_registry` e índices auxiliares por source, tipo y alias. `student_state.db` incorpora `student_exercise_attempts` y `solution_access_log`.
+5. **Perímetro Congelado:** Se certifica `git diff origin/main -- src/study_engine/{state,execution,assessment,audit}/` = 0 líneas de diferencia.
+6. **Gate Consolidado de Release:** Ejecución única de `pytest tests/` resultando en:
+   **2.403 tests recolectados**, **2.395 PASSED**, **8 SKIPPED**, **0 FAILED** (exit code 0, 292s).
+
 
 

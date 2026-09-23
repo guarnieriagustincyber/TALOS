@@ -7,6 +7,7 @@ Provides isolated, thread-safe persistence for:
 """
 
 from datetime import datetime, timezone
+import json
 from pathlib import Path
 import sqlite3
 import threading
@@ -71,6 +72,24 @@ CREATE TABLE IF NOT EXISTS student_pedagogical_memory (
     last_accessed TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS solution_access_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content_id TEXT NOT NULL,
+    student_id TEXT NOT NULL,
+    forced INTEGER NOT NULL DEFAULT 0,
+    timestamp TEXT NOT NULL,
+    metadata TEXT
+);
+
+CREATE TABLE IF NOT EXISTS student_exercise_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content_id TEXT NOT NULL,
+    student_id TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    success INTEGER DEFAULT 0,
+    metadata TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_remediation_topic ON remediation_choices(current_topic_id);
 CREATE INDEX IF NOT EXISTS idx_anchor_next_review ON anchor_states(next_review);
 CREATE INDEX IF NOT EXISTS idx_hints_episode ON student_hints(episode_id);
@@ -78,6 +97,10 @@ CREATE INDEX IF NOT EXISTS idx_hints_exercise ON student_hints(exercise_id);
 CREATE INDEX IF NOT EXISTS idx_hints_kc ON student_hints(kc_id);
 CREATE INDEX IF NOT EXISTS idx_ped_mem_student_cat ON student_pedagogical_memory(student_id, category);
 CREATE INDEX IF NOT EXISTS idx_ped_mem_kc ON student_pedagogical_memory(kc_id);
+CREATE INDEX IF NOT EXISTS idx_sol_access_content ON solution_access_log(content_id);
+CREATE INDEX IF NOT EXISTS idx_sol_access_student ON solution_access_log(student_id);
+CREATE INDEX IF NOT EXISTS idx_ex_attempts_content ON student_exercise_attempts(content_id);
+CREATE INDEX IF NOT EXISTS idx_ex_attempts_student ON student_exercise_attempts(student_id);
 """
 
 
@@ -489,3 +512,106 @@ class StudentStorage:
                     (memory_id,),
                 )
                 return cursor.rowcount > 0
+
+    # -------------------------------------------------------------------------
+    # Content Registry & Solution Access Audit (Slice 6.0.5)
+    # -------------------------------------------------------------------------
+    def record_exercise_attempt(
+        self,
+        content_id: str,
+        student_id: str = "agustin",
+        success: bool = False,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> int:
+        """Record an attempt made by a student on an exercise (Slice 6.0.5)."""
+        now_str = datetime.now(timezone.utc).isoformat()
+        meta_json = json.dumps(metadata) if metadata else None
+        conn = self._get_connection()
+        with self._lock:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO student_exercise_attempts (content_id, student_id, timestamp, success, metadata)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (content_id, student_id, now_str, 1 if success else 0, meta_json),
+                )
+                return cursor.lastrowid
+
+    def has_exercise_attempt(self, content_id: str, student_id: str = "agustin") -> bool:
+        """Check if student has recorded at least one attempt for this content unit."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT COUNT(*) FROM student_exercise_attempts WHERE content_id = ? AND student_id = ?",
+            (content_id, student_id),
+        )
+        row = cursor.fetchone()
+        if row and row[0] > 0:
+            return True
+
+        # Check hints table for matching exercise_id
+        cursor.execute(
+            "SELECT COUNT(*) FROM student_hints WHERE exercise_id = ?",
+            (content_id,),
+        )
+        row = cursor.fetchone()
+        if row and row[0] > 0:
+            return True
+
+        return False
+
+    def log_solution_access(
+        self,
+        content_id: str,
+        student_id: str = "agustin",
+        forced: bool = False,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> int:
+        """Log access to a solution in solution_access_log (Slice 6.0.5)."""
+        now_str = datetime.now(timezone.utc).isoformat()
+        meta_json = json.dumps(metadata) if metadata else None
+        conn = self._get_connection()
+        with self._lock:
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO solution_access_log (content_id, student_id, forced, timestamp, metadata)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (content_id, student_id, 1 if forced else 0, now_str, meta_json),
+                )
+                return cursor.lastrowid
+
+    def get_solution_access_logs(
+        self,
+        content_id: Optional[str] = None,
+        student_id: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """Query logged solution accesses."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        query = "SELECT id, content_id, student_id, forced, timestamp, metadata FROM solution_access_log WHERE 1=1"
+        params: List[Any] = []
+        if content_id:
+            query += " AND content_id = ?"
+            params.append(content_id)
+        if student_id:
+            query += " AND student_id = ?"
+            params.append(student_id)
+        query += " ORDER BY id DESC"
+        cursor.execute(query, tuple(params))
+        rows = cursor.fetchall()
+        return [
+            {
+                "id": r[0],
+                "content_id": r[1],
+                "student_id": r[2],
+                "forced": bool(r[3]),
+                "timestamp": r[4],
+                "metadata": json.loads(r[5]) if r[5] else None,
+            }
+            for r in rows
+        ]
