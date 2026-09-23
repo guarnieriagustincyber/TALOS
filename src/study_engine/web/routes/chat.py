@@ -1328,15 +1328,20 @@ async def chat_query(
             style_dir = style_result.instruction_directive if style_result else None
             # Permitir respuesta exhaustiva con diagramas y patrones sin racionamiento de tokens (estilo NotebookLM)
             live_max_tokens = 3500 if (not request.requested_phase or request.requested_phase == "conceptual") else None
+            accumulated_response_text = ""
             from study_engine.pedagogy.structured_pipeline import classify_pedagogical_intent
             conv_intent = classify_pedagogical_intent(prompt_text)
-            accumulated_response_text = ""
+
+            # Validador de citas y buffer de streaming (Fase 2 + Commit 1)
+            from study_engine.pedagogy.citation_validator import CitationValidator, StreamCitationBuffer
+            citation_validator = CitationValidator()
+            stream_citation_buf = StreamCitationBuffer(citation_validator, raw_chunks)
+
             async for event in pipeline.generate_phased_response(
                 user_query=prompt_text,
                 context_pack=context_pack,
                 requested_phase=request.requested_phase or "conceptual",
                 pedagogical_mode=conv_intent,
-                bkt_directive=bkt_directive,
                 style_directive=style_dir,
                 override_max_tokens=live_max_tokens,
                 recent_turns=conv_turns,
@@ -1347,19 +1352,39 @@ async def chat_query(
                 }
 
                 if event.event_type == "phase_token":
-                    accumulated_response_text += event.payload.get("token", "")
+                    token_str = event.payload.get("token", "")
+                    emitted_tokens = stream_citation_buf.process_token(token_str)
+                    for em_tok in emitted_tokens:
+                        accumulated_response_text += em_tok
+                        tok_payload = {
+                            "event_type": "phase_token",
+                            "payload": {**event.payload, "token": em_tok},
+                        }
+                        yield f"data: {json.dumps(tok_payload)}\n\n"
+                    continue
 
                 if event.event_type == "phase_complete":
-                    # Validador de citas post-generación (Fase 2)
-                    from study_engine.pedagogy.citation_validator import CitationValidator
-                    validator = CitationValidator()
-                    valid_citations, invalid_citations = validator.audit_only(
+                    # 1. Flushear cualquier fragmento retenido en el lookahead buffer
+                    for fl_tok in stream_citation_buf.flush():
+                        accumulated_response_text += fl_tok
+                        tok_payload = {
+                            "event_type": "phase_token",
+                            "payload": {"phase": request.requested_phase or "conceptual", "token": fl_tok},
+                        }
+                        yield f"data: {json.dumps(tok_payload)}\n\n"
+
+                    # 2. Reescritura canónica determinista de citas (Commit 1)
+                    accumulated_response_text, invalid_citations = citation_validator.validate_and_rewrite(
+                        text=accumulated_response_text,
+                        chunks=raw_chunks,
+                    )
+                    valid_citations, _ = citation_validator.audit_only(
                         text=accumulated_response_text,
                         chunks=raw_chunks,
                     )
                     if invalid_citations:
                         logger.warning(
-                            "Auditoría de citas detectó referencias no verificadas: %s (válidas: %s)",
+                            "Auditoría y sanitización de citas detectó referencias no verificadas: %s (válidas: %s)",
                             invalid_citations,
                             valid_citations,
                         )
