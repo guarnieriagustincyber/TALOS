@@ -156,18 +156,36 @@ def determine_pedagogical_context_mode(
             if p_val < 0.50:
                 unmet_prereqs.append((prereq, p_val))
 
-    # 3. Evaluar P(L) del KC objetivo
+    # 3. Evaluar P(L) y attempts del KC objetivo
     p_L = 0.1
+    attempts = 0
     if bkt_tracker is not None:
         try:
             target_state = bkt_tracker.get_state(target_kc_id)
             p_L = float(getattr(target_state, "p_L", 0.1))
+            attempts = int(getattr(target_state, "attempts", 0))
         except Exception:
             p_L = 0.1
+            attempts = 0
+
+    # Config flag cold_start_mode (Commit 4)
+    cold_start_mode = "intermediate"
+    if bkt_tracker is not None and hasattr(bkt_tracker, "params") and isinstance(bkt_tracker.params, dict):
+        cold_start_mode = bkt_tracker.params.get("cold_start_mode", "intermediate")
+    else:
+        try:
+            from study_engine.student.bkt_tracker import load_bkt_params
+            cold_start_mode = load_bkt_params().get("cold_start_mode", "intermediate")
+        except Exception:
+            cold_start_mode = "intermediate"
 
     # 4. Decisión pedagógica jerárquica
+    # Commit 4: regla única de P(L) ausente: si attempts == 0, asigna cold_start_mode (neutral)
+    # sin asumir déficit (expertise reversal).
     if unmet_prereqs:
         mode = "prerequisite_reinforcement"
+    elif attempts == 0:
+        mode = cold_start_mode
     elif p_L > 0.80:
         mode = "advanced"
     elif p_L < 0.30:
@@ -179,6 +197,8 @@ def determine_pedagogical_context_mode(
         "context_mode": mode,
         "target_kc_id": target_kc_id,
         "p_L": p_L,
+        "attempts": attempts,
+        "cold_start_mode": cold_start_mode,
         "prerequisites": prerequisites,
         "unmet_prerequisites": unmet_prereqs,
     }

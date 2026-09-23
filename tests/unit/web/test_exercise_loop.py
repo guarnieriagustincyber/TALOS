@@ -72,12 +72,22 @@ def test_prioriza_no_vistos(tmp_path):
 
 
 def test_should_propose_umbral():
-    from study_engine.pedagogy.exercise_service import PROPOSAL_STREAK_THRESHOLD, should_propose
+    from study_engine.pedagogy.exercise_service import (
+        PROPOSAL_COLD_START_THRESHOLD,
+        PROPOSAL_STREAK_THRESHOLD,
+        should_propose,
+    )
 
-    assert should_propose(1) is False
-    assert should_propose(PROPOSAL_STREAK_THRESHOLD - 1) is False
-    assert should_propose(PROPOSAL_STREAK_THRESHOLD) is True
-    assert should_propose(PROPOSAL_STREAK_THRESHOLD + 2) is True
+    # Assessed KC (attempts >= 1): umbral es 3 turnos
+    assert should_propose(1, attempts=1) is False
+    assert should_propose(PROPOSAL_STREAK_THRESHOLD - 1, attempts=1) is False
+    assert should_propose(PROPOSAL_STREAK_THRESHOLD, attempts=1) is True
+    assert should_propose(PROPOSAL_STREAK_THRESHOLD + 2, attempts=1) is True
+
+    # Cold-start / unassessed KC (attempts == 0): acelerado a 2 turnos
+    assert should_propose(1, attempts=0) is False
+    assert should_propose(PROPOSAL_COLD_START_THRESHOLD, attempts=0) is True
+    assert should_propose(PROPOSAL_COLD_START_THRESHOLD + 1, attempts=0) is True
 
 
 def _client_with_exercises(tmp_path, exercises):

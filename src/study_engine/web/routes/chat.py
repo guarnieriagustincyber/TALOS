@@ -1483,7 +1483,9 @@ async def chat_query(
                             should_propose,
                             to_proposal_payload,
                         )
-                        if should_propose(streak["count"]):
+                        bkt_state = container.bkt_tracker.get_state(matched_kc_id) if getattr(container, "bkt_tracker", None) else None
+                        attempts = getattr(bkt_state, "attempts", 0) if bkt_state else 0
+                        if should_propose(streak["count"], attempts=attempts):
                             exercise = select_or_generate(
                                 getattr(container, "exercise_store", None),
                                 getattr(container, "generated_registry", None),
@@ -1584,6 +1586,12 @@ async def evaluate_exercise_answer(
         )
         delta = round(bkt_res.p_L - prior.p_L, 4)
 
+        if prior.attempts == 0:
+            logger.info(
+                "[COLD_START_FIRST_ATTEMPT] Primer intento graded sobre KC cold-start: kc_id=%s is_correct=%s prior_p_L=%.4f new_p_L=%.4f delta_p_L=%.4f exercise_id=%s source=generated",
+                kc_id, is_correct, prior.p_L, bkt_res.p_L, delta, req.exercise_id,
+            )
+
         remediation = None
         if not is_correct or bkt_res.p_L < 0.5:
             remediation = _remediation_message(kc_id, SimpleNamespace(prompt=generated["prompt"]), bkt_res.p_L)
@@ -1650,6 +1658,12 @@ async def evaluate_exercise_answer(
         n_options=len(exercise.options) if exercise.options else None,
     )
     delta = round(bkt_res.p_L - prior.p_L, 4)
+
+    if prior.attempts == 0:
+        logger.info(
+            "[COLD_START_FIRST_ATTEMPT] Primer intento graded sobre KC cold-start: kc_id=%s is_correct=%s prior_p_L=%.4f new_p_L=%.4f delta_p_L=%.4f exercise_id=%s source=certified",
+            kc_id, is_correct, prior.p_L, bkt_res.p_L, delta, req.exercise_id,
+        )
 
     # Session Digest: acumular el intento en la actividad de sesión del KC
     # (la fuente del perfil cognitivo entre sesiones).

@@ -163,10 +163,11 @@ def test_bkt_influences_pedagogical_context_mode():
         }
     }
 
-    # Case 1: P(L) = 0.92 -> Advanced
+    # Case 1: P(L) = 0.92 -> Advanced (evaluado, attempts > 0)
     tracker.get_state.side_effect = lambda kc: BKTState(
         kc_id=kc,
         p_L=0.92 if kc == "kc_advanced" else (0.15 if kc == "kc_basic" else 0.65),
+        attempts=1,
     )
 
     mode_adv, meta_adv = determine_pedagogical_context_mode(
@@ -181,7 +182,7 @@ def test_bkt_influences_pedagogical_context_mode():
     assert "NIVEL AVANZADO / MAESTRÍA" in dir_adv
     assert "NUNCA expliques definiciones elementales" in dir_adv
 
-    # Case 2: P(L) = 0.15 -> Basic
+    # Case 2: P(L) = 0.15 -> Basic (evaluado, attempts > 0)
     mode_basic, meta_basic = determine_pedagogical_context_mode(
         target_kc_id="kc_basic",
         bkt_tracker=tracker,
@@ -194,7 +195,7 @@ def test_bkt_influences_pedagogical_context_mode():
     assert "NIVEL INICIAL / CONCEPTUAL" in dir_basic
     assert "Partí obligatoriamente de analogías cotidianas" in dir_basic
 
-    # Case 3: P(L) = 0.65 -> Intermediate
+    # Case 3: P(L) = 0.65 -> Intermediate (evaluado, attempts > 0)
     mode_inter, meta_inter = determine_pedagogical_context_mode(
         target_kc_id="kc_intermediate",
         bkt_tracker=tracker,
@@ -204,6 +205,22 @@ def test_bkt_influences_pedagogical_context_mode():
     assert mode_inter == "intermediate"
     dir_inter = build_bkt_adaptation_directive(mode_inter, meta_inter)
     assert "NIVEL INTERMEDIO / CONSOLIDACIÓN" in dir_inter
+
+    # Case 4: Commit 4 - KC no evaluado (attempts == 0) asigna intermediate (neutral)
+    tracker.get_state.side_effect = lambda kc: BKTState(
+        kc_id=kc,
+        p_L=0.10,
+        attempts=0,
+    )
+    mode_cold, meta_cold = determine_pedagogical_context_mode(
+        target_kc_id="kc_basic",
+        bkt_tracker=tracker,
+        kc_catalog=catalog,
+        notebook_id="fase0-soc",
+    )
+    assert mode_cold == "intermediate"
+    assert meta_cold["attempts"] == 0
+    assert meta_cold["cold_start_mode"] == "intermediate"
 
 
 def test_prerequisite_reinforcement_triggers_when_unmet():

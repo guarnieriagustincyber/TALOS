@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 # Tras N turnos consecutivos sobre el mismo KC, se propone ejercicio.
 PROPOSAL_STREAK_THRESHOLD = 3
+# Para KCs no evaluados (cold start), se acelera a 2 turnos para resolver la ambigüedad más rápido.
+PROPOSAL_COLD_START_THRESHOLD = 2
 
 
 def _seen_exercise_ids(submissions_root: Path) -> set:
@@ -54,9 +56,14 @@ def select_exercise_for_kc(
     return unseen[0] if unseen else candidates[0]
 
 
-def should_propose(streak_count: int) -> bool:
-    """Regla pedagógica: proponer ejercicio al alcanzar el umbral de turnos."""
-    return streak_count >= PROPOSAL_STREAK_THRESHOLD
+def should_propose(streak_count: int, attempts: int = 1) -> bool:
+    """Regla pedagógica: proponer ejercicio al alcanzar el umbral de turnos.
+
+    Acelera la propuesta a 2 turnos cuando el KC está sin evaluar (attempts == 0)
+    para resolver la ambigüedad más rápido.
+    """
+    threshold = PROPOSAL_COLD_START_THRESHOLD if attempts == 0 else PROPOSAL_STREAK_THRESHOLD
+    return streak_count >= threshold
 
 
 def to_proposal_payload(exercise: Any) -> Dict[str, Any]:
