@@ -1,7 +1,7 @@
 # Arquitectura del Sistema TALOS (v1.0-elite)
 
 **Fecha**: 23 de Septiembre de 2026  
-**Versión**: `v1.0-elite`  
+**Versión**: `v1.0-elite.1`  
 **Estado**: Certificado y Congelado  
 
 ---
@@ -104,8 +104,8 @@ graph TD
 - **Presentation Filter (Anti-Leakage)**:
   - Intercepta el pool de candidatos antes del reranking y elimina automáticamente fragmentos clasificados como soluciones en el `ContentRegistry`.
 - **Reranker de Dos Etapas con Fallback Gracioso**:
-  - Etapa primaria: `JinaReranker` remoto (timeout $2.0$s con reintentos y jitter).
-  - Etapa secundaria / offline: `DeterministicLocalReranker` que combina cobertura ponderada de términos, bigramas contiguos y proximidad posicional con score acotado en $[0.0, 1.0]$.
+  - Etapa primaria (opcional): `JinaReranker` remoto (timeout $2.0$s con reintentos y jitter).
+  - Etapa secundaria / local-first: `DeterministicLocalReranker` que combina cobertura ponderada de términos, bigramas contiguos y proximidad posicional con score acotado en $[0.0, 1.0]$.
 - **Trazabilidad Forense (`get_retrieval_trace_logger`)**:
   - Emite eventos JSON enriquecidos (`RETRIEVAL_FABRIC_TRACE`) con métricas de latencia, perfil de ruteo y candidatos recuperados mediante un `RotatingFileHandler` (10 MB, 5 archivos de resguardo).
 
@@ -137,8 +137,8 @@ graph TD
 
 ## 3. Invariantes de Seguridad del Sistema
 
-1. **Invariante de Abstención Epistémica (Fail-Closed)**:
-   - Ante consultas cuyos términos no cuenten con suficiente cobertura en las fuentes canónicas del cuaderno activo, el sistema emite deterministamente un evento SSE `abstention` con código `QUERY_OUT_OF_SCOPE`. Jamás se genera una respuesta apócrifa o especulativa.
+1. **Invariante de Abstención Epistémica**:
+   - Ante consultas cuyos términos no cuenten con suficiente cobertura en las fuentes canónicas del cuaderno activo, el sistema emite deterministamente un evento SSE `abstention` con código `QUERY_OUT_OF_SCOPE` (abstención determinista en protocolo). Jamás se genera una respuesta apócrifa o especulativa.
 2. **Invariante de Aislamiento de Soluciones**:
    - Todo ejercicio generado o recuperado se presenta al estudiante sin las soluciones de referencia (`solution_text` = None). La inspección de soluciones requiere obligatoriamente privilegios de administración autenticados.
 3. **Invariante de Perímetro Congelado**:
@@ -146,7 +146,7 @@ graph TD
 4. **Invariante de Determinismo de Ruteo**:
    - 100 llamadas consecutivas al `AdaptiveRouter` con la misma entrada producen de manera idéntica el mismo perfil de ruteo y configuración de rerank.
 5. **Invariante de Fallback de Reranker**:
-   - Si el servicio externo de Jina falla por timeout ($> 2.0$s), error de red o falta de API key, el sistema conmuta al `DeterministicLocalReranker` en menos de 5 ms sin arrojar excepciones no controladas.
+   - Si el servicio externo opcional de Jina falla por timeout ($> 2.0$s), error de red o falta de API key, el sistema conmuta al `DeterministicLocalReranker` en menos de 5 ms sin arrojar excepciones no controladas.
 
 ---
 
@@ -157,9 +157,12 @@ graph TD
 | **Suite de Tests Consolidada** | $\ge 2.400$ tests pasando | **2.441 passed, 7 skipped, 0 failed** (100% verde) |
 | **Golden Set v1** | 18 / 18 PASS | **18 / 18 PASS (100% de aserciones)** |
 | **Latencia p50 en Streaming** | $< 3.000$ ms | **505.4 ms** |
-| **Latencia p90 en Streaming** | $< 6.000$ ms | **2.541.2 ms** |
+| **Latencia p90 en Streaming** | $< 6.000$ ms | **2541.2 ms** |
 | **Precisión de Reranker Local** | Spearman $\ge 0.70$ | **$\rho \ge 0.70$ verificado en evaluación comparativa** |
 | **Líneas Modificadas en Perímetro Congelado** | 0 líneas | **0 líneas (verificado con `git diff`)** |
+
+> [!NOTE]
+> **Incremento de Cobertura de Tests (Fase B $\to$ v1.0-elite)**: Al cierre de la Fase B, la suite contaba con 2.418 tests pasando. Durante la Fase 7 y la certificación final, se añadieron 23 tests automatizados (+14 tests de `RetrievalFabricLite`, `AdaptiveRouter` y `Reranker`, más suites unitarias de perfil metacognitivo y generación), consolidando la cifra definitiva de **2.441 tests pasando**.
 
 ---
 
@@ -180,3 +183,18 @@ graph TD
 ### ADR-4: Arquitectura Híbrida de Reranking con Fallback Local (Fase 7)
 - **Contexto**: Los rerankers neuronales remotos ofrecen excelente sensibilidad semántica pero introducen puntos únicos de fallo y latencia de red variable.
 - **Decisión**: Integrar `JinaReranker` como acelerador opcional con timeout de $2.0$s y respaldarlo con `DeterministicLocalReranker` n-gram/posicional 100% offline, asegurando resiliencia total y operación local-first garantizada.
+
+---
+
+## 6. Proyección Arquitectónica: Roadmap v1.1
+
+Para la próxima iteración mayor (**TALOS v1.1**), se proyectan las siguientes extensiones sobre la base arquitectónica consolidada:
+
+1. **Context Engine 2.0**:
+   - **Late Chunking**: Generación de embeddings a nivel de documento completo preservando las activaciones del transformer antes del corte de chunks, mitigando pérdidas de contexto en límites de párrafo.
+   - **Multi-Vector ColBERT**: Búsqueda token-a-token para precisión fina en identificadores de código y directivas de preprocesador en C.
+   - **Graph Retrieval Opcional**: Ontología de prerrequisitos de KCs navegable como grafo de conocimiento dirigido.
+2. **Ampliación de Presupuesto de Contexto**:
+   - Elevación del techo de $4.000$ a $5.000$ tokens para turnos multi-sesión extensos (resolución formal de BACKLOG-CTX-001).
+3. **Benchmark Externo Reproducible**:
+   - Batería de evaluación empírica a gran escala (300 a 500 consultas) comparando métricas de precisión y latencia contra soluciones comerciales en la nube.

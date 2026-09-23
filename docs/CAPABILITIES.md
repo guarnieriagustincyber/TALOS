@@ -1,7 +1,7 @@
 # Capacidades y Límites del Sistema TALOS (v1.0-elite)
 
 **Fecha de Publicación**: 23 de Septiembre de 2026  
-**Versión de Release**: `v1.0-elite`  
+**Versión de Release**: `v1.0-elite.1`  
 **Estado de Certificación**: Producción / Cierre de Ciclo
 
 ---
@@ -9,6 +9,9 @@
 ## 1. Capacidades Certificadas
 
 TALOS es un entorno de tutoría epistémica adaptativa diseñado para la enseñanza rigurosa de Ingeniería de Software, Arquitectura de Computadoras, Sistemas Operativos y Ciberseguridad.
+
+> [!NOTE]
+> **Evolución de la Suite de Pruebas**: Durante el cierre de la Fase B, el release gate consolidó **2.418 tests pasando**. Con la incorporación de la Fase 7 (Retrieval Fabric Lite con 14 tests de router, reranker y fabric) junto a las suites completas de perfil metacognitivo y generación adaptativa, la suite consolidada alcanzó **2.441 tests pasando, 7 skipped, 0 failed**.
 
 ### 1.1 Retrieval Fabric Lite (Fase 7)
 - **Router Adaptativo Determinista (`AdaptiveRouter`)**:
@@ -20,9 +23,9 @@ TALOS es un entorno de tutoría epistémica adaptativa diseñado para la enseña
 - **Reranker Local Determinista (`DeterministicLocalReranker`)**:
   - Algoritmo de scoring normalizado en $[0.0, 1.0]$ con correlación de Spearman $\ge 0.70$ contra ordenamientos de referencia:
     $$\text{Score} = 0.4 \times \text{cobertura} + 0.3 \times \text{bigramas} + 0.3 \times \text{posición}$$
-- **Reranker Remoto Resiliente (`JinaReranker`)**:
-  - Integración con API de Jina con timeout de $2.0$ segundos y reintentos exponenciales con jitter.
-  - Fallback gracioso transparente: ante cortes de red, errores HTTP o latencias elevadas, conmuta automáticamente al `DeterministicLocalReranker` sin propagar excepciones ni interrumpir el streaming.
+- **Reranker Remoto Opcional con Fallback Local (`JinaReranker`)**:
+  - Componente opcional que se activa únicamente si se configura una variable de entorno `JINA_API_KEY` y existe conectividad HTTPS saliente. Opera con timeout de $2.0$ segundos y reintentos con jitter.
+  - Fallback gracioso transparente: ante ausencia de clave, cortes de red, errores HTTP o latencias elevadas, conmuta automáticamente al `DeterministicLocalReranker` sin propagar excepciones ni degradar la disponibilidad del servicio.
 - **Chokepoint Único de Retrieval**:
   - Consolidado en `RetrievalFabricLite.retrieve()` y `RetrievalService.retrieve_evidence()`, asegurando que toda consulta atraviese:
     $$\text{Re-escritura} \longrightarrow \text{Ruteo} \longrightarrow \text{Pooling} \longrightarrow \text{Anti-Leakage} \longrightarrow \text{Reranking} \longrightarrow \text{Top-}K$$
@@ -84,13 +87,16 @@ Para garantizar transparencia y confiabilidad operativa, se documentan los lími
 - **Margen de seguridad actual**: $7.8\%$ de holgura. Ninguna consulta real ha sufrido truncamiento no controlado.
 - **Recomendación para v1.1**: Elevar el presupuesto a **$5.000$ tokens** (+28% de holgura sobre el máximo observado de $3.877$ tokens), calibrado de forma conjunta con la capa de interfaz de usuario.
 
-### 2.2 Conectividad Externa para Servicios de Reranking
-- El modelo `JinaReranker` depende de acceso HTTPS saliente. Si el entorno se ejecuta en aislamiento estricto de red (air-gapped) o sin una clave `JINA_API_KEY` válida, el sistema opera exclusivamente con el `DeterministicLocalReranker`.
-- El fallback local preserva el 100% de la funcionalidad pedagógica y de seguridad, con una ligera reducción en la ponderación semántica profunda de documentos multi-dominio extensos.
+### 2.2 Dependencias Externas Opcionales y Red
+- El componente `JinaReranker` es **estrictamente opcional**. Si el entorno se ejecuta en aislamiento de red o sin clave de API, el sistema opera con el `DeterministicLocalReranker` de forma predeterminada sin requerir intervención manual ni conexión a Internet.
+- La generación de respuestas socráticas puede operar con modelos locales o mockeados, reservando los adaptadores LLM para entornos donde se provean credenciales.
 
 ### 2.3 Ámbito Curricular Estricto (Abstención por Diseño)
 - TALOS **no es un asistente de propósito general**. No responderá consultas sobre cultura general, temas ajenos a la ingeniería informática o disciplinas no incluidas en los cuadernos del estudiante.
 - Cualquier consulta fuera de alcance curricular activa el evento SSE `abstention` por diseño arquitectónico deliberado.
+
+### 2.4 Alcance de la Comparativa Externa
+- Las comparaciones cualitativas con Gemini Notebook y Gemini Study Notebooks están **basadas en documentación pública y análisis funcional de producto**, no en un benchmark empírico ciego directo a gran escala (el cual está proyectado para el Roadmap v1.1).
 
 ---
 
@@ -98,9 +104,9 @@ Para garantizar transparencia y confiabilidad operativa, se documentan los lími
 
 TALOS se construyó bajo cuatro principios rectores:
 
-1. **Local-First & Soberanía de Datos**:
+1. **Local-First con operación offline-capable**:
    - Todo el estado pedagógico, las matrices de conocimiento (BKT) y las anotaciones del alumno residen en bases de datos SQLite locales (`student_state.db`, `knowledge_store.db`).
-   - El estudiante es el dueño absoluto de sus datos, los cuales pueden exportarse, auditarse o transportarse sin intermediación de servidores de terceros.
+   - El estudiante es el dueño absoluto de sus datos, los cuales pueden exportarse, auditarse o transportarse sin intermediación obligatoria de servidores de terceros.
 2. **Rigor Epistémico (Fail-Closed)**:
    - Es preferible abstenerse que inventar. Una respuesta técnica incorrecta o no respaldada por bibliografía universitaria canónica perjudica el aprendizaje; por ende, toda afirmación debe rastrearse a fuentes autorizadas mediante citas formales.
 3. **Determinismo Pedagógico y Oráculos de Código**:
@@ -110,17 +116,17 @@ TALOS se construyó bajo cuatro principios rectores:
 
 ---
 
-## 4. Matriz Comparativa Sintética: TALOS vs NotebookLM
+## 4. Matriz Comparativa Sintética: TALOS vs Gemini Notebook / Study Notebooks
 
-| Capacidad | TALOS v1.0-elite | Google NotebookLM |
-|---|---|---|
-| **Modelo del Estudiante (BKT)** | ✅ Sí (probabilidad de maestría $P(L)$ por KC) | ❌ No (sin modelado cognitivo) |
-| **Detección de Evasión / Sobreconfianza** | ✅ Sí (fórmulas empíricas de tracking) | ❌ No |
-| **Abstención Epistémica Rigurosa** | ✅ Sí (CoverageGuard determinista, 0 alucinación) | ⚠️ Parcial (heurística de grounding) |
-| **Generación de Ejercicios con Oráculo** | ✅ Sí (Multi-KC, BugSpotter, Trace x86) | ❌ No |
-| **Micro-intérprete Ensamblador x86-64** | ✅ Sí (8 mnemónicos, flags y stack) | ❌ No |
-| **Protección Criptográfica Anti-Leakage** | ✅ Sí (ContentRegistry, separación de soluciones) | ❌ No (acceso libre al corpus) |
-| **Operación 100% Offline / Local** | ✅ Sí (SQLite local, fallback local reranker) | ❌ No (requiere nube de Google) |
-| **Fluidez y Narrativa Estilística** | ⚠️ Conciso / Técnico / Socrático | ✅ Excepcional / Prosa extendida |
-| **Generación de Podcasts / Audio** | ❌ No disponible | ✅ Sí (Audio Overviews) |
-| **Trazabilidad Forense de Retrieval** | ✅ Sí (JSON rotativo con latencias y scores) | ❌ No disponible para el usuario |
+| Capacidad | TALOS v1.0-elite | Gemini Notebook | Gemini Study Notebooks |
+|---|---|---|---|
+| **Modelo del Estudiante (BKT)** | ✅ Sí (probabilidad de maestría $P(L)$ por KC) | ❌ No | ❌ No |
+| **Detección de Evasión / Sobreconfianza** | ✅ Sí (fórmulas empíricas de tracking) | ❌ No | ❌ No |
+| **Abstención Epistémica Rigurosa** | ✅ Sí (CoverageGuard determinista en protocolo) | ⚠️ Parcial (heurística de grounding) | ⚠️ Parcial |
+| **Generación de Ejercicios con Oráculo** | ✅ Sí (Multi-KC, BugSpotter, Trace x86) | ❌ No | ❌ No (solo preguntas textuales) |
+| **Micro-intérprete Ensamblador x86-64** | ✅ Sí (8 mnemónicos, flags y stack) | ❌ No | ❌ No |
+| **Protección Criptográfica Anti-Leakage** | ✅ Sí (ContentRegistry, separación de soluciones) | ❌ No | ❌ No |
+| **Operación Offline / Local-First** | ✅ Sí (SQLite local, reranker local determinista) | ❌ No (cloud-dependent) | ❌ No (cloud-dependent) |
+| **Fluidez y Narrativa Estilística** | ⚠️ Conciso / Técnico / Socrático | ✅ Excepcional / Prosa extendida | ✅ Didáctica / Audio overviews |
+| **Generación de Podcasts / Audio** | ❌ No disponible | ✅ Sí (Audio Overviews) | ✅ Sí |
+| **Trazabilidad Forense de Retrieval** | ✅ Sí (JSON rotativo con latencias y scores) | ❌ No disponible para usuario | ❌ No disponible para usuario |
