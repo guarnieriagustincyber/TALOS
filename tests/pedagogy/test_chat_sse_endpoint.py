@@ -40,10 +40,17 @@ def client_with_setup(tmp_path_factory):
 
     if not store.contains_notebook("nb_prog_1"):
         nb = store.create_notebook(
-            Notebook(id="nb_prog_1", name="Punteros y Memoria", folder_id="f_prog")
+            Notebook(
+                id="nb_prog_1",
+                name="Punteros y Memoria",
+                folder_id="f_prog",
+                sources=["src_fadena_prog_punteros"],
+            )
         )
     else:
         nb = store.get_notebook("nb_prog_1")
+        if not nb.sources:
+            store.link_source_to_notebook("nb_prog_1", "src_fadena_prog_punteros")
 
     client = TestClient(app)
     return client, container, nb, folder

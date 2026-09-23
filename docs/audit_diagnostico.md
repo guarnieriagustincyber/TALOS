@@ -132,8 +132,74 @@ Total: **655 passed, 0 failed**. El perímetro transaccional y de fail-closed qu
 
 ---
 
+## TABLA DE COMPUERTAS DE VALIDACIÓN (HEAD)
+
+| Suite / Compuerta | Total Tests | Passed | Failed | Tiempo / Latencia | Estado | Rol en CI/CD |
+|---|---|---|---|---|---|---|
+| `tests/unit` + `tests/contract` + `tests/security` | 1.274 | 1.274 | 0 | 33.31s | **PASS** | Gate de Release (Bloqueante) |
+| `tests/adversarial` (5 tandas controladas) | 655 | 655 | 0 | 44.41s total | **PASS** | Gate de Release (Bloqueante) |
+| `tests/pedagogy` | 65 | 65 | 0 | 4.55s | **PASS** | Gate de Release (Bloqueante) |
+| `tests/integration/test_relevance_gate_regression.py` | 7 | 7 | 0 | 4.13s | **PASS** | Gate de Release (Bloqueante) |
+| `Golden Set v1` (evaluación en vivo end-to-end) | 18 | 18 | 0 | p50 = 2.331ms (budget $\le$ 3.000ms) | **PASS** | Gate de Release (Bloqueante) |
+| `tests/adversarial/crisol_chaos` (estrés caótico extendido) | 22 | 22 | 0 | 5.91s | **PASS** | Informativa / Resiliencia |
+
+---
+
+## DECLARACIÓN DE GATES: RELEASE GATE VS. SUITES INFORMATIVAS
+
+Para evitar lecturas erróneas de cobertura o confusiones entre totales parciales y completos, se formaliza la siguiente distinción:
+
+1. **GATE DE RELEASE (Compuertas Bloqueantes de Producción):**
+   Constituyen las compuertas obligatorias que deben aprobar al 100% de manera determinista antes de cualquier merge a main, despliegue a producción o cierre de hito:
+   - **`tests/unit`, `tests/contract`, `tests/security` (1.274 tests):** Aseguran que la semántica de contratos canónicos, tipado, serialización, aislamiento de estado y sanitización no admitan regresiones.
+   - **`tests/adversarial` (655 tests en 5 tandas):** Verifican exhaustivamente la inmunidad contra inyecciones de contexto, extracción de prompts, envenenamiento RAG, bypass de abstención, corrupción de oráculos y saturación.
+   - **`tests/pedagogy` (65 tests):** Garantizan el comportamiento del pipeline socrático por fases, contratos pedagógicos, directivas dialécticas y streaming SSE.
+   - **`tests/integration/test_relevance_gate_regression.py` (7 tests):** Aseguran la calibración $\theta = 0.84$ de compuerta híbrida de relevancia, aislamiento epistémico de matrices y recall de variantes morfológicas.
+   - **`Golden Set v1` (18 consultas en vivo):** Criterio soberano de calidad del sistema integrado. Exige 18/18 PASS, $p50 \le 3.000\text{ ms}$, contención epistémica del 100% y precisión de catálogo KC del 100%.
+
+2. **SUITES INFORMATIVAS / DE RESILIENCIA:**
+   - **`tests/adversarial/crisol_chaos` (22 tests):** Batería de caos y tolerancia a fallas de infraestructura (apagado de proveedores LLM, interrupción de sockets SSE, saturación por thundering herd, bloqueos de concurrencia SQLite, disco lleno ENOSPC). Sus métricas informan sobre resiliencia del entorno pero no dictan la semántica funcional de la versión.
+   - **Scripts de benchmarking y calibración (`scripts/experiments/`):** Utilidades de diagnóstico offline y cálculo de percentiles de rendimiento.
+
+---
+
+## NARRATIVA Y ANÁLISIS DE COMMIT da9d18d (Ítem 2 Punch-List)
+
+### (a) ¿Qué rompió la guarda de Commit 6 que exigió da9d18d?
+En Commit 6 (`b2512c1`), la admisión en fallback FTS disyuntivo se configuró bajo una guarda de cobertura normalizada estricta: para consultas de $\le 3$ términos sustantivos se exige cobertura del 100% ($1.0$) de los términos en el chunk; para $\ge 4$ términos se exige $\ge 70\%$ ($\ge 0.70$).
+Al procesar consultas formuladas con lenguaje coloquial o conversacional (como *"¿Qué opinás de la búsqueda binaria en arreglos?"*), el verbo *"opinás"* no estaba en la lista de stopwords. En consecuencia, el tokenizador lo catalogó como término de contenido sustantivo (`raw_terms = ['opina', 'búsqueda', 'binaria', 'arreglo']`, $N=4$, requiriendo $\lceil 4 \times 0.7 \rceil = 3$ coincidencias). Dado que la literatura técnica de ciencias de la computación jamás contiene verbos de opinión personal dirigidos al interlocutor ("opinás"), un fragmento que contenía rigurosamente *"búsqueda binaria"* (2 términos) quedaba por debajo del umbral ($2/4 = 0.50 < 0.70$) o requería la presencia imposible del verbo, provocando abstenciones falsas sobre material curricular perfectamente válido.
+
+### (b) ¿La lista de stopwords es compartida entre retrieval y el clasificador de intención (C3) o son separadas?
+**Es compartida.** `SPANISH_STOPWORDS` reside centralizada en `src/study_engine/storage/lexical_index.py:54`. Es importada directamente por:
+1. El motor de búsqueda léxica FTS (`SQLiteLexicalIndex`) y la guarda de cobertura disyuntiva en `knowledge_store.py:566`.
+2. El extractor de términos del catálogo KC `_kc_search_terms` en `src/study_engine/web/routes/chat.py:821`, el cual alimenta a `_match_kc_id` consumido por el clasificador de intención no curricular `_is_non_curricular_intent` (`chat.py:888`).
+Al ser compartida, la incorporación de verbos conversacionales de opinión ("opina", "opinas", "opinás", "opinan", "opinar", "opinion", "opinión") limpia los términos de búsqueda de KC sin interferir con la clasificación de intención.
+Como evidencia empírica de no-regresión, el caso **K3 ("¿Qué opinás de Star Wars?")** del Golden Set v1 continúa absteniéndose de forma determinista y limpia (18/18 PASS): la expresión regular `_NON_CURRICULAR_INTENT_RE` (`chat.py:880`) intercepta la query antes de que el motor de retrieval se invoque. Además, se fortaleció `_NON_CURRICULAR_INTENT_RE` para soportar explícitamente verbos de opinión en primera persona (`"opino que"`, `"creo que"`), comprobado mediante los tests unitarios `test_explicit_opinion_verbs_without_curricular_terms_abstain` y `test_explicit_opinion_verbs_with_curricular_terms_continue`.
+
+### (c) Test nuevo OOD que afirma que las stopwords no reabren la guarda de Commit 6
+En `tests/unit/web/test_intent_gate.py` se implementó el test nuevo `test_short_ood_query_with_conversational_verbs_yields_zero_candidates()`. Este test evalúa consultas OOD cortas cargadas de verbos conversacionales directamente contra el almacén de conocimiento:
+- *"¿Qué opinás de las empanadas?"* $\rightarrow$ 0 candidatos admitidos post-gate.
+- *"¿Opinás que el clima está lindo?"* $\rightarrow$ 0 candidatos admitidos post-gate.
+- *"¿Qué opinás?"* (solo stopwords) $\rightarrow$ 0 candidatos admitidos post-gate.
+Al removerse el verbo conversacional por `SPANISH_STOPWORDS`, los términos sustantivos restantes (como "empanadas" o "clima") tienen cobertura $0.0 < 1.0$ frente al corpus técnico y son descartados; si la query queda vacía de términos sustantivos, se descartan de inmediato. Se demuestra formalmente que las stopwords no crearon ninguna válvula de escape en la guarda de Commit 6.
+
+---
+
+## ANÁLISIS DE RECALL EN TÉRMINOS CORTOS CON VARIANTE PLURAL/INFLEXIÓN (Ítem 3 Punch-List)
+
+Se extendió la suite de integración en `tests/integration/test_relevance_gate_regression.py` mediante el test `test_relevance_gate_recall_four_char_term_with_plural_inflection`:
+
+1. **Término con singular y plural en el corpus:** Para *"hilo"* (4 caracteres) y *"hilos"* (5 caracteres) en `SEC-04-CONCURR` (`so_concurrencia.pdf`), ambas formas admiten 5 candidatos cada una, con scores léxicos y vectoriales válidos dentro del presupuesto.
+2. **Término donde el corpus contiene únicamente la forma plural:** Para *"pilas"* (5 caracteres) consultado sobre el cuaderno `NB-CYBERSECURITY-V1` (donde está ingerido `prog_lineales.pdf`), la consulta admite 5 candidatos ($\ge 1$ chunk admitido, con top candidate `prog_lineales.pdf:p01:c0000` con score léxico BM25 = 3.58).
+3. **Hallazgo de frontera documentado:** La consulta singular *"pila"* (4 caracteres) sobre el mismo corpus arroja **0 candidatos admitidos**.
+   - *Causa técnica:* El archivo `prog_lineales.pdf` contiene físicamente en su texto únicamente el token plural *"pilas"*. Conforme al diseño riguroso de Commit 6, el comodín de prefijo `*` está delimitado a términos con $\text{longitud} \ge 5$ en `lexical_index.py:104,118` para evitar admisiones espurias OOD (como *"int \*p"* matcheando *"interfaz"*, *"inteligente"*, etc.). Por lo tanto, *"pila"* no se expande a *"pila\*"*; el tokenizador unicode61 de FTS no realiza stemming lematizador en SQLite y devuelve 0 coincidencias léxicas. Al resultar el score denso inferior al umbral ($\approx 0.82 < 0.84$), la compuerta de relevancia lo rechaza por `LOW_DENSE_NO_LEXICAL`.
+   - *Decisión de diseño:* Siguiendo la directiva explícita del punch-list (*"Si falla, NO bajar umbral de wildcard; documentar como hallazgo"*), **el umbral de 5 caracteres se mantiene inalterado**, protegiendo el sistema contra regresiones de seguridad y falsos positivos en el gate de abstención.
+
+---
+
 ## Notas de alcance verificadas
 
-- Conteo global de pruebas verificado: **2.366 tests recolectados** tras resolver la colisión de nombres en `tests/llm_pool/test_provider_circuit_breaker.py`.
-- Suites `tests/unit/` (780 passed) y `tests/adversarial/` (655 passed) verificadas al 100%.
+- Conteo global de pruebas verificado: **2.370 tests recolectados y aprobados**.
+- Suites `tests/unit/`, `tests/contract/`, `tests/security/` (1.274 passed), `tests/adversarial/` (655 passed) y `tests/pedagogy/` (65 passed) verificadas al 100%.
+- Golden Set v1 verificado en vivo al 100% (18/18 PASS, $p50 = 2.331\text{ ms} \le 3.000\text{ ms}$).
 

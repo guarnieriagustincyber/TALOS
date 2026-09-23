@@ -877,7 +877,7 @@ GLOBAL_SCOPE_ID = "__global__"
 # corpus menciona Star Wars (ejemplo didáctico) pero "¿Qué opinás de Star Wars?"
 # no es consulta curricular. El umbral vectorial 0.87 no se toca.
 _NON_CURRICULAR_INTENT_RE = re.compile(
-    r"(qu[ée]\s+opin[áa]s|qu[ée]\s+pens[áa]s|te\s+gusta|te\s+copa|"
+    r"(qu[ée]\s+opin[áa]s|qu[ée]\s+pens[áa]s|opin[oa]\s+que|creo\s+que|te\s+gusta|te\s+copa|"
     r"star\s+wars|pel[íi]cula|serie\s+de|f[úu]tbol|partido\s+de|"
     r"noticias?\s+de|clima|pron[óo]stico|receta\s+de|chiste|broma|"
     r"videojuego|jueguito|m[úu]sica\s+para)",

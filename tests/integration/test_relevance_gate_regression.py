@@ -234,3 +234,59 @@ def test_epistemic_isolation_maintained_with_gate(benchmark_env: Dict[str, Any])
     )
     assert len(cands_concurr) > 0
     assert all(c.document_id == "so_concurrencia.pdf" for c in cands_concurr)
+
+
+def test_relevance_gate_recall_four_char_term_with_plural_inflection(
+    benchmark_env: Dict[str, Any],
+) -> None:
+    """Recall test for 4-character terms with plural/inflectional variants (Punch-list Ítem 3).
+
+    1. Term with both singular (4 chars) and plural (5 chars) in corpus: 'hilo' / 'hilos'
+       on SEC-04-CONCURR admits >= 1 candidates in both forms.
+    2. Term where corpus contains only plural: 'pilas' (5 chars) in prog_lineales.pdf
+       admits >= 1 candidate on notebook NB-CYBERSECURITY-V1.
+    3. Boundary finding: 'pila' (4 chars) yields 0 candidates when the corpus
+       only contains 'pilas' because Commit 6 restricts prefix wildcards to terms of len >= 5
+       to prevent noisy matches (e.g. 'int *p'). Per specification, this threshold is NOT lowered.
+    """
+    ret_service: RetrievalService = benchmark_env["retrieval_service"]
+    registry: CurriculumRegistry = benchmark_env["registry"]
+
+    # 1. 'hilo' / 'hilos' on SEC-04-CONCURR (so_concurrencia.pdf has both)
+    cands_hilos = ret_service.retrieve_evidence(
+        query="hilos",
+        node_id="SEC-04-CONCURR",
+        registry=registry,
+        top_k=5,
+    )
+    assert len(cands_hilos) >= 1, "Plural 'hilos' must admit >= 1 candidate"
+    assert any(c.document_id == "so_concurrencia.pdf" for c in cands_hilos)
+
+    cands_hilo = ret_service.retrieve_evidence(
+        query="hilo",
+        node_id="SEC-04-CONCURR",
+        registry=registry,
+        top_k=5,
+    )
+    assert len(cands_hilo) >= 1, "Singular 'hilo' (4 chars) must admit >= 1 candidate"
+    assert any(c.document_id == "so_concurrencia.pdf" for c in cands_hilo)
+
+    # 2. 'pilas' on NB-CYBERSECURITY-V1 (where prog_lineales.pdf is ingested)
+    cands_pilas = ret_service.retrieve_evidence(
+        query="pilas",
+        notebook_id="NB-CYBERSECURITY-V1",
+        top_k=5,
+    )
+    assert len(cands_pilas) >= 1, "Plural 'pilas' must admit >= 1 candidate in prog_lineales.pdf"
+    assert any(c.document_id == "prog_lineales.pdf" for c in cands_pilas)
+
+    # 3. 'pila' (4 chars) boundary condition: text only has 'pilas'.
+    # FTS wildcard requires len >= 5; thus 'pila' does not expand to 'pila*' and returns 0 candidates.
+    cands_pila = ret_service.retrieve_evidence(
+        query="pila",
+        notebook_id="NB-CYBERSECURITY-V1",
+        top_k=5,
+    )
+    assert len(cands_pila) == 0, (
+        "Singular 'pila' strictly yields 0 when corpus only has 'pilas' and wildcard < 5 is prohibited"
+    )

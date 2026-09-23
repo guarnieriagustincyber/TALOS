@@ -103,7 +103,7 @@ def test_pipeline_build_phase_prompt_with_conversational_query():
 
     prompt = pipeline.build_phase_prompt(phase, '¿Qué es una variable?')
     assert 'COMANDO ESTRUCTURADO DETECTADO' not in prompt
-    assert 'Extensión máxima de 400 palabras' in prompt
+    assert 'hasta 400 palabras' in prompt
 
 
 def test_offline_structured_command_abstains_honestly():

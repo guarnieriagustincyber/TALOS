@@ -116,3 +116,31 @@ def test_prepare_grounded_for_curricular_opinion_query():
     context_pack = result[2]
     assert context_pack is not None and not context_pack.abstained
     assert context_pack.chunks, "debió recuperar el chunk de búsqueda binaria"
+
+
+def test_explicit_opinion_verbs_without_curricular_terms_abstain():
+    """Verbos explícitos de opinión ('opino que', 'creo que') sin KC son no curriculares."""
+    assert _is_non_curricular_intent("opino que las empanadas de carne son las mejores", _KCS) is True
+    assert _is_non_curricular_intent("creo que va a llover esta tarde", _KCS) is True
+
+
+def test_explicit_opinion_verbs_with_curricular_terms_continue():
+    """Verbos explícitos de opinión con vocabulario curricular continúan normalmente."""
+    assert _is_non_curricular_intent("opino que la búsqueda binaria divide el espacio a la mitad", _KCS) is False
+    assert _is_non_curricular_intent("creo que los arrays usan direccionamiento contiguo", _KCS) is False
+
+
+def test_short_ood_query_with_conversational_verbs_yields_zero_candidates():
+    """da9d18d: stopwords de opinión conversacional no reabren la guarda de Commit 6 en queries OOD cortas."""
+    store = _store_with_starwars_chunk()
+    # 1. Query OOD corta con verbo de opinión + término ausente
+    res1 = store.search("¿Qué opinás de las empanadas?", notebook_id="nb1")
+    assert len(res1) == 0, f"Query OOD no debe admitir candidatos post-gate, obtuvo {len(res1)}"
+
+    # 2. Query OOD con verbo conversacional de opinión
+    res2 = store.search("¿Opinás que el clima está lindo?", notebook_id="nb1")
+    assert len(res2) == 0, f"Query OOD de clima no debe admitir candidatos post-gate, obtuvo {len(res2)}"
+
+    # 3. Query puramente conversacional/stopwords
+    res3 = store.search("¿Qué opinás?", notebook_id="nb1")
+    assert len(res3) == 0, f"Query solo stopwords no debe admitir candidatos post-gate, obtuvo {len(res3)}"
