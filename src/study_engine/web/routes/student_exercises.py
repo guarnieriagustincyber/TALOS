@@ -187,7 +187,8 @@ def generate_multi_kc_exercise(
             detail="No hay plantilla de composición para ese conjunto de KCs.",
         )
     container.generated_registry.save(exercise)
-    return exercise
+    # Commit 2: No filtrar oracle al cliente HTTP; vive exclusivamente server-side
+    return {k: v for k, v in exercise.items() if k != "oracle"}
 
 
 class GenerateDebugRequest(BaseModel):
@@ -214,7 +215,7 @@ def generate_debugging_exercise_ep(
             detail="No hay plantilla de bug para ese KC/tipo.",
         )
     container.generated_registry.save(exercise)
-    return exercise
+    return {k: v for k, v in exercise.items() if k != "oracle"}
 
 
 class GenerateTraceRequest(BaseModel):
@@ -236,7 +237,7 @@ def generate_trace_exercise_ep(
         payload.kc_id, n_mutations=payload.n_mutations, difficulty=payload.difficulty
     )
     container.generated_registry.save(exercise)
-    return exercise
+    return {k: v for k, v in exercise.items() if k != "oracle"}
 
 
 @router.get("/available", response_model=Dict[str, Any])
