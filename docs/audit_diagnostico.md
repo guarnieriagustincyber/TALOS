@@ -140,12 +140,12 @@ Total: **655 passed, 0 failed**. El perímetro transaccional y de fail-closed qu
 > **2.372 PASSED** + **8 SKIPPED** + **0 FAILED** = **2.380 TESTS TOTALES RECOLECTADOS**.
 > El Golden Set v1 se reporta por separado como evaluación en vivo end-to-end fuera del total estático de tests.
 
-### Tabla Consolidada por Suite del Repositorio (Baseline Consolidado Post-Slice 6.0.5)
+### Tabla Consolidada por Suite del Repositorio (Baseline Consolidado Post-Fase A)
 
 | Suite | Total Recolectado | Passed | Failed | Skipped | Clasificación de Gate | Nota / Detalle |
 |---|:---:|:---:|:---:|:---:|---|---|
-| `tests/unit` | 796 | 796 | 0 | 0 | **Release Gate (Bloqueante)** | Aislamiento unitario estricto (+3 chat content registry) |
-| `tests/contract` | 432 | 432 | 0 | 0 | **Release Gate (Bloqueante)** | Tipado, boundaries y schemas canónicos (+3 content registry) |
+| `tests/unit` | 797 | 797 | 0 | 0 | **Release Gate (Bloqueante)** | Aislamiento unitario estricto (+1 chokepoint rewriter C1) |
+| `tests/contract` | 432 | 432 | 0 | 0 | **Release Gate (Bloqueante)** | Tipado, boundaries y schemas canónicos |
 | `tests/security` | 52 | 52 | 0 | 0 | **Release Gate (Bloqueante)** | Sanitización PII, inyecciones y contratos estrictos |
 | `tests/adversarial` | 655 | 655 | 0 | 0 | **Release Gate (Bloqueante)** | Incluye `crisol` (27) y `crisol_chaos` (22) como subdirectorios |
 | `tests/pedagogy` | 65 | 65 | 0 | 0 | **Release Gate (Bloqueante)** | Pipeline socrático, fases y streaming SSE |
@@ -159,15 +159,15 @@ Total: **655 passed, 0 failed**. El perímetro transaccional y de fail-closed qu
 | `tests/context` | 19 | 19 | 0 | 0 | Suite Integrada | Compilador de contexto y router de intención |
 | `tests/performance` | 17 | 17 | 0 | 0 | Informativa | TTFT desagregado, benchmarks y presupuestos |
 | `tests/llm` | 13 | 13 | 0 | 0 | Suite Integrada | Aislamiento de entorno fixture monkeypatch `XKIRO_MODEL` |
-| `tests/retrieval` | 12 | 11 | 0 | 1 | Suite Integrada | +10 (presentation filter + reference extractor); 1 skip BACKLOG-CTX-001 |
+| `tests/retrieval` | 19 | 19 | 0 | 0 | Suite Integrada | +7 inflections C2/C4/C5/A1/A5; 0 skips (unskip ceiling ±1) |
 | `tests/protected` | 9 | 9 | 0 | 0 | Suite Integrada | Raíz de confianza y contratos inmutables |
 | `tests/session` | 9 | 9 | 0 | 0 | Suite Integrada | Sesiones unificadas y submissions |
-| `tests/storage` | 8 | 8 | 0 | 0 | Suite Integrada | Repositorios SQLite y bajo nivel (+3 content registry repo) |
+| `tests/storage` | 8 | 8 | 0 | 0 | Suite Integrada | Repositorios SQLite y bajo nivel |
 | `tests/memory` | 7 | 7 | 0 | 0 | Suite Integrada | Extracción de misconceptions y memoria episódica |
 | `tests/benchmark` | 6 | 6 | 0 | 0 | Informativa | Perfilado de ingesta y almacenamiento |
-| `tests/cli` | 4 | 4 | 0 | 0 | Suite Integrada | CLI content show / solution (+4 tests) |
+| `tests/cli` | 4 | 4 | 0 | 0 | Suite Integrada | CLI content show / solution |
 | `tests/ci` | 1 | 1 | 0 | 0 | Suite Integrada | Verificación de entorno CI |
-| **TOTAL REPOSITORIO** | **2.403** | **2.395** | **0** | **8** | — | **Suma exacta de las 23 suites en corrida única consolidada** |
+| **TOTAL REPOSITORIO** | **2.411** | **2.404** | **0** | **7** | — | **Suma exacta de las 23 suites en corrida única consolidada** |
 
 ---
 
@@ -185,7 +185,7 @@ Total: **655 passed, 0 failed**. El perímetro transaccional y de fail-closed qu
    El Gate de Release del repositorio queda formalmente definido como **UNA SOLA INVOCACIÓN CONSOLIDADA: `pytest tests/`**.
    - **Regla vinculante:** Esa corrida única y completa en un solo proceso es la **única que certifica oficialmente** la integridad de la rama `main` y autoriza entregas o transiciones de milestone.
    - **Corridas por suite o directorio:** Las ejecuciones por subcarpeta (`pytest tests/unit`, `pytest tests/hierarchy`, etc.) son de carácter **estrictamente informativo o de diagnóstico local** para acelerar el ciclo de desarrollo, y bajo ninguna circunstancia reemplazan la corrida consolidada.
-   - **Baseline Oficial Vigente:** `pytest tests/` $\rightarrow$ **2.395 passed, 8 skipped, 0 failed (exit code 0)** en 292s.
+   - **Baseline Oficial Vigente:** `pytest tests/` $\rightarrow$ **2.404 passed, 7 skipped, 0 failed (exit code 0)** en 251.20s.
    - **Criterio soberano de integración en vivo:** **Golden Set v1 = 18/18 PASS** ($p50 = 2.331\text{ ms}$, budget $\le 3.000\text{ ms}$).
 
 2. **REGLA DE INGENIERÍA DE PRUEBAS (Contratos Vivos vs Literales Copiados):**
@@ -236,34 +236,54 @@ Se extendió la suite de integración en `tests/integration/test_relevance_gate_
 
 ### BACKLOG-LEX-001 — Canonicalización singular→plural en query_rewriter.py
 - **Identificador:** `BACKLOG-LEX-001`
-- **Estado:** PENDIENTE (no bloqueante para `content_registry`).
-- **Problema diagnosticado:** En el corpus bibliográfico técnico, ciertos conceptos clave aparecen exclusivamente en su forma plural (ej. *"pilas"* en `prog_lineales.pdf:p01:c0000`). Conforme a la regla de seguridad de Commit 6, los términos con longitud $< 5$ caracteres (como *"pila"*, 4 chars) tienen prohibido el comodín de prefijo `*` para evitar falsos positivos OOD (`"int *p"`). En consecuencia, SQLite FTS unicode61 busca el término literal *"pila"*, devuelve 0 filas, y la compuerta de relevancia rechaza la consulta por `LOW_DENSE_NO_LEXICAL`.
-- **Solución técnica especificada:** Implementar en `src/study_engine/retrieval/query_rewriter.py` (vía `_TYPO_CORRECTIONS` o un mapa curado `_CANONICAL_INFLECTIONS`) un mapeo de **REEMPLAZO canónico curado** (`"pila"` $\rightarrow$ `"pilas"`).
-- **Restricción crítica de diseño:** Debe operar estrictamente como **reemplazo sustitutivo**, NUNCA como adición o disyunción sinónima (`pila OR pilas`). Si se agregara como término adicional, inflaría el denominador $|raw\_terms|$ en la guarda de cobertura de Commit 6 (`knowledge_store.py:566`), provocando que un chunk que solo contiene la forma singular o plural falle el umbral de cobertura estricta (100% para $\le 3$ términos).
-- **Invariante de seguridad:** El umbral de comodín $\ge 5$ caracteres en `lexical_index.py` **NO se toca**, preservando el blindaje estricto contra consultas OOD.
-- **Test futuro requerido al implementar:**
-  - Query: `"¿qué es una pila?"` sobre el cuaderno `NB-CYBERSECURITY-V1` o nodo curricular equivalente.
-  - Aserción: `len(candidates) >= 1` con admisión válida en `prog_lineales.pdf`.
+- **Estado:** ✅ **CERRADO CON EVIDENCIA (Fase A)**.
+- **Problema resuelto:** En el corpus bibliográfico técnico, ciertos conceptos clave aparecen exclusivamente en su forma plural (ej. *"pilas"* en `prog_lineales.pdf:p01:c0000`). Conforme a la regla de seguridad de Commit 6, los términos con longitud $< 5$ caracteres (como *"pila"*, 4 chars) tienen prohibido el comodín de prefijo `*` para evitar falsos positivos OOD (`"int *p"`). En consecuencia, SQLite FTS unicode61 devolvía 0 filas para *"pila"*, y la compuerta de relevancia rechazaba la consulta por `LOW_DENSE_NO_LEXICAL`.
+- **Implementación y Resoluciones (C1–C5):**
+  1. **Chokepoint único (C1):** Se declaró `RetrievalService.retrieve_evidence()` como la única autoridad de reescritura. Se eliminó la invocación duplicada en `KnowledgeStore.search_hybrid()`.
+  2. **Pipeline de transformaciones en orden estricto (C2):**
+     - Fase 1: `_TYPO_CORRECTIONS` (normalización básica de ortografía).
+     - Fase 2: `_CANONICAL_INFLECTIONS` (reemplazo sustitutivo singular $\rightarrow$ plural).
+     - Fase 3: `_COLLOQUIAL_EXPANSIONS` (aditiva, estrictamente idempotente).
+  3. **Validación empírica contra el corpus (C5 / A1):** El diccionario `_CANONICAL_INFLECTIONS` incluye únicamente pares que satisfacen rigurosamente:
+     - (a) `hits(plural) > 0` en FTS.
+     - (b) `hits(singular) <= hits(plural)` en FTS.
+     - Pares validados: `pila` $\rightarrow$ `pilas`, `grafo` $\rightarrow$ `grafos`, `hilo` $\rightarrow$ `hilos`, `nodo` $\rightarrow$ `nodos`.
+     - Términos en inglés o donde domina el singular (`heap`, `fork`, `lock`, `slot`, `pipe`, `arbol`/`árbol`, `tabla`, `clave`) fueron excluidos contractualmente.
+  4. **Idempotencia y correctitud inicial (C4):** `rewrite("pila") == "pilas"` en primera pasada; `rewrite(rewrite(q)) == rewrite(q)` sin duplicación de términos.
+  5. **Telemetría estructurada (A5):** Detección de misses para términos de 4-5 caracteres mediante log estructurado `COVERAGE_GUARD_MISS` en `KnowledgeStore.search()`.
+- **Evidencia en tests:**
+  - `tests/retrieval/test_query_rewriter_inflections.py`: **7/7 passed**.
+  - `tests/unit/retrieval/test_query_rewriter.py`: **7/7 passed**.
+  - `tests/integration/test_relevance_gate_regression.py`: **7/7 passed**. Tanto `"pila"` como `"¿qué es una pila?"` admiten exitosamente $\ge 1$ chunk en `prog_lineales.pdf`, mientras que tokens ruidosos como `"int *p"` continúan bloqueados (0 candidatos).
 
 ---
 
-### BACKLOG-CTX-001 — HARD_CEILING_TOKENS (40k→4k) y EXPANSION_WINDOW (2→1) en commit 2fe70e3
+### BACKLOG-CTX-001 — HARD_CEILING_TOKENS (40k→4k) y EXPANSION_WINDOW (2→1)
 - **Identificador:** `BACKLOG-CTX-001`
-- **Estado:** PENDIENTE (no bloqueante para `content_registry`).
-- **Problema diagnosticado:** En el commit `2fe70e3` ("primer commit definitivo sin archivos pesados") se introdujeron dos ajustes de escala en `src/study_engine/retrieval/expansion.py`:
-  - `HARD_CEILING_TOKENS` se redujo de 40.000 a 4.000 tokens para mitigar spikes de memoria RAM en entornos con 90k chunks en disco.
-  - `EXPANSION_WINDOW` se redujo de $\pm 2$ a $\pm 1$ chunk contiguo alrededor de cada hit.
-  Esta alteración dejó en fallo a `tests/retrieval/test_section_expansion_ceiling.py::test_section_expander_fuses_windows_and_formats_explicit_metadata`, que asumía rígidamente una ventana histórica fija de $\pm 2$ chunks.
-- **(a) Confirmación en código (Separación Estricta Entrada vs Salida):**
-  Se confirmó formalmente en código que el ceiling (`HARD_CEILING_TOKENS = 4000`) aplica **únicamente a la evidencia de ENTRADA** (ensamble y empaquetado de contexto pre-LLM dentro de `SectionExpander.expand_results()`, `src/study_engine/retrieval/expansion.py:116-140`).
-  **No se suma, no compite y no se comparte** con el presupuesto de generación de SALIDA del LLM, el cual se rige de manera independiente por `effective_max_tokens = max(phase.max_tokens, 2500)` por fase en `StructuredPedagogyPipeline` (`src/study_engine/pedagogy/structured_pipeline.py:1041`). Ambas compuertas operan en subsistemas disjuntos de la tubería de ejecución.
-- **(b) Verificación en Golden Set v1 y Declaración de Riesgo:**
-  Se revisó la totalidad de las 18 queries del Golden Set v1 y los reportes de ejecución (`reports/golden_set_v1_*.json`):
-  - Todas las queries son conceptuales y recuperan los top-5 chunks mediante `store.search(limit=5)`. Con chunks promedio de ~150-250 tokens, el contexto expandido alcanza como máximo ~1.500 a 2.500 tokens.
-  - Ningún caso del Golden Set v1 estresa un radio de expansión $> 1$ ni se aproxima remotamente al techo de 4.000 tokens.
-  - **Declaración explícita de riesgo:** *"el golden set no cubre esta palanca"*.
-- **Acción preventiva en este slice:**
-  El test `test_section_expander_fuses_windows_and_formats_explicit_metadata` fue decorado con `@pytest.mark.skip` documentado bajo este identificador, computando 8 skips oficiales en el gate consolidado sin ocultar la deuda técnica ni bloquear el avance hacia `content_registry`.
+- **Estado:** 🔬 **INVESTIGACIÓN EMPÍRICA COMPLETADA — ABIERTO POR REGLA A3 ($p99 \ge 3.500$)**.
+- **Contexto:** En el commit `2fe70e3` se fijaron preventivamente `HARD_CEILING_TOKENS = 4000` y `EXPANSION_WINDOW = 1` ($\pm 1$ chunk contiguo) para mitigar spikes de RAM. El test histórico asumía $\pm 2$ chunks y quedó en `skip`.
+- **Desbloqueo de test (0 skips en `tests/retrieval`):**
+  Se removió el `@pytest.mark.skip` de `test_section_expansion_ceiling.py::test_section_expander_fuses_windows_and_formats_explicit_metadata` y se alinearon sus aserciones a la ventana $\pm 1$: semillas en 3 y 5 generan intervalo fusionado $[2, 6]$ (5 chunks contiguos: 2, 3, 4, 5, 6), verificando flags de semilla y marcadores canónicos `[CHUNK X | Pág Y]`. Resultado: **2/2 passed**.
+- **Medición empírica exhaustiva (`scripts/measure_context_tokens.py`):**
+  Se evaluaron 38 queries en producción (20 queries complejas multi-tema pre-registradas que abarcan SO, C, estructuras y arquitectura + 18 queries del Golden Set v1) con el tokenizador unificado de `SectionExpander` (C3).
+
+| Métrica | Ventana $\pm 1$ (Aritmética Pura) | Hard Ceiling 4.000 (Con Corte) |
+|---|:---:|:---:|
+| **Mínimo** | 0.0 tokens | 0.0 tokens |
+| **Media (Mean)** | 1.783,4 tokens | 1.783,4 tokens |
+| **Mediana ($p50$)** | 1.755,0 tokens | 1.755,0 tokens |
+| **Percentil 90 ($p90$)** | 3.040,4 tokens | 3.040,4 tokens |
+| **Percentil 99 ($p99$)** | **3.688,3 tokens** | **3.688,3 tokens** |
+| **Máximo** | 3.877,0 tokens | 3.877,0 tokens |
+| **Queries cortadas (>4k)** | 0 / 38 (0,0%) | 0 / 38 (0,0%) |
+| **RAM Pico (con ONNX)** | **1.503,37 MB** (Delta: +1.397,00 MB) | — |
+
+- **Evaluación de la Rama de Decisión (Addendum A3):**
+  - Condición evaluada: $p99 = 3.688,3\text{ tokens} \ge 3.500\text{ tokens}$.
+  - Diagnóstico: Si bien ninguna consulta superó el ceiling actual de 4.000 tokens (corte = 0,0%), el percentil 99 se encuentra en zona marginal ($3.688,3$ tokens, ~92% del techo).
+  - Propuesta conservadora: Incrementar `HARD_CEILING_TOKENS` a **5.000 tokens** (otorga un +28% de margen de seguridad sobre el máximo observado de 3.877 tokens sin riesgo de desborde de memoria, ya que la memoria RAM está acotada a ~1.5 GB).
+  - Conclusión reglamentaria: El backlog permanece **ABIERTO** para coordinar el ajuste de cuota con la generación de ejercicios dinámicos (Fase B/C).
+  - Artefacto generado: `data/experiments/context_token_distribution_report.json`.
 
 ---
 

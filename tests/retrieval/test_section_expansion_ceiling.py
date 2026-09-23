@@ -13,11 +13,8 @@ from study_engine.retrieval.expansion import SectionExpander, HARD_CEILING_TOKEN
 from study_engine.storage.knowledge_store import KnowledgeStore
 
 
-@pytest.mark.skip(
-    reason="BACKLOG-CTX-001: EXPANSION_WINDOW reducido a 1 en commit 2fe70e3; test asume radio histórico ±2 (no bloqueante para content_registry)"
-)
 def test_section_expander_fuses_windows_and_formats_explicit_metadata() -> None:
-    """Verify SectionExpander fuses ±2 windows, avoids floating citations, and formats [CHUNK X | Pág Y] (E23, E26)."""
+    """Verify SectionExpander fuses ±1 windows, avoids floating citations, and formats [CHUNK X | Pág Y] (E23, E26)."""
     store = KnowledgeStore(":memory:")
     store.initialize()
 
@@ -97,22 +94,22 @@ def test_section_expander_fuses_windows_and_formats_explicit_metadata() -> None:
         source_meta_cache=meta_cache,
     )
 
-    # Window for 3 is [1, 5], window for 5 is [3, 7].
-    # Merged window should be [1, 7] -> 7 chunks total (indices 1, 2, 3, 4, 5, 6, 7).
+    # Window for 3 is [2, 4], window for 5 is [4, 6].
+    # Merged window should be [2, 6] -> 5 chunks total (indices 2, 3, 4, 5, 6).
     indices = [c.pos_index for c in expanded_chunks]
-    assert indices == [1, 2, 3, 4, 5, 6, 7]
+    assert indices == [2, 3, 4, 5, 6]
 
     # Verify seed flags
     seed_flags = {c.pos_index: c.is_seed_hit for c in expanded_chunks}
     assert seed_flags[3] is True
     assert seed_flags[5] is True
-    assert seed_flags[1] is False
-    assert seed_flags[7] is False
+    assert seed_flags[2] is False
+    assert seed_flags[6] is False
 
     # Invariant E26: Text contains explicit [CHUNK X | Pág Y] markers
     assert "[CHUNK 3 | Pág 103 | El Lenguaje C]" in formatted_text
-    assert "[CHUNK 1 | Pág 101 | El Lenguaje C]" in formatted_text
-    assert "[CHUNK 7 | Pág 107 | El Lenguaje C]" in formatted_text
+    assert "[CHUNK 2 | Pág 102 | El Lenguaje C]" in formatted_text
+    assert "[CHUNK 6 | Pág 106 | El Lenguaje C]" in formatted_text
 
 
 def test_section_expander_strictly_enforces_hard_ceiling() -> None:

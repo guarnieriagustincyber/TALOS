@@ -164,6 +164,14 @@ class RetrievalService:
         """
         self._last_rejections = []
 
+        # Chokepoint único de reescritura de consultas (C1)
+        effective_query = query
+        try:
+            from study_engine.retrieval.query_rewriter import QueryRewriter
+            effective_query = QueryRewriter().rewrite(query)
+        except Exception as rew_err:
+            logger.debug("Query rewriting fallback to raw query in RetrievalService: %s", rew_err)
+
         # Resolve overloaded positional arguments
         effective_node_id = node_id
         effective_registry = registry
@@ -220,7 +228,7 @@ class RetrievalService:
             k_pool = max(effective_top_k * 5, 25)
 
             request = RetrievalRequest(
-                query=query,
+                query=effective_query,
                 notebook_id=effective_notebook_id,
                 top_k=k_pool,
                 document_ids=allowed_doc_ids,
@@ -272,7 +280,7 @@ class RetrievalService:
 
         # Standard (Legacy) Retrieval Branch
         request = RetrievalRequest(
-            query=query,
+            query=effective_query,
             notebook_id=effective_notebook_id,
             top_k=effective_top_k,
             strategy=request_strategy,

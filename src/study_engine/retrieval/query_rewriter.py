@@ -15,9 +15,10 @@ logger = logging.getLogger(__name__)
 
 # Common student spelling errors & typos in computer systems / programming
 _TYPO_CORRECTIONS: Dict[re.Pattern, str] = {
-    re.compile(r"\bpunter[os]*\b", re.IGNORECASE): "puntero",
+    re.compile(r"\bpunter\b", re.IGNORECASE): "puntero",
     re.compile(r"\bsincronisaci[oó]n\b", re.IGNORECASE): "sincronización",
-    re.compile(r"\bsem[aá]foros*\b", re.IGNORECASE): "semáforo",
+    re.compile(r"\bsemaforo\b", re.IGNORECASE): "semáforo",
+    re.compile(r"\bsemaforos\b", re.IGNORECASE): "semáforos",
     re.compile(r"\bmemori\b", re.IGNORECASE): "memoria",
     re.compile(r"\binstrucsi[oó]n\b", re.IGNORECASE): "instrucción",
     re.compile(r"\brecursividad\b", re.IGNORECASE): "recursión",
@@ -87,6 +88,20 @@ _COLLOQUIAL_EXPANSIONS: List[Tuple[re.Pattern, str]] = [
     ),
 ]
 
+# Canonical singular -> plural inflection mappings for short technical terms (<5 chars or specific inflection needs).
+# Empirically validated against the corpus (hits(plural) > 0 and hits(singular) <= hits(plural)).
+_CANONICAL_INFLECTIONS: Dict[str, str] = {
+    "pila": "pilas",
+    "grafo": "grafos",
+    "hilo": "hilos",
+    "nodo": "nodos",
+}
+
+_INFLECTION_PATTERNS: List[Tuple[re.Pattern, str]] = [
+    (re.compile(rf"\b{re.escape(sing)}\b", re.IGNORECASE), plur)
+    for sing, plur in _CANONICAL_INFLECTIONS.items()
+]
+
 
 class QueryRewriter:
     """Expands student queries into canonical academic vocabulary for hybrid retrieval."""
@@ -95,21 +110,35 @@ class QueryRewriter:
         self.use_llm_fallback = use_llm_fallback
 
     def rewrite(self, query: str) -> str:
-        """Rewrite and expand query deterministically in < 0.1ms."""
+        """Rewrite and expand query deterministically in < 0.1ms.
+        
+        Strict transformation order (C2):
+        1. _TYPO_CORRECTIONS (basic normalization)
+        2. _CANONICAL_INFLECTIONS (substitutive replacement)
+        3. _COLLOQUIAL_EXPANSIONS (additive, strictly idempotent expansion)
+        """
         q = (query or "").strip()
         if not q or len(q) < 4:
             return q
 
-        # 1. Apply typo corrections
+        # Stage 1: Apply typo corrections (basic normalization)
         clean = q
         for pat, replacement in _TYPO_CORRECTIONS.items():
             clean = pat.sub(replacement, clean)
 
-        # 2. Check for colloquial expansions
+        # Stage 2: Apply canonical inflections (substitutive replacement with word boundary \b)
+        for pat, replacement in _INFLECTION_PATTERNS:
+            clean = pat.sub(replacement, clean)
+
+        # Stage 3: Check for colloquial expansions (additive, strictly idempotent)
+        tokens_in_clean = set(re.findall(r"\w+", clean.lower()))
         expansions: List[str] = []
         for pat, canonical_terms in _COLLOQUIAL_EXPANSIONS:
             if pat.search(clean):
-                expansions.append(canonical_terms)
+                substantive = [w for w in re.findall(r"\w+", canonical_terms.lower()) if len(w) > 2]
+                if not all(w in tokens_in_clean for w in substantive):
+                    expansions.append(canonical_terms)
+                    tokens_in_clean.update(substantive)
 
         if not expansions:
             return clean
@@ -124,3 +153,4 @@ class QueryRewriter:
 
         expanded_query = f"{clean} {' '.join(unique_expansions)}".strip()
         return expanded_query
+

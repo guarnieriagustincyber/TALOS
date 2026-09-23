@@ -280,13 +280,27 @@ def test_relevance_gate_recall_four_char_term_with_plural_inflection(
     assert len(cands_pilas) >= 1, "Plural 'pilas' must admit >= 1 candidate in prog_lineales.pdf"
     assert any(c.document_id == "prog_lineales.pdf" for c in cands_pilas)
 
-    # 3. 'pila' (4 chars) boundary condition: text only has 'pilas'.
-    # FTS wildcard requires len >= 5; thus 'pila' does not expand to 'pila*' and returns 0 candidates.
+    # 3. BACKLOG-LEX-001: 'pila' (4 chars) now canonicalizes to 'pilas' via QueryRewriter,
+    # resolving the prefix wildcard constraint without lowering the len >= 5 threshold.
     cands_pila = ret_service.retrieve_evidence(
         query="pila",
         notebook_id="NB-CYBERSECURITY-V1",
         top_k=5,
     )
-    assert len(cands_pila) == 0, (
-        "Singular 'pila' strictly yields 0 when corpus only has 'pilas' and wildcard < 5 is prohibited"
+    assert len(cands_pila) >= 1, (
+        "Singular 'pila' must admit >= 1 candidate in prog_lineales.pdf via canonical inflection"
     )
+    assert any(c.document_id == "prog_lineales.pdf" for c in cands_pila)
+
+    # 4. Student question with singular 'pila'
+    cands_pregunta_pila = ret_service.retrieve_evidence(
+        query="¿qué es una pila?",
+        notebook_id="NB-CYBERSECURITY-V1",
+        top_k=5,
+    )
+    assert len(cands_pregunta_pila) >= 1, (
+        "Conversational query '¿qué es una pila?' must admit >= 1 candidate in prog_lineales.pdf"
+    )
+    assert any(c.document_id == "prog_lineales.pdf" for c in cands_pregunta_pila)
+
+

@@ -591,6 +591,22 @@ class KnowledgeStore:
                             hits = sum(1 for term in norm_query_terms if term in chunk_norm_set)
                             if hits >= required_hits:
                                 filtered_rows.append(r)
+                            else:
+                                # A5: Detección de misses para crecimiento dirigido (4-5 chars)
+                                for term in norm_query_terms:
+                                    if term not in chunk_norm_set and 4 <= len(term) <= 5:
+                                        logger.warning(
+                                            "COVERAGE_GUARD_MISS: term='%s' (len=%d) not covered in chunk '%s' for query='%s'",
+                                            term, len(term), r[0], query,
+                                        )
+
+                    if not filtered_rows and n_terms > 0:
+                        for term in norm_query_terms:
+                            if 4 <= len(term) <= 5:
+                                logger.warning(
+                                    "COVERAGE_GUARD_MISS: term='%s' (len=%d) yielded 0 admissions for query='%s'",
+                                    term, len(term), query,
+                                )
 
                     rows = filtered_rows
 
@@ -844,15 +860,8 @@ class KnowledgeStore:
         vector_store: Optional[Any] = None,
         embedder: Optional[Any] = None,
     ) -> List[SearchResult]:
-        """Hybrid search: vector (semantic) + FTS5 (keyword) fused with RRF and source diversity."""
-        # Query rewriting (Semana 4): traduce jerga y modismos coloquiales a términos canónicos
+        # Query passed from upstream retrieval chokepoint (C1)
         effective_query = query
-        try:
-            from study_engine.retrieval.query_rewriter import QueryRewriter
-            rewriter = QueryRewriter()
-            effective_query = rewriter.rewrite(query)
-        except Exception as rew_err:
-            logger.debug("Query rewriting fallback to raw query: %s", rew_err)
 
         vector_results = self.vector_search(
             query=effective_query,
