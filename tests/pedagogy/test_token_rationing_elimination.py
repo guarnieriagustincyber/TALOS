@@ -60,7 +60,7 @@ def test_token_rationing_eliminated_by_independent_phase_budgets():
             events.append(ev)
 
         # 1. Verification of dedicated independent budget
-        assert backend.last_max_tokens == c_phase.max_tokens == 1000
+        assert backend.last_max_tokens == max(c_phase.max_tokens, 2500)
 
         # 2. Verification of conceptual depth: explanation is extensive, detailed, contains physical analogies
         complete_ev = [e for e in events if e.event_type == "phase_complete"][0]

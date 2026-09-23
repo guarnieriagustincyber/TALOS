@@ -42,12 +42,12 @@ Verificado = test o archivo:línea en código actual. "sin testear" ≠ decay: s
 |---|---|---|---|---|---|---|---|
 | LLM nunca escribe estado/corrección/dominio | ok (`structured_pipeline.py` guards + abstención pre-LLM; `test_long_context_invariants`) | ok (cita solo de pack) | ok (guard + fallback estático) | ok (fail-closed; mutation solo por grader determinista `chat.py:1527-1555`) | ok (`bkt_tracker.py`: ValueError si source=UNVERIFIED_DIALOGUE, `:143-147`) | ok | ok (generados con oracle determinista) |
 | Fail-closed ante ambigüedad | needs_review (R1: ver abajo) | ok (E2/E25 abstención al 0-chunk) | ok | ok | ok | ok | ok (none si no hay plantilla) |
-| Toda afirmación cita [E#] verificado | na | **violation (leakage)** — ver A4 | na | na | na | na | na |
+| Toda afirmación cita [E#] verificado | na | ok (corregido en Commit 1 con buffer lookahead y reescritura canónica) | na | na | na | na | na |
 | R1 acceso global en roadmap | ok (verificado código actual: `chat.py:869` sentinel + `:1005-1008` folder→global + `:503-540` fusión cross-notebook; commit ccbb8d0) | ok | na | na | na | na | na |
-| R2 profundidad gobernada por learner state | needs_review (profundidad de TONO sí: `student_context.py:110-130` + chat; profundidad de EVIDENCIA no) | ok (directiva) | na | na | na | na | na |
+| R2 profundidad gobernada por learner state | ok (unificado en Commit 4: cold-start intermediate, propuesta acelerada a 2 turnos, sin asunción de déficit) | ok (directiva) | na | na | na | na | na |
 | Grader determinista único árbitro | na | na | na | ok (`chat.py:1527+`, graders MC/Exact; generados con oracle propio) | ok | na | ok |
 | Código no confiable solo en sandbox | na | ok (nunca ejecuta: no hay executor en chat) | na | na | na | na | na (templates estáticas; nunca ejecutan) |
-| Certificación única vía certify | na | na | na | na | na | na | needs_review (no existe endpoint certify; la add_exercise(persist) es hoy el canal de facto — ¿debe borrarse o sellarse?) |
+| Certificación única vía certify | na | na | na | na | na | na | ok (oráculo persistido en SQLite sin fuga en HTTP - Commit 2) |
 
 ### REGLA R1 (tal cual pedido)
 
@@ -61,7 +61,7 @@ Verificado = test o archivo:línea en código actual. "sin testear" ≠ decay: s
 | Capacidad | Estado | Referencia verificada |
 |---|---|---|
 | ZDP por bandas (basic/intermediate/advanced/prereq) | implementado | `pedagogy/student_context.py:110-130`, consumido en `chat.py:1076-1086` |
-| DepthModulator (0.5/0.8 scales) | implementado (paralelo) | `student/depth_modulator.py` — ⚠️ segundo esquema de bandas paralelo al de student_context (0.30/0.80). needs_review: "¿dos esquemas de bandas conviven? ¿cuál es autoridad?" |
+| DepthModulator (0.5/0.8 scales) | eliminado (huérfano) | Resuelto en Commit 5: `student/depth_modulator.py` eliminado; `student_context.py` consagrado como autoridad única |
 | Protocolo de Lucha | implementado | `exercise_service.py` `StruggleTracker` + inyección en `chat.py` tras bkt_directive; tests `test_struggle_protocol.py`; commit `2ece816` |
 | Auto-explicación del error | implementado (parcial) | remediación determinista en `/evaluate` (chat.py) + struggle directive paso 1; extracción de misconceptions por micro-LLM separada (`memory_extractor.py`) |
 | Interleaving | no iniciado | — |
@@ -102,7 +102,7 @@ Verificado = test o archivo:línea en código actual. "sin testear" ≠ decay: s
 
 | Regla | Estado | Evidencia |
 |---|---|---|
-| "Si no hay fila confirmada, la respuesta declara explícitamente la no-exactitud" | **violation (leakage)** | El fallback existe y es honesto en METADATA (`bkt_context.fallback=true`, `chat.py:1178` area del phase_complete) pero NUNCA se habla al usuario en el texto. La UI no consume `bkt_context` (chatService.ts:159 solo lee `decision.message`). Fail-closed en papel, fail-open en hechos. |
+| "Si no hay fila confirmada, la respuesta declara explícitamente la no-exactitud" | ok (corregido en Commit 3) | El fallback declara explícitamente la no-exactitud mediante disclaimer determinista hablado en el stream de respuesta (`chat.py`) ante ausencia de KC confirmado en el cuaderno. |
 
 ---
 

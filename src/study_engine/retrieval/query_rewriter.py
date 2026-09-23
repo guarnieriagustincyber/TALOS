@@ -7,18 +7,9 @@ dense vector retrieval.
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import re
 from typing import Any, Dict, List, Optional, Tuple
-
-from study_engine.contracts.generation import GenerationParameters
-from study_engine.generation.prompts import (
-    PromptBundle,
-    PromptMessage,
-    PromptRole,
-    compute_canonical_prompt_hash,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -133,57 +124,3 @@ class QueryRewriter:
 
         expanded_query = f"{clean} {' '.join(unique_expansions)}".strip()
         return expanded_query
-
-    async def rewrite_with_llm(
-        self,
-        query: str,
-        llm_backend: Any,
-    ) -> str:
-        """Expand vague conceptual queries via Micro-LLM in < 150ms if heuristic wasn't triggered."""
-        # First try heuristic rewrite
-        heuristic_res = self.rewrite(query)
-        if heuristic_res != query:
-            return heuristic_res
-
-        from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
-
-        if (
-            llm_backend is None
-            or isinstance(llm_backend, OfflinePedagogicalBackend)
-            or not hasattr(llm_backend, "complete")
-        ):
-            return query
-
-        system_prompt = (
-            "Sos un asistente de recuperación de información académica. "
-            "Traducí la siguiente consulta informal de un estudiante universitario a 3 o 4 palabras clave técnicas "
-            "formales de la bibliografía de sistemas operativos y arquitectura de computadoras. "
-            "Respondé ÚNICAMENTE con los términos técnicos separados por espacios, sin explicaciones ni saludos."
-        )
-        user_content = f"Consulta informal: \"{query}\""
-        messages = (PromptMessage(role=PromptRole.USER, content=user_content),)
-        params = GenerationParameters(temperature=0.0, max_output_tokens=30)
-        p_hash = compute_canonical_prompt_hash(system_prompt, messages, params)
-        bundle = PromptBundle(
-            system_prompt=system_prompt,
-            messages=messages,
-            parameters=params,
-            prompt_hash=p_hash,
-        )
-
-        def _sync_call() -> str:
-            comp = llm_backend.complete(bundle)
-            return getattr(comp, "text", "").strip()
-
-        try:
-            raw_text = await asyncio.wait_for(
-                asyncio.to_thread(_sync_call),
-                timeout=1.0,
-            )
-            cleaned = raw_text.strip().strip("'\"")
-            if cleaned and len(cleaned) > 3 and not cleaned.startswith("Error"):
-                return f"{query} {cleaned}".strip()
-        except Exception as exc:
-            logger.debug("LLM query rewrite skipped: %s", exc)
-
-        return query
