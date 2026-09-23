@@ -1222,6 +1222,30 @@ def _prepare_chat_context(
         except Exception as meta_err:
             logger.debug("Chat route: error generando directiva metacognitiva: %s", meta_err)
 
+    # Currículo en Espiral (Fase 1 - Roadmap v1.1): profundización retroactiva determinista
+    if matched_kc_id and not struggle_active and getattr(container, "bkt_tracker", None):
+        try:
+            from study_engine.pedagogy.spiral_curriculum import SpiralCurriculumEngine
+            spiral_engine = SpiralCurriculumEngine(container.bkt_tracker)
+            spiral_opps = spiral_engine.detect_spiral_opportunities(
+                current_kc=matched_kc_id,
+                student_id=CANONICAL_STUDENT_ID,
+            )
+            if spiral_opps:
+                spiral_directive = spiral_engine.inject_spiral_directive(spiral_opps)
+                if spiral_directive:
+                    bkt_directive = f"{bkt_directive}\n\n{spiral_directive}" if bkt_directive else spiral_directive
+                logger.info(json.dumps({
+                    "event": "SPIRAL_OPPORTUNITY_DETECTED",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "student_id": CANONICAL_STUDENT_ID,
+                    "new_kc": spiral_opps[0]["new_kc"],
+                    "retroactive_kc": spiral_opps[0]["retroactive_kc"],
+                    "opportunities_count": len(spiral_opps),
+                }))
+        except Exception as spiral_err:
+            logger.debug("Chat route: error generando directiva de currículo en espiral: %s", spiral_err)
+
     # Inyectar memoria soberana de largo plazo (Fase 6 - Mem0 Soberano)
     mem0_directive = ""
     try:
@@ -1768,6 +1792,18 @@ async def evaluate_exercise_answer(
         if not is_correct or primary_bkt_res.p_L < 0.5:
             remediation = _remediation_message(primary_kc, SimpleNamespace(prompt=generated["prompt"]), primary_bkt_res.p_L)
 
+        spiral_opps = []
+        if is_correct and primary_bkt_res.p_L >= 0.6 and getattr(container, "bkt_tracker", None):
+            try:
+                from study_engine.pedagogy.spiral_curriculum import SpiralCurriculumEngine
+                spiral_engine = SpiralCurriculumEngine(container.bkt_tracker)
+                spiral_opps = spiral_engine.detect_spiral_opportunities(
+                    current_kc=primary_kc,
+                    student_id=CANONICAL_STUDENT_ID,
+                )
+            except Exception as s_err:
+                logger.debug("Chat route: error detectando oportunidades en espiral: %s", s_err)
+
         return {
             "status": "GRADED",
             "exercise_id": generated["exercise_id"],
@@ -1783,6 +1819,7 @@ async def evaluate_exercise_answer(
             "source": "generated",
             "struggle_mode": bool(struggle and struggle.is_struggling(primary_kc)),
             "struggle_consecutive_failures": bkt_updates.get(primary_kc, {}).get("struggle_consecutive_failures", 0),
+            "spiral_opportunities": spiral_opps,
         }
 
     if exercise is None or not exercise.is_presentable() or not getattr(exercise, "expected_answer", ""):
@@ -1845,6 +1882,18 @@ async def evaluate_exercise_answer(
     if not is_correct or bkt_res.p_L < 0.5:
         remediation = _remediation_message(kc_id, exercise, bkt_res.p_L)
 
+    spiral_opps = []
+    if is_correct and bkt_res.p_L >= 0.6 and getattr(container, "bkt_tracker", None):
+        try:
+            from study_engine.pedagogy.spiral_curriculum import SpiralCurriculumEngine
+            spiral_engine = SpiralCurriculumEngine(container.bkt_tracker)
+            spiral_opps = spiral_engine.detect_spiral_opportunities(
+                current_kc=kc_id,
+                student_id=CANONICAL_STUDENT_ID,
+            )
+        except Exception as s_err:
+            logger.debug("Chat route: error detectando oportunidades en espiral: %s", s_err)
+
     return {
         "status": "GRADED",
         "exercise_id": exercise.exercise_id,
@@ -1856,4 +1905,5 @@ async def evaluate_exercise_answer(
         "remediation": remediation,
         "struggle_mode": bool(struggle and struggle.is_struggling(kc_id)),
         "struggle_consecutive_failures": struggle_consecutive,
+        "spiral_opportunities": spiral_opps,
     }
