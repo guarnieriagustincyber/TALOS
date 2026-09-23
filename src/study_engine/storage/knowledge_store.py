@@ -38,6 +38,16 @@ from study_engine.storage.sqlite_engine import SQLiteStorageEngine
 MIN_VECTOR_SIMILARITY = float(os.environ.get("TALOS_MIN_VECTOR_SIMILARITY", "0.87"))
 
 
+def _normalize_coverage_word(w: str) -> str:
+    """Normaliza palabra para matching de cobertura: minúsculas y quita sufijo plural 's'/'es'."""
+    t = w.lower().strip()
+    if len(t) > 4 and t.endswith("es"):
+        return t[:-2]
+    if len(t) > 3 and t.endswith("s"):
+        return t[:-1]
+    return t
+
+
 class FolderNotFoundError(Exception):
     """Raised when a requested folder cannot be found."""
 
@@ -546,30 +556,34 @@ class KnowledgeStore:
                         cursor.execute(sql, fallback_params)
                         fallback_rows = cursor.fetchall()
 
-                    # Si la consulta original tenía múltiples términos significativos (>= 3),
-                    # un fallback disyuntivo solo es admisible si el fragmento contiene al menos
-                    # 2 términos o >= 35% de los términos de la consulta, evitando ruido espurio OOD.
-                    raw_terms = [t.strip('"*').lower() for t in sanitized.split() if len(t.strip('"*')) > 2]
-                    if len(raw_terms) >= 3:
-                        filtered_rows = []
+                    # Commit 6: Guarda de cobertura normalizada, sin escape hatch.
+                    # Admisión por camino FTS disyuntivo se decide SOLO por cobertura de términos normalizados:
+                    # tokenizar chunk y query en palabras completas, normalizar (minúsculas, quitar sufijo plural 's'/'es'),
+                    # y computar coverage = |términos query presentes en chunk| / |términos query|.
+                    # Un match de prefijo por wildcard NUNCA cuenta como término presente.
+                    # Umbral de cobertura: len(raw_terms) <= 3 -> 1.0 (todos los términos); len >= 4 -> >= 0.7 (redondeado hacia arriba).
+                    import math
+                    from study_engine.storage.lexical_index import SPANISH_STOPWORDS
+
+                    raw_terms = [
+                        t.strip('"*').lower()
+                        for t in sanitized.split()
+                        if len(t.strip('"*')) > 1 and t.strip('"*').lower() not in SPANISH_STOPWORDS and t.strip('"*').lower() not in ("and", "or", "not")
+                    ]
+                    norm_query_terms = list(dict.fromkeys(_normalize_coverage_word(t) for t in raw_terms if len(t) > 1))
+                    n_terms = len(norm_query_terms)
+
+                    filtered_rows = []
+                    if n_terms > 0:
+                        required_hits = n_terms if n_terms <= 3 else math.ceil(n_terms * 0.7)
                         for r in fallback_rows:
-                            # Match por palabra completa, no substring: "ajo" no
-                            # debe matchear "abajo" ni "mejor" a "mejorarla"
-                            # (el FTS usa prefijos "term"* pero el guard no).
-                            # Además, solo cuentan términos de contenido (len>=5):
-                            # cortos genéricos como "tres"/"vía" no sostienen
-                            # relevancia semántica solos (golden set OOD-03:
-                            # nota de Star Wars colada en el corpus por 'imperio'+'tres').
-                            content_terms = [t for t in raw_terms if len(t) >= 5]
-                            if not content_terms:
-                                continue
-                            chunk_words = frozenset(re.findall(r"\w+", r[5].lower()))
-                            hits = sum(1 for term in content_terms if term in chunk_words)
-                            if hits >= 2 or (hits / len(content_terms)) >= 0.35:
+                            chunk_words = re.findall(r"\b\w+\b", r[5].lower())
+                            chunk_norm_set = {_normalize_coverage_word(w) for w in chunk_words}
+                            hits = sum(1 for term in norm_query_terms if term in chunk_norm_set)
+                            if hits >= required_hits:
                                 filtered_rows.append(r)
-                        rows = filtered_rows
-                    else:
-                        rows = fallback_rows
+
+                    rows = filtered_rows
 
             return [
                 SearchResult(

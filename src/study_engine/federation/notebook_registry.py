@@ -41,6 +41,12 @@ DEFAULT_NOTEBOOKS = [
             "src_sweigart_automate_boring_stuff",
             "src_bel_algoritmos_estructuras_python",
             "src_goodrich_dsa_python",
+            "src_fadena_so_procesos",
+            "src_fadena_so_concurrencia",
+            "src_fadena_so_planificacion",
+            "src_fadena_so_memoria",
+            "src_0fc90b2695369475",
+            "src_d253687930308e41",
         ],
         authority_matrix_ref={
             "aritmetica_punteros": 2.0,

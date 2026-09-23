@@ -99,7 +99,11 @@ class SQLiteLexicalIndex:
                     clauses.append(" ".join(phrase_words))
 
         if len(meaningful) == 1 and not clauses:
-            clauses.append(f'"{meaningful[0]}"*')
+            base = meaningful[0][:-1] if meaningful[0].endswith("*") else meaningful[0]
+            if len(base) >= 5:
+                clauses.append(f'"{base}"*')
+            else:
+                clauses.append(f'"{base}"')
         elif len(meaningful) > 1:
             # Deduplicate meaningful terms while preserving order
             seen = set()
@@ -109,10 +113,11 @@ class SQLiteLexicalIndex:
                     seen.add(m)
                     deduped.append(m)
             for m in deduped:
-                if m.endswith("*"):
-                    clauses.append(f'"{m[:-1]}"*')
+                base = m[:-1] if m.endswith("*") else m
+                if len(base) >= 5:
+                    clauses.append(f'"{base}"*')
                 else:
-                    clauses.append(f'"{m}"*')
+                    clauses.append(f'"{base}"')
         elif not clauses and not meaningful and words:
             # Fallback if query consisted only of short words or stopwords
             for w in words[:5]:
