@@ -1674,60 +1674,93 @@ async def evaluate_exercise_answer(
 
     if generated is not None:
         from study_engine.pedagogy.generated_registry import GeneratedOracleGrader
+        from study_engine.student.contracts import ExerciseFormat as _Fmt
+
         grade = GeneratedOracleGrader().grade(req.user_answer, generated["oracle"])
         is_correct = bool(grade["is_correct"])
-        kc_id = generated["kc_ids"][0] if generated["kc_ids"] else "unknown"
+        kc_ids = generated.get("kc_ids") or []
+        primary_kc = kc_ids[0] if kc_ids else "unknown"
 
+        # A5: Registro forense de intento en student_exercise_attempts
+        if hasattr(container, "student_storage") and container.student_storage is not None:
+            try:
+                container.student_storage.record_exercise_attempt(
+                    content_id=req.exercise_id,
+                    student_id=CANONICAL_STUDENT_ID,
+                    success=is_correct,
+                    metadata={"source": "generated", "kc_ids": kc_ids, "kind": generated.get("kind")},
+                )
+            except Exception as att_err:
+                logger.debug("Error registrando student_exercise_attempt: %s", att_err)
+
+        # A5: Actualización de maestría BKT a través de TODOS los KCs involucrados
         struggle = getattr(container, "struggle_tracker", None)
-        struggle_consecutive = struggle.record(kc_id, is_correct) if struggle else 0
+        bkt_updates: Dict[str, Any] = {}
+        primary_bkt_res = None
+        primary_delta = 0.0
 
-        prior = container.bkt_tracker.get_state(kc_id)
-        from study_engine.student.contracts import ExerciseFormat as _Fmt
-        bkt_res = container.bkt_tracker.update(
-            kc_id=kc_id,
-            correct=is_correct,
-            source=ObservationSource.EXACT_CORRECTOR,
-            format_type=_Fmt.SYMBOLIC_OPEN,
-            n_options=None,
-        )
-        delta = round(bkt_res.p_L - prior.p_L, 4)
-
-        if prior.attempts == 0:
-            logger.info(
-                "[COLD_START_FIRST_ATTEMPT] Primer intento graded sobre KC cold-start: kc_id=%s is_correct=%s prior_p_L=%.4f new_p_L=%.4f delta_p_L=%.4f exercise_id=%s source=generated",
-                kc_id, is_correct, prior.p_L, bkt_res.p_L, delta, req.exercise_id,
+        for k in (kc_ids if kc_ids else [primary_kc]):
+            s_consecutive = struggle.record(k, is_correct) if struggle else 0
+            prior = container.bkt_tracker.get_state(k)
+            bkt_res = container.bkt_tracker.update(
+                kc_id=k,
+                correct=is_correct,
+                source=ObservationSource.EXACT_CORRECTOR,
+                format_type=_Fmt.SYMBOLIC_OPEN,
+                n_options=None,
             )
+            d = round(bkt_res.p_L - prior.p_L, 4)
+            bkt_updates[k] = {
+                "p_L": round(bkt_res.p_L, 4),
+                "delta_p_L": d,
+                "attempts": bkt_res.attempts,
+                "struggle_consecutive_failures": s_consecutive,
+            }
+            if k == primary_kc or primary_bkt_res is None:
+                primary_bkt_res = bkt_res
+                primary_delta = d
+
+            if prior.attempts == 0:
+                logger.info(
+                    "[COLD_START_FIRST_ATTEMPT] Primer intento graded sobre KC cold-start: kc_id=%s is_correct=%s prior_p_L=%.4f new_p_L=%.4f delta_p_L=%.4f exercise_id=%s source=generated",
+                    k, is_correct, prior.p_L, bkt_res.p_L, d, req.exercise_id,
+                )
+
+            try:
+                from study_engine.pedagogy.session_digest import record_kc_attempt
+                record_kc_attempt(
+                    storage=container.student_storage,
+                    student_id=CANONICAL_STUDENT_ID,
+                    session_id=req.session_id or "sess_default",
+                    kc_id=k,
+                    correct=is_correct,
+                    struggled=bool(struggle and struggle.is_struggling(k)),
+                )
+            except Exception as dig_err:
+                logger.debug("Session digest update falló para kc %s: %s", k, dig_err)
+
+        if primary_bkt_res is None:
+            primary_bkt_res = container.bkt_tracker.get_state(primary_kc)
 
         remediation = None
-        if not is_correct or bkt_res.p_L < 0.5:
-            remediation = _remediation_message(kc_id, SimpleNamespace(prompt=generated["prompt"]), bkt_res.p_L)
-
-        try:
-            from study_engine.pedagogy.session_digest import record_kc_attempt
-            record_kc_attempt(
-                storage=container.student_storage,
-                student_id=CANONICAL_STUDENT_ID,
-                session_id=req.session_id or "sess_default",
-                kc_id=kc_id,
-                correct=is_correct,
-                struggled=bool(struggle and struggle.is_struggling(kc_id)),
-            )
-        except Exception as dig_err:
-            logger.debug("Session digest update falló: %s", dig_err)
+        if not is_correct or primary_bkt_res.p_L < 0.5:
+            remediation = _remediation_message(primary_kc, SimpleNamespace(prompt=generated["prompt"]), primary_bkt_res.p_L)
 
         return {
             "status": "GRADED",
             "exercise_id": generated["exercise_id"],
-            "kc_id": kc_id,
+            "kc_id": primary_kc,
+            "kc_ids": kc_ids,
+            "bkt_updates": bkt_updates,
             "is_correct": is_correct,
-            "p_L": round(bkt_res.p_L, 4),
-            "delta_p_L": delta,
-            "attempts": bkt_res.attempts,
+            "p_L": round(primary_bkt_res.p_L, 4),
+            "delta_p_L": primary_delta,
+            "attempts": primary_bkt_res.attempts,
             "remediation": remediation,
             "grader_detail": grade,
             "source": "generated",
-            "struggle_mode": bool(struggle and struggle.is_struggling(kc_id)),
-            "struggle_consecutive_failures": struggle_consecutive,
+            "struggle_mode": bool(struggle and struggle.is_struggling(primary_kc)),
+            "struggle_consecutive_failures": bkt_updates.get(primary_kc, {}).get("struggle_consecutive_failures", 0),
         }
 
     if exercise is None or not exercise.is_presentable() or not getattr(exercise, "expected_answer", ""):

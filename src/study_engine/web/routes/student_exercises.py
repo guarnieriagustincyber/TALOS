@@ -8,10 +8,21 @@ Enables local file-based workflow:
 """
 
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
+
+ADMIN_SECRET_TOKEN = os.getenv("TALOS_ADMIN_TOKEN", "talos-admin-secret-dev")
+
+
+def _check_admin_token(x_admin_token: Optional[str]) -> None:
+    if not x_admin_token or x_admin_token != ADMIN_SECRET_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acceso denegado: se requiere header X-Admin-Token válido para inspeccionar el oráculo.",
+        )
 
 from study_engine.pedagogy.auditors import (
     ExerciseAuditReport,
@@ -172,9 +183,14 @@ class GenerateMultiKcRequest(BaseModel):
 @router.post("/generate/multi-kc", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
 def generate_multi_kc_exercise(
     payload: GenerateMultiKcRequest,
+    include_oracle: bool = Query(default=False, description="Incluir el oráculo en la respuesta (requiere X-Admin-Token)"),
+    x_admin_token: Optional[str] = Header(None, alias="X-Admin-Token"),
     container: AppContainer = Depends(get_container),
 ) -> Dict[str, Any]:
     """Genera un ejercicio multi-KC (composición causal) y lo persiste."""
+    if include_oracle:
+        _check_admin_token(x_admin_token)
+
     from study_engine.pedagogy.exercise_compiler import compose_multi_kc_exercise
 
     catalog = getattr(container.pedagogical_orchestrator, "_kc_catalog", {})
@@ -187,7 +203,8 @@ def generate_multi_kc_exercise(
             detail="No hay plantilla de composición para ese conjunto de KCs.",
         )
     container.generated_registry.save(exercise)
-    # Commit 2: No filtrar oracle al cliente HTTP; vive exclusivamente server-side
+    if include_oracle:
+        return dict(exercise)
     return {k: v for k, v in exercise.items() if k != "oracle"}
 
 
@@ -203,9 +220,14 @@ class GenerateDebugRequest(BaseModel):
 @router.post("/generate/debugging", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
 def generate_debugging_exercise_ep(
     payload: GenerateDebugRequest,
+    include_oracle: bool = Query(default=False, description="Incluir el oráculo en la respuesta (requiere X-Admin-Token)"),
+    x_admin_token: Optional[str] = Header(None, alias="X-Admin-Token"),
     container: AppContainer = Depends(get_container),
 ) -> Dict[str, Any]:
     """Genera un ejercicio de depuración adversaria (código con bug inyectado)."""
+    if include_oracle:
+        _check_admin_token(x_admin_token)
+
     from study_engine.pedagogy.bug_generator import generate_debugging_exercise
 
     exercise = generate_debugging_exercise(payload.kc_id, bug_type=payload.bug_type)
@@ -215,6 +237,8 @@ def generate_debugging_exercise_ep(
             detail="No hay plantilla de bug para ese KC/tipo.",
         )
     container.generated_registry.save(exercise)
+    if include_oracle:
+        return dict(exercise)
     return {k: v for k, v in exercise.items() if k != "oracle"}
 
 
@@ -223,20 +247,31 @@ class GenerateTraceRequest(BaseModel):
     kc_id: str = Field(..., min_length=1)
     n_mutations: int = Field(default=2, ge=1, le=6)
     difficulty: Optional[str] = None
+    arch: Optional[str] = Field(default=None, description="'c' o 'x86'")
 
 
 @router.post("/generate/trace", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
 def generate_trace_exercise_ep(
     payload: GenerateTraceRequest,
+    include_oracle: bool = Query(default=False, description="Incluir el oráculo en la respuesta (requiere X-Admin-Token)"),
+    x_admin_token: Optional[str] = Header(None, alias="X-Admin-Token"),
     container: AppContainer = Depends(get_container),
 ) -> Dict[str, Any]:
     """Genera un ejercicio de predicción de estado (trace-table) determinista."""
+    if include_oracle:
+        _check_admin_token(x_admin_token)
+
     from study_engine.pedagogy.state_predictor import generate_trace_exercise
 
     exercise = generate_trace_exercise(
-        payload.kc_id, n_mutations=payload.n_mutations, difficulty=payload.difficulty
+        payload.kc_id,
+        n_mutations=payload.n_mutations,
+        difficulty=payload.difficulty,
+        arch=payload.arch,
     )
     container.generated_registry.save(exercise)
+    if include_oracle:
+        return dict(exercise)
     return {k: v for k, v in exercise.items() if k != "oracle"}
 
 

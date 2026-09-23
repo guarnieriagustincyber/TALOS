@@ -52,3 +52,25 @@ def test_generacion_determinista_mismo_id():
     b = generate_debugging_exercise("punteros", bug_type="use_after_free")
     assert a["exercise_id"] == b["exercise_id"]
     assert a["prompt"] == b["prompt"]
+
+
+def test_exactamente_12_plantillas_3_por_cwe():
+    """Verifica el requerimiento A2 de Fase B: 12 plantillas estáticas curadas (3 por CWE)."""
+    assert len(_BUG_BANK) == 12
+    counts = {}
+    for tpl in _BUG_BANK:
+        counts[tpl["cwe"]] = counts.get(tpl["cwe"], 0) + 1
+        # Generación directa por template_id
+        ex = generate_debugging_exercise("test_kc", template_id=tpl["template_id"])
+        assert ex is not None
+        assert ex["oracle"]["cwe"] == tpl["cwe"]
+        assert ex["kind"] == "debugging"
+        assert tpl["mutation_replace"] in ex["buggy_code"]
+
+    assert counts == {
+        "CWE-120": 3,
+        "CWE-190": 3,
+        "CWE-362": 3,
+        "CWE-416": 3,
+    }
+

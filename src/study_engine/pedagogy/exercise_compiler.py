@@ -19,15 +19,151 @@ from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-HIGH_MASTERY_THRESHOLD = 0.7
+HIGH_MASTERY_THRESHOLD = 0.6
 
 # Banca determinista de composiciones. Cada plantilla define:
-# - prompt: enunciado socrático (medio, no da la solución)
-# - oracle: cobertura de conceptos obligatorios para el grader
-# Los kc_ids canónicos del catálogo guían la composición; la banca se indexa
-# por familias semánticas (no por ids exactos) para escalar cuando el usuario
-# cargue KCs manuales.
+# - family: tags conceptuales para matching con el catálogo
+# - required_kcs: cantidad mínima de KCs coincidentes
+# - title: nombre del ejercicio
+# - prompt: enunciado socrático
+# - oracle: oráculo determinista con test suite / cobertura requerida y solución de referencia
+# - difficulty: nivel pedagógico
 _COMPOSE_BANK: List[Dict[str, Any]] = [
+    # Familia 1 (3 KCs): Punteros + Gestión de Memoria Heap + Concurrencia (Race Condition / Mutex)
+    {
+        "family": ["concurrencia", "mutex", "race", "hilo", "hilos", "compartido", "shared"],
+        "required_kcs": 2,
+        "title": "Buffer compartido dinámico con sincronización mutex",
+        "prompt": (
+            "Escribí en C una función `char *get_or_create_shared_buffer(char **shared_ptr, size_t size, pthread_mutex_t *mtx)` "
+            "donde múltiples hilos acceden a un buffer compartido en el heap. La función debe proteger el acceso al puntero con el mutex, "
+            "verificar si `*shared_ptr` es NULL antes de reservar con `malloc(size)`, manejar la falla de reserva, y liberar el lock "
+            "en todos los caminos de ejecución. Además: explicá cómo y cuándo debe liberarse la memoria con `free` al finalizar el programa.\n\n"
+            "Oráculo esperado: mutex_lock + malloc + null_check + mutex_unlock + free del caller."
+        ),
+        "oracle": {
+            "type": "keyword_coverage",
+            "min_coverage": 0.75,
+            "required": [
+                {"name": "mutex_lock", "accept": ["pthread_mutex_lock", "lock", "bloqueo", "adquirir mutex", "mutex"]},
+                {"name": "malloc", "accept": ["malloc", "heap", "reserva dinámica", "reserva"]},
+                {"name": "null_check", "accept": ["null", "null-check", "si es nulo", "verificar"]},
+                {"name": "mutex_unlock", "accept": ["pthread_mutex_unlock", "unlock", "desbloquear", "liberar mutex"]},
+                {"name": "free", "accept": ["free", "liberar memoria", "cleanup"]},
+            ],
+            "reference_solution": (
+                "char *get_or_create_shared_buffer(char **shared_ptr, size_t size, pthread_mutex_t *mtx) {\n"
+                "    pthread_mutex_lock(mtx);\n"
+                "    if (*shared_ptr == NULL) {\n"
+                "        *shared_ptr = (char *)malloc(size);\n"
+                "    }\n"
+                "    char *res = *shared_ptr;\n"
+                "    pthread_mutex_unlock(mtx);\n"
+                "    return res;\n"
+                "}\n"
+                "// El caller o destructor del programa debe invocar free(*shared_ptr) tras pthread_join."
+            ),
+        },
+        "difficulty": "avanzado",
+    },
+    # Familia 2 (2-3 KCs): Estructuras de Datos Lineales (Pilas/Colas) + Punteros + Frontera/Underflow
+    {
+        "family": ["pila", "pilas", "cola", "colas", "underflow"],
+        "required_kcs": 2,
+        "title": "Operación pop segura en pila dinámica enlazada",
+        "prompt": (
+            "Escribí en C la función `int stack_pop(Node **top_ptr, int *out_val)` para una estructura de pila enlazada "
+            "(`struct Node { int val; struct Node *next; }`). La función debe validar la precondición de pila vacía retornando -1 "
+            "si `*top_ptr == NULL` (guarda de underflow), extraer el valor del nodo tope en `*out_val`, actualizar `*top_ptr` al "
+            "siguiente nodo (`top->next`), y liberar (`free`) el nodo desapilado. Explicá cómo tu guarda evita la desreferenciación "
+            "de puntero nulo y previene memory leaks."
+        ),
+        "oracle": {
+            "type": "keyword_coverage",
+            "min_coverage": 0.75,
+            "required": [
+                {"name": "empty_guard", "accept": ["null", "vacia", "vacía", "underflow", "top == null", "*top_ptr == null", "!*top_ptr"]},
+                {"name": "extract_value", "accept": ["out_val", "valor", "val", "*out_val"]},
+                {"name": "update_top", "accept": ["next", "siguiente", "*top_ptr = temp->next", "top = top->next", "temp->next"]},
+                {"name": "free_node", "accept": ["free", "liberar", "libera el nodo", "free(temp)"]},
+            ],
+            "reference_solution": (
+                "int stack_pop(Node **top_ptr, int *out_val) {\n"
+                "    if (!top_ptr || !*top_ptr) return -1;\n"
+                "    Node *temp = *top_ptr;\n"
+                "    *out_val = temp->val;\n"
+                "    *top_ptr = temp->next;\n"
+                "    free(temp);\n"
+                "    return 0;\n"
+                "}"
+            ),
+        },
+        "difficulty": "intermedio",
+    },
+    # Familia 3 (2-3 KCs): Arquitectura x86-64 / ABI + Stack Frame + Funciones
+    {
+        "family": ["x86", "x86_64", "ensamblador", "assembly", "abi", "prologo", "prólogo", "stack", "frame"],
+        "required_kcs": 2,
+        "title": "Prólogo de función y convención ABI System V x86-64",
+        "prompt": (
+            "Escribí en ensamblador x86-64 el prólogo y epílogo canónico de una función `int suma(int a, int b)` según la convención "
+            "ABI System V x86-64. La función recibe argumentos en `%edi` y `%esi`, debe preservar `%rbp` en el stack, establecer el stack frame, "
+            "sumar los argumentos colocando el resultado en `%eax`, restaurar `%rbp` y retornar con `ret`."
+        ),
+        "oracle": {
+            "type": "keyword_coverage",
+            "min_coverage": 0.75,
+            "required": [
+                {"name": "push_rbp", "accept": ["push %rbp", "pushq %rbp", "push rbp", "preservar rbp"]},
+                {"name": "mov_rsp_rbp", "accept": ["mov %rsp, %rbp", "movq %rsp, %rbp", "mov rbp, rsp", "mov rsp, rbp"]},
+                {"name": "registers_args", "accept": ["%edi", "%esi", "edi", "esi", "rdi", "rsi"]},
+                {"name": "return_rax", "accept": ["%eax", "%rax", "eax", "rax", "retorno en eax"]},
+                {"name": "epilogue_ret", "accept": ["pop %rbp", "popq %rbp", "pop rbp", "leave", "ret", "retq"]},
+            ],
+            "reference_solution": (
+                "suma:\n"
+                "    pushq %rbp\n"
+                "    movq %rsp, %rbp\n"
+                "    movl %edi, %eax\n"
+                "    addl %esi, %eax\n"
+                "    popq %rbp\n"
+                "    ret\n"
+            ),
+        },
+        "difficulty": "intermedio",
+    },
+    # Familia 4 (2 KCs): Aritmética de Punteros + Arrays + Off-by-one
+    {
+        "family": ["subindice", "subíndice", "corchetes", "frontera", "off-by-one"],
+        "required_kcs": 2,
+        "title": "Búsqueda en rango con aritmética de punteros y guardas de frontera",
+        "prompt": (
+            "Escribí en C una función `int *find_in_range(int *start, int *end, int target)` que busque un entero en un array contiguo "
+            "utilizando exclusivamente aritmética de punteros (sin indexación `[]`). La función debe avanzar con `start++` mientras `start < end`, "
+            "devolviendo el puntero al elemento coincidente o `NULL` si no se encuentra. Justificá por qué la guarda `start < end` evita el off-by-one."
+        ),
+        "oracle": {
+            "type": "keyword_coverage",
+            "min_coverage": 0.75,
+            "required": [
+                {"name": "pointer_arithmetic", "accept": ["start++", "p++", "*start", "aritmética de punteros", "indirección"]},
+                {"name": "boundary_check", "accept": ["start < end", "p < end", "guarda", "límite", "frontera"]},
+                {"name": "target_match", "accept": ["*start == target", "*p == target", "coincidencia", "target"]},
+                {"name": "null_fallback", "accept": ["return null", "null", "no encontrado"]},
+            ],
+            "reference_solution": (
+                "int *find_in_range(int *start, int *end, int target) {\n"
+                "    while (start < end) {\n"
+                "        if (*start == target) return start;\n"
+                "        start++;\n"
+                "    }\n"
+                "    return NULL;\n"
+                "}"
+            ),
+        },
+        "difficulty": "basico",
+    },
+    # Plantillas preexistentes conservadas por compatibilidad
     {
         "family": ["punteros", "memoria", "malloc", "puntero"],
         "required_kcs": 2,
@@ -104,7 +240,7 @@ _COMPOSE_BANK: List[Dict[str, Any]] = [
 def re_vocab(text: str) -> List[str]:
     """Tokens del identificador/título para matching con familias de plantillas."""
     import re as _re
-    return [t for t in _re.findall(r"[a-z]{3,}", (text or "").lower())]
+    return [t for t in _re.findall(r"[a-z0-9]{3,}", (text or "").lower())]
 
 
 def _template_for(kc_ids: List[str], catalog: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:

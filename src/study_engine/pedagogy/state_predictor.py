@@ -63,13 +63,109 @@ def _simulate(ops: List[Tuple[str, str, Any]], var_names: List[str]) -> Dict[str
     return out
 
 
+def generate_x86_trace_exercise(
+    kc_id: str,
+    seed: Optional[int] = None,
+    difficulty: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Genera un ejercicio de predicción de estado en x86-64 con micro-intérprete."""
+    from study_engine.pedagogy.x86_interpreter import X86Interpreter
+
+    rng = random.Random(seed)
+    archetype = rng.choice(["arithmetic", "loop", "stack"])
+
+    if archetype == "arithmetic":
+        a = rng.randint(5, 20)
+        b = rng.randint(2, 8)
+        code = (
+            f"mov rax, {a}\n"
+            f"mov rbx, {b}\n"
+            "add rax, rbx\n"
+            "sub rbx, 1\n"
+            "xor rcx, rcx\n"
+            "cmp rax, 20"
+        )
+        target_vars = ["rax", "rbx", "rcx", "ZF"]
+
+    elif archetype == "loop":
+        iters = rng.randint(2, 4)
+        step = rng.randint(2, 5)
+        code = (
+            f"mov rcx, {iters}\n"
+            "mov rax, 0\n"
+            "loop_body:\n"
+            f"add rax, {step}\n"
+            "sub rcx, 1\n"
+            "cmp rcx, 0\n"
+            "jg loop_body"
+        )
+        target_vars = ["rax", "rcx", "ZF"]
+
+    else:  # stack
+        val1 = rng.randint(10, 50)
+        val2 = rng.randint(60, 99)
+        code = (
+            f"mov rax, {val1}\n"
+            f"mov rbx, {val2}\n"
+            "push rax\n"
+            "push rbx\n"
+            "pop rax\n"
+            "pop rbx"
+        )
+        target_vars = ["rax", "rbx"]
+
+    interp = X86Interpreter()
+    exec_res = interp.execute_program(code)
+    final_regs = exec_res["final_registers"]
+    final_flags = exec_res["final_flags"]
+
+    final_state: Dict[str, Any] = {}
+    for var in target_vars:
+        if var in final_regs:
+            final_state[var] = final_regs[var]
+        elif var in final_flags:
+            final_state[var] = final_flags[var]
+
+    fmt_targets = ", ".join(f"{v}=<valor>" for v in target_vars)
+    prompt = (
+        "### Predicción de Estado x86-64 (Trace-Table)\n\n"
+        "Simulá mentalmente la ejecución de este bloque de ensamblador x86-64:\n\n"
+        f"```assembly\n{code}\n```\n\n"
+        f"**Respondé en formato `{fmt_targets}`** "
+        "(podés escribir los valores en decimal o hexadecimal con prefijo `0x`)."
+    )
+
+    ex_id = "gen_x86_" + hashlib.sha256((kc_id + "|" + code).encode()).hexdigest()[:12]
+
+    return {
+        "exercise_id": ex_id,
+        "kind": "trace",
+        "kc_ids": [kc_id],
+        "prompt": prompt,
+        "oracle": {
+            "type": "state_match",
+            "final_state": final_state,
+            "architecture": "x86-64",
+        },
+        "difficulty": difficulty or "intermedio",
+        "code": code,
+        "solution_trace": exec_res["trace"],
+    }
+
+
 def generate_trace_exercise(
     kc_id: str,
     seed: Optional[int] = None,
     n_mutations: int = 2,
     difficulty: Optional[str] = None,
+    arch: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Genera un ejercicio de predicción de estado con oráculo determinista."""
+    arch_req = (arch or "").lower()
+    kc_low = (kc_id or "").lower()
+    if arch_req == "x86" or any(tok in kc_low for tok in ("x86", "asm", "assembly", "ensamblador", "abi")):
+        return generate_x86_trace_exercise(kc_id, seed=seed, difficulty=difficulty)
+
     rng = random.Random(seed)
 
     x0 = rng.randint(3, 17)

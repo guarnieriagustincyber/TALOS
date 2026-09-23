@@ -177,3 +177,131 @@ def test_post_restart_with_persisted_sqlite_db(tmp_path):
     res = r_eval.json()
     assert res["status"] == "GRADED"
     assert res["is_correct"] is True
+
+
+def test_generation_endpoints_authenticated_oracle_inspection_a4(tmp_path):
+    """Requerimiento A4: include_oracle=true requiere header X-Admin-Token (403 sin él, 201 con él)."""
+    app = create_app()
+    container = AppContainer(working_dir=tmp_path, use_mock=True)
+    set_container(container)
+    client = TestClient(app)
+
+    endpoints = [
+        ("/api/student/exercises/generate/multi-kc", {"kc_ids": ["punteros", "memoria"]}),
+        ("/api/student/exercises/generate/debugging", {"kc_id": "punteros", "bug_type": "buffer_overflow"}),
+        ("/api/student/exercises/generate/trace", {"kc_id": "punteros", "n_mutations": 2}),
+    ]
+
+    for url, body in endpoints:
+        # 1. Sin query param: 201 y 0 leakage
+        r_def = client.post(url, json=body)
+        assert r_def.status_code == 201
+        assert "oracle" not in r_def.json()
+
+        # 2. Con include_oracle=true pero SIN token: 403 Forbidden
+        r_unauth = client.post(f"{url}?include_oracle=true", json=body)
+        assert r_unauth.status_code == 403, f"{url} debió responder 403 sin token"
+        assert "X-Admin-Token" in r_unauth.json()["detail"]
+
+        # 3. Con include_oracle=true y token erróneo: 403 Forbidden
+        r_bad = client.post(
+            f"{url}?include_oracle=true",
+            json=body,
+            headers={"X-Admin-Token": "token-invalido-xyz"},
+        )
+        assert r_bad.status_code == 403
+
+        # 4. Con include_oracle=true y token válido: 201 Created CON oracle
+        r_auth = client.post(
+            f"{url}?include_oracle=true",
+            json=body,
+            headers={"X-Admin-Token": "talos-admin-secret-dev"},
+        )
+        assert r_auth.status_code == 201
+        data = r_auth.json()
+        assert "oracle" in data
+        assert isinstance(data["oracle"], dict)
+
+
+def test_multikc_bkt_updates_all_kcs_and_records_attempt_a5(tmp_path):
+    """Requerimiento A5: actualización de BKT a través de TODOS los kc_ids y persistencia de intento."""
+    app = create_app()
+    container = AppContainer(working_dir=tmp_path, use_mock=True)
+    db_file = tmp_path / "student_state.db"
+    container.student_storage = StudentStorage(db_file)
+    container.generated_registry = GeneratedExerciseRegistry(container.student_storage)
+    container.bkt_tracker = BKTTracker(container.student_storage)
+    set_container(container)
+    client = TestClient(app)
+
+    kc1 = "punteros"
+    kc2 = "memoria"
+
+    # Generar multi-kc exercise
+    r_gen = client.post(
+        "/api/student/exercises/generate/multi-kc?include_oracle=true",
+        json={"kc_ids": [kc1, kc2]},
+        headers={"X-Admin-Token": "talos-admin-secret-dev"},
+    )
+    assert r_gen.status_code == 201
+    ex = r_gen.json()
+    ex_id = ex["exercise_id"]
+
+    # Verificar que inicialmente no hay intentos
+    assert not container.student_storage.has_exercise_attempt(ex_id)
+    assert container.bkt_tracker.get_state(kc1).attempts == 0
+    assert container.bkt_tracker.get_state(kc2).attempts == 0
+
+    # Calificar respuesta correcta
+    sol = "Reservo la copia con malloc en el heap, verifico null y el caller debe liberar con free"
+    r_eval = client.post(
+        "/api/chat/evaluate",
+        json={"exercise_id": ex_id, "user_answer": sol},
+    )
+    assert r_eval.status_code == 200
+    res = r_eval.json()
+    assert res["status"] == "GRADED"
+    assert res["is_correct"] is True
+
+    # A5: Ambos KCs deben haberse actualizado en BKT
+    assert kc1 in res["bkt_updates"]
+    assert kc2 in res["bkt_updates"]
+    assert container.bkt_tracker.get_state(kc1).attempts == 1
+    assert container.bkt_tracker.get_state(kc2).attempts == 1
+
+    # A5: Intento forense persistido en SQLite student_exercise_attempts
+    assert container.student_storage.has_exercise_attempt(ex_id)
+
+
+def test_trace_x86_generation_and_evaluation(tmp_path):
+    """Verifica generación de Trace Table x86 y su evaluación determinista."""
+    app = create_app()
+    container = AppContainer(working_dir=tmp_path, use_mock=True)
+    set_container(container)
+    client = TestClient(app)
+
+    # Generación con arch='x86'
+    r_gen = client.post(
+        "/api/student/exercises/generate/trace?include_oracle=true",
+        json={"kc_id": "arquitectura_computadores", "arch": "x86"},
+        headers={"X-Admin-Token": "talos-admin-secret-dev"},
+    )
+    assert r_gen.status_code == 201
+    ex = r_gen.json()
+    assert "x86-64" in ex["prompt"]
+    assert ex["oracle"]["architecture"] == "x86-64"
+
+    # Preparar respuesta canónica leyendo el oracle admin
+    final_state = ex["oracle"]["final_state"]
+    ans = ", ".join(f"{k}={v}" for k, v in final_state.items())
+
+    # Evaluar vía endpoint
+    r_eval = client.post(
+        "/api/chat/evaluate",
+        json={"exercise_id": ex["exercise_id"], "user_answer": ans},
+    )
+    assert r_eval.status_code == 200
+    res = r_eval.json()
+    assert res["status"] == "GRADED"
+    assert res["is_correct"] is True
+
