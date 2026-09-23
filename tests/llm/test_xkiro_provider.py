@@ -10,6 +10,12 @@ from study_engine.llm.providers.xkiro import XkiroProvider
 from study_engine.llm.registry import DEFAULT_PROVIDER_HIERARCHY, ModelRegistry
 
 
+@pytest.fixture(autouse=True)
+def isolate_xkiro_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Isolate tests from external environment variables like XKIRO_MODEL loaded from .env."""
+    monkeypatch.delenv("XKIRO_MODEL", raising=False)
+
+
 def test_xkiro_provider_initialization() -> None:
     """Xkiro provider initializes with Qwen 3.8 Max and 1M context capacity."""
     provider = XkiroProvider(api_key="sk-test-xkiro-123")
