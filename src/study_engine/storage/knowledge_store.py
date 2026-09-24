@@ -733,7 +733,7 @@ class KnowledgeStore:
                 if emb is None:
                     try:
                         from study_engine.retrieval.embedding import DeterministicHashEmbedder
-                        dim = 4096
+                        dim = 2560
                         if matrix is not None and hasattr(matrix, "shape") and len(matrix.shape) > 1 and matrix.shape[1] > 0:
                             dim = matrix.shape[1]
                         emb = DeterministicHashEmbedder(dimensions=dim)
@@ -1268,7 +1268,7 @@ class KnowledgeStore:
             if emb is None:
                 try:
                     from study_engine.retrieval.embedding import DeterministicHashEmbedder
-                    emb = DeterministicHashEmbedder(dimensions=4096)
+                    emb = DeterministicHashEmbedder(dimensions=2560)
                     self._embedder = emb
                 except Exception as ex:
                     logger.debug("DeterministicHashEmbedder resolution: %s", ex)

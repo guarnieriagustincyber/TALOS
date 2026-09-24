@@ -30,7 +30,7 @@ from study_engine.retrieval.vector_store import SQLiteVectorStore, VectorRecord
 from study_engine.storage.knowledge_store import KnowledgeStore
 
 
-def _unit_vector(dim: int = 4096) -> list:
+def _unit_vector(dim: int = 2560) -> list:
     return [1.0 / dim ** 0.5] * dim
 
 
@@ -58,8 +58,8 @@ def colab_env(tmp_path):
     vstore.save_records([
         VectorRecord(
             chunk_id="c_done", notebook_id="nb1", source_id="src1",
-            provider_id="sentence_transformers", model_id="Qwen3-Embedding-8B",
-            dimensions=4096, vector=_unit_vector(),
+            provider_id="sentence_transformers", model_id="Qwen3-Embedding-4B",
+            dimensions=2560, vector=_unit_vector(),
         )
     ])
     vstore.close()
@@ -88,7 +88,7 @@ def test_export_pending_solo_chunks_sin_vector(colab_env):
     assert count == 1
     rows = [json.loads(l) for l in out.read_text(encoding="utf-8").splitlines()]
     assert rows[0]["_meta"]["schema"] == "talos-pending-v1"
-    assert rows[0]["_meta"]["contract"]["dimensions"] == 4096
+    assert rows[0]["_meta"]["contract"]["dimensions"] == 2560
     assert rows[1:] == [{"chunk_id": "c_pend", "notebook_id": "nb1", "text": "texto pendiente"}]
 
 

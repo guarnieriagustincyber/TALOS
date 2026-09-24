@@ -17,7 +17,7 @@ from study_engine.web.app import create_app
 from study_engine.web.dependencies import AppContainer, set_container
 
 
-def _unit_vector(dim: int = 4096) -> list:
+def _unit_vector(dim: int = 2560) -> list:
     return [1.0 / (dim ** 0.5)] * dim
 
 

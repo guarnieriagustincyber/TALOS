@@ -98,7 +98,7 @@ def test_relevance_gate_configuration_loaded() -> None:
     config = load_retrieval_config()
     assert "relevance_gate" in config
     assert config["relevance_gate"]["dense_threshold_no_lexical"] == 0.84
-    assert config["relevance_gate"]["calibration_model"] == "Qwen/Qwen3-Embedding-8B"
+    assert config["relevance_gate"]["calibration_model"] == "Qwen/Qwen3-Embedding-4B"
 
     service = RetrievalService(store=KnowledgeStore(":memory:"))
     assert service.dense_threshold == 0.84

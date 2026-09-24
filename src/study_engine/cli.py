@@ -71,11 +71,11 @@ def _contract_matches(local: Dict[str, Any], remote: Dict[str, Any]) -> List[str
 def _pending_pairs(
     knowledge_db: Path,
     vector_db: Path,
-    dimensions: int = 4096,
+    dimensions: int = 2560,
 ) -> List[Tuple[str, str, str]]:
-    """Chunks con notebook asignado que aún no tienen embedding (dim=4096).
+    """Chunks con notebook asignado que aún no tienen embedding (dim=2560).
 
-    Solo cuentan como 'cubiertos' los vectores con dimensions = 4096: los
+    Solo cuentan como 'cubiertos' los vectores con dimensions = 2560: los
     vectores legacy de dimensiones anteriores NO habilitan la ruta
     vectorial real y deben re-computarse.
     """
@@ -108,7 +108,7 @@ def export_pending(
 ) -> Tuple[Path, int]:
     """Exporta los chunks pendientes a pending_<ts>.jsonl. Devuelve (path, count)."""
     contract = load_contract(contract_path)
-    dims = int(contract.get("dimensions", 4096))
+    dims = int(contract.get("dimensions", 2560))
     pairs = _pending_pairs(Path(knowledge_db), Path(vector_db), dimensions=dims)
 
     out_dir = Path(out_dir)

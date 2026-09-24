@@ -1,10 +1,10 @@
 {
   "schema": "talos-embedding-contract-v1",
-  "model": "Qwen/Qwen3-Embedding-8B",
-  "model_id": "Qwen3-Embedding-8B",
+  "model": "Qwen/Qwen3-Embedding-4B",
+  "model_id": "Qwen3-Embedding-4B",
   "provider_id": "sentence_transformers",
-  "revision": "Qwen/Qwen3-Embedding-8B (sentence-transformers / HuggingFace)",
-  "dimensions": 4096,
+  "revision": "Qwen/Qwen3-Embedding-4B (sentence-transformers / HuggingFace)",
+  "dimensions": 2560,
   "max_length": 512,
   "normalize_l2": true,
   "pooling": "mean",
@@ -12,5 +12,5 @@
     "query": "",
     "passage": ""
   },
-  "notes": "Los embeddings se computan con Qwen/Qwen3-Embedding-8B (4096 dim) con normalize_embeddings=True. Sin prefijos obligatorios de E5 ('query: ' / 'passage: '). Mismatch de modelo/dim/normalización invalida la sincronización: el índice mezclaría espacios vectoriales incompatibles."
+  "notes": "Los embeddings se computan con Qwen/Qwen3-Embedding-4B (2560 dim) con normalize_embeddings=True. Sin prefijos obligatorios de E5 ('query: ' / 'passage: '). Mismatch de modelo/dim/normalización invalida la sincronización: el índice mezclaría espacios vectoriales incompatibles."
 }
