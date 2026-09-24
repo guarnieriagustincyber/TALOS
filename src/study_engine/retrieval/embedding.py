@@ -83,7 +83,7 @@ class MockEmbeddingProvider:
 
     def __init__(
         self,
-        dimensions: int = 2560,
+        dimensions: int = 1024,
         provider_id: str = "mock",
         model_id: str = "mock-sha256-v1",
         use_e5_prefix: bool = False,
@@ -168,8 +168,8 @@ class SentenceTransformerEmbeddingProvider:
 
     def __init__(
         self,
-        model_name_or_path: str = "Qwen/Qwen3-Embedding-4B",
-        dimensions: int = 2560,
+        model_name_or_path: str = "Qwen/Qwen3-Embedding-0.6B",
+        dimensions: int = 1024,
         device: Union[str, None] = None,
         batch_size: int = 128,
         provider_id: str = "sentence_transformers",

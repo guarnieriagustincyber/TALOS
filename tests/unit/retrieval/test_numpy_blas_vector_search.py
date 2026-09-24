@@ -62,8 +62,8 @@ def test_numpy_blas_performance_scale():
     v_store = SQLiteVectorStore(":memory:")
     rng = np.random.default_rng(42)
 
-    # 1000 vectors of 2560 dimensions (matching Qwen3-Embedding-4B)
-    dim = 2560
+    # 1000 vectors of 1024 dimensions (matching Qwen3-Embedding-0.6B)
+    dim = 1024
     count = 1000
     raw_mat = rng.standard_normal((count, dim), dtype=np.float32)
     norms = np.linalg.norm(raw_mat, axis=1, keepdims=True)
