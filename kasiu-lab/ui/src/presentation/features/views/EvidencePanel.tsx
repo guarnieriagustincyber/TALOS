@@ -479,6 +479,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
   // ----------------------------------------
   const [selectedCitationIndex, setSelectedCitationIndex] = useState<number>(0);
   const [isMermaidCodeView, setIsMermaidCodeView] = useState(false);
+  const [dagZoom, setDagZoom] = useState(1);
   const [copiedMermaid, setCopiedMermaid] = useState(false);
 
   // Asegurar índice de cita válido cuando cambian las fuentes
@@ -715,7 +716,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                 Inspector de Evidencia
               </h2>
             </div>
-            <span className="px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-[9px] text-[#F59E0B] uppercase tracking-wider">
+            <span className="px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-[9px] text-emerald-400 uppercase tracking-wider">
               {tab} active
             </span>
           </div>
@@ -730,7 +731,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                   onClick={() => onTab(item.id)}
                   className={`h-9 px-2.5 rounded-[10px] shrink-0 flex-1 min-w-[50px] flex flex-col items-center justify-center gap-0.5 transition ${
                     active
-                      ? "bg-[#1a2332] text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.15)] font-bold"
+                      ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-semibold"
                       : "text-white/40 hover:text-white hover:bg-white/[0.04]"
                   }`}
                 >
@@ -748,13 +749,13 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
             <span
               className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                 autoSync
-                  ? "bg-amber-400 shadow-[0_0_6px_#F59E0B] animate-pulse"
+                  ? "bg-emerald-400 shadow-[0_0_6px_#10b981] animate-pulse"
                   : "bg-white/30"
               }`}
             />
             <span className="text-[10px] text-white/40 font-mono shrink-0">Tema:</span>
             <span
-              className="text-[11px] font-mono font-medium text-amber-300 truncate flex-1 min-w-0"
+              className="text-[11px] font-mono font-medium text-white/90 truncate flex-1 min-w-0"
               title={activeScope}
             >
               {activeScope}
@@ -1115,6 +1116,34 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    {!isMermaidCodeView && consultedSources.length > 0 && (
+                      <div className="flex items-center gap-0.5 border-r border-white/[0.08] pr-1.5 mr-0.5">
+                        <button
+                          type="button"
+                          onClick={() => setDagZoom((z) => Math.max(0.7, Math.round((z - 0.15) * 100) / 100))}
+                          className="w-5 h-6 rounded bg-black/40 border border-white/[0.06] text-white/50 hover:text-white flex items-center justify-center text-xs font-mono transition"
+                          title="Alejar (-)"
+                        >
+                          -
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDagZoom(1)}
+                          className="px-1.5 h-6 rounded bg-black/40 border border-white/[0.06] text-[9.5px] font-mono text-white/60 hover:text-white transition"
+                          title="Restablecer zoom (100%)"
+                        >
+                          {Math.round(dagZoom * 100)}%
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDagZoom((z) => Math.min(1.6, Math.round((z + 0.15) * 100) / 100))}
+                          className="w-5 h-6 rounded bg-black/40 border border-white/[0.06] text-white/50 hover:text-white flex items-center justify-center text-xs font-mono transition"
+                          title="Acercar (+)"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
                     <button
                       onClick={() => setIsMermaidCodeView(false)}
                       className={`h-6 px-2 rounded-[6px] text-[9px] font-semibold uppercase tracking-wider transition ${
@@ -1184,8 +1213,16 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                       </span>
                     </div>
 
-                    {/* SVG DAG Component */}
-                    <svg viewBox="0 0 440 280" className="w-full h-auto mt-3">
+                    {/* SVG DAG Component Container with Zoom */}
+                    <div className="overflow-hidden mt-3 rounded-xl border border-white/[0.04] bg-black/40">
+                      <div
+                        style={{
+                          transform: `scale(${dagZoom})`,
+                          transformOrigin: "top center",
+                          transition: "transform 0.15s ease-out",
+                        }}
+                      >
+                        <svg viewBox="0 0 440 280" className="w-full h-auto">
                       <defs>
                         <marker id="arr-dynamic-dag" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                           <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#06b6d4" />
@@ -1348,6 +1385,8 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                         MOTOR EPISTÉMICO: {consultedSources.length}/{consultedSources.length} CITAS CON ENLACE CRIPTOGRÁFICO VERIFICADO
                       </text>
                     </svg>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Telemetry Inspection Card */}
@@ -1691,12 +1730,16 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                     for (let i = 0; i < bytes.length; i += 16) {
                       const chunk = bytes.slice(i, i + 16);
                       const offsetHex = i.toString(16).padStart(4, "0");
+                      const asciiChars = chunk.map((b) => {
+                        const code = parseInt(b, 16);
+                        return code >= 32 && code <= 126 ? String.fromCharCode(code) : ".";
+                      }).join("");
 
                       rows.push(
-                        <div key={`hex-row-${i}`} className="flex items-center gap-3">
-                          <span className="text-white/30 select-none w-10 shrink-0">{offsetHex}</span>
+                        <div key={`hex-row-${i}`} className="flex items-center justify-between gap-2.5 py-0.5 hover:bg-white/[0.03] px-1 rounded transition-colors group">
+                          <span className="text-white/30 select-none w-10 shrink-0 text-[10px] font-mono">{offsetHex}</span>
 
-                          <div className="flex items-center gap-1 flex-1">
+                          <div className="flex items-center gap-1 sm:gap-1.5 flex-1 font-mono">
                             {chunk.map((b, byteIdx) => {
                               const absoluteIndex = i + byteIdx;
                               const isHighlighted =
@@ -1707,16 +1750,20 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                               return (
                                 <span
                                   key={`byte-${absoluteIndex}`}
-                                  className={`w-5 text-center rounded transition-all duration-100 ${
+                                  className={`w-5 text-center rounded transition-all duration-100 text-[11px] ${
                                     isHighlighted
                                       ? "bg-[#F59E0B] text-black font-bold shadow-[0_0_8px_#F59E0B]"
-                                      : "text-white/70 hover:text-white"
+                                      : "text-white/70 group-hover:text-white"
                                   }`}
                                 >
                                   {b}
                                 </span>
                               );
                             })}
+                          </div>
+
+                          <div className="text-emerald-400/60 font-mono tracking-widest text-[11px] select-none pl-3 border-l border-white/[0.08] shrink-0 hidden sm:block w-36 truncate">
+                            {asciiChars}
                           </div>
                         </div>
                       );

@@ -230,10 +230,10 @@ class SQLiteStorageEngine:
                 self._thread_local.persistent_conn = None
 
         if persistent is None:
-            conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
+            conn = sqlite3.connect(str(self.db_path), check_same_thread=False, timeout=30.0)
             conn.execute("PRAGMA foreign_keys = ON;")
             conn.execute("PRAGMA recursive_triggers = ON;")
-            conn.execute("PRAGMA busy_timeout = 5000;")
+            conn.execute("PRAGMA busy_timeout = 30000;")
             conn.execute("PRAGMA journal_mode = WAL;")
             conn.execute("PRAGMA synchronous = NORMAL;")
             self._thread_local.persistent_conn = conn

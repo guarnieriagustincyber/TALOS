@@ -97,10 +97,10 @@ const MONO_STYLES = `
   .k-scroll::-webkit-scrollbar-corner { background: transparent; }
 
   @keyframes k-fade-in {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
-  .k-fade-in { animation: k-fade-in .25s cubic-bezier(0.16, 1, 0.3, 1); }
+  .k-fade-in { animation: k-fade-in .15s ease-out; }
 
   @keyframes k-caret {
     0%, 100% { opacity: 1; }
@@ -1060,7 +1060,7 @@ export const ChatWorkspace: React.FC = () => {
         )}
 
         {/* ESPACIO DE TRABAJO */}
-        <div className="flex-1 min-h-0 flex overflow-hidden px-1.5 sm:px-2 md:px-3 pb-1.5 sm:pb-2 md:pb-3">
+        <div className="flex-1 min-h-0 flex overflow-hidden">
           
           {/* ASISTENTE (CHAT) */}
           {currentView === "chat" && (
@@ -1079,6 +1079,12 @@ export const ChatWorkspace: React.FC = () => {
                 onDrop={handleTreeDrop}
                 onCreateFolder={() => setCreationModal("folder")}
                 onCreateNotebook={() => setCreationModal("notebook")}
+                onEditEntity={(item) => {
+                  setEditingItem(item);
+                  setEditName(item.name.replace(".nb", ""));
+                  setEditIcon(item.icon || (item.type === "folder" ? "folder" : "book"));
+                  setEditColor(item.color || "amber");
+                }}
               />
 
               <ChatView
@@ -1213,6 +1219,10 @@ export const ChatWorkspace: React.FC = () => {
               fsItems={fsItems}
               tasks={kanbanTasks}
               onUpdateTasks={setKanbanTasks}
+              onAskAssistant={(task) => {
+                setCurrentView("chat");
+                handleSend(`Ayúdame a resolver la misión: "${task.title}". Contexto de la tarea: ${task.description || "Sin descripción adicional"}`);
+              }}
             />
           )}
 
@@ -1224,7 +1234,12 @@ export const ChatWorkspace: React.FC = () => {
           )}
 
           {currentView === "estudiante" && (
-            <StudentProfileView />
+            <StudentProfileView
+              onOpenChatWithTopic={(topic) => {
+                setCurrentView("chat");
+                handleSend(`Quiero repasar y profundizar el tema: "${topic}". Explícame los fundamentos y evaluemos mi comprensión.`);
+              }}
+            />
           )}
         </div>
 

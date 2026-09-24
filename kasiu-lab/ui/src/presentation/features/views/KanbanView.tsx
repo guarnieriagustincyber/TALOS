@@ -5,12 +5,14 @@ import {
   CheckSquare,
   ChevronDown,
   ChevronRight,
+  Clock,
   Edit3,
   Filter,
   Folder,
   Layers,
   Plus,
   Shield,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -175,6 +177,7 @@ export interface KanbanViewProps {
   scopes?: string[];
   tasks?: KanbanTask[];
   onUpdateTasks?: (tasks: KanbanTask[]) => void;
+  onAskAssistant?: (task: KanbanTask) => void;
 }
 
 export const KanbanView: React.FC<KanbanViewProps> = ({
@@ -183,6 +186,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   scopes,
   tasks: propTasks,
   onUpdateTasks,
+  onAskAssistant,
 }) => {
   const [internalTasks, setInternalTasks] = useState<KanbanTask[]>(INITIAL_KANBAN_TASKS);
   const tasks = propTasks ?? internalTasks;
@@ -606,19 +610,24 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                               draggingTaskId === task.id ? "opacity-30 border-dashed" : ""
                             }`}
                           >
-                            {/* Card Top: Priority Badge + Actions */}
+                            {/* Card Top: Linear-style ID + Priority Badge + Actions */}
                             <div className="flex items-center justify-between gap-2">
-                              <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
-                                  task.priority === "P1"
-                                    ? "text-red-400 bg-red-950/40 border-red-500/40"
-                                    : task.priority === "P2"
-                                    ? "text-sky-400 bg-sky-950/40 border-sky-500/40"
-                                    : "text-emerald-400 bg-emerald-950/40 border-emerald-500/40"
-                                }`}
-                              >
-                                {task.priority === "P1" ? "P1 · Crítico" : task.priority === "P2" ? "P2 · Medio" : "P3 · Ordinario"}
-                              </span>
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="font-mono text-[9px] text-white/40 tracking-wider font-semibold">
+                                  #{task.id.slice(-4).toUpperCase()}
+                                </span>
+                                <span
+                                  className={`inline-flex items-center px-1.5 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider border ${
+                                    task.priority === "P1"
+                                      ? "text-red-400 bg-red-950/40 border-red-500/40"
+                                      : task.priority === "P2"
+                                      ? "text-sky-400 bg-sky-950/40 border-sky-500/40"
+                                      : "text-emerald-400 bg-emerald-950/40 border-emerald-500/40"
+                                  }`}
+                                >
+                                  {task.priority === "P1" ? "P1" : task.priority === "P2" ? "P2" : "P3"}
+                                </span>
+                              </div>
 
                               <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition">
                                 <button
@@ -744,10 +753,27 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                                </div>
                              )}
 
-                             {/* Footer info: deadline & drag hint */}
-                             <div className="mt-3 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] text-white/35">
-                               <span>{task.deadline}</span>
-                               <span className="uppercase tracking-widest text-[9px] text-white/20">arrastrar</span>
+                             {/* Footer info: deadline & direct assistant action */}
+                             <div className="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-[10px] text-white/40">
+                               <div className="flex items-center gap-1 font-mono text-[10px] text-white/50">
+                                 <Clock className="w-3 h-3 text-white/30" />
+                                 <span>{task.deadline}</span>
+                               </div>
+
+                               {onAskAssistant && (
+                                 <button
+                                   type="button"
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     onAskAssistant(task);
+                                   }}
+                                   className="px-2 py-0.5 rounded-[6px] bg-white/[0.04] border border-white/[0.08] hover:bg-emerald-500/20 hover:border-emerald-500/40 text-white/60 hover:text-emerald-300 transition text-[9.5px] font-mono flex items-center gap-1 shadow-xs"
+                                   title="Iniciar sesión en el asistente para resolver esta misión"
+                                 >
+                                   <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+                                   <span>Resolver</span>
+                                 </button>
+                               )}
                              </div>
                            </article>
                          );

@@ -123,10 +123,11 @@ def create_app() -> FastAPI:
                 # primer uso; una query simbólica por cuaderno con embeddings
                 # calienta ambos (modelo ONNX + lectura de la matriz).
                 warming = getattr(store, "vector_search", None)
-                if warming is None:
-                    return
-                for notebook_id in _warmup_notebooks(store):
-                    store.vector_search(query="warmup", notebook_id=notebook_id, limit=1)
+                notebooks = _warmup_notebooks(store)
+                if notebooks:
+                    # Calentar únicamente el cuaderno principal por defecto (evita cargar los 287k vectores en RAM)
+                    primary_nb = "fase0-soc" if "fase0-soc" in notebooks else notebooks[0]
+                    store.vector_search(query="warmup", notebook_id=primary_nb, limit=1)
                 elapsed_ms = (time.perf_counter() - t0) * 1000
                 logger.info("Warmup de retrieval completado en %.0f ms", elapsed_ms)
             except Exception as exc:  # warmup nunca debe tirar el server

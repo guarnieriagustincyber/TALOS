@@ -207,23 +207,48 @@ const PureSvgRoadmap: React.FC<PureSvgRoadmapProps> = ({
                 />
                 <text
                   x={node.x + 24}
-                  y={node.y + 25}
+                  y={node.y + 23}
                   fill="#ffffff"
-                  fontSize="10"
+                  fontSize="9.5"
                   fontWeight="600"
                   fontFamily="monospace"
                 >
-                  {node.label.length > 15 ? node.label.slice(0, 14) + "…" : node.label}
+                  {node.label.length > 13 ? node.label.slice(0, 12) + "…" : node.label}
                 </text>
                 <text
                   x={node.x + 24}
-                  y={node.y + 36}
+                  y={node.y + 35}
                   fill="rgba(255,255,255,0.4)"
-                  fontSize="8"
+                  fontSize="7.5"
                   fontFamily="monospace"
                 >
                   {node.category}
                 </text>
+
+                {/* Indicador de maestría BKT perimetral */}
+                <g transform={`translate(${node.x + 114}, ${node.y + 22})`}>
+                  <circle r="7.5" fill="#050507" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" />
+                  <circle
+                    r="7.5"
+                    fill="none"
+                    stroke={isCompleted ? "#10B981" : isCurrent ? "#F59E0B" : "rgba(255,255,255,0.2)"}
+                    strokeWidth="1.5"
+                    strokeDasharray="47"
+                    strokeDashoffset={isCompleted ? "0" : isCurrent ? "18" : "38"}
+                    strokeLinecap="round"
+                    transform="rotate(-90)"
+                  />
+                  <text
+                    y="2.5"
+                    textAnchor="middle"
+                    fill={isCompleted ? "#10B981" : isCurrent ? "#F59E0B" : "rgba(255,255,255,0.4)"}
+                    fontSize="5.5"
+                    fontFamily="monospace"
+                    fontWeight="700"
+                  >
+                    {isCompleted ? "100" : isCurrent ? "65" : "15"}
+                  </text>
+                </g>
               </g>
             );
           })}

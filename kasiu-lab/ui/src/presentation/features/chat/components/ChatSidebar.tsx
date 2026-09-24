@@ -72,6 +72,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       const isSelected = activeEntity.id === child.id;
       const isFolder = child.type === "folder";
       const isExpanded = expandedFolders.has(child.id);
+      const colorConfig = THEME_COLORS[child.color || (isFolder ? "amber" : "blue")] || THEME_COLORS.amber;
 
       return (
         <div key={child.id} className="space-y-1">
@@ -91,12 +92,12 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               }
             }}
             className={[
-              "flex items-center gap-2 py-1.5 px-2 rounded-[12px] cursor-pointer transition text-xs font-mono group",
+              "flex items-center gap-2 py-1.5 px-2 rounded-[12px] cursor-pointer transition text-xs font-mono group border",
               isSelected
-                ? "bg-[#1a2332] text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.15)] font-semibold"
+                ? `${colorConfig.bg} ${colorConfig.border} ${colorConfig.text} font-semibold shadow-xs`
                 : draggedItemId === child.id
-                ? "opacity-35"
-                : "text-white/60 hover:text-white hover:bg-white/[0.04]",
+                ? "opacity-35 border-transparent"
+                : "text-white/70 hover:text-white hover:bg-white/[0.04] border-transparent",
             ].join(" ")}
             style={{ marginLeft: depth * 12 }}
           >
@@ -119,7 +120,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             ) : (
               <span className="w-4 shrink-0" />
             )}
-            <span className={isSelected ? "text-cyan-300" : (THEME_COLORS[child.color || "amber"]?.text || "text-amber-400")}>
+            <span className={colorConfig.text}>
               {renderItemIcon(child.icon, isFolder, isExpanded, "w-4 h-4 shrink-0")}
             </span>
             <span className="truncate flex-1 min-w-0">{cleanName}</span>
@@ -132,14 +133,14 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                     onEditEntity(child);
                   }}
                   className={`w-5 h-5 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition ${
-                    isSelected ? "hover:bg-cyan-500/20 text-cyan-300" : "hover:bg-white/10 text-white/60 hover:text-white"
+                    isSelected ? "hover:bg-white/20 text-current" : "hover:bg-white/10 text-white/60 hover:text-white"
                   }`}
                   title="Personalizar nombre, icono y color"
                 >
                   <Edit2 className="w-3 h-3" />
                 </button>
               )}
-              {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee] shrink-0" />}
+              {isSelected && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${colorConfig.dot} ${colorConfig.glow}`} />}
             </div>
           </div>
 
@@ -216,19 +217,19 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             className={[
               "flex items-center gap-2.5 py-2 px-2.5 rounded-[13px] cursor-pointer transition text-xs font-mono group border mb-3 select-none",
               activeEntity.id === "root_global"
-                ? "bg-[#1a2332] border-cyan-500/50 text-cyan-300 font-semibold shadow-[0_0_15px_rgba(6,182,212,0.2)]"
-                : "bg-[#111113] border-white/[0.08] text-white/70 hover:text-white hover:border-white/20 hover:bg-white/[0.04]",
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300 font-semibold shadow-xs"
+                : "bg-white/[0.02] border-white/[0.06] text-white/70 hover:text-white hover:border-white/20 hover:bg-white/[0.04]",
             ].join(" ")}
           >
-            <MessageSquare className="w-4 h-4 text-cyan-400 shrink-0" />
+            <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0" />
             <div className="flex-1 truncate flex items-center justify-between">
               <span className="font-semibold tracking-wide text-[11px] truncate">Chat General</span>
-              <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-mono uppercase font-bold shrink-0 ml-1">
+              <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono uppercase font-bold shrink-0 ml-1">
                 GLOBAL
               </span>
             </div>
             {activeEntity.id === "root_global" && (
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#06b6d4] shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981] shrink-0" />
             )}
           </div>
 
@@ -239,6 +240,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               const isSelected = activeEntity.id === root.id;
               const isFolder = root.type === "folder";
               const isExpanded = expandedFolders.has(root.id);
+              const colorConfig = THEME_COLORS[root.color || (isFolder ? "amber" : "blue")] || THEME_COLORS.amber;
 
               return (
                 <div
@@ -253,10 +255,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                       if (isFolder && !isExpanded) toggleFolder(root.id);
                     }}
                     className={[
-                      "flex items-center justify-between px-2.5 py-2 rounded-[12px] cursor-pointer transition group",
+                      "flex items-center justify-between px-2.5 py-2 rounded-[12px] cursor-pointer transition group border",
                       isSelected
-                        ? "bg-[#1a2332] text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.15)] font-semibold"
-                        : "text-white hover:bg-white/[0.04] border border-transparent"
+                        ? `${colorConfig.bg} ${colorConfig.border} ${colorConfig.text} font-semibold shadow-xs`
+                        : "text-white/80 hover:bg-white/[0.04] border-transparent"
                     ].join(" ")}
                   >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -279,7 +281,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                       ) : (
                         <span className="w-4 shrink-0" />
                       )}
-                      <span className={isSelected ? "text-cyan-300" : (THEME_COLORS[root.color || "amber"]?.text || "text-amber-400")}>
+                      <span className={colorConfig.text}>
                         {renderItemIcon(root.icon, isFolder, isExpanded, "w-4 h-4 shrink-0")}
                       </span>
                       <span className="text-xs font-mono font-semibold uppercase tracking-wider truncate flex-1 min-w-0">
@@ -295,14 +297,14 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                             onEditEntity(root);
                           }}
                           className={`w-5 h-5 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition ${
-                            isSelected ? "hover:bg-cyan-500/20 text-cyan-300" : "hover:bg-white/10 text-white/60 hover:text-white"
+                            isSelected ? "hover:bg-white/20 text-current" : "hover:bg-white/10 text-white/60 hover:text-white"
                           }`}
                           title="Personalizar nombre, icono y color"
                         >
                           <Edit2 className="w-3 h-3" />
                         </button>
                       )}
-                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee] shrink-0" />}
+                      {isSelected && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${colorConfig.dot} ${colorConfig.glow}`} />}
                     </div>
                   </div>
 

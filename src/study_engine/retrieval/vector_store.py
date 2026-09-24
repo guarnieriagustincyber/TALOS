@@ -1,5 +1,6 @@
 """Dedicated SQLite vector storage for S3.4 Dense Retrieval."""
 
+from collections import OrderedDict
 from pathlib import Path
 import sqlite3
 import struct
@@ -66,14 +67,9 @@ class SQLiteVectorStore:
         self._conn.execute("PRAGMA synchronous = NORMAL;")
         self._initialize_schema()
 
-        # Caché de matrices por (notebook_id, provider_id, model_id).
-        # Cargar ~432MB de vectores por query no escala; la matriz se
-        # reutiliza mientras PRAGMA data_version no cambie. data_version se
-        # incrementa cuando OTRA conexión commitea (WAL) — cubre el caso del
-        # CLI `talos sync-vectors` corriendo en otro proceso mientras el
-        # servidor está vivo. Commits de ESTA conexión (save_records)
-        # invalidan explícitamente los notebooks afectados.
-        self._matrix_cache: Dict[Tuple[str, Optional[str], Optional[str]], Tuple[int, List[str], Any]] = {}
+        # Caché LRU de matrices por (notebook_id, provider_id, model_id).
+        # Máximo 2 cuadernos en memoria simultáneamente (evita fugas multi-GB).
+        self._matrix_cache: OrderedDict[Tuple[str, Optional[str], Optional[str]], Tuple[int, List[str], Any]] = OrderedDict()
         self._matrix_lock = threading.Lock()
 
     def _initialize_schema(self) -> None:
@@ -204,6 +200,7 @@ class SQLiteVectorStore:
         with self._matrix_lock:
             cached = self._matrix_cache.get(key)
             if cached is not None and cached[0] == data_version:
+                self._matrix_cache.move_to_end(key)
                 return cached[1], cached[2]
 
         query = """
@@ -231,7 +228,11 @@ class SQLiteVectorStore:
         raw_concat = b"".join(r[2] for r in rows if len(r[2]) == dim * 4)
         matrix = np.frombuffer(raw_concat, dtype=np.float32).reshape((len(chunk_ids), dim))
         with self._matrix_lock:
+            # Mantener en RAM como máximo 2 cuadernos (LRU eviction)
+            if len(self._matrix_cache) >= 2 and key not in self._matrix_cache:
+                self._matrix_cache.popitem(last=False)
             self._matrix_cache[key] = (data_version, chunk_ids, matrix)
+            self._matrix_cache.move_to_end(key)
         return chunk_ids, matrix
 
     def get_by_chunk_id(self, chunk_id: str) -> Optional[VectorRecord]:

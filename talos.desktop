@@ -9,5 +9,4 @@ Icon=/media/agustin/Laboratorio/study-engie/assets/talos-icon.png
 Terminal=false
 Categories=Education;Development;
 Keywords=study;learning;ai;education;
-StartupNotify=true
-StartupWMClass=talos
+StartupNotify=false

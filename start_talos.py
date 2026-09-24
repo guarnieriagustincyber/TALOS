@@ -27,69 +27,40 @@ if not VENV_PYTHON.exists():
 
 
 def is_port_in_use(port: int, host: str = "127.0.0.1") -> bool:
-    """Verifica si un puerto está ocupado."""
+    """Verifica si un puerto está ocupado (timeout ultrarrápido de 100ms)."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(0.5)
+        s.settimeout(0.1)
         return s.connect_ex((host, port)) == 0
 
 
 def free_port(port: int) -> None:
-    """Libera el puerto si quedó algún proceso huérfano de una sesión previa."""
+    """Libera el puerto solo si está ocupado."""
+    if not is_port_in_use(port):
+        return
     try:
         subprocess.run(["fuser", "-k", f"{port}/tcp"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(0.5)
+        for _ in range(10):
+            time.sleep(0.05)
+            if not is_port_in_use(port):
+                break
     except Exception:
         pass
 
 
-def check_already_running() -> bool:
-    """Verifica si TALOS ya está corriendo y saludable."""
+def is_backend_healthy() -> bool:
+    """Verifica si el backend responde con HTTP 200 a /api/health."""
     try:
         req = urllib.request.Request(f"http://127.0.0.1:{BACKEND_PORT}/api/health")
-        with urllib.request.urlopen(req, timeout=1.5) as resp:
-            if resp.status == 200 and is_port_in_use(FRONTEND_PORT):
-                return True
+        with urllib.request.urlopen(req, timeout=0.6) as resp:
+            return resp.status == 200
     except Exception:
-        pass
-    return False
+        return False
 
 
-def wait_for_backend(process: subprocess.Popen, timeout: float = 30.0) -> bool:
-    """Espera a que el backend esté listo y responda al endpoint /api/health."""
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        if process.poll() is not None:
-            return False
-        try:
-            req = urllib.request.Request(f"http://127.0.0.1:{BACKEND_PORT}/api/health")
-            with urllib.request.urlopen(req, timeout=1.0) as resp:
-                if resp.status == 200:
-                    return True
-        except Exception:
-            time.sleep(0.5)
-    return False
-
-
-def wait_for_frontend(process: subprocess.Popen, timeout: float = 20.0) -> bool:
-    """Espera a que el frontend dev server esté escuchando."""
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        if process.poll() is not None:
-            return False
-        if is_port_in_use(FRONTEND_PORT):
-            return True
-        time.sleep(0.5)
-    return False
-
-
-def start_backend() -> subprocess.Popen:
-    """Inicia el servidor FastAPI."""
-    print("🏛️  Iniciando TALOS Backend (FastAPI)...")
+def spawn_backend() -> subprocess.Popen:
+    """Spawnea el backend FastAPI en segundo plano."""
     free_port(BACKEND_PORT)
 
-    # Sin --reload: el StatReload de uvicorn escanea todos los .py continuamente
-    # y genera carga de CPU constante que puede congelar la PC.
-    # Para desarrollo con reload activo, usar directamente: uvicorn ... --reload
     dev_mode = os.environ.get("TALOS_DEV_RELOAD", "0").lower() in ("1", "true", "yes")
     backend_cmd = [
         str(VENV_PYTHON),
@@ -109,7 +80,7 @@ def start_backend() -> subprocess.Popen:
     existing_pythonpath = env.get("PYTHONPATH", "")
     env["PYTHONPATH"] = f"{ROOT_DIR}:{ROOT_DIR / 'src'}:{existing_pythonpath}"
 
-    backend_process = subprocess.Popen(
+    return subprocess.Popen(
         backend_cmd,
         cwd=str(BACKEND_DIR),
         stdout=backend_log,
@@ -118,25 +89,24 @@ def start_backend() -> subprocess.Popen:
         env=env,
     )
 
-    # Esperar a que el backend responda con 200 a /api/health
-    if wait_for_backend(backend_process):
-        print(f"✅ Backend listo en http://localhost:{BACKEND_PORT} (/api/health OK)")
-        return backend_process
-    else:
-        print("❌ Error: El backend no pudo iniciar (revisar backend.log)")
-        backend_process.terminate()
-        sys.exit(1)
 
-
-def start_frontend() -> subprocess.Popen:
-    """Inicia el servidor de desarrollo de Vite."""
-    print("🎨 Iniciando TALOS Frontend (React/Vite)...")
+def spawn_frontend() -> subprocess.Popen:
+    """Spawnea el frontend de Vite en segundo plano."""
     free_port(FRONTEND_PORT)
 
-    frontend_cmd = ["npm", "run", "dev", "--", "--port", str(FRONTEND_PORT)]
+    css_file = FRONTEND_DIR / "src" / "styles" / "tactical.css"
+    if not css_file.exists():
+        subprocess.run(
+            ["./bin/tailwindcss", "-i", "./src/styles/input.css", "-o", "./src/styles/tactical.css"],
+            cwd=str(FRONTEND_DIR),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    frontend_cmd = ["npx", "vite", "--port", str(FRONTEND_PORT)]
     frontend_log = open(ROOT_DIR / "frontend.log", "w", encoding="utf-8")
 
-    frontend_process = subprocess.Popen(
+    return subprocess.Popen(
         frontend_cmd,
         cwd=str(FRONTEND_DIR),
         stdout=frontend_log,
@@ -144,24 +114,23 @@ def start_frontend() -> subprocess.Popen:
         text=True,
     )
 
-    # Esperar a que el frontend esté listo
-    if wait_for_frontend(frontend_process):
-        print(f"✅ Frontend listo en http://localhost:{FRONTEND_PORT}")
-        return frontend_process
-    else:
-        print("❌ Error: El frontend no pudo iniciar (revisar frontend.log)")
-        frontend_process.terminate()
-        sys.exit(1)
-
 
 def open_browser() -> None:
-    """Abre el navegador con la URL del frontend."""
+    """Abre el navegador con la URL de TALOS de forma asíncrona."""
     url = f"http://localhost:{FRONTEND_PORT}"
     print(f"🌐 Abriendo TALOS en {url}...")
     try:
-        webbrowser.open(url)
+        subprocess.Popen(
+            ["xdg-open", url],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
     except Exception:
-        pass
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
 
 
 def main() -> None:
@@ -169,14 +138,16 @@ def main() -> None:
     print("🚀 TALOS - Sistema de Estudio Epistémico")
     print("=" * 60)
 
-    # Si ya está corriendo en segundo plano, abrir navegador y salir
-    if check_already_running():
+    # Verificación instantánea si ya está corriendo
+    backend_running = is_backend_healthy()
+    frontend_running = is_port_in_use(FRONTEND_PORT)
+
+    if backend_running and frontend_running:
         print("⚡ TALOS ya se encuentra en ejecución activa.")
         open_browser()
         print("=" * 60)
         sys.exit(0)
 
-    # Verificar que las carpetas existen
     if not BACKEND_DIR.exists():
         print(f"❌ Error: No se encontró {BACKEND_DIR}")
         sys.exit(1)
@@ -184,16 +155,63 @@ def main() -> None:
         print(f"❌ Error: No se encontró {FRONTEND_DIR}")
         sys.exit(1)
 
-    # Iniciar servicios
-    backend_process = start_backend()
-    frontend_process = start_frontend()
+    # Iniciar procesos concurrentemente (en paralelo)
+    backend_process = None
+    frontend_process = None
 
-    # Abrir navegador
-    time.sleep(1)
+    if not backend_running:
+        print("🏛️  Iniciando TALOS Backend (FastAPI)...")
+        backend_process = spawn_backend()
+    else:
+        print("🏛️  TALOS Backend ya activo.")
+
+    if not frontend_running:
+        print("🎨 Iniciando TALOS Frontend (React/Vite)...")
+        frontend_process = spawn_frontend()
+    else:
+        print("🎨 TALOS Frontend ya activo.")
+
+    # Espera concurrente con sondeo de 100ms
+    timeout = 25.0
+    start_time = time.time()
+    b_ready = backend_running
+    f_ready = frontend_running
+
+    while time.time() - start_time < timeout:
+        if backend_process and backend_process.poll() is not None:
+            print("❌ Error: El backend no pudo iniciar (revisar backend.log)")
+            if frontend_process:
+                frontend_process.terminate()
+            sys.exit(1)
+
+        if frontend_process and frontend_process.poll() is not None:
+            print("❌ Error: El frontend no pudo iniciar (revisar frontend.log)")
+            if backend_process:
+                backend_process.terminate()
+            sys.exit(1)
+
+        if not b_ready:
+            b_ready = is_backend_healthy()
+        if not f_ready:
+            f_ready = is_port_in_use(FRONTEND_PORT)
+
+        if b_ready and f_ready:
+            break
+
+        time.sleep(0.1)
+
+    if not (b_ready and f_ready):
+        print("❌ Timeout esperando inicio de servicios.")
+        if backend_process:
+            backend_process.terminate()
+        if frontend_process:
+            frontend_process.terminate()
+        sys.exit(1)
+
+    print("✅ Servicios listos en paralelo!")
     open_browser()
 
     print("=" * 60)
-    print("✅ TALOS está corriendo!")
     print(f"   Backend:  http://localhost:{BACKEND_PORT}")
     print(f"   Frontend: http://localhost:{FRONTEND_PORT}")
     print(f"   API Docs: http://localhost:{BACKEND_PORT}/docs")
@@ -202,10 +220,14 @@ def main() -> None:
 
     def handle_shutdown(signum, frame):
         print("\n\n🛑 Deteniendo TALOS...")
-        backend_process.terminate()
-        frontend_process.terminate()
-        backend_process.wait()
-        frontend_process.wait()
+        if backend_process:
+            backend_process.terminate()
+        if frontend_process:
+            frontend_process.terminate()
+        if backend_process:
+            backend_process.wait()
+        if frontend_process:
+            frontend_process.wait()
         print("👋 TALOS detenido. Hasta pronto!")
         sys.exit(0)
 
@@ -213,14 +235,12 @@ def main() -> None:
     signal.signal(signal.SIGTERM, handle_shutdown)
 
     try:
-        # Monitorear si el backend se detiene (por ejemplo, al cerrar la ventana/pestaña con sendBeacon)
         while True:
             time.sleep(1.5)
-            # Si el backend terminó (por shutdown disparado por el cierre de página)
-            if backend_process.poll() is not None:
+            if backend_process and backend_process.poll() is not None:
                 print("\n🔔 Detectado cierre de sesión desde la interfaz web.")
                 handle_shutdown(None, None)
-            if frontend_process.poll() is not None:
+            if frontend_process and frontend_process.poll() is not None:
                 print("\n🔔 Detectado cierre del servidor frontend.")
                 handle_shutdown(None, None)
     except KeyboardInterrupt:

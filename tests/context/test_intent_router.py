@@ -29,7 +29,7 @@ def test_normal_focal_query() -> None:
     assert decision.requires_multimodal is False
     assert decision.requires_multi_source is False
     assert decision.requires_long_context is False
-    assert decision.max_context_tokens == 4000
+    assert decision.max_context_tokens == 5000
     assert decision.suggested_provider is None
 
 
@@ -98,7 +98,7 @@ def test_fallback_short_query() -> None:
     
     assert decision.depth == "NORMAL"
     assert decision.requires_long_context is False
-    assert decision.max_context_tokens == 4000
+    assert decision.max_context_tokens == 5000
 
 
 def test_fallback_long_query() -> None:

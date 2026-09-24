@@ -4,9 +4,16 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { AlertTriangle, BookOpen, ExternalLink, FileText, Shield } from "lucide-react";
+import {
+  MorphingPopover,
+  MorphingPopoverTrigger,
+  MorphingPopoverContent,
+} from "@/components/ui/morphing-popover";
 import { Citation, EvidenceTab } from "../views/types";
 import { CodeBlock } from "./components/CodeBlock";
 import { MermaidBlock } from "./components/MermaidBlock";
+import { TableBlock } from "./components/TableBlock";
+import { CalloutBlock } from "./components/CalloutBlock";
 
 export interface MessageBodyProps {
   content: string;
@@ -29,7 +36,6 @@ const CitationChipWithPopover: React.FC<CitationChipWithPopoverProps> = ({
   onOpenEvidence,
   onOpenCitation,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [isOpeningPdf, setIsOpeningPdf] = useState(false);
 
   const titleText = citation.source_title || citation.sourceTitle || citation.source_id || "Fuente canónica";
@@ -69,89 +75,75 @@ const CitationChipWithPopover: React.FC<CitationChipWithPopoverProps> = ({
   };
 
   return (
-    <span
-      className="relative inline-block align-baseline group"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
-    >
-      <button
-        type="button"
-        onClick={handleOpenPanel}
-        className="citation-chip cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-400"
-      >
-        <BookOpen className="w-3 h-3 shrink-0 opacity-80" />
-        <span>[{displayTag}]</span>
-        {pageNum ? <span className="text-[9.5px] opacity-70">p.{pageNum}</span> : null}
-      </button>
+    <MorphingPopover className="relative inline-block align-baseline mx-0.5">
+      <MorphingPopoverTrigger className="citation-chip cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-400">
+        <BookOpen className="w-3 h-3 shrink-0 opacity-80 text-emerald-400" />
+        <span className="font-mono text-emerald-300 font-semibold">[{displayTag}]</span>
+        {pageNum ? <span className="text-[9.5px] opacity-70 text-emerald-400/80">p.{pageNum}</span> : null}
+      </MorphingPopoverTrigger>
 
-      {/* Popover Card */}
-      {isOpen && (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 sm:w-80 p-3 rounded-[16px] bg-[#0d0d11]/95 backdrop-blur-md border border-cyan-500/30 shadow-[0_10px_35px_rgba(0,0,0,0.8)] text-left font-mono text-xs space-y-2 pointer-events-auto"
-        >
-          {/* Header */}
-          <div className="flex items-start justify-between gap-2 border-b border-white/[0.08] pb-1.5">
-            <div className="min-w-0">
-              {authorText ? (
-                <span className="text-[10px] text-cyan-300 font-semibold truncate block">
-                  {authorText}
-                </span>
-              ) : null}
-              <span className="text-white text-[11px] font-medium leading-tight line-clamp-1 block" title={titleText}>
-                {titleText}
-              </span>
-            </div>
-            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border shrink-0 ${roleInfo.color}`}>
-              {roleInfo.label}
-            </span>
-          </div>
-
-          {/* Meta: Página y SHA */}
-          <div className="flex items-center justify-between text-[10px] text-white/50">
-            <span className="flex items-center gap-1 text-cyan-300">
-              <FileText className="w-3 h-3" />
-              Página {pageNum}
-            </span>
-            {docHash ? (
-              <span className="truncate max-w-[120px]" title={docHash}>
-                SHA: {docHash.slice(0, 8)}...
+      <MorphingPopoverContent className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 sm:w-80 p-3 rounded-[16px] bg-[#0c120e]/95 backdrop-blur-md border border-emerald-500/35 shadow-[0_12px_40px_rgba(0,0,0,0.85)] text-left font-mono text-xs space-y-2 pointer-events-auto">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-2 border-b border-white/[0.08] pb-1.5">
+          <div className="min-w-0">
+            {authorText ? (
+              <span className="text-[10px] text-emerald-400 font-semibold truncate block">
+                {authorText}
               </span>
             ) : null}
+            <span className="text-white text-[11px] font-medium leading-tight line-clamp-1 block" title={titleText}>
+              {titleText}
+            </span>
           </div>
+          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border shrink-0 ${roleInfo.color}`}>
+            {roleInfo.label}
+          </span>
+        </div>
 
-          {/* Excerpt Fragment */}
-          {excerpt ? (
-            <div className="p-2 rounded-[8px] bg-black/60 border border-white/[0.06] text-[11px] text-white/80 leading-relaxed max-h-24 overflow-y-auto k-scroll italic">
-              "{excerpt.length > 200 ? excerpt.slice(0, 200) + "..." : excerpt}"
-            </div>
+        {/* Meta: Página y SHA */}
+        <div className="flex items-center justify-between text-[10px] text-white/50">
+          <span className="flex items-center gap-1 text-emerald-300">
+            <FileText className="w-3 h-3" />
+            Página {pageNum}
+          </span>
+          {docHash ? (
+            <span className="truncate max-w-[120px]" title={docHash}>
+              SHA: {docHash.slice(0, 8)}...
+            </span>
           ) : null}
+        </div>
 
-          {/* Botones de acción */}
-          <div className="flex items-center gap-1.5 pt-1">
-            {docHash ? (
-              <button
-                type="button"
-                onClick={handleOpenPdf}
-                disabled={isOpeningPdf}
-                className="flex-1 px-2 py-1 rounded-[8px] bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-[10.5px] font-semibold flex items-center justify-center gap-1 transition"
-              >
-                <ExternalLink className="w-3 h-3" />
-                <span>{isOpeningPdf ? "Abriendo..." : "Abrir PDF"}</span>
-              </button>
-            ) : null}
+        {/* Excerpt Fragment */}
+        {excerpt ? (
+          <div className="p-2 rounded-[8px] bg-black/60 border border-white/[0.06] text-[11px] text-white/80 leading-relaxed max-h-24 overflow-y-auto k-scroll italic">
+            "{excerpt.length > 200 ? excerpt.slice(0, 200) + "..." : excerpt}"
+          </div>
+        ) : null}
+
+        {/* Botones de acción */}
+        <div className="flex items-center gap-1.5 pt-1">
+          {docHash ? (
             <button
               type="button"
-              onClick={handleOpenPanel}
-              className="flex-1 px-2 py-1 rounded-[8px] bg-white/[0.05] hover:bg-white/[0.1] text-white/80 border border-white/[0.1] text-[10.5px] font-semibold flex items-center justify-center gap-1 transition"
+              onClick={handleOpenPdf}
+              disabled={isOpeningPdf}
+              className="flex-1 px-2 py-1 rounded-[8px] bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10.5px] font-semibold flex items-center justify-center gap-1 transition"
             >
-              <BookOpen className="w-3 h-3" />
-              <span>Ver en Panel</span>
+              <ExternalLink className="w-3 h-3" />
+              <span>{isOpeningPdf ? "Abriendo..." : "Abrir PDF"}</span>
             </button>
-          </div>
+          ) : null}
+          <button
+            type="button"
+            onClick={handleOpenPanel}
+            className="flex-1 px-2 py-1 rounded-[8px] bg-white/[0.05] hover:bg-white/[0.1] text-white/80 border border-white/[0.1] text-[10.5px] font-semibold flex items-center justify-center gap-1 transition"
+          >
+            <BookOpen className="w-3 h-3" />
+            <span>Ver en Panel</span>
+          </button>
         </div>
-      )}
-    </span>
+      </MorphingPopoverContent>
+    </MorphingPopover>
   );
 };
 
@@ -376,9 +368,9 @@ export const MessageBody: React.FC<MessageBodyProps> = ({
       </li>
     ),
     blockquote: ({ children }: { children?: React.ReactNode }) => (
-      <blockquote className="my-3 pl-4 border-l-2 border-amber-400/60 bg-amber-500/[0.03] py-1.5 text-white/80 italic rounded-r-[8px]">
+      <CalloutBlock>
         {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}
-      </blockquote>
+      </CalloutBlock>
     ),
     strong: ({ children }: { children?: React.ReactNode }) => (
       <strong className="font-semibold text-white">
@@ -396,27 +388,55 @@ export const MessageBody: React.FC<MessageBodyProps> = ({
       </div>
     ),
     table: ({ children }: { children?: React.ReactNode }) => (
-      <div className="table-wrapper my-4 overflow-x-auto talos-scroll rounded-[12px] border border-white/[0.08]">
+      <TableBlock>
         <table className="styled-table w-full text-left font-sans text-xs md:text-sm border-collapse">
           {children}
         </table>
-      </div>
+      </TableBlock>
     ),
     thead: ({ children }: { children?: React.ReactNode }) => (
       <thead className="bg-white/[0.04] border-b border-white/[0.08] text-white/70 uppercase text-[11px] font-mono tracking-wider">
         {children}
       </thead>
     ),
+    tr: ({ children }: { children?: React.ReactNode }) => (
+      <tr className="hover:bg-white/[0.03] transition-colors border-b border-white/[0.04] last:border-b-0 group">
+        {children}
+      </tr>
+    ),
     th: ({ children }: { children?: React.ReactNode }) => (
-      <th className="px-3.5 py-2.5 font-semibold text-white/90">
+      <th className="px-4 py-3 font-semibold text-white/90 bg-white/[0.02] select-none">
         {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}
       </th>
     ),
-    td: ({ children }: { children?: React.ReactNode }) => (
-      <td className="px-3.5 py-2 border-t border-white/[0.04] text-neutral-300">
-        {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}
-      </td>
-    ),
+    td: ({ children }: { children?: React.ReactNode }) => {
+      const processed = processCitations(children, evidences, onOpenEvidence, onOpenCitation);
+      const str = typeof children === "string" ? children.trim() : "";
+      const isNumeric = /^[+-]?\$?\d+([.,]\d+)?%?$/.test(str);
+      const isStatusOk = /^(ok|pass|éxito|valido|válido|activo)$/i.test(str);
+      const isStatusFail = /^(fail|error|fallo|bloqueado|invalido|inválido)$/i.test(str);
+      const isProtocol = /^(rfc\s*\d+|syn|ack|fin|rst|psh|urg)$/i.test(str);
+
+      return (
+        <td className={`px-4 py-2.5 text-neutral-300 align-middle ${isNumeric ? "font-mono tabular-nums text-white/90" : ""}`}>
+          {isStatusOk ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              {processed}
+            </span>
+          ) : isStatusFail ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30">
+              {processed}
+            </span>
+          ) : isProtocol ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30 uppercase">
+              {processed}
+            </span>
+          ) : (
+            processed
+          )}
+        </td>
+      );
+    },
     code: ({
       className,
       children,

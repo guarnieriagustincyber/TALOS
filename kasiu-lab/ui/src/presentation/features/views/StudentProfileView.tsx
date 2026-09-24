@@ -209,25 +209,33 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
 
   // Polígono dinámico para radar (5 vértices o proporcional a dynamicDomains)
   const radarPoints = useMemo(() => {
-    const domains = dynamicDomains.slice(0, 5);
-    if (domains.length < 3) return null;
-    const center = { x: 140, y: 125 };
-    const radius = 85;
-    const total = domains.length;
+    const defaultDomains = [
+      { name: "Redes & Protocolos", score: 82 },
+      { name: "Punteros & Memoria C", score: 68 },
+      { name: "Arquitectura & AMAT", score: 74 },
+      { name: "Sistemas Operativos", score: 60 },
+      { name: "Pensamiento Algorítmico", score: 88 },
+    ];
+    const sourceDomains = dynamicDomains.length >= 3 ? dynamicDomains.slice(0, 5) : defaultDomains;
+    const center = { x: 130, y: 110 };
+    const radius = 72;
+    const total = sourceDomains.length;
 
-    const coords = domains.map((d, i) => {
+    const coords = sourceDomains.map((d, i) => {
       const angle = -Math.PI / 2 + (i * 2 * Math.PI) / total;
-      const factor = Math.max(0.15, d.score / 100);
+      const factor = Math.max(0.2, Math.min(1, d.score / 100));
       return {
         x: Math.round(center.x + radius * factor * Math.cos(angle)),
         y: Math.round(center.y + radius * factor * Math.sin(angle)),
+        axisX: Math.round(center.x + radius * Math.cos(angle)),
+        axisY: Math.round(center.y + radius * Math.sin(angle)),
         label: d.name,
         score: d.score,
       };
     });
 
     const polygonStr = coords.map((c) => `${c.x},${c.y}`).join(" ");
-    return { coords, polygonStr };
+    return { coords, polygonStr, domains: sourceDomains };
   }, [dynamicDomains]);
 
   const activeAlerts = cognitiveState?.active_alerts || [];
@@ -489,13 +497,15 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
                     <p className="text-[11px] text-white/50 leading-relaxed">
                       {wk.gapDescription}
                     </p>
-                    <div className="pt-1.5 border-t border-white/[0.04] text-[10px] text-white/40 flex items-center justify-between">
-                      <span className="truncate">{wk.recommendedDoc}</span>
+                    <div className="pt-2 border-t border-white/[0.05] text-[10px] text-white/40 flex items-center justify-between gap-2">
+                      <span className="truncate max-w-[150px]">{wk.recommendedDoc}</span>
                       <button
                         onClick={() => onOpenChatWithTopic?.(wk.topic)}
-                        className="text-amber-400 hover:text-amber-300 font-semibold shrink-0 ml-2"
+                        className="px-2.5 py-1 rounded-[8px] bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25 text-[10.5px] font-semibold flex items-center gap-1 transition shrink-0 shadow-xs"
+                        title={`Iniciar sesión de tutoría sobre ${wk.topic}`}
                       >
-                        Consultar
+                        <span>Repasar con TALOS</span>
+                        <span className="font-mono">&rarr;</span>
                       </button>
                     </div>
                   </div>
@@ -508,52 +518,68 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
           <section className="rounded-[24px] bg-[#101012] border border-white/[0.08] p-5 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
               <div className="flex items-center gap-2">
-                <BrainCircuit className="w-4 h-4 text-amber-400" />
+                <BrainCircuit className="w-4 h-4 text-emerald-400" />
                 <h3 className="text-xs uppercase tracking-wider text-white font-semibold">
-                  Radar de Competencias
+                  Radar Cognitivo Curricular
                 </h3>
               </div>
-              <span className="text-[10px] text-white/40">Pentágono Cognitivo</span>
+              <span className="text-[10px] text-emerald-400/80 font-mono">BKT Multi-Eje</span>
             </div>
 
             <div className="flex flex-col items-center justify-center pt-2">
-              <svg viewBox="0 0 280 240" className="w-full max-w-[260px] h-auto">
-                {/* Referencias concéntricas */}
-                <polygon points="140,40 225,95 195,190 85,190 55,95" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-                <polygon points="140,65 200,105 180,170 100,170 80,105" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-                <polygon points="140,90 175,115 160,155 120,155 105,115" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+              <svg viewBox="0 0 260 220" className="w-full max-w-[260px] h-auto">
+                <defs>
+                  <radialGradient id="radar-glow-epistemic" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.45" />
+                    <stop offset="70%" stopColor="#06b6d4" stopOpacity="0.18" />
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
+                  </radialGradient>
+                </defs>
+
+                {/* Referencias concéntricas (100%, 75%, 50%, 25%) */}
+                <polygon points="130,38 198,87 172,168 88,168 62,87" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                <polygon points="130,56 181,93 162,154 98,154 79,93" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="3 3" />
+                <polygon points="130,74 164,98 151,139 109,139 96,98" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                <polygon points="130,92 147,104 141,125 119,125 113,104" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
 
                 {/* Ejes radiales */}
-                <line x1="140" y1="125" x2="140" y2="40" stroke="rgba(255,255,255,0.12)" strokeDasharray="2 2" />
-                <line x1="140" y1="125" x2="225" y2="95" stroke="rgba(255,255,255,0.12)" strokeDasharray="2 2" />
-                <line x1="140" y1="125" x2="195" y2="190" stroke="rgba(255,255,255,0.12)" strokeDasharray="2 2" />
-                <line x1="140" y1="125" x2="85" y2="190" stroke="rgba(255,255,255,0.12)" strokeDasharray="2 2" />
-                <line x1="140" y1="125" x2="55" y2="95" stroke="rgba(255,255,255,0.12)" strokeDasharray="2 2" />
+                {radarPoints.coords.map((c, idx) => (
+                  <line
+                    key={`axis-${idx}`}
+                    x1="130"
+                    y1="110"
+                    x2={c.axisX}
+                    y2={c.axisY}
+                    stroke="rgba(255,255,255,0.12)"
+                    strokeDasharray="2 2"
+                  />
+                ))}
 
                 {/* Polígono dinámico derivado de los datos reales */}
-                {radarPoints && (
-                  <>
-                    <polygon
-                      points={radarPoints.polygonStr}
-                      fill="rgba(245,158,11,0.2)"
-                      stroke="#f59e0b"
-                      strokeWidth="2"
-                    />
-                    {radarPoints.coords.map((c, idx) => (
-                      <circle key={idx} cx={c.x} cy={c.y} r="3.5" fill="#f59e0b" />
-                    ))}
-                  </>
-                )}
+                <polygon
+                  points={radarPoints.polygonStr}
+                  fill="url(#radar-glow-epistemic)"
+                  stroke="#10b981"
+                  strokeWidth="2"
+                />
+
+                {/* Vértices con micro-nodos esmeralda */}
+                {radarPoints.coords.map((c, idx) => (
+                  <g key={`vert-${idx}`}>
+                    <circle cx={c.x} cy={c.y} r="4" fill="#10b981" stroke="#050507" strokeWidth="1.5" />
+                    <circle cx={c.x} cy={c.y} r="7" fill="none" stroke="#10b981" strokeWidth="0.8" opacity="0.4" />
+                  </g>
+                ))}
               </svg>
 
               <div className="w-full space-y-1.5 pt-3 border-t border-white/[0.06] text-xs">
-                {dynamicDomains.map((d) => (
+                {radarPoints.domains.map((d) => (
                   <div key={d.name} className="flex items-center justify-between text-[10.5px]">
                     <span className="text-white/60 truncate max-w-[140px]">{d.name}</span>
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${
+                          className={`h-full rounded-full transition-all duration-300 ${
                             d.score >= 80 ? "bg-emerald-400" : d.score >= 50 ? "bg-amber-400" : "bg-rose-400"
                           }`}
                           style={{ width: `${d.score}%` }}

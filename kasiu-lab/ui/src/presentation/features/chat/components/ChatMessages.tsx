@@ -27,15 +27,15 @@ import { DialogueView } from "../DialogueView";
 import { SYSTEM_NAME } from "./shared";
 
 export const AbstentionBanner: React.FC<{ reason?: string | null }> = ({ reason }) => (
-  <div className="mt-4 p-4 rounded-[16px] bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-xs flex items-start gap-3 shadow-[0_0_20px_rgba(245,158,11,0.08)]">
-    <div className="w-6 h-6 rounded-[8px] bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
-      <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+  <div className="mt-4 p-3.5 rounded-xl bg-[#14120e] border border-amber-500/20 text-amber-200/90 font-mono text-xs flex items-start gap-3">
+    <div className="w-5 h-5 rounded-md bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 mt-0.5">
+      <AlertTriangle className="w-3 h-3 text-amber-400" />
     </div>
-    <div className="space-y-1 min-w-0">
-      <span className="font-bold uppercase tracking-wider text-[11px] block">
+    <div className="space-y-0.5 min-w-0">
+      <span className="font-semibold uppercase tracking-wider text-[10px] text-amber-400/90 block">
         Abstención Epistémica Calibrada (CAL §3.2)
       </span>
-      <p className="text-white/80 leading-relaxed">
+      <p className="text-white/75 text-xs leading-relaxed">
         {reason || "La evidencia recuperada no alcanza el umbral de suficiencia epistémica para una respuesta concluyente."}
       </p>
     </div>
@@ -46,9 +46,9 @@ export const FacetCoverageBar: React.FC<{ coverage?: Record<string, "SUFFICIENT"
   if (!coverage || Object.keys(coverage).length === 0) return null;
   const entries = Object.entries(coverage);
   const statusColors = {
-    SUFFICIENT: "bg-emerald-400/80 border-emerald-400/40 text-emerald-300",
-    PARTIAL: "bg-amber-400/80 border-amber-400/40 text-amber-300",
-    MISSING: "bg-rose-500/80 border-rose-500/40 text-rose-300",
+    SUFFICIENT: "bg-emerald-500/10 border-emerald-500/25 text-emerald-400",
+    PARTIAL: "bg-amber-500/10 border-amber-500/25 text-amber-400",
+    MISSING: "bg-rose-500/10 border-rose-500/25 text-rose-400",
   };
   const statusLabels = {
     SUFFICIENT: "Suficiente",
@@ -56,18 +56,18 @@ export const FacetCoverageBar: React.FC<{ coverage?: Record<string, "SUFFICIENT"
     MISSING: "Faltante",
   };
   return (
-    <div className="mt-3 p-3 rounded-[14px] bg-black/40 border border-white/[0.08] space-y-2 font-mono">
-      <span className="text-[10px] uppercase tracking-wider text-white/40 block font-semibold">
+    <div className="mt-3 p-3 rounded-xl bg-black/40 border border-white/[0.07] space-y-1.5 font-mono">
+      <span className="text-[10px] uppercase tracking-wider text-white/40 block font-medium">
         Cobertura por Facetas Epistémicas
       </span>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {entries.map(([facet, status]) => (
           <div
             key={facet}
-            className={`px-2 py-1 rounded-[8px] border text-[11px] flex items-center gap-1.5 ${statusColors[status] || "bg-white/10 text-white/60"}`}
+            className={`px-2 py-0.5 rounded-lg border text-[11px] flex items-center gap-1.5 ${statusColors[status] || "bg-white/[0.04] border-white/[0.08] text-white/60"}`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
-            <span className="font-semibold">{facet}:</span>
+            <span className="font-medium text-white/80">{facet}:</span>
             <span className="opacity-80">{statusLabels[status] || status}</span>
           </div>
         ))}
@@ -175,9 +175,9 @@ const detectPedagogicalBadge = (text: string): PedagogicalBadgeInfo | null => {
   ) {
     return {
       label: "Auditoría Forense",
-      colorClass: "text-cyan-300",
-      borderClass: "border-cyan-500/30",
-      bgClass: "bg-cyan-500/10 shadow-[0_0_8px_rgba(6,182,212,0.15)]",
+      colorClass: "text-white/80",
+      borderClass: "border-white/[0.12]",
+      bgClass: "bg-white/[0.04]",
     };
   }
   if (
@@ -191,8 +191,8 @@ const detectPedagogicalBadge = (text: string): PedagogicalBadgeInfo | null => {
     return {
       label: "Andamiaje Socrático",
       colorClass: "text-emerald-300",
-      borderClass: "border-emerald-500/30",
-      bgClass: "bg-emerald-500/10 shadow-[0_0_8px_rgba(16,185,129,0.15)]",
+      borderClass: "border-emerald-500/25",
+      bgClass: "bg-emerald-500/10",
     };
   }
   if (
@@ -203,9 +203,9 @@ const detectPedagogicalBadge = (text: string): PedagogicalBadgeInfo | null => {
   ) {
     return {
       label: "Síntesis Tri-Capa",
-      colorClass: "text-sky-300",
-      borderClass: "border-sky-500/30",
-      bgClass: "bg-sky-500/10 shadow-[0_0_8px_rgba(14,165,233,0.15)]",
+      colorClass: "text-emerald-300",
+      borderClass: "border-emerald-500/25",
+      bgClass: "bg-emerald-500/10",
     };
   }
   if (
@@ -214,12 +214,57 @@ const detectPedagogicalBadge = (text: string): PedagogicalBadgeInfo | null => {
   ) {
     return {
       label: "Tutoría Epistémica",
-      colorClass: "text-amber-300",
-      borderClass: "border-amber-500/30",
-      bgClass: "bg-amber-500/10 shadow-[0_0_8px_rgba(245,158,11,0.15)]",
+      colorClass: "text-emerald-300",
+      borderClass: "border-emerald-500/25",
+      bgClass: "bg-emerald-500/10",
     };
   }
   return null;
+};
+
+export const ThinkingIndicator: React.FC<{ thinkingStep: string }> = ({ thinkingStep }) => {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const start = Date.now();
+    const timer = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - start) / 100) / 10);
+    }, 100);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="rounded-[20px] border border-white/[0.08] bg-gradient-to-b from-[#111114] to-[#09090b] p-4 sm:p-5 shadow-[0_12px_45px_rgba(0,0,0,0.5)] k-fade-in relative overflow-hidden backdrop-blur-md">
+      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent pointer-events-none" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-semibold text-white">
+                {SYSTEM_NAME} · Razonamiento Epistémico
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-white/[0.05] text-white/50 border border-white/[0.08]">
+                {elapsed.toFixed(1)}s
+              </span>
+            </div>
+            <span className="text-[10px] font-mono text-emerald-400/75 block mt-0.5">
+              Verificando consistencia en fuentes canónicas
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-3.5 rounded-[12px] bg-black/70 border border-white/[0.06] px-3.5 py-2.5 flex items-center gap-2.5">
+        <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400/90 shrink-0" />
+        <span className="font-mono text-xs text-white/75 truncate">
+          {thinkingStep || "Analizando consulta y verificando aserciones en el corpus..."}
+        </span>
+      </div>
+    </div>
+  );
 };
 
 export const ChatMessages: React.FC<ChatMessagesProps> = ({
@@ -353,11 +398,10 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   };
 
   const [showScrollBottomBtn, setShowScrollBottomBtn] = useState(false);
+  const prevScopeRef = useRef(activeScope);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
-    if (scrollBottomAnchorRef.current) {
-      scrollBottomAnchorRef.current.scrollIntoView({ behavior, block: "end" });
-    } else if (scrollRef.current) {
+    if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
         behavior,
@@ -380,28 +424,13 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
     return () => el.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  // Al cambiar de cuaderno o al montar, posicionar de inmediato en el último mensaje
+  // Al cambiar de cuaderno o al montar, posicionar de inmediato en el último mensaje sin animación ni vibración
   useEffect(() => {
-    // rAF espera el siguiente frame de pintura (cuando el DOM ya tiene la altura real)
-    // El timeout es un fallback por si el layout tarda más de un frame (p.ej. imágenes)
-    let rafId: number;
-    let fallbackId: ReturnType<typeof setTimeout>;
-
-    const jumpToBottom = () => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }
-    };
-
-    rafId = requestAnimationFrame(() => {
-      jumpToBottom();
-      fallbackId = setTimeout(jumpToBottom, 120);
-    });
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      clearTimeout(fallbackId);
-    };
+    prevScopeRef.current = activeScope;
+    prevMessagesCountRef.current = messages.length;
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
   }, [activeScope]);
 
   const handleLoadMore = () => {
@@ -414,21 +443,36 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   };
 
   useEffect(() => {
-    // Si se cargaron mensajes anteriores hacia arriba (lazy load), no forzar scroll abajo
+    // Si acaba de cambiar de cuaderno, el scroll instantáneo ya lo posicionó
+    if (prevScopeRef.current !== activeScope) {
+      prevScopeRef.current = activeScope;
+      prevMessagesCountRef.current = messages.length;
+      return;
+    }
+
+    // Si la cantidad de mensajes aumentó dentro del mismo chat (usuario envió o asistente respondió)
     if (messages.length > prevMessagesCountRef.current) {
-      // Solo hacer auto-scroll abajo si el último mensaje es nuevo (turnos actuales o thinking)
-      if (isThinking || isStreaming) {
-        scrollToBottom("smooth");
-      } else if (scrollRef.current && prevScrollHeightRef.current > 0) {
+      if (prevScrollHeightRef.current > 0 && scrollRef.current) {
+        // Carga de mensajes anteriores hacia arriba (lazy load)
         const delta = scrollRef.current.scrollHeight - prevScrollHeightRef.current;
         if (delta > 0) {
           scrollRef.current.scrollTop += delta;
         }
         prevScrollHeightRef.current = 0;
+      } else {
+        // Mensaje nuevo enviado o recibido: auto-scroll suave único
+        scrollToBottom("smooth");
       }
     }
     prevMessagesCountRef.current = messages.length;
-  }, [messages, isThinking, isStreaming, scrollToBottom]);
+  }, [messages.length, activeScope, scrollToBottom]);
+
+  // Al entrar en modo de procesamiento socrático / thinking
+  useEffect(() => {
+    if (isThinking) {
+      scrollToBottom("smooth");
+    }
+  }, [isThinking, scrollToBottom]);
 
   useEffect(() => {
     if (isStreaming && scrollRef.current) {
@@ -658,7 +702,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-[11px] bg-[#1a2332] text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.15)] flex items-center justify-center font-bold text-xs font-mono shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 flex items-center justify-center font-bold text-xs font-mono shrink-0 shadow-xs">
                       T
                     </div>
                     <div className="min-w-0">
@@ -681,7 +725,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
                   <div className="flex items-center gap-2 font-mono">
                     {msg.edited && (
-                      <span className="text-cyan-400/70 lowercase tracking-normal text-[10px] italic">
+                      <span className="text-emerald-400/70 lowercase tracking-normal text-[10px] italic">
                         (editado)
                       </span>
                     )}
@@ -695,7 +739,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                         <button
                           type="button"
                           onClick={() => handleCopyMessage(msg.id, msg.text)}
-                          className="p-1.5 rounded-lg text-white/40 hover:text-cyan-300 hover:bg-white/[0.06] transition flex items-center gap-1"
+                          className="p-1.5 rounded-lg text-white/40 hover:text-emerald-300 hover:bg-white/[0.06] transition flex items-center gap-1"
                           title={copiedMessageId === msg.id ? "¡Copiado al portapapeles!" : "Copiar respuesta"}
                         >
                           {copiedMessageId === msg.id ? (
@@ -795,11 +839,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
                           {/* DESAFÍO SOCRÁTICO INTERACTIVO Y BKT EN VIVO */}
                           {socraticData.hasChallenge && (
-                            <div className="mt-4 p-4 rounded-[16px] bg-gradient-to-b from-cyan-950/30 to-black/50 border border-cyan-500/30 space-y-3 font-mono shadow-[0_4px_20px_rgba(6,182,212,0.08)]">
+                            <div className="mt-4 p-4 rounded-[16px] bg-gradient-to-b from-emerald-950/20 to-black/50 border border-emerald-500/25 space-y-3 font-mono shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <HelpCircle className="w-4 h-4 text-cyan-400" />
-                                  <span className="text-xs font-semibold text-cyan-300">Desafío Socrático Interactivo</span>
+                                  <HelpCircle className="w-4 h-4 text-emerald-400" />
+                                  <span className="text-xs font-semibold text-emerald-300">Desafío Socrático Interactivo</span>
                                 </div>
                                 {bktProgress[msg.id] && (
                                   <div className="flex items-center gap-2">
@@ -829,7 +873,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                               </div>
 
                               {/* Enunciado del Desafío */}
-                              <div className="p-3 rounded-[10px] bg-black/60 border border-cyan-500/20 text-xs text-cyan-100 leading-relaxed font-sans">
+                              <div className="p-3 rounded-[10px] bg-black/60 border border-emerald-500/20 text-xs text-white/90 leading-relaxed font-sans">
                                 <p className="whitespace-pre-wrap">{socraticData.questionText}</p>
                               </div>
 
@@ -849,7 +893,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                                         <button
                                           type="button"
                                           onClick={() => setShowHints((prev) => ({ ...prev, [msg.id]: !prev[msg.id] }))}
-                                          className="px-2 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-[10px] font-semibold transition"
+                                          className="px-2 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-semibold transition"
                                         >
                                           {showHints[msg.id] ? "Ocultar Pistas" : "Ver Pistas Socráticas"}
                                         </button>
@@ -872,8 +916,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                                   <p className="text-[11.5px] opacity-90">{bktProgress[msg.id].feedback}</p>
 
                                   {showHints[msg.id] && bktProgress[msg.id].hints && (
-                                    <div className="mt-2 p-2.5 rounded-[8px] bg-black/50 border border-cyan-500/30 space-y-1.5 font-mono text-[11px] text-cyan-200">
-                                      <span className="font-bold text-cyan-400 block text-[10px] uppercase tracking-wider">
+                                    <div className="mt-2 p-2.5 rounded-[8px] bg-black/50 border border-emerald-500/30 space-y-1.5 font-mono text-[11px] text-emerald-200">
+                                      <span className="font-bold text-emerald-400 block text-[10px] uppercase tracking-wider">
                                         Pistas Epistémicas Guiadas:
                                       </span>
                                       <ul className="list-disc list-inside space-y-1">
@@ -900,11 +944,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                                           }}
                                           className={`p-2.5 rounded-[10px] border text-left text-xs transition flex items-start gap-2 ${
                                             socraticAnswers[msg.id] === opt.key
-                                              ? "bg-cyan-500/30 border-cyan-400 text-white font-semibold"
-                                              : "bg-black/40 border-white/[0.08] hover:border-cyan-500/40 text-white/80 hover:text-white"
+                                              ? "bg-emerald-500/20 border-emerald-400 text-white font-semibold"
+                                              : "bg-black/40 border-white/[0.08] hover:border-emerald-500/30 text-white/80 hover:text-white"
                                           }`}
                                         >
-                                          <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center justify-center text-[10px] font-bold shrink-0">
+                                          <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-[10px] font-bold shrink-0">
                                             {opt.key}
                                           </span>
                                           <span className="leading-snug">{opt.text}</span>
@@ -925,13 +969,13 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                                           handleEvaluateSocratic(msg.id, socraticAnswers[msg.id], socraticData.isMultipleChoice);
                                         }
                                       }}
-                                      className="flex-1 bg-black/60 border border-white/[0.1] focus:border-cyan-500/50 rounded-[10px] px-3 py-1.5 text-xs text-white placeholder-white/30 outline-none"
+                                      className="flex-1 bg-black/60 border border-white/[0.1] focus:border-emerald-500/50 rounded-[10px] px-3 py-1.5 text-xs text-white placeholder-white/30 outline-none"
                                     />
                                     <button
                                       type="button"
                                       disabled={socraticEvaluating[msg.id] || !(socraticAnswers[msg.id] || "").trim()}
                                       onClick={() => handleEvaluateSocratic(msg.id, socraticAnswers[msg.id], socraticData.isMultipleChoice)}
-                                      className="px-3.5 py-1.5 rounded-[10px] bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5"
+                                      className="px-3.5 py-1.5 rounded-[10px] bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5"
                                     >
                                       {socraticEvaluating[msg.id] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Verificar"}
                                     </button>
@@ -956,10 +1000,10 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                             onOpenEvidence("evidencia");
                           }
                         }}
-                        className="text-[11px] text-white/60 hover:text-cyan-300 flex items-center gap-1.5 transition cursor-pointer"
+                        className="text-[11px] text-white/60 hover:text-emerald-300 flex items-center gap-1.5 transition cursor-pointer"
                         title="Abrir panel de fuentes consultadas"
                       >
-                        <BookOpen className="w-3.5 h-3.5 text-sky-400" />
+                        <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
                         {msg.evidences.length} {msg.evidences.length === 1 ? "fuente consultada" : "fuentes consultadas"}
                       </button>
                     ) : (
@@ -1013,44 +1057,22 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           })}
 
           {isThinking && (
-            <div className="rounded-[22px] border border-white/[0.06] bg-gradient-to-b from-[#131316] to-[#0c0c0e] p-5 shadow-[0_12px_45px_rgba(0,0,0,0.3)] k-fade-in relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-amber-400/25 to-transparent pointer-events-none" />
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[11px] bg-black border border-white/[0.08] flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-white/70" />
-                </div>
-                <div>
-                  <span className="block text-xs font-mono font-semibold text-white">
-                    {SYSTEM_NAME} razonando
-                  </span>
-                  <span className="block mt-0.5 text-[10px] font-mono text-white/35 uppercase tracking-wider">
-                    Análisis doctrinal activo
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-3.5 rounded-[14px] bg-black/60 border border-white/[0.05] px-3.5 py-2.5 flex items-center gap-2.5">
-                <Loader2 className="w-4 h-4 animate-spin text-white/50 shrink-0" />
-                <span className="font-mono text-xs text-white/65">
-                  {thinkingStep}
-                </span>
-              </div>
-            </div>
+            <ThinkingIndicator thinkingStep={thinkingStep} />
           )}
 
           {isStreaming && (
             <article className="rounded-[24px] border border-white/[0.06] bg-gradient-to-b from-[#131316] to-[#0c0c0e] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)] k-fade-in font-sans relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent pointer-events-none" />
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/20 to-transparent pointer-events-none" />
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[11px] bg-[#1a2332] text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.15)] flex items-center justify-center text-xs font-bold font-mono shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 flex items-center justify-center text-xs font-bold font-mono shrink-0 shadow-xs">
                   T
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono font-semibold text-white">
                     {SYSTEM_NAME} Core · Emitiendo
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide uppercase border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 flex items-center gap-1 shadow-[0_0_8px_rgba(6,182,212,0.15)]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0 animate-pulse" />
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide uppercase border border-emerald-500/25 bg-emerald-500/10 text-emerald-300 flex items-center gap-1 shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
                     <span>En vivo</span>
                   </span>
                 </div>
@@ -1062,7 +1084,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                   onOpenEvidence={onOpenEvidence}
                   onOpenCitation={onOpenCitation}
                 />
-                <span className="inline-block w-2 h-4 bg-cyan-400 ml-1 align-middle animate-pulse shadow-[0_0_8px_#22d3ee]" />
+                <span className="inline-block w-2 h-4 bg-emerald-400 ml-1 align-middle animate-pulse shadow-[0_0_8px_#10b981]" />
               </div>
             </article>
           )}
@@ -1077,10 +1099,10 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           <button
             type="button"
             onClick={() => scrollToBottom("smooth")}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#141417]/95 hover:bg-[#1f1f26] text-white/80 hover:text-white border border-white/[0.14] hover:border-cyan-500/40 shadow-[0_8px_30px_rgba(0,0,0,0.7)] backdrop-blur-md transition-all duration-200 group text-xs font-mono active:scale-95 cursor-pointer select-none"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#141417]/95 hover:bg-[#1f1f26] text-white/80 hover:text-white border border-white/[0.14] hover:border-emerald-500/30 shadow-[0_8px_30px_rgba(0,0,0,0.7)] backdrop-blur-md transition-all duration-200 group text-xs font-mono active:scale-95 cursor-pointer select-none"
             title="Ir al último mensaje"
           >
-            <ArrowDown className="w-3.5 h-3.5 text-cyan-400 group-hover:translate-y-0.5 transition-transform" />
+            <ArrowDown className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-y-0.5 transition-transform" />
             <span className="text-[11px] font-medium tracking-wide">Último mensaje</span>
           </button>
         </div>

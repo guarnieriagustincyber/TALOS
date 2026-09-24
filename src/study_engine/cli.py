@@ -191,14 +191,16 @@ def sync_vectors(
     vector_db: Path = DEFAULT_VECTOR_DB,
     knowledge_db: Path = DEFAULT_KNOWLEDGE_DB,
     contract_path: Optional[Path] = None,
+    batch_size: int = 5000,
 ) -> Dict[str, int]:
-    """Inserta vectores nuevos en UNA transacción (idempotente por PK compuesta)."""
-    from study_engine.retrieval.vector_store import SQLiteVectorStore, VectorRecord
+    """Inserta vectores nuevos en UNA transacción streaming (idempotente y memory-safe para archivos multi-GB)."""
+    import struct
+    from study_engine.retrieval.vector_store import SQLiteVectorStore
 
     contract = load_contract(contract_path)
-    records = _parse_vectors_file(Path(vectors_jsonl), contract)
-    if not records:
-        raise ValueError(f"{vectors_jsonl}: no contiene vectores válidos")
+    dim = int(contract["dimensions"])
+    model_id = contract["model_id"]
+    provider_id = contract["provider_id"]
 
     # chunk_id -> source_id (la FK semántica del embedding hacia el corpus)
     kcon = sqlite3.connect(f"file:{knowledge_db}?mode=ro", uri=True)
@@ -207,57 +209,133 @@ def sync_vectors(
     finally:
         kcon.close()
 
-    unknown = [r["chunk_id"] for r in records if r["chunk_id"] not in src_map]
-    if unknown:
-        raise ValueError(
-            f"{vectors_jsonl}: {len(unknown)} chunk_id no existen en knowledge_store "
-            f"(ej: {unknown[:3]}). Sync abortado: nada fue insertado."
-        )
+    # Asegurar inicialización de schema e índices en el vector store
+    vstore = SQLiteVectorStore(vector_db)
+    vstore.close()
 
-    # Clasificar insertados vs actualizados (idempotencia observable)
-    vcon = sqlite3.connect(f"file:{vector_db}?mode=ro", uri=True)
+    vcon = sqlite3.connect(str(vector_db))
+    vcon.execute("PRAGMA journal_mode = WAL;")
+    vcon.execute("PRAGMA synchronous = NORMAL;")
+    vcon.execute("PRAGMA busy_timeout = 30000;")
+
+    # Identificar existentes para clasificar inserted vs updated
+    existing_keys = {
+        (r[0], r[1])
+        for r in vcon.execute(
+            "SELECT chunk_id, notebook_id FROM chunk_embeddings WHERE dimensions = ?",
+            (dim,),
+        )
+    }
+
+    inserted = 0
+    updated = 0
+    total_synced = 0
+
+    vcon.execute("BEGIN TRANSACTION;")
     try:
-        existing = {
-            (r[0], r[1])
-            for r in vcon.execute(
-                "SELECT chunk_id, notebook_id FROM chunk_embeddings WHERE dimensions = ?",
-                (int(contract["dimensions"]),),
-            )
-        }
+        batch = []
+        meta_checked = False
+
+        with open(vectors_jsonl, "r", encoding="utf-8") as f:
+            for lineno, line in enumerate(f, start=1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise ValueError(f"{vectors_jsonl}:{lineno}: JSON inválido ({exc})") from exc
+
+                if "_meta" in obj:
+                    meta = obj["_meta"]
+                    if meta.get("schema") != VECTORS_SCHEMA:
+                        raise ValueError(f"{vectors_jsonl}: schema '{meta.get('schema')}' != '{VECTORS_SCHEMA}'")
+                    remote_contract = meta.get("contract")
+                    if remote_contract is not None:
+                        diffs = _contract_matches(contract, remote_contract)
+                        if diffs:
+                            raise ValueError(
+                                f"{vectors_jsonl}: contract incompatible en campos {diffs} — "
+                                "los vectores vendrían de un espacio de embedding distinto."
+                            )
+                    meta_checked = True
+                    continue
+
+                chunk_id = obj.get("chunk_id")
+                notebook_id = obj.get("notebook_id")
+                vector = obj.get("vector")
+
+                if not chunk_id or not notebook_id:
+                    raise ValueError(f"{vectors_jsonl}:{lineno}: falta chunk_id o notebook_id")
+
+                if chunk_id not in src_map:
+                    raise ValueError(
+                        f"{vectors_jsonl}:{lineno}: chunk_id '{chunk_id}' no existen en knowledge_store. "
+                        "Sync abortado: nada fue insertado."
+                    )
+
+                if not isinstance(vector, list) or len(vector) != dim:
+                    raise ValueError(
+                        f"{vectors_jsonl}:{lineno}: vector con dim "
+                        f"{len(vector) if isinstance(vector, list) else 'n/a'} != {dim}"
+                    )
+
+                if any((not isinstance(v, (int, float))) or v != v for v in vector):
+                    raise ValueError(f"{vectors_jsonl}:{lineno}: vector con valores no finitos")
+
+                blob = struct.pack(f"{dim}f", *vector)
+                source_id = src_map[chunk_id]
+                batch.append((chunk_id, notebook_id, source_id, provider_id, model_id, dim, blob))
+
+                key = (chunk_id, notebook_id)
+                if key in existing_keys:
+                    updated += 1
+                else:
+                    inserted += 1
+                    existing_keys.add(key)
+                total_synced += 1
+
+                if len(batch) >= batch_size:
+                    vcon.executemany(
+                        """
+                        INSERT OR REPLACE INTO chunk_embeddings (
+                            chunk_id, notebook_id, source_id, provider_id, model_id, dimensions, vector
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?);
+                        """,
+                        batch,
+                    )
+                    batch.clear()
+
+            if batch:
+                vcon.executemany(
+                    """
+                    INSERT OR REPLACE INTO chunk_embeddings (
+                        chunk_id, notebook_id, source_id, provider_id, model_id, dimensions, vector
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?);
+                    """,
+                    batch,
+                )
+                batch.clear()
+
+        if total_synced == 0:
+            raise ValueError(f"{vectors_jsonl}: no contiene vectores válidos")
+
+        vcon.commit()
+    except Exception:
+        vcon.rollback()
+        raise
     finally:
         vcon.close()
 
-    vrecords = [
-        VectorRecord(
-            chunk_id=r["chunk_id"],
-            notebook_id=r["notebook_id"],
-            source_id=src_map[r["chunk_id"]],
-            provider_id=contract["provider_id"],
-            model_id=contract["model_id"],
-            dimensions=int(contract["dimensions"]),
-            vector=r["vector"],
-        )
-        for r in records
-    ]
-
-    # Una sola llamada = una sola transacción (save_records hace executemany+commit)
-    store = SQLiteVectorStore(vector_db)
-    try:
-        store.save_records(vrecords)
-    finally:
-        store.close()
-
-    inserted = sum(1 for r in records if (r["chunk_id"], r["notebook_id"]) not in existing)
-    updated = len(records) - inserted
     pending_after = len(
         _pending_pairs(
             Path(knowledge_db),
             Path(vector_db),
-            dimensions=int(contract["dimensions"]),
+            dimensions=dim,
         )
     )
     return {
-        "synced": len(records),
+        "synced": total_synced,
         "inserted": inserted,
         "updated": updated,
         "pending_after": pending_after,

@@ -17,6 +17,7 @@
     "noImplicitReturns": true,
     "baseUrl": ".",
     "paths": {
+      "@/*": ["src/*"],
       "@domain/*": ["src/domain/*"],
       "@adapters/*": ["src/adapters/*"],
       "@presentation/*": ["src/presentation/*"]

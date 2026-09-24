@@ -6,6 +6,7 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  Copy,
   ExternalLink,
   Eye,
   Folder,
@@ -183,6 +184,16 @@ export const LibraryView: React.FC<{ onOpen: () => void }> = ({ onOpen }) => {
     const totalPages = books.reduce((acc, b) => acc + b.pages, 0);
     return { totalDocs, totalChunks, totalPages };
   }, [books]);
+
+  const [copiedBookId, setCopiedBookId] = useState<string | null>(null);
+
+  const handleCopyCitation = (book: BookItem, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const citationText = `[${book.author || "Fuente"}, "${book.title}"] (SHA-256: ${book.docHash.slice(0, 10)}...)`;
+    navigator.clipboard.writeText(citationText);
+    setCopiedBookId(book.id);
+    setTimeout(() => setCopiedBookId(null), 2000);
+  };
 
   const handleOpenLocal = async (docHash: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -765,6 +776,19 @@ export const LibraryView: React.FC<{ onOpen: () => void }> = ({ onOpen }) => {
                       </button>
 
                       <button
+                        onClick={(e) => handleCopyCitation(book, e)}
+                        className="h-7 px-2 rounded-[7px] bg-white/[0.05] border border-white/[0.08] hover:bg-white/[0.12] text-white/80 hover:text-white text-[10px] flex items-center gap-1 transition"
+                        title="Copiar cita canónica para el chat"
+                      >
+                        {copiedBookId === book.id ? (
+                          <Check className="w-3 h-3 text-emerald-400" />
+                        ) : (
+                          <Copy className="w-3 h-3 text-white/40" />
+                        )}
+                        <span className="hidden sm:inline">{copiedBookId === book.id ? "Copiado" : "Citar"}</span>
+                      </button>
+
+                      <button
                         onClick={() => setSelectedBook(book)}
                         className="h-7 px-2 rounded-[7px] bg-cyan-950/40 border border-cyan-500/30 hover:bg-cyan-900/60 text-cyan-300 text-[10px] font-semibold flex items-center gap-1 transition"
                       >
@@ -954,6 +978,23 @@ export const LibraryView: React.FC<{ onOpen: () => void }> = ({ onOpen }) => {
                   className="h-9 px-4 rounded-[11px] bg-white/[0.05] border border-white/[0.08] hover:bg-white/[0.1] text-xs text-white/70 transition"
                 >
                   Cerrar
+                </button>
+                <button
+                  onClick={(e) => handleCopyCitation(selectedBook, e)}
+                  className="h-9 px-3.5 rounded-[11px] bg-white/[0.05] border border-white/[0.08] hover:bg-white/[0.1] text-xs text-white/80 font-medium flex items-center gap-1.5 transition"
+                  title="Copiar cita lista para el chat"
+                >
+                  {copiedBookId === selectedBook.id ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-300">Cita Copiada</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-white/50" />
+                      <span>Copiar Cita</span>
+                    </>
+                  )}
                 </button>
                 <button
                   onClick={() => {

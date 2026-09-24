@@ -21,8 +21,7 @@ Icon=${PROJECT_ROOT}/assets/talos-icon.png
 Terminal=false
 Categories=Education;Development;
 Keywords=study;learning;ai;education;
-StartupNotify=true
-StartupWMClass=talos
+StartupNotify=false
 EOF
 
 # Copiar al directorio de aplicaciones del usuario

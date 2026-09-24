@@ -96,7 +96,7 @@ class IntentRouter:
             requires_multimodal=has_multimodal_asset,
             requires_multi_source=False,
             requires_long_context=False,
-            max_context_tokens=4000,
+            max_context_tokens=5000,
             cloud_allowed=True,
             suggested_provider=None,
             explanation="Fallback Capa 3: Query corta (<=12 palabras) sin heurística específica -> NORMAL focal context.",
@@ -143,7 +143,7 @@ class IntentRouter:
 
         requires_multi_source = bool(data.get("requires_multi_source", depth == "GLOBAL"))
         requires_long_context = depth in ("DEEP", "GLOBAL")
-        max_tokens = 40000 if depth == "GLOBAL" else (16000 if depth == "DEEP" else 4000)
+        max_tokens = 40000 if depth == "GLOBAL" else (16000 if depth == "DEEP" else 5000)
 
         return RoutingDecision(
             depth=depth,  # type: ignore[arg-type]
