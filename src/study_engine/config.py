@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     # Database
     database_url: str = Field(default="sqlite:///./data/storage/knowledge.db", validation_alias="DATABASE_URL")
 
+    # Context Budget (BACKLOG-CTX-001)
+    max_context_tokens: int = Field(default=5000, validation_alias="MAX_CONTEXT_TOKENS")
+
     # Flags
     live_tests_enabled: bool = Field(default=False, validation_alias="KASIU_LIVE_TESTS")
 
@@ -44,5 +47,12 @@ class Settings(BaseSettings):
 # Singleton instance
 settings = Settings()
 
+
+def get_settings() -> Settings:
+    """Return the global configuration settings instance."""
+    return settings
+
+
 # Alias de conveniencia: ID canónico del único estudiante del sistema
 CANONICAL_STUDENT_ID: str = settings.student_id
+

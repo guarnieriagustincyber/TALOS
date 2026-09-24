@@ -82,10 +82,9 @@ TALOS es un entorno de tutoría epistémica adaptativa diseñado para la enseña
 Para garantizar transparencia y confiabilidad operativa, se documentan los límites actuales de TALOS v1.0:
 
 ### 2.1 Presupuesto de Contexto en Sesiones Extendidas (BACKLOG-CTX-001)
-- **Estado**: Investigado y caracterizado formalmente.
-- **Métrica observada**: Durante turnos socráticos de alta densidad documental, el percentil 99 de consumo de tokens alcanza **$3.688$ tokens** sobre un presupuesto configurado de $4.000$ tokens ($92.2\%$ de uso).
-- **Margen de seguridad actual**: $7.8\%$ de holgura. Ninguna consulta real ha sufrido truncamiento no controlado.
-- **Recomendación para v1.1**: Elevar el presupuesto a **$5.000$ tokens** (+28% de holgura sobre el máximo observado de $3.877$ tokens), calibrado de forma conjunta con la capa de interfaz de usuario.
+- **Estado**: CERRADO (Fecha de cierre: 23 de septiembre de 2026).
+- **Métrica observada**: Durante turnos socráticos de alta densidad documental, el percentil 99 de consumo de tokens alcanza **$3.688$ tokens** (máximo observado: $3.877$ tokens).
+- **Resolución**: Presupuesto elevado a **$5.000$ tokens** (+28% de holgura sobre el máximo observado de $3.877$ tokens), asegurando holgura operativa suficiente y eliminando el riesgo de truncamiento en sesiones extendidas (10-15 turnos) sin degradación de latencia ($p90 < 2.500$ ms).
 
 ### 2.2 Dependencias Externas Opcionales y Red
 - El componente `JinaReranker` es **estrictamente opcional**. Si el entorno se ejecuta en aislamiento de red o sin clave de API, el sistema opera con el `DeterministicLocalReranker` de forma predeterminada sin requerir intervención manual ni conexión a Internet.

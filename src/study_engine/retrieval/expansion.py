@@ -13,9 +13,11 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from study_engine.contracts.search import SearchResult
 from study_engine.storage.sqlite_engine import SQLiteStorageEngine
 
+from study_engine.config import settings
+
 logger = logging.getLogger(__name__)
 
-HARD_CEILING_TOKENS = 4000   # Reducido de 40000: previene spike de RAM con 90k chunks en disco
+HARD_CEILING_TOKENS = settings.max_context_tokens   # BACKLOG-CTX-001: elevado a 5.000 tokens
 EXPANSION_WINDOW = 1  # ±1 chunk alrededor de cada hit (era ±2)
 
 

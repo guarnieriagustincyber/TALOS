@@ -2,12 +2,12 @@
   "metadata": {
     "schema": "talos-context-token-measurement-v1",
     "expansion_window": 1,
-    "hard_ceiling_tokens": 4000,
+    "hard_ceiling_tokens": 5000,
     "total_queries": 38,
     "complex_queries_count": 20,
     "golden_set_queries_count": 18,
-    "peak_rss_mb": 1503.37,
-    "delta_rss_mb": 1397.0,
+    "peak_rss_mb": 1507.43,
+    "delta_rss_mb": 1401.77,
     "decision": "OPEN_PROPOSE_EXPANSION",
     "decision_rule": "p99 < 3500 confirms 4k and closes backlog; p99 >= 3500 proposes 5k/6k"
   },
