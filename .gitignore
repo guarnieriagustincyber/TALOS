@@ -87,6 +87,7 @@ data/web_state/*-shm
 data/web_state/*-wal
 node_modules/
 *.log
+*.bak
 /tmp/opencode/
 
 kasiu-lab/ui/bin/tailwindcss
