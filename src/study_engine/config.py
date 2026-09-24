@@ -30,6 +30,20 @@ class Settings(BaseSettings):
     # Context Budget (BACKLOG-CTX-001)
     max_context_tokens: int = Field(default=5000, validation_alias="MAX_CONTEXT_TOKENS")
 
+    # Late Chunking (Fase 5 v1.1 - Context Engine 2.0)
+    enable_late_chunking: bool = Field(
+        default=False,
+        validation_alias="ENABLE_LATE_CHUNKING",
+    )
+    late_chunking_model: str = Field(
+        default="jinaai/jina-embeddings-v3",
+        validation_alias="LATE_CHUNKING_MODEL",
+    )
+    late_chunking_max_tokens: int = Field(
+        default=8192,
+        validation_alias="LATE_CHUNKING_MAX_TOKENS",
+    )
+
     # Flags
     live_tests_enabled: bool = Field(default=False, validation_alias="KASIU_LIVE_TESTS")
 

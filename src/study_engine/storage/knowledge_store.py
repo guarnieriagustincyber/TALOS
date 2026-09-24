@@ -1141,7 +1141,129 @@ class KnowledgeStore:
                 })
             return result
 
+    # ------------------------------------------------------------------
+    # CHUNKING & EMBEDDINGS (LATE CHUNKING FASE 5)
+    # ------------------------------------------------------------------
+    def chunk_document(
+        self,
+        document_text: str,
+        source_id: str,
+        chunk_size: int = 512,
+        overlap: int = 100,
+    ) -> List[Dict[str, Any]]:
+        """Chunking con soporte para Late Chunking opcional.
+
+        Si enable_late_chunking está activo y el documento no excede
+        max_document_tokens, usa Late Chunking. Si no, fallback a
+        chunking tradicional.
+        """
+        from study_engine.config import get_settings
+
+        settings = get_settings()
+
+        # Intentar Late Chunking si está habilitado
+        if settings.enable_late_chunking:
+            try:
+                from study_engine.retrieval.late_chunking import LateChunker
+
+                late_chunker = LateChunker(
+                    model_name=settings.late_chunking_model,
+                    max_document_tokens=settings.late_chunking_max_tokens,
+                )
+
+                # Verificar si puede procesar el documento
+                if late_chunker.can_process(document_text):
+                    chunks = late_chunker.late_chunk(
+                        document_text,
+                        chunk_size=chunk_size,
+                        overlap=overlap,
+                    )
+                    logger.info("Late Chunking applied to %s: %d chunks", source_id, len(chunks))
+                    return chunks
+                else:
+                    logger.warning(
+                        "Document %s exceeds max_document_tokens (%d), falling back to traditional chunking",
+                        source_id,
+                        settings.late_chunking_max_tokens,
+                    )
+            except Exception as e:
+                logger.error("Late Chunking failed for %s: %s, falling back", source_id, e)
+
+        # Fallback a chunking tradicional
+        return self._traditional_chunk(document_text, chunk_size, overlap)
+
+    def _traditional_chunk(
+        self,
+        document_text: str,
+        chunk_size: int = 512,
+        overlap: int = 100,
+    ) -> List[Dict[str, Any]]:
+        """Chunking tradicional por tamaño fijo."""
+        chunks: List[Dict[str, Any]] = []
+        words = document_text.split()
+        if not words:
+            return chunks
+
+        safe_overlap = max(0, min(overlap, chunk_size - 1))
+        step = max(1, chunk_size - safe_overlap)
+
+        for i in range(0, len(words), step):
+            chunk_words = words[i : i + chunk_size]
+            chunk_text = " ".join(chunk_words)
+
+            chunks.append({
+                "text": chunk_text,
+                "embedding": self._get_embedding(chunk_text),
+                "start_token": i,
+                "end_token": i + len(chunk_words),
+                "chunking_method": "traditional",
+            })
+
+        return chunks
+
+    def _get_embedding(self, text: str) -> List[float]:
+        """Obtiene el embedding vectorial de un texto usando el embedder disponible en KnowledgeStore."""
+        emb = getattr(self, "_embedder", None)
+        if emb is None:
+            try:
+                from study_engine.retrieval.embedding import LocalONNXEmbeddingProvider
+                repo_root = Path(__file__).resolve().parents[3]
+                candidate_models = [
+                    Path("models/multilingual-e5-small/onnx/model.onnx"),
+                    repo_root / "models/multilingual-e5-small/onnx/model.onnx",
+                ]
+                for mp in candidate_models:
+                    tp = mp.parent / "tokenizer.json"
+                    if mp.exists() and tp.exists():
+                        emb = LocalONNXEmbeddingProvider(model_path=mp, tokenizer_path=tp, num_threads=4)
+                        self._embedder = emb
+                        break
+            except Exception as ex_onnx:
+                logger.debug("LocalONNXEmbeddingProvider resolution in _get_embedding: %s", ex_onnx)
+                emb = None
+
+            if emb is None:
+                try:
+                    from study_engine.retrieval.embedding import DeterministicHashEmbedder
+                    emb = DeterministicHashEmbedder(dimensions=128)
+                    self._embedder = emb
+                except Exception as ex:
+                    logger.debug("DeterministicHashEmbedder resolution: %s", ex)
+                    emb = None
+
+        if emb is not None:
+            try:
+                if hasattr(emb, "embed_passages"):
+                    return emb.embed_passages([text])[0]
+                elif hasattr(emb, "embed_query"):
+                    return emb.embed_query(text)
+            except Exception as ex_emb:
+                logger.debug("Error computing embedding: %s", ex_emb)
+
+        return []
+
     def close(self) -> None:
         """Close storage engine connections."""
         self.engine.close()
+
 

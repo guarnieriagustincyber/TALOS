@@ -75,6 +75,13 @@ TALOS es un entorno de tutoría epistémica adaptativa diseñado para la enseña
 - **Rotación Forense de Trazas**:
   - Logs forenses estructurados en JSON (`RotatingFileHandler`) limitados a 10 MB por archivo con hasta 5 backups históricos en `logs/retrieval_trace.json`.
 
+### 1.5 Context Engine 2.0: Late Chunking (Fase 5 - v1.1)
+- **Late Chunking opcional**: Preserva contexto semántico global del documento antes de dividir en chunks, evitando que funciones de código y conceptos queden partidos al medio.
+- **Modelo**: `jinaai/jina-embeddings-v3` (8k tokens de contexto) / multi-backend local ONNX (`multilingual-e5-small`) y fallback determinista.
+- **Activación**: Config flag `ENABLE_LATE_CHUNKING=true`.
+- **Fallback automático**: Si el documento excede `max_document_tokens` o el modelo no está disponible, usa chunking tradicional.
+- **Detección de contexto**: Identifica si el chunk es código (`code`), prosa (`prose`) o mixto (`mixed`) para optimizar búsqueda semántica e interoperabilidad con contratos `Chunk`.
+
 ---
 
 ## 2. Límites Conocidos del Sistema
