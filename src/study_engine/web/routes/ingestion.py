@@ -217,7 +217,7 @@ class ColabStatusDto(BaseModel):
     pending_chunks: int = Field(default=0, description="Chunks pendientes de vectorizar")
     rclone_installed: bool = Field(default=False)
     gdrive_configured: bool = Field(default=False)
-    remote_path: str = Field(default="gdrive:talos_reindex")
+    remote_path: str = Field(default="gdrive:TALOS")
     latest_pending: Optional[str] = None
     latest_vectors: Optional[str] = None
 
@@ -317,7 +317,7 @@ def get_colab_sync_status(
         pending_chunks=pending_count,
         rclone_installed=rclone_installed,
         gdrive_configured=gdrive_configured,
-        remote_path="gdrive:talos_reindex",
+        remote_path="gdrive:TALOS",
         latest_pending=latest_pending,
         latest_vectors=latest_vectors,
     )
@@ -357,15 +357,18 @@ def export_colab_pending(
 
     if upload_to_gdrive and shutil.which("rclone"):
         try:
+            # Sube tanto a gdrive:TALOS (carpeta principal) como a gdrive:talos_reindex
             proc = subprocess.run(
-                ["rclone", "copy", str(out_path), "gdrive:talos_reindex", "-v"],
+                ["rclone", "copy", str(out_path), "gdrive:TALOS", "-v"],
                 capture_output=True,
                 text=True,
-                timeout=25.0,
+                timeout=120.0,
             )
             if proc.returncode == 0:
                 gdrive_uploaded = True
-                gdrive_msg = "Archivo subido exitosamente a Google Drive (gdrive:talos_reindex)."
+                gdrive_msg = "Archivo subido exitosamente a Google Drive (carpeta TALOS)."
+                # También asegurar copia en talos_reindex sin bloquear
+                subprocess.Popen(["rclone", "copy", str(out_path), "gdrive:talos_reindex"])
             else:
                 err = (proc.stderr or proc.stdout or "").strip()
                 gdrive_msg = f"No se pudo subir a Drive: {err[:200]}"
@@ -409,25 +412,29 @@ def sync_vectors_from_gdrive(
 
     rclone_err = None
     if shutil.which("rclone"):
-        try:
-            proc = subprocess.run(
-                [
-                    "rclone",
-                    "copy",
-                    "gdrive:talos_reindex",
-                    str(DEFAULT_COLAB_DIR),
-                    "--include",
-                    "vectors_*.jsonl",
-                    "-v",
-                ],
-                capture_output=True,
-                text=True,
-                timeout=30.0,
-            )
-            if proc.returncode != 0:
-                rclone_err = (proc.stderr or proc.stdout or "").strip()
-        except Exception as ex:
-            rclone_err = str(ex)
+        for remote in ["gdrive:TALOS", "gdrive:talos_reindex"]:
+            try:
+                proc = subprocess.run(
+                    [
+                        "rclone",
+                        "copy",
+                        remote,
+                        str(DEFAULT_COLAB_DIR),
+                        "--include",
+                        "vectors_*.jsonl",
+                        "-v",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=120.0,
+                )
+                if proc.returncode == 0:
+                    rclone_err = None
+                    break
+                else:
+                    rclone_err = (proc.stderr or proc.stdout or "").strip()
+            except Exception as ex:
+                rclone_err = str(ex)
 
     candidates = sorted(DEFAULT_COLAB_DIR.glob("vectors_*.jsonl"))
     if not candidates:

@@ -309,7 +309,7 @@ export const IngestionView: React.FC = () => {
                 <span>Ciclo de Embeddings (Google Colab & Google Drive)</span>
               </h2>
               <p className="text-xs text-white/50 max-w-3xl">
-                Exporta chunks pendientes de vectorizar a Google Drive (<code>{colabStatus?.remote_path || "gdrive:talos_reindex"}</code>),
+                Exporta chunks pendientes de vectorizar a Google Drive (<code>{colabStatus?.remote_path || "gdrive:TALOS"}</code>),
                 ejecuta el notebook de embedding con GPU en Google Colab, y sincroniza los vectores en TALOS con un solo clic.
               </p>
             </div>
