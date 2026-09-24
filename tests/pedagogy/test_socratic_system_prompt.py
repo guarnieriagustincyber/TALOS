@@ -13,6 +13,7 @@ def test_base_system_prompt_invariants():
     # Comportamiento
     assert 'NUNCA saludes' in TALOS_BASE_SYSTEM_PROMPT
     assert 'NUNCA halagues' in TALOS_BASE_SYSTEM_PROMPT
+    assert 'de forma vacía' in TALOS_BASE_SYSTEM_PROMPT
     assert 'Sé DIRECTO' in TALOS_BASE_SYSTEM_PROMPT
     assert 'pregunta socrática' in TALOS_BASE_SYSTEM_PROMPT
 

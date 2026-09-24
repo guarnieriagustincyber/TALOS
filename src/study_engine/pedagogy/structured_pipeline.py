@@ -17,6 +17,7 @@ from study_engine.pedagogy.contract import PedagogicalContract
 from study_engine.pedagogy.response_phase import ResponsePhase
 from study_engine.pedagogy.socratic_guard import SocraticGuard
 from study_engine.pedagogy.command_parser import parse_student_command
+from study_engine.pedagogy.prompts import build_pedagogical_tone_directive
 
 logger = logging.getLogger(__name__)
 
@@ -727,6 +728,7 @@ class StructuredResponsePipeline:
         bkt_directive: Optional[str] = None,
         style_directive: Optional[str] = None,
         recent_turns: Optional[List[dict]] = None,
+        metacognitive_profile: Optional[Dict[str, Any]] = None,
     ) -> str:
         """Assemble the specialized prompt for this phase with PhaseHistory, intent routing, and BKT adaptation."""
         predecessor_context = self.history.format_predecessors_context()
@@ -839,6 +841,14 @@ class StructuredResponsePipeline:
         if bkt_directive:
             parts.append(bkt_directive)
 
+        # Inyección de directiva de tono pedagógico y andamiaje emocional (Fase 4 v1.1)
+        tone_directive = build_pedagogical_tone_directive(
+            query=user_query,
+            metacognitive_profile=metacognitive_profile,
+        )
+        if tone_directive:
+            parts.append(tone_directive)
+
         cmd = parse_student_command(user_query)
         if cmd is not None and cmd.is_structured:
             rules_block = (
@@ -846,7 +856,7 @@ class StructuredResponsePipeline:
                 f"{cmd.template_instruction}\n\n"
                 "REGLAS CRÍTICAS DE SALIDA:\n"
                 "- NUNCA saludes ('Hola', 'Bienvenido', 'Saludos', etc.). Respondé directo a la consulta en la primera oración.\n"
-                "- NUNCA halagues ('Excelente pregunta', 'Bien pensado', etc.).\n"
+                "- NUNCA halagues de forma vacía ni uses adulación automática. Si el estudiante formula una deducción sólida o avanza correctamente, reconocé brevemente su lógica con sobriedad ('Excelente razonamiento', 'Vas muy bien encaminado') y avanzá.\n"
                 "- Formato Markdown estricto (listas con guiones, negrita en términos clave, código inline ``, tablas y bloques de código).\n"
                 f"- Extensión estructurada: hasta {cmd.max_words} palabras permitidas. Desarrollá cada sección paso a paso con chunking interno.\n"
                 "- Cierre OBLIGATORIO con una pregunta socrática desafiante o propuesta de verificación/continuación."
@@ -877,7 +887,7 @@ class StructuredResponsePipeline:
             rules_block = (
                 "REGLAS CRÍTICAS DE SALIDA:\n"
                 "- NUNCA saludes ('Hola', 'Bienvenido', 'Saludos', etc.). Respondé directo a la consulta en la primera oración.\n"
-                "- NUNCA halagues ('Excelente pregunta', 'Bien pensado', etc.).\n"
+                "- NUNCA halagues de forma vacía ni uses adulación automática. Si el estudiante formula una deducción sólida o avanza correctamente, reconocé brevemente su lógica con sobriedad ('Excelente razonamiento', 'Vas muy bien encaminado') y avanzá.\n"
                 f"- Jerarquía visual Markdown nítida: organizá con subtítulos descriptivos (### y ####), listas con viñetas para enumerar registros/conceptos, código inline ``, bloques de código con syntax highlighting (```python o ```c) y {diagram_fmt}.\n"
                 f"{extension_clause}\n"
                 f"{socratic_rule}"
@@ -995,6 +1005,7 @@ class StructuredResponsePipeline:
         style_directive: Optional[str] = None,
         override_max_tokens: Optional[int] = None,
         recent_turns: Optional[List[dict]] = None,
+        metacognitive_profile: Optional[Dict[str, Any]] = None,
     ) -> AsyncGenerator[StreamEvent, None]:
         """Generate response for a specific phase with streaming, guards, intent routing, and BKT adaptation.
 
@@ -1063,6 +1074,7 @@ class StructuredResponsePipeline:
             bkt_directive=bkt_directive,
             style_directive=style_directive,
             recent_turns=recent_turns,
+            metacognitive_profile=metacognitive_profile,
         )
 
         yield StreamEvent(

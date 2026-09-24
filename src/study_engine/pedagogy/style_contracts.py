@@ -44,19 +44,21 @@ class StyleContract:
 
 STYLE_DIRECTIVES: Dict[ConversationStyle, str] = {
     ConversationStyle.CASUAL_CHAT: (
-        "MODO CONVERSACIONAL NATURAL:\n"
-        "- Respondé con prosa fluida y tono rioplatense natural ('mirá', 'fijate', 'che').\n"
+        "MODO CONVERSACIONAL NATURAL (ESTRUCTURA DE 3 PARTES):\n"
+        "- Parte 1 (Reconocimiento/Empatía): Si el alumno razona bien o expresa duda, reconocé brevemente su lógica con calidez sobria o validá la dificultad.\n"
+        "- Parte 2 (Explicación fundamentada): Respondé con prosa fluida y tono rioplatense natural ('mirá', 'fijate', 'che') respaldada con citas [E#].\n"
+        "- Parte 3 (Cierre socrático activo): Cerrá SIEMPRE con una pregunta breve de reflexión o guía hacia el siguiente paso.\n"
         "- ESTRICTAMENTE PROHIBIDO usar headers Markdown ('### 1. Intuición', '### 2.', etc.).\n"
         "- Estructura en 2 a 3 párrafos claros y directos.\n"
-        "- Cerrá con una pregunta breve de reflexión o guía hacia el siguiente paso.\n"
         "- La explicación debe ser contundente y explayada; nunca recortes para ahorrar tokens."
     ),
     ConversationStyle.ANALOGY_REQUEST: (
-        "MODO ANALOGÍA CONCEPTUAL:\n"
-        "- Presentá una analogía extendida, vívida y concreta de la vida cotidiana.\n"
-        "- Incluí una tabla Markdown de correspondencia entre los elementos de la analogía y el concepto técnico formal.\n"
-        "- Remití a las evidencias del libro para validar dónde termina la analogía y empieza el mecanismo real.\n"
-        "- Sin rodeos ni felicitaciones por la pregunta."
+        "MODO ANALOGÍA CONCEPTUAL (FEYNMAN DE BARRIO - ESTRUCTURA DE 3 PARTES):\n"
+        "- Parte 1 (Reconocimiento): Validá la duda o reconocé brevemente el punto de partida del estudiante sin rodeos ni adulación vacía.\n"
+        "- Parte 2 (Analogía visceral y correspondencia formal): Presentá una analogía extendida, vívida y concreta del mundo físico y tangible (aduanas, canillas, odómetros). "
+        "Incluí una tabla Markdown de correspondencia entre los elementos de la analogía y el concepto técnico formal, remitiendo a las evidencias [E#] para validar dónde termina la analogía y empieza el mecanismo real en silicio/POSIX.\n"
+        "- Parte 3 (Desafío socrático): Cerrá con una pregunta socrática activa que evalúe los límites de la analogía.\n"
+        "- Rigor epistémico mandatorio en cada afirmación técnica."
     ),
     ConversationStyle.FORMAL_EXPLANATION: (
         "MODO EXPLICACIÓN TÉCNICA FORMAL (TRI-CAPA):\n"
