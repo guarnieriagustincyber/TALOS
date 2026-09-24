@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
+  AlertCircle,
   AlertTriangle,
   ArrowRightLeft,
   CheckCircle2,
+  Cloud,
+  CloudUpload,
   Database,
+  Download,
+  ExternalLink,
   FileCode2,
   FileSpreadsheet,
   Filter,
@@ -13,13 +18,32 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Upload,
 } from "lucide-react";
-import { CALSourceItemDto, ConversionConflictDto } from "./types";
+import {
+  CALSourceItemDto,
+  ColabExportDto,
+  ColabStatusDto,
+  ColabSyncDto,
+  ConversionConflictDto,
+} from "./types";
 
 export const IngestionView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTrust, setFilterTrust] = useState<"all" | "verified" | "unverified">("all");
   const [filterConflictOnly, setFilterConflictOnly] = useState(false);
+
+  // Colab & Drive Sync Operations State
+  const [isExporting, setIsExporting] = useState(false);
+  const [isSyncingDrive, setIsSyncingDrive] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [actionResult, setActionResult] = useState<{
+    type: "success" | "error" | "info";
+    message: string;
+    downloadUrl?: string;
+    filename?: string;
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // 1. Fetch CAL Catalog
   const {
@@ -48,6 +72,104 @@ export const IngestionView: React.FC = () => {
       return res.json();
     },
   });
+
+  // 3. Fetch Colab & Google Drive Vector Status
+  const {
+    data: colabStatus,
+    isFetching: isFetchingColab,
+    refetch: refetchColab,
+  } = useQuery<ColabStatusDto>({
+    queryKey: ["ingestion-colab-status"],
+    queryFn: async () => {
+      const res = await fetch("/api/ingestion/colab/status");
+      if (!res.ok) throw new Error("Error al obtener estado de Colab / Drive");
+      return res.json();
+    },
+  });
+
+  const handleExportColab = async (uploadToDrive: boolean = true) => {
+    setIsExporting(true);
+    setActionResult(null);
+    try {
+      const res = await fetch(`/api/ingestion/colab/export?upload_to_gdrive=${uploadToDrive}`, {
+        method: "POST",
+      });
+      const data: ColabExportDto = await res.json();
+      if (!res.ok) throw new Error(data.message || "Error al exportar");
+      setActionResult({
+        type: "success",
+        message: data.message,
+        downloadUrl: data.download_url || undefined,
+        filename: data.filename || undefined,
+      });
+      refetchColab();
+    } catch (err: any) {
+      setActionResult({
+        type: "error",
+        message: err.message || "Error al exportar chunks para Colab",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleSyncDrive = async () => {
+    setIsSyncingDrive(true);
+    setActionResult(null);
+    try {
+      const res = await fetch("/api/ingestion/colab/sync-drive", {
+        method: "POST",
+      });
+      const data: ColabSyncDto = await res.json();
+      if (!res.ok) throw new Error(data.message || "Error al sincronizar desde Google Drive");
+      setActionResult({
+        type: "success",
+        message: data.message,
+        filename: data.file_used || undefined,
+      });
+      refetchColab();
+      refetchCatalog();
+    } catch (err: any) {
+      setActionResult({
+        type: "error",
+        message: err.message || "Error al sincronizar vectores desde Google Drive",
+      });
+    } finally {
+      setIsSyncingDrive(false);
+    }
+  };
+
+  const handleManualUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    setActionResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/ingestion/colab/upload-vectors", {
+        method: "POST",
+        body: formData,
+      });
+      const data: ColabSyncDto = await res.json();
+      if (!res.ok) throw new Error(data.message || "Error al subir vectors.jsonl");
+      setActionResult({
+        type: "success",
+        message: data.message,
+        filename: data.file_used || undefined,
+      });
+      refetchColab();
+      refetchCatalog();
+    } catch (err: any) {
+      setActionResult({
+        type: "error",
+        message: err.message || "Error al subir vectores",
+      });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const sources = catalog || [];
   const conflictList = conflicts || [];
@@ -103,9 +225,10 @@ export const IngestionView: React.FC = () => {
               onClick={() => {
                 refetchCatalog();
                 refetchConflicts();
+                refetchColab();
               }}
               className="h-10 px-4 rounded-[14px] bg-[#101012] border border-white/[0.08] hover:border-white/20 text-white/70 hover:text-white text-xs flex items-center gap-2 transition shadow-sm"
-              title="Actualizar catálogo"
+              title="Actualizar catálogo y estado vectorial"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Sincronizar</span>
@@ -156,6 +279,200 @@ export const IngestionView: React.FC = () => {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* SECTION: COLAB & GOOGLE DRIVE VECTOR PIPELINE */}
+        <div className="rounded-[22px] bg-[#101012] border border-cyan-500/20 p-5 space-y-4 shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 opacity-80" />
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-cyan-400 font-bold flex items-center gap-1.5">
+                  <Cloud className="w-3.5 h-3.5" /> Pipeline Distribuido GPU / Drive
+                </span>
+                {colabStatus && (
+                  colabStatus.pending_chunks === 0 ? (
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                      100% Vectorizado
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-bold flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3 text-amber-400" />
+                      {colabStatus.pending_chunks.toLocaleString()} pendientes
+                    </span>
+                  )
+                )}
+              </div>
+              <h2 className="text-base font-semibold text-white flex items-center gap-2">
+                <span>Ciclo de Embeddings (Google Colab & Google Drive)</span>
+              </h2>
+              <p className="text-xs text-white/50 max-w-3xl">
+                Exporta chunks pendientes de vectorizar a Google Drive (<code>{colabStatus?.remote_path || "gdrive:talos_reindex"}</code>),
+                ejecuta el notebook de embedding con GPU en Google Colab, y sincroniza los vectores en TALOS con un solo clic.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                href="https://colab.research.google.com"
+                target="_blank"
+                rel="noreferrer"
+                className="h-9 px-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 text-white/70 hover:text-white text-xs flex items-center gap-1.5 transition"
+                title="Abrir Google Colab en nueva pestaña"
+              >
+                <span>Google Colab</span>
+                <ExternalLink className="w-3 h-3 text-white/40" />
+              </a>
+
+              <button
+                onClick={() => refetchColab()}
+                disabled={isFetchingColab}
+                className="h-9 w-9 rounded-[12px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 text-white/70 hover:text-white flex items-center justify-center transition disabled:opacity-50"
+                title="Actualizar estado vectorial"
+              >
+                {isFetchingColab ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                ) : (
+                  <RefreshCw className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* COLAB METRICS / STATUS STRIP */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div className="p-3 rounded-[14px] bg-black/40 border border-white/[0.05]">
+              <span className="text-[10px] text-white/40 uppercase">Total Chunks</span>
+              <div className="text-base font-bold text-white mt-0.5">
+                {colabStatus ? colabStatus.total_chunks.toLocaleString() : "..."}
+              </div>
+            </div>
+
+            <div className="p-3 rounded-[14px] bg-black/40 border border-white/[0.05]">
+              <span className="text-[10px] text-white/40 uppercase">Vectores E5</span>
+              <div className="text-base font-bold text-emerald-400 mt-0.5">
+                {colabStatus ? colabStatus.total_vectors.toLocaleString() : "..."}
+              </div>
+            </div>
+
+            <div className="p-3 rounded-[14px] bg-black/40 border border-white/[0.05]">
+              <span className="text-[10px] text-white/40 uppercase">Pendientes</span>
+              <div className="text-base font-bold text-amber-400 mt-0.5">
+                {colabStatus ? colabStatus.pending_chunks.toLocaleString() : "..."}
+              </div>
+            </div>
+
+            <div className="p-3 rounded-[14px] bg-black/40 border border-white/[0.05]">
+              <span className="text-[10px] text-white/40 uppercase">Estado Drive</span>
+              <div className="text-xs font-semibold text-cyan-300 mt-1 flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full ${colabStatus?.rclone_installed ? "bg-emerald-400" : "bg-red-400"}`} />
+                <span>{colabStatus?.gdrive_configured ? "gdrive: listo" : colabStatus?.rclone_installed ? "rclone activo" : "rclone offline"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ACTION BUTTONS BAR */}
+          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-white/[0.06]">
+            {/* Action 1: Export to Drive / Colab */}
+            <button
+              onClick={() => handleExportColab(true)}
+              disabled={isExporting || (colabStatus?.pending_chunks === 0)}
+              className="h-10 px-4 rounded-[14px] bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            >
+              {isExporting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                  <span>Exportando y subiendo...</span>
+                </>
+              ) : (
+                <>
+                  <CloudUpload className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Generar para Colab & Subir a Drive</span>
+                </>
+              )}
+            </button>
+
+            {/* Action 2: Sync from Drive */}
+            <button
+              onClick={() => handleSyncDrive()}
+              disabled={isSyncingDrive}
+              className="h-10 px-4 rounded-[14px] bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-semibold flex items-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            >
+              {isSyncingDrive ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                  <span>Sincronizando desde Drive...</span>
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Recargar y Sincronizar desde Drive</span>
+                </>
+              )}
+            </button>
+
+            {/* Action 3: Manual Upload Fallback */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept=".jsonl"
+              onChange={handleManualUpload}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="h-10 px-4 rounded-[14px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/20 text-white/70 hover:text-white text-xs flex items-center gap-2 transition disabled:opacity-50 shadow-sm"
+              title="Subir archivo vectors_*.jsonl descargado de Colab"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white/60" />
+                  <span>Subiendo vectores...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-3.5 h-3.5 text-white/40" />
+                  <span>Subir vectors.jsonl manual</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* ACTION FEEDBACK ALERT */}
+          {actionResult && (
+            <div
+              className={`p-4 rounded-[16px] text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 border transition ${
+                actionResult.type === "success"
+                  ? "bg-emerald-950/30 border-emerald-500/30 text-emerald-200"
+                  : actionResult.type === "error"
+                  ? "bg-red-950/30 border-red-500/30 text-red-200"
+                  : "bg-blue-950/30 border-blue-500/30 text-blue-200"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                {actionResult.type === "success" ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                )}
+                <span>{actionResult.message}</span>
+              </div>
+
+              {actionResult.downloadUrl && (
+                <a
+                  href={actionResult.downloadUrl}
+                  download={actionResult.filename || "pending_chunks.jsonl"}
+                  className="h-8 px-3 rounded-[10px] bg-emerald-500 text-black font-semibold text-[11px] flex items-center gap-1.5 hover:bg-emerald-400 transition shrink-0"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Descargar {actionResult.filename || ".jsonl"}</span>
+                </a>
+              )}
+            </div>
+          )}
         </div>
 
         {/* SECTION: CONVERSION CONFLICTS ARBITRATION */}

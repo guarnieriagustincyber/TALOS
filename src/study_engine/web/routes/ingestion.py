@@ -1,11 +1,26 @@
-"""CAL Ingestion and Conversion Catalog Endpoints (Fase 4.1)."""
-
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
-from fastapi import APIRouter, Depends, Query
+import logging
+from pathlib import Path
+import shutil
+import sqlite3
+import subprocess
+from typing import Any, Dict, List, Optional, Tuple
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field
 
+from study_engine.cli import (
+    DEFAULT_COLAB_DIR,
+    DEFAULT_CONTRACT_PATH,
+    DEFAULT_KNOWLEDGE_DB,
+    DEFAULT_VECTOR_DB,
+    _pending_pairs,
+    export_pending,
+    sync_vectors,
+)
 from study_engine.web.dependencies import AppContainer, get_container
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/ingestion", tags=["Ingestion"])
 
@@ -188,3 +203,297 @@ def get_conversion_conflicts(
         )
 
     return conflicts
+
+
+# ---------------------------------------------------------------------------
+# COLAB & GOOGLE DRIVE VECTOR SYNC (CICLO INCREMENTAL)
+# ---------------------------------------------------------------------------
+
+class ColabStatusDto(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    total_chunks: int = Field(default=0, description="Total de chunks en knowledge_store")
+    total_vectors: int = Field(default=0, description="Total de vectores en vector_store")
+    pending_chunks: int = Field(default=0, description="Chunks pendientes de vectorizar")
+    rclone_installed: bool = Field(default=False)
+    gdrive_configured: bool = Field(default=False)
+    remote_path: str = Field(default="gdrive:talos_reindex")
+    latest_pending: Optional[str] = None
+    latest_vectors: Optional[str] = None
+
+
+class ColabExportDto(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    status: str
+    count: int
+    filename: Optional[str] = None
+    download_url: Optional[str] = None
+    gdrive_uploaded: bool = False
+    gdrive_message: Optional[str] = None
+    message: str
+
+
+class ColabSyncDto(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    status: str
+    synced: int = 0
+    inserted: int = 0
+    updated: int = 0
+    pending_remaining: int = 0
+    file_used: Optional[str] = None
+    message: str
+
+
+def _resolve_db_paths(container: AppContainer) -> Tuple[Path, Path]:
+    k_db = DEFAULT_KNOWLEDGE_DB
+    v_db = DEFAULT_VECTOR_DB
+    if hasattr(container, "working_dir") and container.working_dir:
+        cand_k = container.working_dir / "knowledge_store.db"
+        cand_v = container.working_dir / "vector_store.db"
+        if cand_k.exists():
+            k_db = cand_k
+        if cand_v.exists():
+            v_db = cand_v
+    return k_db, v_db
+
+
+@router.get("/colab/status", response_model=ColabStatusDto)
+def get_colab_sync_status(
+    container: AppContainer = Depends(get_container),
+) -> ColabStatusDto:
+    """Retorna el estado de sincronización vectorial con Colab y Google Drive."""
+    k_db, v_db = _resolve_db_paths(container)
+
+    total_chunks = 0
+    total_vectors = 0
+    pending_count = 0
+
+    if k_db.exists():
+        try:
+            con_k = sqlite3.connect(f"file:{k_db}?mode=ro", uri=True)
+            total_chunks = con_k.execute("SELECT COUNT(*) FROM chunks").fetchone()[0]
+            con_k.close()
+        except Exception as e:
+            logger.debug("Error leyendo chunks de %s: %s", k_db, e)
+
+    if v_db.exists():
+        try:
+            con_v = sqlite3.connect(f"file:{v_db}?mode=ro", uri=True)
+            total_vectors = con_v.execute("SELECT COUNT(*) FROM chunk_embeddings").fetchone()[0]
+            con_v.close()
+        except Exception as e:
+            logger.debug("Error leyendo vectores de %s: %s", v_db, e)
+
+    if k_db.exists() and v_db.exists():
+        try:
+            pending_count = len(_pending_pairs(k_db, v_db))
+        except Exception as e:
+            logger.debug("Error calculando pending_pairs: %s", e)
+
+    rclone_installed = bool(shutil.which("rclone"))
+    gdrive_configured = False
+    if rclone_installed:
+        try:
+            proc = subprocess.run(["rclone", "listremotes"], capture_output=True, text=True, timeout=2.0)
+            gdrive_configured = "gdrive:" in (proc.stdout or "")
+        except Exception:
+            pass
+
+    latest_pending = None
+    latest_vectors = None
+    if DEFAULT_COLAB_DIR.exists():
+        p_files = sorted(DEFAULT_COLAB_DIR.glob("pending_*.jsonl"))
+        if p_files:
+            latest_pending = p_files[-1].name
+        v_files = sorted(DEFAULT_COLAB_DIR.glob("vectors_*.jsonl"))
+        if v_files:
+            latest_vectors = v_files[-1].name
+
+    return ColabStatusDto(
+        total_chunks=total_chunks,
+        total_vectors=total_vectors,
+        pending_chunks=pending_count,
+        rclone_installed=rclone_installed,
+        gdrive_configured=gdrive_configured,
+        remote_path="gdrive:talos_reindex",
+        latest_pending=latest_pending,
+        latest_vectors=latest_vectors,
+    )
+
+
+@router.post("/colab/export", response_model=ColabExportDto)
+def export_colab_pending(
+    upload_to_gdrive: bool = True,
+    container: AppContainer = Depends(get_container),
+) -> ColabExportDto:
+    """Genera archivo pending_<ts>.jsonl y lo sube opcionalmente a Google Drive."""
+    k_db, v_db = _resolve_db_paths(container)
+    if not k_db.exists():
+        raise HTTPException(status_code=400, detail="Base de datos de conocimiento no encontrada.")
+
+    try:
+        out_path, count = export_pending(
+            knowledge_db=k_db,
+            vector_db=v_db,
+            out_dir=DEFAULT_COLAB_DIR,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al exportar chunks pendientes: {e}")
+
+    if count == 0:
+        return ColabExportDto(
+            status="ok",
+            count=0,
+            filename=None,
+            download_url=None,
+            gdrive_uploaded=False,
+            message="No hay chunks pendientes de vectorizar. La base vectorial está 100% al día.",
+        )
+
+    gdrive_uploaded = False
+    gdrive_msg = None
+
+    if upload_to_gdrive and shutil.which("rclone"):
+        try:
+            proc = subprocess.run(
+                ["rclone", "copy", str(out_path), "gdrive:talos_reindex", "-v"],
+                capture_output=True,
+                text=True,
+                timeout=25.0,
+            )
+            if proc.returncode == 0:
+                gdrive_uploaded = True
+                gdrive_msg = "Archivo subido exitosamente a Google Drive (gdrive:talos_reindex)."
+            else:
+                err = (proc.stderr or proc.stdout or "").strip()
+                gdrive_msg = f"No se pudo subir a Drive: {err[:200]}"
+        except subprocess.TimeoutExpired:
+            gdrive_msg = "Timeout al conectar con Google Drive vía rclone."
+        except Exception as ex_rc:
+            gdrive_msg = f"Excepción rclone: {ex_rc}"
+
+    return ColabExportDto(
+        status="ok",
+        count=count,
+        filename=out_path.name,
+        download_url=f"/api/ingestion/colab/download/{out_path.name}",
+        gdrive_uploaded=gdrive_uploaded,
+        gdrive_message=gdrive_msg,
+        message=f"Se exportaron {count} chunks pendientes a {out_path.name}."
+        + (" Subido a Google Drive." if gdrive_uploaded else " Listo para descargar o procesar."),
+    )
+
+
+@router.get("/colab/download/{filename}")
+def download_colab_file(filename: str) -> FileResponse:
+    """Descarga directa del archivo de chunks pendientes para procesamiento manual."""
+    safe_name = Path(filename).name
+    file_path = DEFAULT_COLAB_DIR / safe_name
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404, detail="Archivo no encontrado.")
+    return FileResponse(
+        path=file_path,
+        filename=safe_name,
+        media_type="application/x-jsonlines",
+    )
+
+
+@router.post("/colab/sync-drive", response_model=ColabSyncDto)
+def sync_vectors_from_gdrive(
+    container: AppContainer = Depends(get_container),
+) -> ColabSyncDto:
+    """Descarga vectores calculados desde Google Drive y actualiza vector_store.db."""
+    k_db, v_db = _resolve_db_paths(container)
+
+    rclone_err = None
+    if shutil.which("rclone"):
+        try:
+            proc = subprocess.run(
+                [
+                    "rclone",
+                    "copy",
+                    "gdrive:talos_reindex",
+                    str(DEFAULT_COLAB_DIR),
+                    "--include",
+                    "vectors_*.jsonl",
+                    "-v",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=30.0,
+            )
+            if proc.returncode != 0:
+                rclone_err = (proc.stderr or proc.stdout or "").strip()
+        except Exception as ex:
+            rclone_err = str(ex)
+
+    candidates = sorted(DEFAULT_COLAB_DIR.glob("vectors_*.jsonl"))
+    if not candidates:
+        msg = "No se encontraron archivos vectors_*.jsonl en Colab ni en Google Drive."
+        if rclone_err:
+            msg += f" (Detalle Drive: {rclone_err[:150]})"
+        raise HTTPException(status_code=404, detail=msg)
+
+    target_file = candidates[-1]
+
+    try:
+        res = sync_vectors(
+            vectors_jsonl=target_file,
+            vector_db=v_db,
+            knowledge_db=k_db,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al sincronizar vectores: {e}")
+
+    pending_remaining = res.get("pending_after", 0)
+
+    return ColabSyncDto(
+        status="ok",
+        synced=res.get("synced", 0),
+        inserted=res.get("inserted", 0),
+        updated=res.get("updated", 0),
+        pending_remaining=pending_remaining,
+        file_used=target_file.name,
+        message=f"Sincronizados {res.get('synced', 0)} vectores desde {target_file.name}. Pendientes restantes: {pending_remaining}.",
+    )
+
+
+@router.post("/colab/upload-vectors", response_model=ColabSyncDto)
+async def upload_colab_vectors(
+    file: UploadFile = File(...),
+    container: AppContainer = Depends(get_container),
+) -> ColabSyncDto:
+    """Sube un archivo vectors.jsonl generado en Colab e inserta los vectores en vector_store.db."""
+    k_db, v_db = _resolve_db_paths(container)
+
+    fname = file.filename or "vectors.jsonl"
+    if not fname.endswith(".jsonl"):
+        raise HTTPException(status_code=400, detail="El archivo debe ser formato .jsonl generado por Colab.")
+
+    from datetime import datetime, timezone
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    target_path = DEFAULT_COLAB_DIR / f"vectors_manual_{ts}_{fname}"
+
+    content = await file.read()
+    target_path.write_bytes(content)
+
+    try:
+        res = sync_vectors(
+            vectors_jsonl=target_path,
+            vector_db=v_db,
+            knowledge_db=k_db,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al sincronizar vectores subidos: {e}")
+
+    return ColabSyncDto(
+        status="ok",
+        synced=res.get("synced", 0),
+        inserted=res.get("inserted", 0),
+        updated=res.get("updated", 0),
+        pending_remaining=res.get("pending_after", 0),
+        file_used=target_path.name,
+        message=f"Importados exitosamente {res.get('synced', 0)} vectores desde {fname}.",
+    )

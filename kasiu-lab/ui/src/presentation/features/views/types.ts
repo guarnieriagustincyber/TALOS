@@ -339,6 +339,37 @@ export interface ConversionConflictDto {
   created_at: string;
 }
 
+export interface ColabStatusDto {
+  total_chunks: number;
+  total_vectors: number;
+  pending_chunks: number;
+  rclone_installed: boolean;
+  gdrive_configured: boolean;
+  remote_path: string;
+  latest_pending: string | null;
+  latest_vectors: string | null;
+}
+
+export interface ColabExportDto {
+  status: string;
+  count: number;
+  filename: string | null;
+  download_url: string | null;
+  gdrive_uploaded: boolean;
+  gdrive_message: string | null;
+  message: string;
+}
+
+export interface ColabSyncDto {
+  status: string;
+  synced: number;
+  inserted: number;
+  updated: number;
+  pending_remaining: number;
+  file_used: string | null;
+  message: string;
+}
+
 export interface FederatedNotebookDto {
   notebook_id: string;
   name: string;
