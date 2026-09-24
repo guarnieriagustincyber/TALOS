@@ -7,8 +7,9 @@ Architecture:
 """
 
 import logging
+from pathlib import Path
 import re
-from typing import Any, Dict, List, Optional, Protocol, Set, Tuple
+from typing import Any, Dict, List, Optional, Protocol, Set, Tuple, Union
 import httpx
 
 from study_engine.contracts.retrieval import ScoredCandidate
@@ -227,3 +228,133 @@ class JinaReranker:
                     break
 
         return self.fallback.rerank(query, candidates, top_k=top_k)
+
+
+class LocalONNXReranker:
+    """Local Neural Cross-Encoder Reranker using ONNX Runtime (CPU) with fail-safe fallback.
+
+    Scores (query, passage) pairs with full cross-attention. Outputs calibrated
+    relevance probabilities in [0.0, 1.0] using sigmoid activation over logits.
+    """
+
+    def __init__(
+        self,
+        model_path: Union[str, Path] = "models/reranker/model.onnx",
+        tokenizer_path: Union[str, Path] = "models/reranker/tokenizer.json",
+        max_length: int = 512,
+        num_threads: int = 4,
+        fallback: Optional[BaseReranker] = None,
+    ) -> None:
+        self.model_path = Path(model_path)
+        self.tokenizer_path = Path(tokenizer_path)
+        self.max_length = max_length
+        self.num_threads = num_threads
+        self.fallback = fallback or DeterministicLocalReranker()
+        self._session: Any = None
+        self._tokenizer: Any = None
+        self._initialized = False
+
+    def _initialize(self) -> bool:
+        if self._initialized:
+            return self._session is not None
+        self._initialized = True
+
+        if not self.model_path.exists() or not self.tokenizer_path.exists():
+            logger.info(
+                "Local ONNX reranker model/tokenizer not found at %s. Falling back to DeterministicLocalReranker.",
+                self.model_path,
+            )
+            return False
+
+        try:
+            import numpy as np
+            import onnxruntime as ort
+            from tokenizers import Tokenizer
+
+            self._np = np
+            self._tokenizer = Tokenizer.from_file(str(self.tokenizer_path))
+            self._tokenizer.enable_truncation(max_length=self.max_length)
+            self._tokenizer.enable_padding(pad_id=0, pad_token="[PAD]", length=None)
+
+            opts = ort.SessionOptions()
+            opts.intra_op_num_threads = self.num_threads
+            opts.inter_op_num_threads = 1
+            opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+            self._session = ort.InferenceSession(
+                str(self.model_path),
+                sess_options=opts,
+                providers=["CPUExecutionProvider"],
+            )
+            logger.info("LocalONNXReranker initialized successfully from %s", self.model_path)
+            return True
+        except Exception as e:
+            logger.warning("Failed to initialize LocalONNXReranker session: %s. Using fallback.", e)
+            return False
+
+    def rerank(
+        self,
+        query: str,
+        candidates: List[ScoredCandidate],
+        top_k: int = 5,
+    ) -> List[ScoredCandidate]:
+        """Rerank candidates using local neural cross-encoder with ONNX Runtime."""
+        if not candidates:
+            return []
+
+        if not self._initialize():
+            return self.fallback.rerank(query, candidates, top_k=top_k)
+
+        try:
+            np = self._np
+            pairs = [(query, c.content) for c in candidates]
+            encodings = self._tokenizer.encode_batch(pairs)
+
+            input_ids = np.array([e.ids for e in encodings], dtype=np.int64)
+            attention_mask = np.array([e.attention_mask for e in encodings], dtype=np.int64)
+
+            inputs = {
+                "input_ids": input_ids,
+                "attention_mask": attention_mask,
+            }
+
+            model_input_names = [inp.name for inp in self._session.get_inputs()]
+            if "token_type_ids" in model_input_names:
+                token_type_ids = np.array([e.type_ids for e in encodings], dtype=np.int64)
+                inputs["token_type_ids"] = token_type_ids
+
+            outputs = self._session.run(None, inputs)
+            logits = outputs[0]
+
+            if hasattr(logits, "ndim") and logits.ndim > 1:
+                logits = logits.squeeze(-1)
+
+            scores = 1.0 / (1.0 + np.exp(-logits.astype(np.float64)))
+            if not hasattr(scores, "__iter__") or (hasattr(scores, "ndim") and scores.ndim == 0):
+                scores = [float(scores)]
+
+            scored_cands: List[Tuple[float, int, ScoredCandidate]] = []
+            for orig_idx, (cand, score) in enumerate(zip(candidates, scores)):
+                sc = round(float(score), 4)
+                new_meta = dict(cand.metadata)
+                new_meta["reranker"] = "local_onnx"
+                new_meta["reranker_score"] = sc
+                updated = cand.model_copy(
+                    update={
+                        "score": sc,
+                        "metadata": new_meta,
+                    }
+                )
+                scored_cands.append((-sc, orig_idx, updated))
+
+            scored_cands.sort(key=lambda t: (t[0], t[1]))
+
+            result: List[ScoredCandidate] = []
+            for new_rank, (_, _, cand) in enumerate(scored_cands[:top_k], start=1):
+                result.append(cand.model_copy(update={"rank": new_rank}))
+
+            return result
+
+        except Exception as e:
+            logger.warning("LocalONNXReranker inference error: %s. Using fallback.", e)
+            return self.fallback.rerank(query, candidates, top_k=top_k)
+

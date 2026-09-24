@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     xkiro_base_url: str = Field(default="https://api.xkiro.com/v1", validation_alias="XKIRO_BASE_URL")
     jina_api_key: Optional[str] = Field(default=None, validation_alias="JINA_API_KEY")
     jina_rerank_model: str = Field(default="jina-reranker-v2-base-multilingual", validation_alias="JINA_RERANK_MODEL")
+    local_reranker_model_path: str = Field(default="models/reranker/model.onnx", validation_alias="LOCAL_RERANKER_MODEL_PATH")
+    local_reranker_tokenizer_path: str = Field(default="models/reranker/tokenizer.json", validation_alias="LOCAL_RERANKER_TOKENIZER_PATH")
+    enable_local_neural_reranker: bool = Field(default=True, validation_alias="ENABLE_LOCAL_NEURAL_RERANKER")
 
     # Provider defaults
     default_provider: str = Field(default="groq", validation_alias="STUDY_ENGINE_LLM_PROVIDER")

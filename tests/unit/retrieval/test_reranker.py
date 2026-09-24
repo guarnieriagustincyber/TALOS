@@ -9,6 +9,7 @@ from study_engine.contracts.retrieval import ScoredCandidate
 from study_engine.retrieval.reranker import (
     DeterministicLocalReranker,
     JinaReranker,
+    LocalONNXReranker,
     calculate_local_rerank_score,
 )
 
@@ -357,3 +358,99 @@ def test_local_reranker_quality_baseline_f8():
     avg_correlation = float(np.mean(correlations))
     # F8: Al menos 70% (0.70) de correlación media
     assert avg_correlation >= 0.70, f"Correlación media {avg_correlation:.3f} < 0.70"
+
+
+def test_local_onnx_reranker_missing_model_fallback(tmp_path):
+    """LocalONNXReranker gracefully falls back to DeterministicLocalReranker if ONNX files missing."""
+    reranker = LocalONNXReranker(
+        model_path=tmp_path / "nonexistent.onnx",
+        tokenizer_path=tmp_path / "nonexistent.json",
+    )
+
+    c1 = _make_candidate("c1", "Un hilo es una unidad básica de utilización de CPU.")
+    c2 = _make_candidate("c2", "Los hilos de ejecución comparten el espacio de memoria.")
+
+    results = reranker.rerank("hilos de ejecucion", [c1, c2], top_k=2)
+
+    assert len(results) == 2
+    assert results[0].chunk_id == "c2"
+    assert results[0].metadata["reranker"] == "local_fallback"
+
+
+def test_local_onnx_reranker_empty_candidates():
+    """Empty candidate list returns empty list immediately."""
+    reranker = LocalONNXReranker()
+    assert reranker.rerank("query", []) == []
+
+
+def test_local_onnx_reranker_mock_onnx_session(monkeypatch, tmp_path):
+    """LocalONNXReranker tokenizes, runs ONNX inference, applies sigmoid and reorders candidates."""
+    # Create dummy files so path checks pass
+    model_file = tmp_path / "model.onnx"
+    tokenizer_file = tmp_path / "tokenizer.json"
+    model_file.write_text("dummy")
+    tokenizer_file.write_text("dummy")
+
+    class DummyEncoding:
+        def __init__(self):
+            self.ids = [101, 102, 103]
+            self.attention_mask = [1, 1, 1]
+            self.type_ids = [0, 0, 0]
+
+    class DummyTokenizer:
+        @classmethod
+        def from_file(cls, path):
+            return cls()
+
+        def enable_truncation(self, max_length):
+            pass
+
+        def enable_padding(self, pad_id, pad_token, length):
+            pass
+
+        def encode_batch(self, pairs):
+            return [DummyEncoding() for _ in pairs]
+
+    class DummyInputMeta:
+        def __init__(self, name):
+            self.name = name
+
+    class DummySession:
+        def __init__(self, path, sess_options, providers):
+            pass
+
+        def get_inputs(self):
+            return [DummyInputMeta("input_ids"), DummyInputMeta("attention_mask"), DummyInputMeta("token_type_ids")]
+
+        def run(self, output_names, inputs):
+            # return 2 logits: candidate 1 has lower logit (-1.0), candidate 2 has higher logit (2.5)
+            # sigmoid(-1.0) ~ 0.2689, sigmoid(2.5) ~ 0.9241
+            return [np.array([[-1.0], [2.5]], dtype=np.float32)]
+
+    import onnxruntime as ort
+    from tokenizers import Tokenizer
+    monkeypatch.setattr(ort, "InferenceSession", DummySession)
+    monkeypatch.setattr(Tokenizer, "from_file", DummyTokenizer.from_file)
+
+    reranker = LocalONNXReranker(
+        model_path=model_file,
+        tokenizer_path=tokenizer_file,
+    )
+
+    c1 = _make_candidate("c1", "Texto con menos relevancia")
+    c2 = _make_candidate("c2", "Texto con alta relevancia")
+
+    results = reranker.rerank("consulta", [c1, c2], top_k=2)
+
+    assert len(results) == 2
+    assert results[0].chunk_id == "c2"  # Highest sigmoid score
+    assert results[0].rank == 1
+    assert results[0].score == 0.9241
+    assert results[0].metadata["reranker"] == "local_onnx"
+    assert results[0].metadata["reranker_score"] == 0.9241
+
+    assert results[1].chunk_id == "c1"
+    assert results[1].rank == 2
+    assert results[1].score == 0.2689
+    assert results[1].metadata["reranker"] == "local_onnx"
+

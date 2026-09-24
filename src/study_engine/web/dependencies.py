@@ -123,8 +123,27 @@ class AppContainer:
 
         from study_engine.config import settings
         from study_engine.retrieval.fabric import RetrievalFabricLite
-        from study_engine.retrieval.reranker import JinaReranker
-        reranker = JinaReranker(api_key=settings.jina_api_key, model=settings.jina_rerank_model)
+        from study_engine.retrieval.reranker import (
+            DeterministicLocalReranker,
+            JinaReranker,
+            LocalONNXReranker,
+        )
+
+        if settings.enable_local_neural_reranker:
+            reranker = LocalONNXReranker(
+                model_path=settings.local_reranker_model_path,
+                tokenizer_path=settings.local_reranker_tokenizer_path,
+                fallback=(
+                    JinaReranker(api_key=settings.jina_api_key, model=settings.jina_rerank_model)
+                    if settings.jina_api_key
+                    else DeterministicLocalReranker()
+                ),
+            )
+        elif settings.jina_api_key:
+            reranker = JinaReranker(api_key=settings.jina_api_key, model=settings.jina_rerank_model)
+        else:
+            reranker = DeterministicLocalReranker()
+
         self.retrieval_fabric = RetrievalFabricLite(
             store=self.knowledge_store,
             reranker=reranker,
