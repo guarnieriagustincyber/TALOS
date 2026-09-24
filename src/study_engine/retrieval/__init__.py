@@ -14,6 +14,8 @@ from study_engine.retrieval.embedding import (
     EmbeddingProvider,
     LocalONNXEmbeddingProvider,
     MockEmbeddingProvider,
+    QwenPrefixFormatter,
+    SentenceTransformerEmbeddingProvider,
 )
 from study_engine.retrieval.evaluator import (
     CategoryMetrics,
@@ -64,8 +66,10 @@ __all__ = [
     "OracleIntegrityError",
     "OracleValidationError",
     "QueryEvaluationResult",
+    "QwenPrefixFormatter",
     "ReciprocalRankFusion",
     "RetrievalService",
+    "SentenceTransformerEmbeddingProvider",
     "SQLiteVectorStore",
 
     "VectorRecord",

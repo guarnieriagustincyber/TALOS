@@ -3,12 +3,30 @@
 import hashlib
 import math
 from pathlib import Path
-from typing import List, Protocol, Union, runtime_checkable
+from typing import Any, List, Optional, Protocol, Union, runtime_checkable
 
 
 class EmbeddingDimensionMismatchError(ValueError):
     """Raised when vector dimensions do not match provider configuration."""
     pass
+
+
+class QwenPrefixFormatter:
+    """Formatter adhering to Qwen3-Embedding instruction schema.
+
+    Unlike E5, Qwen3 does not require rigid asymmetric 'query: ' or 'passage: ' prefixes.
+    Queries and passages are stripped cleanly.
+    """
+
+    @staticmethod
+    def format_query(text: str) -> str:
+        """Clean user query for Qwen3 retrieval."""
+        return text.strip()
+
+    @staticmethod
+    def format_passage(text: str) -> str:
+        """Clean passage text for Qwen3 embedding."""
+        return text.strip()
 
 
 class E5PrefixFormatter:
@@ -65,15 +83,17 @@ class MockEmbeddingProvider:
 
     def __init__(
         self,
-        dimensions: int = 384,
+        dimensions: int = 4096,
         provider_id: str = "mock",
         model_id: str = "mock-sha256-v1",
+        use_e5_prefix: bool = False,
     ) -> None:
         if dimensions <= 0:
             raise ValueError("Dimensions must be positive.")
         self._dimensions = dimensions
         self._provider_id = provider_id
         self._model_id = model_id
+        self._use_e5_prefix = use_e5_prefix
 
     @property
     def provider_id(self) -> str:
@@ -110,13 +130,19 @@ class MockEmbeddingProvider:
         return [x / norm for x in vec]
 
     def embed_query(self, query: str) -> List[float]:
-        formatted = E5PrefixFormatter.format_query(query)
+        if self._use_e5_prefix:
+            formatted = E5PrefixFormatter.format_query(query)
+        else:
+            formatted = QwenPrefixFormatter.format_query(query)
         return self._hash_to_vector(formatted)
 
     def embed_passages(self, texts: List[str]) -> List[List[float]]:
         results: List[List[float]] = []
         for text in texts:
-            formatted = E5PrefixFormatter.format_passage(text)
+            if self._use_e5_prefix:
+                formatted = E5PrefixFormatter.format_passage(text)
+            else:
+                formatted = QwenPrefixFormatter.format_passage(text)
             results.append(self._hash_to_vector(formatted))
         return results
 
@@ -135,6 +161,81 @@ class DeterministicHashEmbedder(MockEmbeddingProvider):
             provider_id=provider_id,
             model_id=model_id,
         )
+
+
+class SentenceTransformerEmbeddingProvider:
+    """Embedding provider executing sentence-transformers (e.g. Qwen/Qwen3-Embedding-8B) with normalize_embeddings=True."""
+
+    def __init__(
+        self,
+        model_name_or_path: str = "Qwen/Qwen3-Embedding-8B",
+        dimensions: int = 4096,
+        device: Union[str, None] = None,
+        batch_size: int = 160,
+        provider_id: str = "sentence_transformers",
+    ) -> None:
+        self._model_name = model_name_or_path
+        self._dimensions = dimensions
+        self._device = device
+        self._batch_size = batch_size
+        self._provider_id = provider_id
+        self._model: Any = None
+
+    def _ensure_model(self) -> Any:
+        if self._model is None:
+            try:
+                from sentence_transformers import SentenceTransformer
+            except ImportError as e:
+                raise ImportError(
+                    "SentenceTransformerEmbeddingProvider requires 'sentence_transformers'. "
+                    "Install via pip: pip install sentence-transformers"
+                ) from e
+            self._model = SentenceTransformer(
+                self._model_name,
+                device=self._device,
+                trust_remote_code=True,
+            )
+        return self._model
+
+    @property
+    def provider_id(self) -> str:
+        return self._provider_id
+
+    @property
+    def model_id(self) -> str:
+        return self._model_name
+
+    @property
+    def dimensions(self) -> int:
+        return self._dimensions
+
+    @property
+    def is_test_mock(self) -> bool:
+        return False
+
+    def embed_query(self, query: str) -> List[float]:
+        model = self._ensure_model()
+        cleaned = QwenPrefixFormatter.format_query(query)
+        embedding = model.encode(
+            cleaned,
+            normalize_embeddings=True,
+            show_progress_bar=False,
+        )
+        vec = embedding.tolist() if hasattr(embedding, "tolist") else list(embedding)
+        return vec  # type: ignore[no-any-return]
+
+    def embed_passages(self, texts: List[str]) -> List[List[float]]:
+        if not texts:
+            return []
+        model = self._ensure_model()
+        cleaned = [QwenPrefixFormatter.format_passage(t) for t in texts]
+        embeddings = model.encode(
+            cleaned,
+            batch_size=self._batch_size,
+            normalize_embeddings=True,
+            show_progress_bar=False,
+        )
+        return embeddings.tolist() if hasattr(embeddings, "tolist") else [list(e) for e in embeddings]  # type: ignore[no-any-return]
 
 
 class LocalONNXEmbeddingProvider:

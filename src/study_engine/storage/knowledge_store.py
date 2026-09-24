@@ -704,26 +704,39 @@ class KnowledgeStore:
                 emb = self._embedder
             else:
                 try:
-                    from study_engine.retrieval.embedding import LocalONNXEmbeddingProvider
-                    repo_root = Path(__file__).resolve().parents[3]
-                    candidate_models = [
-                        Path("models/multilingual-e5-small/onnx/model.onnx"),
-                        repo_root / "models/multilingual-e5-small/onnx/model.onnx",
-                    ]
-                    for mp in candidate_models:
-                        tp = mp.parent / "tokenizer.json"
-                        if mp.exists() and tp.exists():
-                            emb = LocalONNXEmbeddingProvider(model_path=mp, tokenizer_path=tp, num_threads=4)
-                            self._embedder = emb
-                            break
-                except Exception as ex_onnx:
-                    logger.debug("LocalONNXEmbeddingProvider resolution: %s", ex_onnx)
+                    import sentence_transformers  # noqa: F401
+                    from study_engine.retrieval.embedding import SentenceTransformerEmbeddingProvider
+                    emb = SentenceTransformerEmbeddingProvider()
+                    self._embedder = emb
+                except Exception as ex_st:
+                    logger.debug("SentenceTransformerEmbeddingProvider resolution: %s", ex_st)
                     emb = None
 
                 if emb is None:
                     try:
+                        from study_engine.retrieval.embedding import LocalONNXEmbeddingProvider
+                        repo_root = Path(__file__).resolve().parents[3]
+                        candidate_models = [
+                            Path("models/multilingual-e5-small/onnx/model.onnx"),
+                            repo_root / "models/multilingual-e5-small/onnx/model.onnx",
+                        ]
+                        for mp in candidate_models:
+                            tp = mp.parent / "tokenizer.json"
+                            if mp.exists() and tp.exists():
+                                emb = LocalONNXEmbeddingProvider(model_path=mp, tokenizer_path=tp, num_threads=4)
+                                self._embedder = emb
+                                break
+                    except Exception as ex_onnx:
+                        logger.debug("LocalONNXEmbeddingProvider resolution: %s", ex_onnx)
+                        emb = None
+
+                if emb is None:
+                    try:
                         from study_engine.retrieval.embedding import DeterministicHashEmbedder
-                        emb = DeterministicHashEmbedder(dimensions=128)
+                        dim = 4096
+                        if matrix is not None and hasattr(matrix, "shape") and len(matrix.shape) > 1 and matrix.shape[1] > 0:
+                            dim = matrix.shape[1]
+                        emb = DeterministicHashEmbedder(dimensions=dim)
                         self._embedder = emb
                     except Exception as ex:
                         logger.debug("DeterministicHashEmbedder resolution: %s", ex)
@@ -1226,26 +1239,36 @@ class KnowledgeStore:
         emb = getattr(self, "_embedder", None)
         if emb is None:
             try:
-                from study_engine.retrieval.embedding import LocalONNXEmbeddingProvider
-                repo_root = Path(__file__).resolve().parents[3]
-                candidate_models = [
-                    Path("models/multilingual-e5-small/onnx/model.onnx"),
-                    repo_root / "models/multilingual-e5-small/onnx/model.onnx",
-                ]
-                for mp in candidate_models:
-                    tp = mp.parent / "tokenizer.json"
-                    if mp.exists() and tp.exists():
-                        emb = LocalONNXEmbeddingProvider(model_path=mp, tokenizer_path=tp, num_threads=4)
-                        self._embedder = emb
-                        break
-            except Exception as ex_onnx:
-                logger.debug("LocalONNXEmbeddingProvider resolution in _get_embedding: %s", ex_onnx)
+                import sentence_transformers  # noqa: F401
+                from study_engine.retrieval.embedding import SentenceTransformerEmbeddingProvider
+                emb = SentenceTransformerEmbeddingProvider()
+                self._embedder = emb
+            except Exception as ex_st:
+                logger.debug("SentenceTransformerEmbeddingProvider resolution in _get_embedding: %s", ex_st)
                 emb = None
 
             if emb is None:
                 try:
+                    from study_engine.retrieval.embedding import LocalONNXEmbeddingProvider
+                    repo_root = Path(__file__).resolve().parents[3]
+                    candidate_models = [
+                        Path("models/multilingual-e5-small/onnx/model.onnx"),
+                        repo_root / "models/multilingual-e5-small/onnx/model.onnx",
+                    ]
+                    for mp in candidate_models:
+                        tp = mp.parent / "tokenizer.json"
+                        if mp.exists() and tp.exists():
+                            emb = LocalONNXEmbeddingProvider(model_path=mp, tokenizer_path=tp, num_threads=4)
+                            self._embedder = emb
+                            break
+                except Exception as ex_onnx:
+                    logger.debug("LocalONNXEmbeddingProvider resolution in _get_embedding: %s", ex_onnx)
+                    emb = None
+
+            if emb is None:
+                try:
                     from study_engine.retrieval.embedding import DeterministicHashEmbedder
-                    emb = DeterministicHashEmbedder(dimensions=128)
+                    emb = DeterministicHashEmbedder(dimensions=4096)
                     self._embedder = emb
                 except Exception as ex:
                     logger.debug("DeterministicHashEmbedder resolution: %s", ex)

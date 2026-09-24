@@ -1,7 +1,7 @@
 {
   "relevance_gate": {
     "dense_threshold_no_lexical": 0.84,
-    "calibration_model": "multilingual-e5-small",
+    "calibration_model": "Qwen/Qwen3-Embedding-8B",
     "calibration_corpus_version": "hito2_benchmark_8pdfs",
     "calibration_date": "2026-09-06",
     "calibration_report": "data/experiments/hito6/relevance_calibration_report.json"

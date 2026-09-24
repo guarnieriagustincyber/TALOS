@@ -17,7 +17,7 @@ from study_engine.web.app import create_app
 from study_engine.web.dependencies import AppContainer, set_container
 
 
-def _unit_vector(dim: int = 384) -> list:
+def _unit_vector(dim: int = 4096) -> list:
     return [1.0 / (dim ** 0.5)] * dim
 
 
@@ -52,7 +52,7 @@ def colab_test_env(tmp_path_factory):
             provider_id=contract["provider_id"],
             model_id=contract["model_id"],
             dimensions=contract["dimensions"],
-            vector=_unit_vector(384),
+            vector=_unit_vector(contract["dimensions"]),
         )
     ])
     vstore.close()
@@ -120,7 +120,7 @@ def test_colab_upload_vectors_flow(colab_test_env):
     data_line = json.dumps({
         "chunk_id": "c_pend",
         "notebook_id": "nb1",
-        "vector": _unit_vector(384),
+        "vector": _unit_vector(contract["dimensions"]),
     })
     payload = f"{meta_line}\n{data_line}\n"
 

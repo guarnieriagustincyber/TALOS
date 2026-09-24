@@ -187,7 +187,7 @@ class _SimulatedTokenizer:
 class _SimulatedModel:
     """Modelo determinista ligero que simula representaciones contextuales globales."""
 
-    def __init__(self, dimensions: int = 384) -> None:
+    def __init__(self, dimensions: int = 4096) -> None:
         self.dimensions = dimensions
 
     def __call__(self, **kwargs: Any) -> ModelOutputWrapper:

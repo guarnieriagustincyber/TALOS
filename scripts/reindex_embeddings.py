@@ -34,9 +34,9 @@ DEFAULT_KNOWLEDGE_DB = REPO_ROOT / "data" / "web_state" / "knowledge_store.db"
 DEFAULT_VECTOR_DB = REPO_ROOT / "data" / "web_state" / "vector_store.db"
 SHARD_DIR_NAME = "vec_shards"
 
-PROVIDER_ID = "local_onnx"
-MODEL_ID = "multilingual-e5-small"
-DIMENSIONS = 384
+PROVIDER_ID = "sentence_transformers"
+MODEL_ID = "Qwen3-Embedding-8B"
+DIMENSIONS = 4096
 
 ChunkRow = Tuple[str, str, str]  # (chunk_id, source_id, content)
 

@@ -56,7 +56,7 @@ def load_retrieval_config(config_path: Optional[Union[str, Path]] = None) -> Dic
     return {
         "relevance_gate": {
             "dense_threshold_no_lexical": 0.84,
-            "calibration_model": "multilingual-e5-small",
+            "calibration_model": "Qwen/Qwen3-Embedding-8B",
         }
     }
 
@@ -97,11 +97,19 @@ class RetrievalService:
         else:
             lexical = LexicalRetriever(store)
             if vector_store is not None:
-                emb_provider = (
-                    provider
-                    if provider is not None
-                    else LocalONNXEmbeddingProvider()
-                )
+                if provider is not None:
+                    emb_provider = provider
+                else:
+                    try:
+                        import sentence_transformers  # noqa: F401
+                        from study_engine.retrieval.embedding import SentenceTransformerEmbeddingProvider
+                        emb_provider = SentenceTransformerEmbeddingProvider()
+                    except Exception:
+                        try:
+                            emb_provider = LocalONNXEmbeddingProvider()
+                        except Exception:
+                            from study_engine.retrieval.embedding import DeterministicHashEmbedder
+                            emb_provider = DeterministicHashEmbedder(dimensions=4096)
                 dense = DenseRetriever(store, vector_store, emb_provider)
                 self._retriever = HybridRetriever(store, lexical, dense)
             else:

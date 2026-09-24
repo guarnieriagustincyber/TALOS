@@ -68,11 +68,15 @@ def _contract_matches(local: Dict[str, Any], remote: Dict[str, Any]) -> List[str
 # export-pending
 # ---------------------------------------------------------------------------
 
-def _pending_pairs(knowledge_db: Path, vector_db: Path) -> List[Tuple[str, str, str]]:
-    """Chunks con notebook asignado que aún no tienen embedding e5 (dim=384).
+def _pending_pairs(
+    knowledge_db: Path,
+    vector_db: Path,
+    dimensions: int = 4096,
+) -> List[Tuple[str, str, str]]:
+    """Chunks con notebook asignado que aún no tienen embedding (dim=4096).
 
-    Solo cuentan como 'cubiertos' los vectores con dimensions = 384: los
-    vectores legacy de deterministic_hash (128 dims) NO habilitan la ruta
+    Solo cuentan como 'cubiertos' los vectores con dimensions = 4096: los
+    vectores legacy de dimensiones anteriores NO habilitan la ruta
     vectorial real y deben re-computarse.
     """
     con = sqlite3.connect(f"file:{knowledge_db}?mode=ro", uri=True)
@@ -85,10 +89,11 @@ def _pending_pairs(knowledge_db: Path, vector_db: Path) -> List[Tuple[str, str, 
             JOIN notebook_sources ns ON ns.source_id = c.source_id
             LEFT JOIN vec.chunk_embeddings ve
                 ON ve.chunk_id = c.id AND ve.notebook_id = ns.notebook_id
-               AND ve.dimensions = 384
+               AND ve.dimensions = ?
             WHERE ve.chunk_id IS NULL
             ORDER BY ns.notebook_id, c.id;
-            """
+            """,
+            (dimensions,),
         ).fetchall()
     finally:
         con.close()
@@ -103,7 +108,8 @@ def export_pending(
 ) -> Tuple[Path, int]:
     """Exporta los chunks pendientes a pending_<ts>.jsonl. Devuelve (path, count)."""
     contract = load_contract(contract_path)
-    pairs = _pending_pairs(Path(knowledge_db), Path(vector_db))
+    dims = int(contract.get("dimensions", 4096))
+    pairs = _pending_pairs(Path(knowledge_db), Path(vector_db), dimensions=dims)
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -243,7 +249,13 @@ def sync_vectors(
 
     inserted = sum(1 for r in records if (r["chunk_id"], r["notebook_id"]) not in existing)
     updated = len(records) - inserted
-    pending_after = len(_pending_pairs(Path(knowledge_db), Path(vector_db)))
+    pending_after = len(
+        _pending_pairs(
+            Path(knowledge_db),
+            Path(vector_db),
+            dimensions=int(contract["dimensions"]),
+        )
+    )
     return {
         "synced": len(records),
         "inserted": inserted,
