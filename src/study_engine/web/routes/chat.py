@@ -827,6 +827,7 @@ def _assemble_epistemic_context(
                 "author": author_str,
                 "section": section_str,
                 "epistemic_role": role_str,
+                "document_id": getattr(res, "document_id", "doc"),
             })
             citation_idx += 1
 

@@ -50,7 +50,8 @@ class GranularityRouter:
     # Señales de análisis holístico, curricular o de síntesis
     _RE_SYNTHESIS = re.compile(
         r"(?i)\b("
-        r"resumen|resumime|sintesis|síntesis|panorama\s*general|visi[oó]n\s*global|"
+        r"resumen|resumime|sintesis|síntesis|panorama(?:\s*general)?|visi[oó]n\s*(?:global|general)|"
+        r"qu[eé]\s+temas\s+cubre|temas\s+que\s+cubre|temario|contenido\s+de\s+la\s+unidad|"
         r"c[oó]mo\s*se\s*relaciona|relaci[oó]n\s*entre|c[oó]mo\s*se\s*articula|articulaci[oó]n\s*entre|"
         r"a\s*lo\s*largo\s*de|en\s*todo\s*el\s*libro|en\s*todo\s*el\s*cap[ií]tulo|"
         r"en\s*toda\s*la\s*materia|en\s*todo\s*el\s*programa|"
@@ -149,3 +150,6 @@ class GranularityRouter:
                 break
 
         return filtered
+
+
+deduplicate_hybrid_chunks = GranularityRouter.deduplicate_hybrid_chunks
