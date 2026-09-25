@@ -272,10 +272,11 @@ class AppContainer:
                     ),
                 ))
 
-            # Tier 3 — Gemini (healthy: sub-2s; saturated: 503 → fails fast to next)
-            # Timeout reduced to 8s (TTFT guard) — down from 60s that caused SSE disconnects.
+            # Tier 3 — Gemini (gemini-3.6-flash: confirmed HTTP 200 @ 1.6s, 2026-09-25)
+            # gemini-3.5-flash-lite → saturada/timeout.  gemini-2.5-flash → deprecada en este endpoint.
+            # Override via GEMINI_MODEL env var si necesitás otro modelo.
             if gemini_key and len(gemini_key) > 15 and not gemini_key.startswith("<"):
-                gem_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+                gem_model = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
                 ordered_providers.append((
                     f"gemini:{gem_model}",
                     GeminiBackend(
@@ -284,6 +285,23 @@ class AppContainer:
                         timeout_seconds=8.0,
                     ),
                 ))
+
+            # Tier 3b — Cerebras (PENDIENTE BILLING: HTTP 402 en ambos modelos)
+            # Desactivado hasta recargar créditos en https://api.cerebras.ai
+            # Modelos disponibles: qwen-3.8-27b, gpt-oss-120b
+            # Para reactivar, descomentar:
+            # cerebras_key = (os.getenv("CEREBRAS_API_KEY") or "").strip()
+            # if cerebras_key and cerebras_key.startswith("csk-"):
+            #     cerebras_model = os.getenv("CEREBRAS_MODEL", "qwen-3.8-27b")
+            #     ordered_providers.append((
+            #         f"cerebras:{cerebras_model}",
+            #         HttpOpenAIBackend(
+            #             api_key=cerebras_key,
+            #             base_url="https://api.cerebras.ai/v1",
+            #             default_model=cerebras_model,
+            #             timeout_seconds=8.0,
+            #         ),
+            #     ))
 
             # Tier 4 — NVIDIA NIM (~22s TTFT on reasoning models, word-replay path)
             if nvidia_key and nvidia_key.startswith("nvapi-"):
