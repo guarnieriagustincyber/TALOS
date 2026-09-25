@@ -233,8 +233,10 @@ class AppContainer:
         xkiro_key      = (os.getenv("XKIRO_API_KEY") or "").strip()
         gemini_key     = (os.getenv("GEMINI_API_KEY") or "").strip()
         sambanova_key  = (os.getenv("SAMBANOVA_API_KEY") or "").strip()
+        cf_api_token   = (os.getenv("CLOUDFLARE_API_TOKEN") or "").strip()   # token real (cfut_...)
+        cf_account_id  = (os.getenv("CLOUDFLARE_ACCOUNT_ID") or "").strip()
         cf_worker_url  = (os.getenv("CLOUDFLARE_WORKER_URL") or "").strip()
-        cf_worker_key  = (os.getenv("CLOUDFLARE_API_KEY") or "").strip()
+        cf_worker_key  = (os.getenv("CLOUDFLARE_API_KEY") or "").strip()     # token del Worker proxy
         nvidia_key     = (os.getenv("NVIDIA_API_KEY") or "").strip()
         # Keys confirmed billing/quota problems — kept for future re-activation:
         # cerebras_key = (os.getenv("CEREBRAS_API_KEY") or "").strip()
@@ -262,12 +264,28 @@ class AppContainer:
                     ),
                 ))
 
-            # Tier 2 — Cloudflare Worker (~1s measured; llama-3.1-8b-fast-v2)
+            # Tier 1b — Cloudflare Workers AI (API directa, token real cfut_...)
+            # llama-3.3-70b-instruct-fp8-fast: confirmado HTTP 200 @ 1.5s (2026-09-25)
+            # 30+ modelos disponibles: override via CLOUDFLARE_CF_MODEL env var
+            if cf_api_token and cf_account_id:
+                from study_engine.llm.backends import CloudflareDirectBackend
+                cf_model = os.getenv("CLOUDFLARE_CF_MODEL", "@cf/meta/llama-3.3-70b-instruct-fp8-fast")
+                ordered_providers.append((
+                    f"cloudflare-direct:{cf_model}",
+                    CloudflareDirectBackend(
+                        account_id=cf_account_id,
+                        api_token=cf_api_token,
+                        model=cf_model,
+                        timeout_seconds=12.0,
+                    ),
+                ))
+
+            # Tier 2 — Cloudflare Worker proxy (llama-3.1-8b-fast-v2 via Worker propio)
             # Token: CLOUDFLARE_API_KEY (@Agustin41813 confirmed working 2026-09-25)
             if cf_worker_url and cf_worker_url.startswith("https://") and cf_worker_key:
                 from study_engine.llm.backends import CloudflareWorkerBackend
                 ordered_providers.append((
-                    "cloudflare:llama-3.1-8b-fast-v2",
+                    "cloudflare-worker:llama-3.1-8b-fast-v2",
                     CloudflareWorkerBackend(
                         worker_url=cf_worker_url,
                         api_key=cf_worker_key,
@@ -288,11 +306,12 @@ class AppContainer:
                     ),
                 ))
 
-            # Tier 4 — Gemini (gemini-3.6-flash: confirmed HTTP 200 @ 1.6s, 2026-09-25)
-            # gemini-3.5-flash-lite → saturada/timeout.  gemini-2.5-flash → deprecada.
-            # Override via GEMINI_MODEL env var si necesitás otro modelo.
+            # Tier 4 — Gemini
+            # gemini-3.5-flash-lite: límites free-tier más amplios (preferido por usuario)
+            # gemini-3.6-flash: confirmado HTTP 200 @ 1.6s pero con menos quota gratis
+            # Override via GEMINI_MODEL env var para cambiar en runtime.
             if gemini_key and len(gemini_key) > 15 and not gemini_key.startswith("<"):
-                gem_model = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+                gem_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
                 ordered_providers.append((
                     f"gemini:{gem_model}",
                     GeminiBackend(
@@ -301,6 +320,23 @@ class AppContainer:
                         timeout_seconds=8.0,
                     ),
                 ))
+
+                # Tier 4b — Gemma 4 (misma key de Google AI Studio, sin costo adicional)
+                # gemma-4-31b-it: disponible pero timeout bajo carga alta (12s+)
+                # gemma-4-26b-a4b-it: confirmado HTTP 200 @ 4.4s (2026-09-25)
+                # Se activan como fallback dentro del mismo tier de Google.
+                for gemma_model in [
+                    os.getenv("GEMMA_MODEL", "gemma-4-31b-it"),   # probar primero
+                    "gemma-4-26b-a4b-it",                          # confirmado funcional
+                ]:
+                    ordered_providers.append((
+                        f"google:{gemma_model}",
+                        GeminiBackend(
+                            api_key=gemini_key,
+                            model_name=gemma_model,
+                            timeout_seconds=12.0,  # Gemma necesita más tiempo que Gemini
+                        ),
+                    ))
 
             # Tier 5 — SambaNova (Meta-Llama-3.3-70B-Instruct)
             # Key confirmed valid (models list HTTP 200); balance refreshed 2026-09-25.
