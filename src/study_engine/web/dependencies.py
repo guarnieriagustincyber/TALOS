@@ -279,11 +279,20 @@ class AppContainer:
                 chosen_model = "talos-pedagogical-oracle-v1"
 
         fallback_backend = OfflinePedagogicalBackend()
-        if chosen_provider != "groq" and groq_key and groq_key.startswith("gsk_"):
+        if chosen_provider != "nvidia" and nvidia_key and nvidia_key.startswith("nvapi-"):
+            # Preferir NVIDIA NIM como fallback (confirmado funcional)
+            fallback_backend = HttpOpenAIBackend(
+                api_key=nvidia_key,
+                base_url=os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1"),
+                default_model=os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"),
+                timeout_seconds=15.0,
+            )
+        elif chosen_provider != "groq" and groq_key and groq_key.startswith("gsk_"):
+            # Groq como fallback secundario con modelo activo (llama-3.3-70b-versatile fue eliminado)
             fallback_backend = HttpOpenAIBackend(
                 api_key=groq_key,
                 base_url="https://api.groq.com/openai/v1",
-                default_model="llama-3.3-70b-versatile",
+                default_model=os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b"),
                 timeout_seconds=15.0,
             )
 
