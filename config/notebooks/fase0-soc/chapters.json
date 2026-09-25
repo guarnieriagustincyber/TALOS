@@ -1,0 +1,49 @@
+{
+  "notebook_id": "fase0-soc",
+  "sources": {
+    "src_joyanes_fundamentos": {
+      "title": "Fundamentos de programación 4ta Edición - Luis Joyanes Aguilar",
+      "author": "Luis Joyanes Aguilar",
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title": "Metodología y Pensamiento Algorítmico",
+          "page_start": 1,
+          "page_end": 100,
+          "primary_kcs": ["fase0_tramo1_metodologia", "KC_ALGORITMO_DISENO"],
+          "chunk_count": 25
+        },
+        {
+          "chapter_number": 2,
+          "title": "Punteros, Direcciones de Memoria y Operador Ampersand (&)",
+          "page_start": 750,
+          "page_end": 775,
+          "primary_kcs": ["fase0_tramo3_punteros_intro", "KC_C_POINTERS_INTRO", "KC_C_PASS_BY_REFERENCE"],
+          "chunk_count": 30
+        },
+        {
+          "chapter_number": 3,
+          "title": "Paso de Parámetros, Marcos de Pila y Función Swap",
+          "page_start": 776,
+          "page_end": 796,
+          "primary_kcs": ["fase0_tramo4_stack_heap", "KC_C_STACK_FRAME", "KC_C_SWAP_IMPLEMENTATION"],
+          "chunk_count": 25
+        }
+      ]
+    },
+    "src_spraul_think_like_a_programmer": {
+      "title": "Think Like a Programmer - V. Anton Spraul",
+      "author": "V. Anton Spraul",
+      "chapters": [
+        {
+          "chapter_number": 4,
+          "title": "Resolución de Problemas y Gestión Defensiva de Punteros",
+          "page_start": 80,
+          "page_end": 140,
+          "primary_kcs": ["fase0_tramo5_debug_forense", "KC_C_MEMORY_LEAK_PREVENTION"],
+          "chunk_count": 20
+        }
+      ]
+    }
+  }
+}
