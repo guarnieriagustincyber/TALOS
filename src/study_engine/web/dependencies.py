@@ -251,22 +251,36 @@ class AppContainer:
             from study_engine.llm.backends import ReplayMockBackend
             ordered_providers.append(("replay_mock", ReplayMockBackend()))
         else:
-            # Tier 1 — Groq (~750ms measured)
-            if groq_key and groq_key.startswith("gsk_"):
-                groq_model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
+            # Tier 1 — Gemini (sin límite ITPM estricto, ideal para prompts de TALOS ~7k tokens)
+            # TALOS genera prompts de ~7k tokens (system socrático 11k chars + chunks + query),
+            # lo que siempre excede el límite de 7.000 ITPM de Groq free-tier → Gemini va primero.
+            if gemini_key and len(gemini_key) > 15 and not gemini_key.startswith("<"):
+                gem_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
                 ordered_providers.append((
-                    f"groq:{groq_model}",
-                    HttpOpenAIBackend(
-                        api_key=groq_key,
-                        base_url="https://api.groq.com/openai/v1",
-                        default_model=groq_model,
-                        timeout_seconds=8.0,
+                    f"gemini:{gem_model}",
+                    GeminiBackend(
+                        api_key=gemini_key,
+                        model_name=gem_model,
+                        timeout_seconds=20.0,
                     ),
                 ))
 
-            # Tier 1b — Cloudflare Workers AI (API directa, token real cfut_...)
-            # llama-3.3-70b-instruct-fp8-fast: confirmado HTTP 200 @ 1.5s (2026-09-25)
-            # 30+ modelos disponibles: override via CLOUDFLARE_CF_MODEL env var
+                # Tier 1b — Gemma 4 (misma key de Google AI Studio, sin costo adicional)
+                for gemma_model in [
+                    os.getenv("GEMMA_MODEL", "gemma-4-31b-it"),
+                    "gemma-4-26b-a4b-it",
+                ]:
+                    ordered_providers.append((
+                        f"google:{gemma_model}",
+                        GeminiBackend(
+                            api_key=gemini_key,
+                            model_name=gemma_model,
+                            timeout_seconds=16.0,
+                        ),
+                    ))
+
+            # Tier 2 — Cloudflare Workers AI (API directa, llama-3.3-70b-instruct-fp8-fast)
+            # 16s timeout: el modelo 70B tarda >8s con prompts largos
             if cf_api_token and cf_account_id:
                 from study_engine.llm.backends import CloudflareDirectBackend
                 cf_model = os.getenv("CLOUDFLARE_CF_MODEL", "@cf/meta/llama-3.3-70b-instruct-fp8-fast")
@@ -276,20 +290,7 @@ class AppContainer:
                         account_id=cf_account_id,
                         api_token=cf_api_token,
                         model=cf_model,
-                        timeout_seconds=12.0,
-                    ),
-                ))
-
-            # Tier 2 — Cloudflare Worker proxy (llama-3.1-8b-fast-v2 via Worker propio)
-            # Token: CLOUDFLARE_API_KEY (@Agustin41813 confirmed working 2026-09-25)
-            if cf_worker_url and cf_worker_url.startswith("https://") and cf_worker_key:
-                from study_engine.llm.backends import CloudflareWorkerBackend
-                ordered_providers.append((
-                    "cloudflare-worker:llama-3.1-8b-fast-v2",
-                    CloudflareWorkerBackend(
-                        worker_url=cf_worker_url,
-                        api_key=cf_worker_key,
-                        timeout_seconds=8.0,
+                        timeout_seconds=16.0,
                     ),
                 ))
 
@@ -302,44 +303,23 @@ class AppContainer:
                         api_key=xkiro_key,
                         base_url=os.getenv("XKIRO_BASE_URL", "https://api.xkiro.com/v1"),
                         default_model=xkiro_model,
-                        timeout_seconds=10.0,
+                        timeout_seconds=12.0,
                     ),
                 ))
 
-            # Tier 4 — Gemini
-            # gemini-3.5-flash-lite: límites free-tier más amplios (preferido por usuario)
-            # gemini-3.6-flash: confirmado HTTP 200 @ 1.6s pero con menos quota gratis
-            # Override via GEMINI_MODEL env var para cambiar en runtime.
-            if gemini_key and len(gemini_key) > 15 and not gemini_key.startswith("<"):
-                gem_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+            # Tier 4 — Cloudflare Worker proxy (llama-3.1-8b-fast-v2 via Worker propio)
+            if cf_worker_url and cf_worker_url.startswith("https://") and cf_worker_key:
+                from study_engine.llm.backends import CloudflareWorkerBackend
                 ordered_providers.append((
-                    f"gemini:{gem_model}",
-                    GeminiBackend(
-                        api_key=gemini_key,
-                        model_name=gem_model,
-                        timeout_seconds=8.0,
+                    "cloudflare-worker:llama-3.1-8b-fast-v2",
+                    CloudflareWorkerBackend(
+                        worker_url=cf_worker_url,
+                        api_key=cf_worker_key,
+                        timeout_seconds=12.0,
                     ),
                 ))
-
-                # Tier 4b — Gemma 4 (misma key de Google AI Studio, sin costo adicional)
-                # gemma-4-31b-it: disponible pero timeout bajo carga alta (12s+)
-                # gemma-4-26b-a4b-it: confirmado HTTP 200 @ 4.4s (2026-09-25)
-                # Se activan como fallback dentro del mismo tier de Google.
-                for gemma_model in [
-                    os.getenv("GEMMA_MODEL", "gemma-4-31b-it"),   # probar primero
-                    "gemma-4-26b-a4b-it",                          # confirmado funcional
-                ]:
-                    ordered_providers.append((
-                        f"google:{gemma_model}",
-                        GeminiBackend(
-                            api_key=gemini_key,
-                            model_name=gemma_model,
-                            timeout_seconds=12.0,  # Gemma necesita más tiempo que Gemini
-                        ),
-                    ))
 
             # Tier 5 — SambaNova (Meta-Llama-3.3-70B-Instruct)
-            # Key confirmed valid (models list HTTP 200); balance refreshed 2026-09-25.
             if sambanova_key and len(sambanova_key) > 10:
                 sn_model = os.getenv("SAMBANOVA_MODEL", "Meta-Llama-3.3-70B-Instruct")
                 ordered_providers.append((
@@ -348,26 +328,23 @@ class AppContainer:
                         api_key=sambanova_key,
                         base_url=os.getenv("SAMBANOVA_BASE_URL", "https://api.sambanova.ai/v1"),
                         default_model=sn_model,
-                        timeout_seconds=12.0,
+                        timeout_seconds=16.0,
                     ),
                 ))
 
-            # Tier 6 — Cerebras (PENDIENTE BILLING: HTTP 402 en ambos modelos)
-            # Desactivado hasta recargar créditos en https://api.cerebras.ai
-            # Modelos disponibles: qwen-3.8-27b, gpt-oss-120b
-            # Para reactivar, descomentar:
-            # cerebras_key = (os.getenv("CEREBRAS_API_KEY") or "").strip()
-            # if cerebras_key and cerebras_key.startswith("csk-"):
-            #     cerebras_model = os.getenv("CEREBRAS_MODEL", "qwen-3.8-27b")
-            #     ordered_providers.append((
-            #         f"cerebras:{cerebras_model}",
-            #         HttpOpenAIBackend(
-            #             api_key=cerebras_key,
-            #             base_url="https://api.cerebras.ai/v1",
-            #             default_model=cerebras_model,
-            #             timeout_seconds=8.0,
-            #         ),
-            #     ))
+            # Tier 6 — Groq (al final: límite 7.000 ITPM free-tier, siempre excedido por TALOS)
+            # Útil como último recurso si todos los demás fallan.
+            if groq_key and groq_key.startswith("gsk_"):
+                groq_model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
+                ordered_providers.append((
+                    f"groq:{groq_model}",
+                    HttpOpenAIBackend(
+                        api_key=groq_key,
+                        base_url="https://api.groq.com/openai/v1",
+                        default_model=groq_model,
+                        timeout_seconds=6.0,
+                    ),
+                ))
 
             # Tier 7 — NVIDIA NIM (~22s TTFT on reasoning models, word-replay path)
             if nvidia_key and nvidia_key.startswith("nvapi-"):
@@ -382,16 +359,15 @@ class AppContainer:
                     ),
                 ))
 
-        if not ordered_providers:
-            # No keys configured — offline oracle handled inside MultiFallbackBackend
-            logger.warning(
-                "[MULTI_FALLBACK] No LLM provider keys configured. "
-                "All requests will use OfflinePedagogicalBackend."
-            )
+            # Cerebras (PENDIENTE BILLING: HTTP 402) — descomentar para reactivar:
+            # cerebras_key = (os.getenv("CEREBRAS_API_KEY") or "").strip()
+            # if cerebras_key and cerebras_key.startswith("csk-"):
+            #     ...
 
+        # MultiFallbackBackend con timeouts específicos por proveedor
         multi_backend = MultiFallbackBackend(
             providers=ordered_providers if ordered_providers else [("offline_oracle_stub", OfflinePedagogicalBackend())],
-            timeout_per_provider=8.0,
+            timeout_per_provider=12.0,
         )
 
         llm_client = LLMClient(backend=multi_backend)

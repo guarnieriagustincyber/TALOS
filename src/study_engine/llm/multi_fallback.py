@@ -36,6 +36,20 @@ from study_engine.llm.exceptions import LLMBackendError
 
 logger = logging.getLogger(__name__)
 
+# Default timeout budget (in seconds) tailored to each provider's characteristics.
+# Fast API gateways (Groq) get tighter budgets; reasoning or large-parameter models
+# (Cloudflare 70B, NVIDIA, Gemini) get the time they actually need.
+DEFAULT_PROVIDER_TIMEOUTS: Dict[str, float] = {
+    "groq": 6.0,
+    "cloudflare-direct": 16.0,
+    "cloudflare-worker": 12.0,
+    "xkiro": 12.0,
+    "gemini": 20.0,
+    "google": 20.0,
+    "sambanova": 14.0,
+    "nvidia": 30.0,
+}
+
 
 class MultiFallbackBackend:
     """Cascading multi-provider backend with per-provider timeouts.
@@ -46,23 +60,43 @@ class MultiFallbackBackend:
         Ordered list of ``(display_name, backend_instance)`` pairs.
         Backends are tried in list order; first success wins.
     timeout_per_provider:
-        Per-provider wall-clock timeout in seconds (applied via
-        ``asyncio.wait_for`` on the stream path, and as the ``httpx``
-        client timeout on the sync complete path).
+        Default fallback timeout in seconds when a provider is not in
+        ``provider_timeouts``.
+    provider_timeouts:
+        Optional dictionary mapping provider prefix or full name to timeout
+        in seconds. Defaults to ``DEFAULT_PROVIDER_TIMEOUTS``.
     """
 
     def __init__(
         self,
         providers: List[Tuple[str, Any]],
-        timeout_per_provider: float = 8.0,
+        timeout_per_provider: float = 12.0,
+        provider_timeouts: Optional[Dict[str, float]] = None,
     ) -> None:
         if not providers:
             raise ValueError("MultiFallbackBackend requires at least one provider.")
         self.providers = providers
         self.timeout_per_provider = timeout_per_provider
+        self.provider_timeouts = (
+            {**DEFAULT_PROVIDER_TIMEOUTS, **provider_timeouts}
+            if provider_timeouts
+            else dict(DEFAULT_PROVIDER_TIMEOUTS)
+        )
         self.last_successful_provider: Optional[str] = None
         # Kept for interface parity with CircuitBreakerBackend
         self._last_finish_reason: Optional[str] = None
+
+    def get_provider_timeout(self, provider_name: str) -> float:
+        """Resolve specific timeout for a provider based on its name/prefix."""
+        # 1. Exact match
+        if provider_name in self.provider_timeouts:
+            return self.provider_timeouts[provider_name]
+        # 2. Prefix match (e.g. 'groq:qwen/qwen3.8-27b' -> 'groq')
+        prefix = provider_name.split(":")[0].lower()
+        if prefix in self.provider_timeouts:
+            return self.provider_timeouts[prefix]
+        # 3. Fallback to default
+        return self.timeout_per_provider
 
     # ------------------------------------------------------------------
     # Synchronous complete()  (ProviderBackend protocol)
@@ -121,6 +155,7 @@ class MultiFallbackBackend:
             try:
                 t0 = time.perf_counter()
                 emitted_any = False
+                timeout = self.get_provider_timeout(name)
 
                 if hasattr(backend, "stream") and callable(getattr(backend, "stream")):
                     # Native streaming backend (e.g. GeminiBackend)
@@ -136,7 +171,7 @@ class MultiFallbackBackend:
 
                     gen = _gen_stream(backend)
                     async for token in _timeout_first_token(
-                        gen, timeout=self.timeout_per_provider, name=name
+                        gen, timeout=timeout, name=name
                     ):
                         if not emitted_any:
                             ttft = (time.perf_counter() - t0) * 1000
@@ -167,11 +202,11 @@ class MultiFallbackBackend:
                     try:
                         completion = await asyncio.wait_for(
                             asyncio.to_thread(backend.complete, bundle),
-                            timeout=self.timeout_per_provider,
+                            timeout=timeout,
                         )
                     except asyncio.TimeoutError:
                         raise LLMBackendError(
-                            f"{name}: complete() timed out after {self.timeout_per_provider}s"
+                            f"{name}: complete() timed out after {timeout}s"
                         )
 
                     full_text = getattr(completion, "text", None) or str(completion)

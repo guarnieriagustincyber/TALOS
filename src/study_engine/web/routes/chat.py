@@ -448,10 +448,26 @@ def _handle_folder_streaming(decision: Dict[str, Any]) -> StreamingResponse:
     return StreamingResponse(folder_event_stream(), media_type="text/event-stream")
 
 
-def _resolve_chat_backend(container: AppContainer) -> Any:
-    """Determine active LLM backend from container or fall back to offline oracle."""
+def _resolve_chat_backend(container: AppContainer, estimated_tokens: Optional[int] = None) -> Any:
+    """Determine active LLM backend from container or fall back to offline oracle.
+
+    If estimated_tokens is provided and container provides select_provider_tier,
+    dynamically reorders the cascade so large prompts (>5000 tokens) route
+    directly to Gemini/Cloudflare without bouncing on Groq's 7k ITPM rate limit.
+    """
     llm_backend = getattr(container, "llm_backend", None)
     if llm_backend is not None:
+        if estimated_tokens is not None and hasattr(container, "select_provider_tier"):
+            try:
+                from study_engine.llm.multi_fallback import MultiFallbackBackend
+                ordered = container.select_provider_tier(estimated_tokens)
+                return MultiFallbackBackend(
+                    providers=ordered,
+                    timeout_per_provider=llm_backend.timeout_per_provider,
+                    provider_timeouts=getattr(llm_backend, "provider_timeouts", None),
+                )
+            except Exception as e:
+                logger.debug("Error adaptando backend por tokens: %s", e)
         return llm_backend
     if hasattr(container.controller, "tutor_policy") and hasattr(container.controller.tutor_policy, "generator"):
         return container.controller.tutor_policy.generator
@@ -1619,7 +1635,15 @@ async def chat_query(
         _ACTIVE_TURN_HISTORIES[history_key].clear()
 
     phase_history = _ACTIVE_TURN_HISTORIES.setdefault(history_key, PhaseHistory())
-    llm_backend = _resolve_chat_backend(container)
+
+    # Estimación rápida de tokens de entrada (1 token ≈ 4 caracteres en español)
+    # Si supera los 5.000 tokens, _resolve_chat_backend prioriza Gemini / Cloudflare Direct
+    # para evitar rebotar contra el límite estricto de 7.000 ITPM de la capa gratuita de Groq.
+    ctx_len = len(context_pack.formatted_context) if context_pack and getattr(context_pack, "formatted_context", None) else 0
+    sys_prompt_len = len(getattr(contract, "base_system_prompt", "")) if contract else 10000
+    estimated_input_tokens = (sys_prompt_len + ctx_len + len(prompt_text)) // 4
+
+    llm_backend = _resolve_chat_backend(container, estimated_tokens=estimated_input_tokens)
 
     # Memoria de corto plazo (Fase 2): recuperar buffer de turnos y registrar el turno actual del usuario.
     client_turns = [

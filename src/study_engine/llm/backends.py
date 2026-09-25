@@ -365,6 +365,74 @@ class HttpOpenAIBackend(ProviderBackend):
             generator_abstained=False,
         )
 
+    async def stream(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        max_tokens: int = 1500,
+        phase_id: Optional[str] = None,
+        context: Optional[str] = None,
+    ):
+        """Stream completion tokens in real-time using OpenAI-compatible SSE."""
+        if (
+            self._base_url.endswith("/openai")
+            or self._base_url.endswith("/v1")
+        ):
+            url = f"{self._base_url}/chat/completions"
+        else:
+            url = f"{self._base_url}/v1/chat/completions"
+
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream",
+        }
+        if self._api_key:
+            headers["Authorization"] = f"Bearer {self._api_key}"
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+        payload = {
+            "model": self._default_model,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "stream": True,
+        }
+
+        timeout = httpx.Timeout(timeout=self._timeout_seconds, connect=5.0)
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            async with client.stream("POST", url, headers=headers, json=payload) as response:
+                if response.status_code in (503, 429):
+                    raise LLMBackendError(f"Backend rate-limited (HTTP {response.status_code})")
+                if response.status_code != 200:
+                    err_bytes = await response.aread()
+                    raise LLMBackendError(
+                        f"Backend HTTP {response.status_code}: {err_bytes.decode('utf-8', errors='replace')}"
+                    )
+
+                async for line in response.aiter_lines():
+                    line = line.strip()
+                    if not line or not line.startswith("data:"):
+                        continue
+                    data_str = line[5:].strip()
+                    if data_str == "[DONE]":
+                        break
+                    try:
+                        chunk_data = json.loads(data_str)
+                        choices = chunk_data.get("choices", [])
+                        if not choices:
+                            continue
+                        fr = choices[0].get("finish_reason")
+                        if fr:
+                            self._last_finish_reason = fr
+                        delta = choices[0].get("delta", {})
+                        content_piece = delta.get("content", "")
+                        if content_piece:
+                            yield content_piece
+                    except json.JSONDecodeError:
+                        continue
+
     def close(self) -> None:
         """Close internal HTTP client if owned."""
         if self._owns_client:
