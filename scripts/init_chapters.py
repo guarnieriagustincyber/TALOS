@@ -158,17 +158,118 @@ def init_chapters_for_notebook(notebook_id: str, db_path: Path, output_path: Pat
     return mapping
 
 
+def extract_chapters_from_pdf(
+    pdf_path: str | Path,
+    notebook_id: str,
+    source_id: str,
+    db_path: Path | None = None,
+    output_path: Path | None = None,
+) -> dict:
+    """Extrae capítulos desde los bookmarks del PDF y genera chapters.json (Matiz A)."""
+    import fitz  # pymupdf
+
+    p = Path(pdf_path)
+    if not p.exists():
+        raise FileNotFoundError(f"PDF not found at {pdf_path}")
+
+    doc = fitz.open(str(p))
+    toc = doc.get_toc()  # [[level, title, page], ...]
+
+    # Cargar KCs del cuaderno
+    kc_catalog_path = Path("config/notebook_kc_catalog.json")
+    notebook_kcs = []
+    if kc_catalog_path.exists():
+        try:
+            with open(kc_catalog_path, "r", encoding="utf-8") as f:
+                kc_data = json.load(f)
+                entry = kc_data.get(notebook_id, {})
+                notebook_kcs = entry.get("kcs", []) if isinstance(entry, dict) else []
+        except Exception as e:
+            logger.debug("Error loading notebook_kc_catalog: %s", e)
+
+    # Identificar entradas de capítulos
+    chapter_candidates = []
+    for level, title, page in toc:
+        clean_title = title.strip()
+        if re.search(r"\b(?:Chapter|Cap[ií]tulo)\s+\d+\b", clean_title, re.IGNORECASE):
+            chapter_candidates.append((clean_title, page))
+        elif level == 1 and not re.search(r"\b(?:Part|Parte|Contents|Index|Append|Online|Cover|Title|About|Preface|Ack)\b", clean_title, re.IGNORECASE):
+            chapter_candidates.append((clean_title, page))
+
+    chapters = []
+    for i, (title, page) in enumerate(chapter_candidates):
+        page_end = chapter_candidates[i + 1][1] - 1 if i + 1 < len(chapter_candidates) else doc.page_count
+        if page_end < page:
+            page_end = page
+
+        num_match = re.search(r"\b(\d+)\b", title)
+        chap_num = int(num_match.group(1)) if num_match else (i + 1)
+
+        # Match KCs
+        matching_kcs = []
+        t_lower = title.lower()
+        for kc in notebook_kcs:
+            if isinstance(kc, dict):
+                k_id = kc.get("kc_id", "")
+                k_title = kc.get("title", "")
+                subtopics = kc.get("subtopics", [])
+            else:
+                k_id = str(kc)
+                k_title = str(kc)
+                subtopics = []
+
+            for word in re.findall(r"\w{4,}", t_lower):
+                if word in k_id.lower() or word in k_title.lower() or any(word in st.lower() for st in subtopics):
+                    if k_id not in matching_kcs:
+                        matching_kcs.append(k_id)
+
+        chapters.append({
+            "chapter_number": chap_num,
+            "title": title,
+            "page_start": page,
+            "page_end": page_end,
+            "primary_kcs": matching_kcs,
+        })
+
+    doc.close()
+
+    result = {
+        "notebook_id": notebook_id,
+        "sources": {
+            source_id: {
+                "title": p.stem,
+                "author": "",
+                "chapters": chapters,
+            }
+        },
+    }
+
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, ensure_ascii=False)
+        logger.info("Saved extracted chapters from PDF to %s (%d chapters)", output_path, len(chapters))
+
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description="Initialize chapter mapping template for a notebook")
-    parser.add_argument("--notebook", required=True, help="Notebook ID (e.g. fase0-soc)")
+    parser.add_argument("--notebook", required=True, help="Notebook ID (e.g. fase0-soc, fadena-so2)")
     parser.add_argument("--db-path", help="Path to knowledge_store.db")
+    parser.add_argument("--pdf-path", help="Path to PDF file for automatic TOC extraction (Matiz A)")
+    parser.add_argument("--source-id", help="Source ID when using --pdf-path")
     parser.add_argument("--output", help="Output JSON path")
     args = parser.parse_args()
 
     db_path = find_db_path(args.db_path)
     output_path = Path(args.output) if args.output else Path(f"config/notebooks/{args.notebook}/chapters.json")
 
-    init_chapters_for_notebook(args.notebook, db_path, output_path)
+    if args.pdf_path:
+        source_id = args.source_id or f"src_{Path(args.pdf_path).stem}"
+        extract_chapters_from_pdf(args.pdf_path, args.notebook, source_id, db_path=db_path, output_path=output_path)
+    else:
+        init_chapters_for_notebook(args.notebook, db_path, output_path)
 
 
 if __name__ == "__main__":

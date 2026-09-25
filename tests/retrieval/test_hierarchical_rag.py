@@ -135,6 +135,12 @@ def memory_store():
     store.link_chunk_to_chapter("chk_leaf_1", "chap_fase0-soc_joyanes_2")
     store.link_chunk_to_chapter("chk_leaf_2", "chap_fase0-soc_joyanes_3")
 
+    # Warmup embedding model so latency tests measure pure retrieval rather than PyTorch cold-start
+    try:
+        store.search_hybrid("warmup", "fase0-soc")
+    except Exception:
+        pass
+
     return store
 
 
@@ -390,3 +396,75 @@ def test_notebook_merkle_root_invalidation(memory_store):
     root3 = memory_store.compute_notebook_merkle_root("fase0-soc")
     assert root3 != root1
     assert len(root3) == 64
+
+
+def test_macro_query(memory_store):
+    """Test macro query: '¿Cómo se articula la protección de memoria entre CPU y Kernel en todo el programa?' -> MACRO, <8s."""
+    query = "¿Cómo se articula la protección de memoria entre CPU y Kernel en todo el programa?"
+    t0 = time.perf_counter()
+    decision = GranularityRouter.route(query)
+    assert decision.granularity == RetrievalGranularity.MACRO
+    summaries = memory_store.search_chapter_summaries(query, notebook_id="fase0-soc", limit=2)
+    elapsed = time.perf_counter() - t0
+    assert elapsed < 8.0
+    assert len(summaries) > 0
+
+
+def test_micro_query(memory_store):
+    """Test micro query: 'char *s; strcpy(s, "hola") crashea' -> MICRO, <4s."""
+    query = 'char *s; strcpy(s, "hola") crashea'
+    t0 = time.perf_counter()
+    decision = GranularityRouter.route(query)
+    assert decision.granularity == RetrievalGranularity.MICRO
+    results = memory_store.search_hybrid(query, notebook_id="fase0-soc", limit=decision.max_leaf_chunks)
+    elapsed = time.perf_counter() - t0
+    assert elapsed < 4.0
+
+
+def test_hybrid_query(memory_store):
+    """Test hybrid query: 'Explicame la paginación en x86-64' -> HYBRID, <6s."""
+    query = "Explicame la paginación en x86-64"
+    t0 = time.perf_counter()
+    decision = GranularityRouter.route(query)
+    assert decision.granularity == RetrievalGranularity.HYBRID
+    mock_container = MagicMock()
+    mock_container.knowledge_store = memory_store
+    mock_container.pedagogical_orchestrator = MagicMock(_kc_catalog={})
+    pack, raw_chunks = _assemble_epistemic_context(
+        store=memory_store,
+        container=mock_container,
+        prompt_text=query,
+        target_notebook_id="fase0-soc",
+        granularity_decision=decision,
+    )
+    elapsed = time.perf_counter() - t0
+    assert elapsed < 6.0
+
+
+def test_router_deterministic():
+    """Validates that 100 consecutive calls with the same query produce identical RoutingDecision."""
+    query = "Explicame la paginación en x86-64"
+    reference = GranularityRouter.route(query)
+    for _ in range(100):
+        decision = GranularityRouter.route(query)
+        assert decision.granularity == reference.granularity
+        assert decision.max_parent_nodes == reference.max_parent_nodes
+        assert decision.max_leaf_chunks == reference.max_leaf_chunks
+        assert decision.target_token_budget == reference.target_token_budget
+
+
+def test_fadena_so2_pilot_retrieval():
+    """Validates that fadena-so2 chapters are indexed in web_state db and retrievable."""
+    from pathlib import Path
+    db_p = Path("data/web_state/knowledge_store.db")
+    if not db_p.exists():
+        pytest.skip("data/web_state/knowledge_store.db not present")
+
+    store = KnowledgeStore(str(db_p))
+    summaries = store.get_chapter_summaries_by_notebook("fadena-so2")
+    assert len(summaries) >= 10, f"Expected >= 10 chapters for fadena-so2, got {len(summaries)}"
+
+    # Search for Virtual Memory in fadena-so2
+    res = store.search_chapter_summaries("Virtual Memory paging segmentation", notebook_id="fadena-so2", limit=2)
+    assert len(res) > 0
+    assert any("Virtual Memory" in s.title or "Memory" in s.title for s in res)
