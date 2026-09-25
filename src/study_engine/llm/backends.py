@@ -369,3 +369,94 @@ class HttpOpenAIBackend(ProviderBackend):
         """Close internal HTTP client if owned."""
         if self._owns_client:
             self._client.close()
+
+
+class CloudflareWorkerBackend(ProviderBackend):
+    """Backend for Cloudflare Workers AI proxy.
+
+    The Worker at ``talos2.guarnieriagustincyber.workers.dev`` returns a
+    non-standard envelope::
+
+        {"success": true, "result": {"choices": [{"text": "..."}}], "model": "..."}}
+
+    The ``text`` field in each choice is the generated content (not
+    ``message.content`` as in OpenAI chat format).  This backend unwraps that
+    envelope and normalises the response into a ``ProviderCompletion``.
+    """
+
+    def __init__(
+        self,
+        worker_url: str,
+        api_key: str,
+        timeout_seconds: float = 10.0,
+    ) -> None:
+        self._url = worker_url.rstrip("/") + "/v1/chat/completions"
+        self._api_key = api_key
+        self._timeout = timeout_seconds
+        self._client = httpx.Client(timeout=timeout_seconds)
+        self.model_name = "cloudflare-worker"
+
+    def complete(self, prompt_bundle: PromptBundle) -> ProviderCompletion:
+        headers = {
+            "Authorization": f"Bearer {self._api_key}",
+            "Content-Type": "application/json",
+        }
+        messages = [{"role": "system", "content": prompt_bundle.system_prompt}]
+        for m in prompt_bundle.messages:
+            messages.append({"role": m.role.value, "content": m.content})
+
+        payload: Dict[str, Any] = {
+            "messages": messages,
+            "max_tokens": prompt_bundle.parameters.max_output_tokens or 500,
+        }
+
+        start = time.perf_counter()
+        try:
+            response = self._client.post(self._url, headers=headers, json=payload)
+        except httpx.TimeoutException as exc:
+            raise LLMTimeoutError(f"Cloudflare Worker timed out: {exc}") from exc
+        except httpx.RequestError as exc:
+            raise LLMConnectionError(f"Cloudflare Worker connection error: {exc}") from exc
+
+        latency_ms = (time.perf_counter() - start) * 1000.0
+
+        if response.status_code != 200:
+            raise LLMBackendError(
+                f"Cloudflare Worker HTTP {response.status_code}: {response.text[:200]}"
+            )
+
+        try:
+            data = response.json()
+        except Exception as exc:
+            raise LLMBackendError(f"Cloudflare Worker invalid JSON: {exc}") from exc
+
+        # Unwrap {"success": true, "result": {...}} envelope
+        result = data.get("result", data)
+        choices = result.get("choices") or data.get("choices") or []
+        if not choices:
+            raise LLMBackendError("Cloudflare Worker: no choices in response")
+
+        first = choices[0]
+        # Prefer message.content (chat format), fall back to text (completion format)
+        content: Optional[str] = None
+        if isinstance(first.get("message"), dict):
+            content = first["message"].get("content")
+        if not content:
+            content = first.get("text") or first.get("content")
+
+        if not content or not content.strip():
+            raise LLMBackendError("Cloudflare Worker: blank content in response")
+
+        reported_model = result.get("model") or data.get("model") or "cloudflare-worker"
+        self.model_name = reported_model
+
+        return ProviderCompletion(
+            text=content.strip(),
+            latency_ms=latency_ms,
+            tokens_used=None,
+            model=reported_model,
+            generator_abstained=False,
+        )
+
+    def close(self) -> None:
+        self._client.close()

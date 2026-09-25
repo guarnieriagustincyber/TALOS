@@ -229,10 +229,13 @@ class AppContainer:
         )
 
         # ── Key extraction ─────────────────────────────────────────────
-        groq_key    = (os.getenv("GROQ_API_KEY") or "").strip()
-        xkiro_key   = (os.getenv("XKIRO_API_KEY") or "").strip()
-        nvidia_key  = (os.getenv("NVIDIA_API_KEY") or "").strip()
-        gemini_key  = (os.getenv("GEMINI_API_KEY") or "").strip()
+        groq_key       = (os.getenv("GROQ_API_KEY") or "").strip()
+        xkiro_key      = (os.getenv("XKIRO_API_KEY") or "").strip()
+        gemini_key     = (os.getenv("GEMINI_API_KEY") or "").strip()
+        sambanova_key  = (os.getenv("SAMBANOVA_API_KEY") or "").strip()
+        cf_worker_url  = (os.getenv("CLOUDFLARE_WORKER_URL") or "").strip()
+        cf_worker_key  = (os.getenv("CLOUDFLARE_API_KEY") or "").strip()
+        nvidia_key     = (os.getenv("NVIDIA_API_KEY") or "").strip()
         # Keys confirmed billing/quota problems — kept for future re-activation:
         # cerebras_key = (os.getenv("CEREBRAS_API_KEY") or "").strip()
         # openai_key   = (os.getenv("OPENAI_API_KEY") or "").strip()
@@ -246,7 +249,7 @@ class AppContainer:
             from study_engine.llm.backends import ReplayMockBackend
             ordered_providers.append(("replay_mock", ReplayMockBackend()))
         else:
-            # Tier 1 — Groq (~1.1s measured)
+            # Tier 1 — Groq (~750ms measured)
             if groq_key and groq_key.startswith("gsk_"):
                 groq_model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
                 ordered_providers.append((
@@ -259,7 +262,20 @@ class AppContainer:
                     ),
                 ))
 
-            # Tier 2 — Xkiro (~1.5s measured)
+            # Tier 2 — Cloudflare Worker (~1s measured; llama-3.1-8b-fast-v2)
+            # Token: CLOUDFLARE_API_KEY (@Agustin41813 confirmed working 2026-09-25)
+            if cf_worker_url and cf_worker_url.startswith("https://") and cf_worker_key:
+                from study_engine.llm.backends import CloudflareWorkerBackend
+                ordered_providers.append((
+                    "cloudflare:llama-3.1-8b-fast-v2",
+                    CloudflareWorkerBackend(
+                        worker_url=cf_worker_url,
+                        api_key=cf_worker_key,
+                        timeout_seconds=8.0,
+                    ),
+                ))
+
+            # Tier 3 — Xkiro (~1.5s measured)
             if xkiro_key and len(xkiro_key) > 10 and not xkiro_key.startswith("<"):
                 xkiro_model = os.getenv("XKIRO_MODEL", "cohere/command-r-plus-08-2024")
                 ordered_providers.append((
@@ -272,8 +288,8 @@ class AppContainer:
                     ),
                 ))
 
-            # Tier 3 — Gemini (gemini-3.6-flash: confirmed HTTP 200 @ 1.6s, 2026-09-25)
-            # gemini-3.5-flash-lite → saturada/timeout.  gemini-2.5-flash → deprecada en este endpoint.
+            # Tier 4 — Gemini (gemini-3.6-flash: confirmed HTTP 200 @ 1.6s, 2026-09-25)
+            # gemini-3.5-flash-lite → saturada/timeout.  gemini-2.5-flash → deprecada.
             # Override via GEMINI_MODEL env var si necesitás otro modelo.
             if gemini_key and len(gemini_key) > 15 and not gemini_key.startswith("<"):
                 gem_model = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
@@ -286,7 +302,21 @@ class AppContainer:
                     ),
                 ))
 
-            # Tier 3b — Cerebras (PENDIENTE BILLING: HTTP 402 en ambos modelos)
+            # Tier 5 — SambaNova (Meta-Llama-3.3-70B-Instruct)
+            # Key confirmed valid (models list HTTP 200); balance refreshed 2026-09-25.
+            if sambanova_key and len(sambanova_key) > 10:
+                sn_model = os.getenv("SAMBANOVA_MODEL", "Meta-Llama-3.3-70B-Instruct")
+                ordered_providers.append((
+                    f"sambanova:{sn_model}",
+                    HttpOpenAIBackend(
+                        api_key=sambanova_key,
+                        base_url=os.getenv("SAMBANOVA_BASE_URL", "https://api.sambanova.ai/v1"),
+                        default_model=sn_model,
+                        timeout_seconds=12.0,
+                    ),
+                ))
+
+            # Tier 6 — Cerebras (PENDIENTE BILLING: HTTP 402 en ambos modelos)
             # Desactivado hasta recargar créditos en https://api.cerebras.ai
             # Modelos disponibles: qwen-3.8-27b, gpt-oss-120b
             # Para reactivar, descomentar:
@@ -303,7 +333,7 @@ class AppContainer:
             #         ),
             #     ))
 
-            # Tier 4 — NVIDIA NIM (~22s TTFT on reasoning models, word-replay path)
+            # Tier 7 — NVIDIA NIM (~22s TTFT on reasoning models, word-replay path)
             if nvidia_key and nvidia_key.startswith("nvapi-"):
                 nvidia_model = os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b")
                 ordered_providers.append((
