@@ -26,8 +26,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from study_engine.curriculum.registry import CurriculumRegistry
 from study_engine.generation.tutor import StructuredTutor
-from study_engine.llm.backends import HttpOpenAIBackend, ReplayMockBackend
-from study_engine.llm.circuit_breaker import CircuitBreakerBackend
+from study_engine.llm.backends import HttpOpenAIBackend
 from study_engine.llm.client import LLMClient
 from study_engine.llm.gemini_backend import GeminiBackend
 from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
@@ -173,10 +172,32 @@ class AppContainer:
             self.controller.semantic_router = SemanticRouter()
 
     def _init_llm_subsystems(self) -> None:
-        """Configure LLM Pool, Router, and authoritative provider."""
+        """Configure LLM Pool, Router, and authoritative provider.
+
+        ARCHITECTURE: Multi-Provider Fallback Cascade
+        ─────────────────────────────────────────────
+        Instead of a static ``if/elif`` chain that picks one provider at
+        startup and an single-level CircuitBreakerBackend, we now use a
+        ``MultiFallbackBackend`` that tries providers in latency order at
+        *call time*, with a per-provider asyncio timeout.
+
+        Provider order (measured, 2026-09-25):
+          Tier 1 — <1.5s:   Groq qwen3.8-27b (~1.1s)
+          Tier 2 — 1-3s:    Xkiro cohere/command-r-plus (~1.5s)
+          Tier 3 — 2-10s:   Gemini gemini-3.5-flash-lite (when healthy)
+          Tier 4 — ~22s:    NVIDIA NIM nemotron-3.5-lightning (reasoning trace)
+          Tier 5 — offline: OfflinePedagogicalBackend (handled inside MultiFallbackBackend)
+
+        Skipped providers (billing/quota exhausted, confirmed 2026-09-25):
+          - Cerebras  → HTTP 402 (billing required)
+          - OpenAI    → HTTP 429 (no credits)
+          - SambaNova → not tested / not in active tier
+          - Cloudflare → API token too short (likely placeholder)
+        """
         from study_engine.llm.quota_manager import QuotaManager
         from study_engine.llm.sanitizer import DataSanitizer
         from study_engine.llm.router import TalosLLMRouter
+        from study_engine.llm.multi_fallback import MultiFallbackBackend
         from study_engine.llm.providers import (
             AbstractLLMProvider,
             CerebrasProvider,
@@ -190,6 +211,7 @@ class AppContainer:
         self.quota_manager = QuotaManager(db_path=self.working_dir / "quotas.db")
         self.sanitizer = DataSanitizer()
 
+        # TalosLLMRouter: retained for /api/llm-pool/health endpoint only
         pool_providers: Dict[str, AbstractLLMProvider] = {
             "nvidia": NvidiaProvider(),
             "cerebras": CerebrasProvider(),
@@ -206,107 +228,104 @@ class AppContainer:
             quota_manager=self.quota_manager,
         )
 
-        groq_key = (os.getenv("GROQ_API_KEY") or "").strip()
-        openai_key = (os.getenv("OPENAI_API_KEY") or "").strip()
-        nvidia_key = (os.getenv("NVIDIA_API_KEY") or "").strip()
-        gemini_key = (os.getenv("GEMINI_API_KEY") or "").strip()
-        xkiro_key = (os.getenv("XKIRO_API_KEY") or "").strip()
+        # ── Key extraction ─────────────────────────────────────────────
+        groq_key    = (os.getenv("GROQ_API_KEY") or "").strip()
+        xkiro_key   = (os.getenv("XKIRO_API_KEY") or "").strip()
+        nvidia_key  = (os.getenv("NVIDIA_API_KEY") or "").strip()
+        gemini_key  = (os.getenv("GEMINI_API_KEY") or "").strip()
+        # Keys confirmed billing/quota problems — kept for future re-activation:
+        # cerebras_key = (os.getenv("CEREBRAS_API_KEY") or "").strip()
+        # openai_key   = (os.getenv("OPENAI_API_KEY") or "").strip()
 
-        chosen_backend = None
-        chosen_provider = "offline_oracle"
-        chosen_model = "talos-pedagogical-oracle-v1"
+        # ── Build ordered provider list ────────────────────────────────
+        # Each entry: (display_name, backend_instance)
+        # Only append a provider if its key passes basic format validation.
+        ordered_providers = []
 
         if self.use_mock:
-            chosen_backend = ReplayMockBackend()
-            chosen_provider = "replay_mock"
-            chosen_model = "mock-replay-v1"
+            from study_engine.llm.backends import ReplayMockBackend
+            ordered_providers.append(("replay_mock", ReplayMockBackend()))
         else:
-            # Prioridad 1: Gemini (gemini-3.5-flash-lite activo)
+            # Tier 1 — Groq (~1.1s measured)
+            if groq_key and groq_key.startswith("gsk_"):
+                groq_model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
+                ordered_providers.append((
+                    f"groq:{groq_model}",
+                    HttpOpenAIBackend(
+                        api_key=groq_key,
+                        base_url="https://api.groq.com/openai/v1",
+                        default_model=groq_model,
+                        timeout_seconds=8.0,
+                    ),
+                ))
+
+            # Tier 2 — Xkiro (~1.5s measured)
+            if xkiro_key and len(xkiro_key) > 10 and not xkiro_key.startswith("<"):
+                xkiro_model = os.getenv("XKIRO_MODEL", "cohere/command-r-plus-08-2024")
+                ordered_providers.append((
+                    f"xkiro:{xkiro_model}",
+                    HttpOpenAIBackend(
+                        api_key=xkiro_key,
+                        base_url=os.getenv("XKIRO_BASE_URL", "https://api.xkiro.com/v1"),
+                        default_model=xkiro_model,
+                        timeout_seconds=10.0,
+                    ),
+                ))
+
+            # Tier 3 — Gemini (healthy: sub-2s; saturated: 503 → fails fast to next)
+            # Timeout reduced to 8s (TTFT guard) — down from 60s that caused SSE disconnects.
             if gemini_key and len(gemini_key) > 15 and not gemini_key.startswith("<"):
                 gem_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
-                chosen_backend = GeminiBackend(
-                    api_key=gemini_key,
-                    model_name=gem_model,
-                    timeout_seconds=60.0,
-                )
-                chosen_provider = "gemini"
-                chosen_model = gem_model
-            # Prioridad 2: NVIDIA NIM
-            elif nvidia_key and nvidia_key.startswith("nvapi-"):
-                model = os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b")
-                chosen_backend = HttpOpenAIBackend(
-                    api_key=nvidia_key,
-                    base_url=os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1"),
-                    default_model=model,
-                    timeout_seconds=15.0,
-                )
-                chosen_provider = "nvidia"
-                chosen_model = model
-            elif groq_key and groq_key.startswith("gsk_"):
-                model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
-                chosen_backend = HttpOpenAIBackend(
-                    api_key=groq_key,
-                    base_url="https://api.groq.com/openai/v1",
-                    default_model=model,
-                    timeout_seconds=12.0,
-                )
-                chosen_provider = "groq"
-                chosen_model = model
-            elif xkiro_key and len(xkiro_key) > 10 and not xkiro_key.startswith("<"):
-                model = os.getenv("XKIRO_MODEL", "mistralai/mistral-small-2603")
-                chosen_backend = HttpOpenAIBackend(
-                    api_key=xkiro_key,
-                    base_url=os.getenv("XKIRO_BASE_URL", "https://api.xkiro.com/v1"),
-                    default_model=model,
-                    timeout_seconds=15.0,
-                )
-                chosen_provider = "xkiro"
-                chosen_model = model
-            elif openai_key and openai_key.startswith("sk-") and "placeholder" not in openai_key:
-                model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-                chosen_backend = HttpOpenAIBackend(
-                    api_key=openai_key,
-                    base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
-                    default_model=model,
-                    timeout_seconds=12.0,
-                )
-                chosen_provider = "openai"
-                chosen_model = model
+                ordered_providers.append((
+                    f"gemini:{gem_model}",
+                    GeminiBackend(
+                        api_key=gemini_key,
+                        model_name=gem_model,
+                        timeout_seconds=8.0,
+                    ),
+                ))
 
-            if chosen_backend is None:
-                chosen_backend = OfflinePedagogicalBackend()
-                chosen_provider = "offline_oracle"
-                chosen_model = "talos-pedagogical-oracle-v1"
+            # Tier 4 — NVIDIA NIM (~22s TTFT on reasoning models, word-replay path)
+            if nvidia_key and nvidia_key.startswith("nvapi-"):
+                nvidia_model = os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b")
+                ordered_providers.append((
+                    f"nvidia:{nvidia_model}",
+                    HttpOpenAIBackend(
+                        api_key=nvidia_key,
+                        base_url=os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1"),
+                        default_model=nvidia_model,
+                        timeout_seconds=30.0,
+                    ),
+                ))
 
-        fallback_backend = OfflinePedagogicalBackend()
-        if chosen_provider != "nvidia" and nvidia_key and nvidia_key.startswith("nvapi-"):
-            # Preferir NVIDIA NIM como fallback (confirmado funcional)
-            fallback_backend = HttpOpenAIBackend(
-                api_key=nvidia_key,
-                base_url=os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1"),
-                default_model=os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b"),
-                timeout_seconds=15.0,
-            )
-        elif chosen_provider != "groq" and groq_key and groq_key.startswith("gsk_"):
-            # Groq como fallback secundario con modelo activo (llama-3.3-70b-versatile fue eliminado)
-            fallback_backend = HttpOpenAIBackend(
-                api_key=groq_key,
-                base_url="https://api.groq.com/openai/v1",
-                default_model=os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b"),
-                timeout_seconds=15.0,
+        if not ordered_providers:
+            # No keys configured — offline oracle handled inside MultiFallbackBackend
+            logger.warning(
+                "[MULTI_FALLBACK] No LLM provider keys configured. "
+                "All requests will use OfflinePedagogicalBackend."
             )
 
-        cb_backend = CircuitBreakerBackend(
-            primary_backend=chosen_backend,
-            fallback_backend=fallback_backend,
+        multi_backend = MultiFallbackBackend(
+            providers=ordered_providers if ordered_providers else [("offline_oracle_stub", OfflinePedagogicalBackend())],
+            timeout_per_provider=8.0,
         )
-        llm_client = LLMClient(backend=cb_backend)
+
+        llm_client = LLMClient(backend=multi_backend)
         tutor = StructuredTutor(generator=llm_client)
         tutor_adapter = StructuredTutorAdapter(tutor)
         self.orchestrator.tutor_port = tutor_adapter
-        self.provider_name = chosen_provider
-        self.model_name = chosen_model
-        self.llm_backend = cb_backend
+
+        # Expose provider metadata for health / status endpoints
+        if ordered_providers:
+            first_name = ordered_providers[0][0]
+            self.provider_name = first_name.split(":")[0]
+            self.model_name = first_name.split(":", 1)[-1] if ":" in first_name else first_name
+        else:
+            self.provider_name = "offline_oracle"
+            self.model_name = "talos-pedagogical-oracle-v1"
+
+        self.llm_backend = multi_backend
+
 
     def _init_student_services(self) -> None:
         """Configure Student cognitive layer services (Phase E3)."""
