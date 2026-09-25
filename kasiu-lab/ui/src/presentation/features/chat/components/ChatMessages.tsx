@@ -1006,11 +1006,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                         <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
                         {msg.evidences.length} {msg.evidences.length === 1 ? "fuente consultada" : "fuentes consultadas"}
                       </button>
-                    ) : (
-                      <span className="text-[11px] text-white/25 italic">
-                        Sin fuentes curriculares externas vinculadas
-                      </span>
-                    )}
+                    ) : null}
                   </div>
 
                   <div className="flex items-center gap-2">

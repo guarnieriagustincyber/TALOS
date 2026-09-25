@@ -15,6 +15,8 @@ export interface ChatQueryRequest {
   scope_id?: string;
   scope_type?: 'folder' | 'notebook';
   requested_scope_id?: string;
+  session_id?: string;
+  recent_turns?: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
 export interface ChatQueryUiModel {
@@ -52,6 +54,8 @@ export const chatService = {
       scope_id: normalizedScopeId,
       scope_type: isFolder ? 'folder' : (req.scope_type || 'notebook'),
       requested_scope_id: req.requested_scope_id || null,
+      session_id: req.session_id || null,
+      recent_turns: req.recent_turns || null,
     };
 
     const controller = new AbortController();

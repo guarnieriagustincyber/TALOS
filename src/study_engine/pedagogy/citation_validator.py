@@ -21,10 +21,10 @@ from typing import Dict, List, Optional, Tuple
 logger = logging.getLogger(__name__)
 
 
-# Patrón de bloques de citas (soporta individuales [E1] y múltiples [E# 2292, E# 2293])
-_CITATION_BLOCK_RE = re.compile(r"\[[ \t]*[Ee][^\]]*\]")
-_ITEM_RE = re.compile(r"[Ee][ \t]*#?[ \t]*(\d*)")
-_PREFIX_RE = re.compile(r"^\[(?:[ \t]*[Ee][ \t]*#?[ \t]*\d*[ \t]*[,;]?[ \t]*)*$")
+# Patrón de bloques de citas (soporta individuales [E1], [CHUNK 364] y múltiples [E# 2292, E# 2293])
+_CITATION_BLOCK_RE = re.compile(r"\[[ \t]*(?:[Ee]|CHUNK)[^\]]*\]", re.IGNORECASE)
+_ITEM_RE = re.compile(r"(?:[Ee]|CHUNK)[ \t]*#?[ \t]*(\d*)", re.IGNORECASE)
+_PREFIX_RE = re.compile(r"^\[(?:[ \t]*(?:[Ee]|CHUNK)[ \t]*#?[ \t]*\d*[ \t]*[,;]?[ \t]*)*$", re.IGNORECASE)
 
 # Texto de reemplazo para citas alucinadas
 _INVALID_REPLACEMENT = "[ref. no verificada]"
@@ -40,11 +40,19 @@ def is_citation_prefix(buf: str) -> bool:
 class StreamCitationBuffer:
     """Lookahead buffer para validación y reescritura de citas en streaming progresivo."""
 
-    def __init__(self, validator: CitationValidator, raw_chunks: List[Dict]) -> None:
+    def __init__(
+        self,
+        validator: CitationValidator,
+        raw_chunks: List[Dict],
+        strip_invalid: bool = False,
+    ) -> None:
         self.validator = validator
         self.raw_chunks = raw_chunks
+        self.strip_invalid = strip_invalid
+        self.stripped_citations: List[str] = []
         self.buf = ""
         self.in_code_fence = False
+        self.pending_space = ""
 
     def process_token(self, token: str) -> List[str]:
         """Procesa un token entrante del LLM emitiendo fragmentos resueltos."""
@@ -52,6 +60,9 @@ class StreamCitationBuffer:
         if "```" in token:
             if token.count("```") % 2 == 1:
                 self.in_code_fence = not self.in_code_fence
+            if self.pending_space:
+                emitted.append(self.pending_space)
+                self.pending_space = ""
             if self.buf:
                 emitted.append(self.buf)
                 self.buf = ""
@@ -59,11 +70,23 @@ class StreamCitationBuffer:
             return emitted
 
         if self.in_code_fence:
+            if self.pending_space:
+                emitted.append(self.pending_space)
+                self.pending_space = ""
             if self.buf:
                 emitted.append(self.buf)
                 self.buf = ""
             emitted.append(token)
             return emitted
+
+        if self.pending_space:
+            if not token.strip():
+                return []
+            if token.lstrip()[0] in ".,;:!?\n)":
+                self.pending_space = ""
+            elif not token.startswith("["):
+                emitted.append(self.pending_space)
+                self.pending_space = ""
 
         incoming = self.buf + token
         self.buf = ""
@@ -72,18 +95,75 @@ class StreamCitationBuffer:
         while idx < len(incoming):
             bracket_pos = incoming.find("[", idx)
             if bracket_pos == -1:
-                emitted.append(incoming[idx:])
+                chunk = incoming[idx:]
+                if chunk:
+                    if self.pending_space:
+                        if chunk.lstrip() and chunk.lstrip()[0] in ".,;:!?\n)":
+                            self.pending_space = ""
+                        else:
+                            chunk = self.pending_space + chunk
+                            self.pending_space = ""
+                    emitted.append(chunk)
                 break
 
             if bracket_pos > idx:
-                emitted.append(incoming[idx:bracket_pos])
+                prefix = incoming[idx:bracket_pos]
+                if self.strip_invalid and prefix.endswith(" "):
+                    prefix_clean = prefix.rstrip(" ")
+                    trailing = prefix[len(prefix_clean):]
+                    if prefix_clean:
+                        emitted.append(self.pending_space + prefix_clean)
+                        self.pending_space = trailing
+                    else:
+                        self.pending_space += trailing
+                else:
+                    emitted.append(self.pending_space + prefix)
+                    self.pending_space = ""
                 idx = bracket_pos
 
             close_pos = incoming.find("]", bracket_pos)
             if close_pos != -1:
                 candidate = incoming[bracket_pos : close_pos + 1]
-                corrected, _ = self.validator.validate_and_rewrite(candidate, self.raw_chunks)
-                emitted.append(corrected)
+                corrected, invalid = self.validator.validate_and_rewrite(candidate, self.raw_chunks)
+
+                # Si el LLM emitió literalmente "[ref. no verificada]" o tags inválidos
+                if candidate == _INVALID_REPLACEMENT and not invalid:
+                    invalid = [candidate]
+
+                if self.strip_invalid and (_INVALID_REPLACEMENT in corrected or invalid or candidate == _INVALID_REPLACEMENT):
+                    for item in invalid:
+                        self.stripped_citations.append(item)
+                        logger.warning("Orphaned citation stripped from stream: %s", item)
+
+                    if corrected == _INVALID_REPLACEMENT or candidate == _INVALID_REPLACEMENT:
+                        corrected = ""
+                    else:
+                        inner = corrected[1:-1]
+                        parts = [p.strip() for p in inner.split(",") if p.strip() != _INVALID_REPLACEMENT.strip("[]") and p.strip()]
+                        if parts:
+                            corrected = "[" + ", ".join(parts) + "]"
+                        else:
+                            corrected = ""
+
+                    # Limpieza de espacios huérfanos antes de signos de puntuación si la cita se suprime
+                    if not corrected:
+                        rest = incoming[close_pos + 1:]
+                        if rest.strip():
+                            if rest.lstrip()[0] in ".,;:!?\n)":
+                                self.pending_space = ""
+                            else:
+                                if self.pending_space:
+                                    emitted.append(self.pending_space)
+                                    self.pending_space = ""
+                    elif self.pending_space:
+                        emitted.append(self.pending_space)
+                        self.pending_space = ""
+
+                if corrected:
+                    if self.pending_space:
+                        emitted.append(self.pending_space)
+                        self.pending_space = ""
+                    emitted.append(corrected)
                 idx = close_pos + 1
             else:
                 tail = incoming[bracket_pos:]
@@ -91,6 +171,9 @@ class StreamCitationBuffer:
                     self.buf = tail
                     break
                 else:
+                    if self.pending_space:
+                        emitted.append(self.pending_space)
+                        self.pending_space = ""
                     emitted.append(incoming[bracket_pos : bracket_pos + 1])
                     idx = bracket_pos + 1
 
@@ -99,6 +182,9 @@ class StreamCitationBuffer:
     def flush(self) -> List[str]:
         """Vacía el buffer retenido al completarse la fase."""
         emitted: List[str] = []
+        if self.pending_space:
+            emitted.append(self.pending_space)
+            self.pending_space = ""
         if self.buf:
             emitted.append(self.buf)
             self.buf = ""

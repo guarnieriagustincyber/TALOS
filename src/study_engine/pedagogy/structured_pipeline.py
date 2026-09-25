@@ -130,6 +130,20 @@ def extract_technical_checklist(user_query: str) -> List[str]:
     return entities
 
 
+_CONTINUATION_PATTERNS = [
+    re.compile(r"\b(?:se\s+cort[oó]|continu[aá]|segu[ií]|termin[aá])\b", re.IGNORECASE),
+    re.compile(r"\bestabas\s+diciendo\b", re.IGNORECASE),
+    re.compile(r"\bfalt[óo]\s+(?:el\s+final|la\s+[úu]ltima\s+parte)\b", re.IGNORECASE),
+    re.compile(r"\bqued[oó]\s+(?:a\s+medias|incomplet[ao]|cortad[ao])\b", re.IGNORECASE),
+]
+
+
+def is_continuation_query(query: str) -> bool:
+    """Return True if query is requesting to continue an interrupted or truncated prior response."""
+    q = (query or "").strip()
+    return any(p.search(q) for p in _CONTINUATION_PATTERNS)
+
+
 def extract_requested_structural_components(user_query: str, notebook_id: Optional[str] = None) -> Dict[str, str]:
     """Detecta entregables y componentes estructurales explícitos solicitados por el estudiante.
     
@@ -143,8 +157,17 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
     directives: Dict[str, str] = {}
     q = user_query.lower()
 
-    # 1. Mermaid / Diagramas de flujo
-    if re.search(r"\b(?:mermaid|diagrama(?:\s+de\s+flujo)?(?:\s+en\s+mermaid)?)\b", q):
+    shortcut_match = bool(re.search(
+        r"\b(?:(?:pasame|haceme|dame|escribime|generame)\s+(?:el\s+)?c[oó]digo|haceme\s+la\s+funci[oó]n|haceme\s+el\s+tp|para\s+que\s+lo\s+copie|para\s+copiar\s+y\s+pegar|para\s+copiarlo|c[oó]digo\s+completo\s+terminado|(?:pasame|dame)\s+la\s+soluci[oó]n)\b",
+        q,
+    ))
+
+    # 1. Mermaid / Diagramas de flujo (Obligatorio para flujos lógicos, algoritmos y depuración)
+    if (
+        re.search(r"\b(?:mermaid|diagrama\s+en\s+mermaid|gr[aá]fico\s+en\s+mermaid|diagrama\s+de\s+flujo)\b", q)
+        or shortcut_match
+        or any(w in q for w in ("invertir", "swap", "algoritmo", "funci", "código", "codigo", "crashea", "falla", "segfault", "puntero", "memoria"))
+    ):
         directives["mermaid"] = (
             "- DIAGRAMA DE FLUJO EN MERMAID (OBLIGATORIO):\n"
             "  Generá un bloque de código ```mermaid con sintaxis válida (`graph TD` o `flowchart TD`).\n"
@@ -163,15 +186,27 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
             "    * `test_invalid_inputs_*`: Entradas malformadas, fuera de rango, tipos incorrectos o vectores de ataque."
         )
 
+    # Si hay solicitud de atajo para copiar, suprimir solo suites de prueba pesadas, preservando diagramas
+    if shortcut_match:
+        directives.pop("pytest", None)
+
     # 3. Código C (Para cuadernos de Lenguajes C o SO2)
     if re.search(r"\b(?:c[oó]digo(?:\s+en|\s+de)?\s+c\b|en\s+c\b|programa\s+c\b)", q) or (notebook_id and "lenguajes" in notebook_id and "python" not in q and ("código" in q or "codigo" in q or "programa" in q)):
-        directives["c_code"] = (
-            "- CÓDIGO C ESTÁNDAR Y DEFENSIVO (OBLIGATORIO):\n"
-            "  Generá la implementación completa en un bloque ```c con:\n"
-            "    * Headers canónicos (`#include <stdio.h>`, `#include <stdlib.h>`, etc.) y prototipos de función.\n"
-            "    * Validación estricta de punteros nulos (`NULL`) y límites de buffer en memoria.\n"
-            "    * Manejo defensivo de valores de retorno y liberación de memoria dinámica sin fugas."
-        )
+        if shortcut_match:
+            directives["c_code"] = (
+                "- ESQUELETO DEFENSIVO SOCRÁTICO EN C (ANTI-ATAJO Y FADING):\n"
+                "  Dado que el estudiante solicitó el código terminado para copiarlo, NUNCA entregues la implementación completa resuelta.\n"
+                "  Generá la firma de función, contratos PRE/POST y un esqueleto con comentarios `/* TODO: COMPLETAR LÓGICA DE INTERCAMBIO */`.\n"
+                "  PROHIBIDO entregar la función resuelta, main() o suites Pytest. Cerrá con una pregunta de prueba de escritorio para que el estudiante dé el paso final."
+            )
+        else:
+            directives["c_code"] = (
+                "- CÓDIGO C ESTÁNDAR Y DEFENSIVO (OBLIGATORIO):\n"
+                "  Generá la implementación completa en un bloque ```c con:\n"
+                "    * Headers canónicos (`#include <stdio.h>`, `#include <stdlib.h>`, etc.) y prototipos de función.\n"
+                "    * Validación estricta de punteros nulos (`NULL`) y límites de buffer en memoria.\n"
+                "    * Manejo defensivo de valores de retorno y liberación de memoria dinámica sin fugas."
+            )
     # 4. Código SQL (Para cuadernos de Bases de Datos / STD)
     elif re.search(r"\b(?:c[oó]digo(?:\s+en|\s+de)?\s+sql|consulta\s+sql|en\s+sql|query\s+sql|script\s+sql)\b", q) or (notebook_id and "std" in notebook_id and "python" not in q and ("sql" in q or "consulta" in q or "tabla" in q)):
         directives["sql_code"] = (
@@ -182,14 +217,22 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
         )
     # 5. Código Python / Implementación general
     elif re.search(r"\b(?:c[oó]digo(?:\s+en|\s+de)?\s+python|en\s+python|implementaci[oó]n(?:\s+en\s+python)?|funci[oó]n\s+python|script\s+python|c[oó]digo\s+(?:python\s+)?con\s+tests|c[oó]digo\s+ejecutable|implementaci[oó]n)\b", q):
-        directives["python_code"] = (
-            "- CÓDIGO PYTHON EJECUTABLE Y TIPADO (OBLIGATORIO):\n"
-            "  Generá la implementación en un bloque ```python con:\n"
-            "    * Type hints rigurosos (ej. `str`, `bool`, `int`, `List[str]`).\n"
-            "    * Docstring técnico explicando contratos, complejidad temporal/espacial y excepciones.\n"
-            "    * Cláusulas de guarda tempranas (Fail-Fast) para rebotar casos inválidos antes del cómputo principal.\n"
-            "    * Algoritmo limpio y pedagógico (evitar librerías mágicas de alto nivel que oculten la lógica pedida)."
-        )
+        if shortcut_match:
+            directives["python_code"] = (
+                "- ESQUELETO DEFENSIVO SOCRÁTICO EN PYTHON (ANTI-ATAJO Y FADING):\n"
+                "  Dado que el estudiante solicitó el código terminado para copiarlo, NUNCA entregues la implementación completa resuelta.\n"
+                "  Generá la firma de función con Type Hints y un esqueleto con `# TODO: COMPLETAR LÓGICA`.\n"
+                "  PROHIBIDO entregar la función resuelta o suites de test. Cerrá con una pregunta de prueba de escritorio para que el estudiante complete la lógica."
+            )
+        else:
+            directives["python_code"] = (
+                "- CÓDIGO PYTHON EJECUTABLE Y TIPADO (OBLIGATORIO):\n"
+                "  Generá la implementación en un bloque ```python con:\n"
+                "    * Type hints rigurosos (ej. `str`, `bool`, `int`, `List[str]`).\n"
+                "    * Docstring técnico explicando contratos, complejidad temporal/espacial y excepciones.\n"
+                "    * Cláusulas de guarda tempranas (Fail-Fast) para rebotar casos inválidos antes del cómputo principal.\n"
+                "    * Algoritmo limpio y pedagógico (evitar librerías mágicas de alto nivel que oculten la lógica pedida)."
+            )
 
     # 6. Contratos Formales PRE / POST
     if re.search(r"\b(?:contrato(?:s)?(?:\s+formal(?:es)?)?|pre\s*/\s*post|precondici[oó]n|poscondici[oó]n|precondiciones|postcondiciones)\b", q):
@@ -437,6 +480,7 @@ def build_tri_layer_instruction(
 
 RESPONSE_MODES: Dict[str, Dict[str, Any]] = {
     "explain_concept": {"layers": 3, "socratic": True, "max_words": 400, "format": "tri_layer"},
+    "debug_crash": {"layers": 0, "socratic": True, "max_words": 900, "format": "debug_analysis"},
     "resolve_misconception": {"layers": 3, "socratic": True, "max_words": 1500, "format": "epistemic_scaffolding"},
     "compare": {"layers": 0, "socratic": True, "max_words": 300, "format": "table"},
     "give_example": {"layers": 0, "socratic": False, "max_words": 500, "format": "code"},
@@ -459,7 +503,15 @@ def classify_pedagogical_intent(user_query: str) -> str:
     )):
         return "quick_answer"
 
-    # 2. Evaluate / Audit code: auditoría forense o revisión de código/algoritmo
+    # 2. Debug crash / Análisis de caída y fallas de memoria (Prioridad alta sobre auditoría general)
+    if any(p in q for p in (
+        "crashea", "crasheo", "segmentation fault", "segfault", "por qué falla", "por que falla",
+        "por qué crashea", "por que crashea", "qué le pasa a la memoria", "que le pasa a la memoria",
+        "violación de segmento", "violacion de segmento", "memory leak", "se rompe"
+    )):
+        return "debug_crash"
+
+    # 3. Evaluate / Audit code: auditoría forense o revisión de código/algoritmo
     if any(p in q for p in (
         "auditar", "audita", "auditoría", "auditoria", "auditor",
         "bugs sutiles", "bugs", "bug", "fallas", "falla", "vulnerabilidades", "vulnerabilidad", "defectos", "defecto",
@@ -508,6 +560,7 @@ def classify_pedagogical_intent(user_query: str) -> str:
 
     # 7. Resolve misconception / Duda conceptual o conflicto epistémico
     if any(p in q for p in (
+        "no logre entender", "no logré entender", "no entendí", "no entendi", "no comprendo", "no entiendo",
         "no entiendo por qué", "no entiendo porque", "no entiendo por que",
         "por qué decís que", "por que decis que", "por qué dices que", "por que dices que",
         "por qué decís", "por qué dices",
@@ -519,7 +572,7 @@ def classify_pedagogical_intent(user_query: str) -> str:
         "por qué es un peligro si", "por que es un peligro si",
         "por qué es peligroso si", "por que es peligroso si",
         "pero en matemáticas", "pero en matematicas", "en la vida real un cero a la izquierda",
-        "no me queda claro por qué", "no me queda claro porque",
+        "no me queda claro por qué", "no me queda claro porque", "no me queda claro",
         "no tiene sentido que sea un error", "no tiene sentido que falle",
         "por qué decís que es un error", "por qué decís que está mal",
         "si en matemáticas", "si en matematicas"
@@ -534,11 +587,51 @@ def build_mode_specific_instruction(
     mode: str,
     context_pack: Optional[Any],
     notebook_id: str,
+    user_query: Optional[str] = None,
 ) -> str:
     """Construye la directiva pedagógica específica según el modo de respuesta seleccionado (Fix S4.1)."""
     mode_config = RESPONSE_MODES.get(mode, RESPONSE_MODES["explain_concept"])
     layers = mode_config.get("layers", 3)
     fmt = mode_config.get("format", "tri_layer")
+
+    q_lower = (user_query or "").lower()
+    is_debug_question = bool(re.search(
+        r"\b(?:por\s+qu[eé]\s+(?:falla|crashea|da\s+segfault|se\s+rompe)|qu[eé]\s+le\s+pasa\s+a\s+la\s+memoria|por\s+qu[eé]\s+est[aá]\s+roto)\b",
+        q_lower,
+    ))
+
+    if mode == "debug_crash" or is_debug_question:
+        return (
+            "=== DIRECTIVA DE DEPURACIÓN PEDAGÓGICA Y ANÁLISIS FORENSE DE FALLAS (PROTOCOLO TALOS) ===\n"
+            "El estudiante consulta por un fallo, caída o comportamiento anómalo en su código (ej. Segmentation Fault, puntero no inicializado, violación de acceso).\n"
+            "Tu misión es desarmar la causa raíz con empatía cognitiva, física de silicio, profundidad analítica y máxima claridad pedagógica (extensión ágil y concisa: 600 - 900 palabras, directa y sin redundancias).\n\n"
+            "ESTRUCTURA OBLIGATORIA DE LA RESPUESTA:\n\n"
+            "### 1. ¿Por qué crashea si el puntero ya está declarado? (Diagnóstico Forense de Raíz)\n"
+            "- Explicá los dos factores determinantes en el Stack Frame:\n"
+            "  1. **Solo se reservó espacio para la dirección (8 bytes en 64 bits), no para los datos**: No se apartó ningún byte en la RAM para almacenar el texto.\n"
+            "  2. **El puntero salvaje (*Wild Pointer*)**: En C, las variables locales en la pila NO se inicializan automáticamente en NULL ni en 0x0; contienen el patrón de bits residual ('basura') dejado por funciones o procesos previos.\n\n"
+            "### 2. ¿Por qué `if (s == NULL)` NO resuelve el problema? (Falsa Ilusión de Seguridad)\n"
+            "- Aclarale al estudiante la trampa conceptual más común:\n"
+            "  * `NULL` en C es la dirección cero (`0x0`).\n"
+            "  * Como `s` contiene basura arbitraria de la RAM (ej. `0x7fff5fb2a1bc`), casi con certeza es distinta de `0x0`.\n"
+            "  * La condición `if (s == NULL)` evalúa a FALSA, el programa entra confiado al `strcpy` y se estrella de la misma manera.\n"
+            "  * Regla de oro: `if (s == NULL)` solo sirve para verificar asignaciones explícitas (como `malloc` o retornos), NUNCA detecta basura en la pila.\n\n"
+            "### 3. Analogía Cotidiana de la Falla (Feynman de Barrio)\n"
+            "- Usá una metáfora vívida y concreta del mundo real (ej. un anotador con un garabato viejo ilegible que le das a un flete para que lleve muebles a esa dirección fantasma y la policía lo frena al chocar contra un terreno privado o comisaría).\n\n"
+            "### 4. Anatomía en Silicio y Memoria RAM (La Firma TALOS)\n"
+            "- Bajá al hardware: mostrá cómo la CPU intenta desreferenciar la dirección basura cargada en registros (%rdi/%rsi) para la función (`strcpy`), colisionando contra la Unidad de Manejo de Memoria (MMU).\n"
+            "- Explicá que la MMU detecta una dirección no mapeada o sin permisos de escritura en la tabla de páginas y dispara una interrupción de hardware, haciendo que el kernel envíe la señal SIGSEGV (Segmentation Fault).\n"
+            "- **DIAGRAMA DE FLUJO INTERACTIVO EN MERMAID (OBLIGATORIO)**: Generá un bloque ```mermaid (`flowchart TD`) modelando el ciclo del fallo: Declaración de puntero salvaje -> Basura en Stack -> Condición `if (s == NULL)` evalúa a Falso -> Invocación `strcpy` -> MMU intercepta violación en tabla de páginas -> Señal SIGSEGV.\n"
+            "- **ESQUEMA DE MEMORIA FÍSICA OBLIGATORIO**: Esquema visual limpio en bloque ```text con cajas Unicode (┌, ├, └, │, ─) mostrando el Stack Frame con la variable 's' conteniendo basura y el choque en la MMU.\n\n"
+            "### 5. Cómo se soluciona en C de forma correcta (Patrones Defensivos)\n"
+            "- Mostrá ambas alternativas con código C completo, limpio y comentado:\n"
+            "  * **Opción A: Búfer estático en Pila (Stack)**: Reservar memoria contigua fija con `char s[32];` y copia delimitada con `strncpy` o `snprintf` garantizando terminación nula `\\0`.\n"
+            "  * **Opción B: Asignación dinámica en Montículo (Heap)**: Reservar memoria con `malloc`, donde SÍ corresponde la cláusula de guarda `if (s == NULL)`, copia de datos y liberación con `free(s)`.\n\n"
+            "### 6. Error Común de Principiante\n"
+            "- Sintetizá en una viñeta la trampa de confundir 'declarar un puntero' (`char *s;`) con 'asignar memoria' (`char s[32];` o `malloc`).\n\n"
+            "### 7. Pregunta Socrática de Verificación Guiada\n"
+            "- Proponé un escenario breve con código (ej. declarar `char s[5]; strcpy(s, \"hola mundo\");`) y dos preguntas puntuales para que el estudiante razone qué ocurre físicamente en el Stack Frame y qué peligro representa.\n"
+        )
 
     if mode == "evaluate_code" or fmt in ("forensic_audit", "review"):
         return (
@@ -563,15 +656,10 @@ def build_mode_specific_instruction(
             "- **Pseudocódigo Estructurado**: Notación algorítmica rigurosa (tipo Joyanes / UPSAM) con cláusulas de guarda explícitas.\n"
             "- **Código de Producción con Fixes Explícitos**: Código limpio, fuertemente tipado (Type Hints) y con funciones auxiliares defensivas para evitar trampas sutiles del lenguaje.\n"
             "  * REGLA DE ORO DE SEGURIDAD EN PYTHON: NUNCA uses o aceptes 'str.isdigit()' para validar campos estrictamente decimales o de red (IPv4, puertos, IDs). En Python, 'str.isdigit()' retorna True para caracteres numéricos Unicode no ASCII de otros alfabetos (como arábigo '١٢٣' o devanagari '۱۲۳'). Implementá explícitamente una función auxiliar segura como 'es_digito_ascii(s)' usando 'all(\"0\" <= c <= \"9\" for c in s)' o 'c in string.digits'.\n"
+            "  * REGLA DE ORO DE SEMÁNTICA C (Stack vs Heap): En memoria de Stack (arrays locales `char buf[16];`), NUNCA valides `if (buf == NULL)` ya que el puntero estático siempre es válido. Validá límites de tamaño. En memoria dinámica de Heap (`malloc`/`calloc`), SIEMPRE validá `if (ptr == NULL)` inmediatamente después de la asignación.\n"
             "  * CLÁUSULA BOUNCER DE FRONTERA DE LONGITUD (Fail-Fast Anti-DoS): En validación de IPv4 u otros protocolos, siempre aplicá una guardia de longitud física previa (ej. '7 <= len(ip) <= 15') ANTES de llamar a 'split()', para evitar ataques de agotamiento de memoria Heap ante strings maliciosos gigantes.\n"
             "  * AMBIGÜEDAD OCTAL (CVE-2021-29921 / Parser Differential): Explicá y bloqueá rigurosamente cualquier cero no significativo a la izquierda (ej. '010.0.0.1' o '192.168.01.1'), ya que las funciones C del sistema operativo (inet_addr) lo interpretan en base 8 (octal), habilitando bypass de firewalls y SSRF.\n"
-            "- **Suite de Pruebas Automatizadas (Pytest)**: Batería exhaustiva de tests unitarios que incluya específicamente un test dedicado para cada vulnerabilidad y bug detectado en la auditoría:\n"
-            "  * test_casos_felices_validos\n"
-            "  * test_bloqueo_ceros_a_la_izquierda_parser_differential\n"
-            "  * test_bloqueo_digitos_unicode_no_ascii\n"
-            "  * test_octetos_fuera_de_rango\n"
-            "  * test_estructura_incorrecta_y_puntos\n"
-            "  * test_fronteras_de_longitud_y_tipos_invalidos (strings gigantes DoS, None, enteros)\n\n"
+            "- **Suite de Pruebas Automatizadas (Pytest)**: Batería exhaustiva de tests unitarios que incluya específicamente tests para cada bug detectado.\n"
             "### 4. Cierre Socrático de Arquitectura de Misión Crítica\n"
             "- Rematá con una pregunta socrática de alto nivel de sistemas que confronte el rendimiento y la seguridad en entornos reales (ej. procesamiento Zero-Copy, kernel-bypass con DPDK/eBPF a 10M pps, o concurrencia multihilo).\n"
         )
@@ -634,9 +722,16 @@ def build_mode_specific_instruction(
             "  * **`RSP / ESP` (*Stack Pointer*):** Marca la cima actual de la pila...\n"
             "  * **`FLAGS (ZF/CF)`:** Almacena el resultado eléctrico de la ALU...\n"
             "- **RIGOR EN LA ELECCIÓN DE ESTRUCTURAS DE CONTROL**: Al explicar o diseñar algoritmos, seleccioná siempre la estructura canónica y óptima según la naturaleza del problema (ej: si la cantidad de iteraciones es conocida de antemano o acotada por un rango, priorizá la estructura `PARA ... HASTA ... [PASO ...] HACER` (`for`), contrastándola educativamente con el `MIENTRAS` manual y explicando por qué el `PARA` es la mejor práctica algorítmica y de ingeniería).\n"
-            "- **DIAGRAMAS VISUALES INTERACTIVOS EN MERMAID**: Siempre que modeles flujos lógicos, bifurcaciones de control, estados de CPU o decisiones, generá un bloque ```mermaid (`flowchart TD` o `graph TD`) con sintaxis válida. El frontend lo renderiza nativamente como un diagrama vectorial interactivo.\n"
-            "- **DIAGRAMA FÍSICO DE MEMORIA CON CAJAS UNICODE**: Para mapas de memoria (Stack Frames, buffers contiguos, registros x86), incluí un esquema visual limpio en bloque ```text utilizando caracteres de dibujo de caja (┌, ├, └, │, ─).\n"
-            "- **EJEMPLOS CON SYNTAX HIGHLIGHTING (CÓDIGO REAL EJECUTABLE)**: Además del pseudocódigo formal, es OBLIGATORIO incluir bloques de código real en el lenguaje del cuaderno (```python para fase0-soc, ```c o ```python para fadena-lenguajes/so2) con comentarios claros inline explicando la precondición, la cláusula de guarda y la invocación segura.\n"
+            "- **DIAGRAMA VISUAL INTERACTIVO EN MERMAID (OBLIGATORIO)**: Generá SIEMPRE un bloque ```mermaid (`flowchart TD` o `graph TD`) modelando el flujo de decisiones, la ejecución algorítmica (ej. convergencia y swap de dos punteros en swap in-place), transiciones de estado o ciclo de datos. El frontend lo renderiza nativamente como un diagrama vectorial interactivo.\n"
+            "- **DIAGRAMA FÍSICO DE MEMORIA/ARQUITECTURA OBLIGATORIO (EN BLOQUE ```text)**: Para mapas de memoria (Stack Frames, buffers contiguos, registros x86, layout Text/Data/BSS/Heap/Stack), es OBLIGATORIO incluir un esquema visual limpio en bloque ```text utilizando caracteres de dibujo de caja (┌, ├, └, │, ─). Este diagrama es texto plano, se incluye SIEMPRE y no es opt-in.\n"
+            "- **REGLA DE FAIL-CLOSED DIRECTO (TÉRMINOS APÓCRIFOS O INEXISTENTES)**: Si la consulta del alumno indaga sobre una supuesta directiva, opción, función o término apócrifo/inexistente (ej: `__fast_ptr_opt` u optimizaciones mágicas inventadas):\n"
+            "  1. Tu primera frase de respuesta DEBE ser tajante y directa: 'Frenemos la pelota un segundo, che: la directiva [TÉRMINO] no existe.' (o '[TÉRMINO] no existe.').\n"
+            "  2. Segunda frase: Explicá con concisión que no forma parte de ningún estándar oficial (C, POSIX, System V ABI ni compiladores GCC/Clang).\n"
+            "  3. Tercera frase: Redirigí a lo que SÍ existe ('Lo que sí existe y se utiliza en la arquitectura real es...').\n"
+            "  ESTRICTAMENTE PROHIBIDO dar rodeos diplomáticos como 'La supuesta directiva no forma parte de ninguna especificación estándar... por lo que no existe a nivel de optimización de silicio'. Sé directo: '[TÉRMINO] no existe'.\n"
+            "- **EJEMPLOS CON SYNTAX HIGHLIGHTING (CÓDIGO REAL EJECUTABLE)**: Además del pseudocódigo formal, es OBLIGATORIO incluir bloques de código real en el lenguaje del cuaderno (```python para fase0-soc, ```c o ```python para fadena-lenguajes/so2) con comentarios claros inline explicando la precondición, la cláusula de guarda y la invocación segura. EXCEPCIÓN SOCRÁTICA (ANTI-ATAJO): Si el estudiante solicita resolución directa de un ejercicio o TP ('pasame el código', 'haceme la función', 'para copiar'), NUNCA entregues el código resuelto completo; generá un esqueleto defensivo con la firma de función y comentarios /* TODO: COMPLETAR LÓGICA */, cerrando con una pregunta de prueba de escritorio.\n"
+            "- **PRECISIÓN DE ARQUITECTURA Y REGISTROS (x86-64 System V ABI)**: Al discutir C, Sistemas Operativos, punteros y paso de parámetros en arquitecturas modernas, asumí por defecto x86-64 y la ABI System V (Linux/POSIX). Para paso de argumentos por registro usá %rdi (1º), %rsi (2º), %rdx (3º), %rcx (4º), %r8, %r9. NO uses %eax/%ebx/%ecx para paso de parámetros a menos que el contexto sea explícitamente x86 de 32 bits o ensamblador heredado.\n"
+            "- **SANITIZACIÓN ESTRICTA DE SALIDA**: Prohibido mostrar al usuario etiquetas internas del motor de búsqueda o de confianza. NUNCA imprimas texto como '[ref. no verificada]', '[E# missing]', o tags de probabilidad.\n"
             "- **TABLAS COMPARATIVAS DE CONCEPTOS O NIVELES**: Siempre que compares conceptos (ej: Stack vs Heap, PARA vs MIENTRAS, Valor vs Referencia, o Pirámide de Testing), incluí una tabla Markdown compacta y clara.\n"
             "- **TONO RIOPLATENSE NATURAL Y DIRECTO**: Utilizá giros cercanos y naturales ('che', 'fijate', 'mirá cómo conmuta en la RAM', 'vamos paso a paso desarmando el silicio') manteniendo rigurosa seriedad técnica y sin saludos ni halagos iniciales.\n\n"
             "DIMENSIONES CONCEPTUALES OBLIGATORIAS:\n"
@@ -645,8 +740,8 @@ def build_mode_specific_instruction(
             "   * REGLA DE ORO DE ANALOGÍAS: La analogía DEBE modelar el mecanismo físico/matemático real del concepto. Para bases numéricas o conteo, usá agrupamientos o cajas por bloques; para memoria/buffers, casilleros delimitados; para concurrencia, recursos físicos compartidos; para redes, logística o correspondencia. NUNCA fuerces molinetes o aduanas si el concepto es numérico o de tipos de datos.\n"
             "   * Explicá la idea intuitiva de forma directa antes de la formalización.\n"
             f"- **Dimensión Formal y Algorítmica{form_note}**:\n"
-            "   * Teoría rigurosa, modelos matemáticos, invariantes y citas explícitas [E#].\n"
-            "   * Mostrá la estructura canónica en pseudocódigo formal estructurado (tipo Joyanes / Cátedra FaDeNA).\n"
+            "   * Teoría rigurosa, modelos matemáticos, invariantes y citas explícitas [E#] (si hay evidencias autorizadas en el contexto).\n"
+            "   * Mostrá la estructura canónica en pseudocódigo formal estructurado (tipo Joyanes / Cátedra FaDeNA). Si la consulta refiere a directivas apócrifas o inexistentes (ej. __fast_ptr_opt), aplicá Fail-Closed directo desde la primera frase ('__fast_ptr_opt no existe.') y explicá las convenciones estándar (System V ABI, %rdi/%rsi) sin inventar pseudocódigo.\n"
             f"- **Dimensión Física y de Máquina{tech_note}**:\n"
             "   * Bajá al silicio: transistores CMOS, ALU, instrucciones x86 (LOOP, CMP, TEST, JZ, JNZ), registros y banderas FLAGS.\n"
             "- **Capas Adicionales de Seguridad / Ciberdefensa**: Si el tema lo amerita, analizá la superficie de ataque o el impacto en disponibilidad (DoS por bucles infinitos, Buffer Overflow, etc.) anclándolo a incidentes reales con precisión forense.\n"
@@ -732,10 +827,31 @@ class StructuredResponsePipeline:
     ) -> str:
         """Assemble the specialized prompt for this phase with PhaseHistory, intent routing, and BKT adaptation."""
         predecessor_context = self.history.format_predecessors_context()
+        is_continuation = is_continuation_query(user_query)
         active_mode = pedagogical_mode or classify_pedagogical_intent(user_query)
 
         # Phase prompt template formatting
-        if active_mode == "evaluate_code":
+        if is_continuation:
+            rendered_phase_instruction = (
+                "CONTINUACIÓN DE RESPUESTA INTERRUMPIDA O TRUNCADA: El estudiante indica que tu respuesta previa se cortó o pide continuarla. "
+                "Observá atentamente el fragmento previo de TALOS en el historial reciente y continuá exactamente la sección u oración donde se produjo el corte, "
+                "completando los puntos faltantes sin repetir contenido anterior y cerrando con la pregunta socrática."
+            )
+        elif active_mode == "debug_crash":
+            rendered_phase_instruction = (
+                "DEPURACIÓN FORENSE Y ANÁLISIS DE FALLAS: El estudiante reporta un fallo de memoria o crash (ej. Segmentation Fault). "
+                "1. Diagnóstico certero a nivel silicio: puntero salvaje (wild pointer) en Stack con valor basura residual de la pila, "
+                "provocando que la MMU emita la señal SIGSEGV al kernel al intentar escribir en una página no asignada o de solo lectura. "
+                "2. Explicación explícita de por qué if (s == NULL) no sirve frente a variables automáticas en la pila (la basura de la pila casi nunca es 0x0). "
+                "3. Esquema visual OBLIGATORIO de la memoria RAM (Stack Frame con cajas Unicode ┌, ├, └, │, ─ en bloque ```text). "
+                "4. Contraste defensivo OBLIGATORIO en código C: "
+                "   - Opción A: Búfer estático en Pila (Stack) con array local fijo `char s[32];` y copia delimitada con `snprintf` o `strncpy`. "
+                "   - Opción B: Asignación dinámica en Montículo (Heap) con `malloc`, chequeo obligatorio `if (s == NULL)` y `free(s)`. "
+                "5. Explicá cuándo aplica cada validación y por qué NULL solo protege asignaciones dinámicas. "
+                "6. Diagrama de flujo OBLIGATORIO en bloque ```mermaid (`flowchart TD`) modelando el ciclo del fallo: puntero salvaje -> condición `if (s == NULL)` evalúa a falso -> MMU intercepta violación -> SIGSEGV. "
+                "PROHIBIDO: NO generes suites de Pytest."
+            )
+        elif active_mode == "evaluate_code":
             rendered_phase_instruction = (
                 "AUDITORÍA FORENSE DE CÓDIGO DEL ESTUDIANTE: Analizá minuciosamente el código y la solución provista en la consulta. "
                 "Identificá y señalá explícitamente cada bug, caso de borde omitido y riesgo de ciberseguridad antes de presentar la solución corregida. "
@@ -758,7 +874,25 @@ class StructuredResponsePipeline:
 
         notebook_id = getattr(self.contract, "notebook_id", "fase0-soc")
         structural_directives = extract_requested_structural_components(user_query, notebook_id=notebook_id)
-        if active_mode in ("evaluate_code", "resolve_misconception") or any(k in structural_directives for k in ("python_code", "c_code", "sql_code", "pytest")):
+        shortcut_match = bool(re.search(
+            r"\b(?:(?:pasame|haceme|dame|escribime|generame)\s+(?:el\s+)?c[oó]digo|haceme\s+la\s+funci[oó]n|haceme\s+el\s+tp|para\s+que\s+lo\s+copie|para\s+copiar\s+y\s+pegar|para\s+copiarlo|c[oó]digo\s+completo\s+terminado|(?:pasame|dame)\s+la\s+soluci[oó]n)\b",
+            user_query,
+            re.IGNORECASE,
+        ))
+        if shortcut_match:
+            rendered_phase_instruction = (
+                "PROTOCOLO ANTI-ATAJO ACTIVADO (PACTO SOCRÁTICO Y EJERCICIO GUIADO COMPLETO):\n"
+                "El estudiante solicitó la entrega de código terminado para copiarlo en su TP o examen.\n"
+                "Bajo ninguna circunstancia entregues el código completo resuelto.\n"
+                "Tu misión es estructurar un EJERCICIO GUIADO EXHAUSTIVO (800 - 1200 palabras) con el siguiente andamiaje socrático:\n"
+                "1. Enunciado y Análisis del problema: Explicá con rigor qué significa la operación (ej. in-place, complejidad O(1)), la física de las cadenas en memoria contigua y el rol sagrado del terminador nulo '\\0'.\n"
+                "2. Advertencia de Silicio y Ciberseguridad: Explicá la diferencia entre buffers mutables en la Pila (Stack) y constantes literales alojadas en .rodata (que provocan SIGSEGV al intentar modificarlas in-place).\n"
+                "3. Entradas, Salidas y Restricciones formales del algoritmo.\n"
+                "4. Primer paso en Pseudocódigo formal estructurado canónico (Joyanes) mostrando el bucle y la convergencia de índices.\n"
+                "5. Esqueleto defensivo en C listo para completar: Con prototipo de función, cláusula de guarda Fail-Fast y comentarios /* TODO: COMPLETAR LÓGICA */ numerados.\n"
+                "6. Prueba de Escritorio Guiada: Proponé una palabra concreta (ej. 'ROMA' o 'TALOS') y dos preguntas específicas para que el estudiante realice la traza paso a paso en papel y determine el número exacto de iteraciones."
+            )
+        elif not shortcut_match and (active_mode in ("evaluate_code", "resolve_misconception") or any(k in structural_directives for k in ("python_code", "c_code", "sql_code", "pytest"))):
             rendered_phase_instruction = re.sub(
                 r"NO\s+incluyas\s+c[oó]digo\s+fuente.*?\.",
                 "DADO QUE EL ESTUDIANTE SOLICITÓ AUDITORÍA O RESOLUCIÓN EXPRESAMENTE, INCLUÍ LA IMPLEMENTACIÓN COMPLETA Y LOS CASOS DE PRUEBA.",
@@ -784,9 +918,14 @@ class StructuredResponsePipeline:
                 if not content:
                     continue
                 label = "Estudiante" if role == "user" else "TALOS"
-                # Truncar turnos largos para no inflar el contexto
-                truncated = content[:600] + ("…" if len(content) > 600 else "")
-                turns_block_lines.append(f"[{label}]: {truncated}")
+                if is_continuation and role != "user":
+                    # En modo continuación, incluir el fragmento final para que el modelo sepa exactamente dónde retomar
+                    tail = content[-1200:] if len(content) > 1200 else content
+                    turns_block_lines.append(f"[{label} (fragmento previo que se interrumpió)]: ...{tail}")
+                else:
+                    # Truncar turnos largos para no inflar el contexto
+                    truncated = content[:600] + ("…" if len(content) > 600 else "")
+                    turns_block_lines.append(f"[{label}]: {truncated}")
             if turns_block_lines:
                 parts.append(
                     "=== HISTORIAL CONVERSACIONAL RECIENTE (últimos turnos) ===\n"
@@ -801,13 +940,27 @@ class StructuredResponsePipeline:
         active_mode = pedagogical_mode or classify_pedagogical_intent(user_query)
         mode_config = RESPONSE_MODES.get(active_mode, RESPONSE_MODES["explain_concept"])
 
-        mode_instruction = build_mode_specific_instruction(
-            mode=active_mode,
-            context_pack=context_pack,
-            notebook_id=notebook_id,
-        )
-        if mode_instruction:
-            parts.append(mode_instruction)
+        if is_continuation:
+            continuation_block = (
+                "=== PROTOCOLO DE CONTINUACIÓN DE RESPUESTA TRUNCADA (OBLIGATORIO) ===\n"
+                "El estudiante indica que el mensaje anterior se cortó o solicita continuar ('se cortó', 'continuá', 'seguí').\n"
+                "REGLAS MANDATORIAS:\n"
+                "1. PROHIBIDO REINICIAR: NO saludes, NO introduzcas una nueva analogía, NO repitas explicaciones ni código ya emitido en el turno previo.\n"
+                "2. RETOMÁ DIRECTAMENTE: Mirá el fragmento previo emitido por TALOS en el historial reciente y continuá exactamente la frase, bloque de código o sección en la que se produjo el corte.\n"
+                "3. DESARROLLÁ LAS SECCIONES PENDIENTES: Completá exhaustivamente los puntos que faltaban (ej. Error Común de Principiante, código faltante o conclusiones).\n"
+                "4. CIERRE SOCRÁTICO: Finalizá obligatoriamente con la Pregunta Socrática de Verificación Guiada para el estudiante.\n"
+                "5. Tono y formato: Mantené el mismo rigor técnico, formato Markdown y estilo pedagógico."
+            )
+            parts.append(continuation_block)
+        else:
+            mode_instruction = build_mode_specific_instruction(
+                mode=active_mode,
+                context_pack=context_pack,
+                notebook_id=notebook_id,
+                user_query=user_query,
+            )
+            if mode_instruction:
+                parts.append(mode_instruction)
 
         # 1.1 Checklist de cobertura técnica estricta (Fase 7.4)
         tech_entities = extract_technical_checklist(user_query)
@@ -828,14 +981,22 @@ class StructuredResponsePipeline:
         # 1.3 Checklist de entregables y componentes estructurales expresamente solicitados
         if structural_directives:
             directives_text = "\n\n".join(structural_directives.values())
-            parts.append(
-                "=== COMPONENTES ESTRUCTURALES EXPRESAMENTE SOLICITADOS POR EL ESTUDIANTE (OBLIGATORIOS) ===\n"
-                "El estudiante exigió explícitamente incluir los siguientes componentes en la respuesta:\n"
-                f"{directives_text}\n\n"
-                "CRÍTICO: NO OMITAS NINGUNO de estos componentes. Aunque la fase pedagógica tenga un formato base, "
-                "los requerimientos estructurales explícitos del estudiante tienen PRIORIDAD MÁXIMA y deben aparecer "
-                "completos, exhaustivos y de alta calidad técnica en la respuesta."
-            )
+            if shortcut_match:
+                parts.append(
+                    "=== COMPONENTES ESTRUCTURALES EXPRESAMENTE SOLICITADOS POR EL ESTUDIANTE ===\n"
+                    f"{directives_text}\n\n"
+                    "CRÍTICO (ANTI-ATAJO ACTIVO): El estudiante solicitó código para copiar; por ende, el esqueleto defensivo "
+                    "con comentarios /* TODO */ y la pregunta socrática tienen PREVALENCIA ABSOLUTA sobre cualquier requerimiento de código terminado."
+                )
+            else:
+                parts.append(
+                    "=== COMPONENTES ESTRUCTURALES EXPRESAMENTE SOLICITADOS POR EL ESTUDIANTE (OBLIGATORIOS) ===\n"
+                    "El estudiante exigió explícitamente incluir los siguientes componentes en la respuesta:\n"
+                    f"{directives_text}\n\n"
+                    "CRÍTICO: NO OMITAS NINGUNO de estos componentes. Aunque la fase pedagógica tenga un formato base, "
+                    "los requerimientos estructurales explícitos del estudiante tienen PRIORIDAD MÁXIMA y deben aparecer "
+                    "completos, exhaustivos y de alta calidad técnica en la respuesta."
+                )
 
         # 2. Inyección de adaptación BKT / Prerrequisitos si se suministra (Fix S4.2)
         if bkt_directive:
@@ -910,6 +1071,13 @@ class StructuredResponsePipeline:
         context: Optional[str] = None,
     ) -> AsyncGenerator[str, None]:
         """Uniform token streaming adapter across backends."""
+        # Dump forense del prompt final enviado al LLM (para verificación e inspección E2E)
+        try:
+            with open("debug_final_prompt.txt", "w", encoding="utf-8") as f:
+                f.write(f"=== SYSTEM PROMPT ===\n{system_prompt}\n\n=== USER PROMPT ===\n{user_prompt}\n\n=== MAX TOKENS ===\n{max_tokens}\n")
+        except Exception:
+            pass
+
         # 1. Native async streaming support if present
         if hasattr(self.llm, "stream") and callable(getattr(self.llm, "stream")):
             stream_fn = self.llm.stream
@@ -1040,6 +1208,13 @@ class StructuredResponsePipeline:
         structural_directives = extract_requested_structural_components(user_query, notebook_id=target_notebook_id)
         has_code_request = bool(any(k in structural_directives for k in ("python_code", "c_code", "sql_code", "pytest")))
 
+        shortcut_match = bool(re.search(
+            r"\b(?:(?:pasame|haceme|dame|escribime|generame)\s+(?:el\s+)?c[oó]digo|haceme\s+la\s+funci[oó]n|haceme\s+el\s+tp|para\s+que\s+lo\s+copie|para\s+copiar\s+y\s+pegar|para\s+copiarlo|c[oó]digo\s+completo\s+terminado|(?:pasame|dame)\s+la\s+soluci[oó]n)\b",
+            user_query,
+            re.IGNORECASE,
+        ))
+
+        # Token Budget: Si override_max_tokens fue provisto (ej. desde chat.py estilo NotebookLM 800-1000), se respeta estrictamente.
         if override_max_tokens is not None:
             effective_max_tokens = override_max_tokens
         elif cmd is not None and cmd.is_structured:
@@ -1054,8 +1229,10 @@ class StructuredResponsePipeline:
         allow_code = (
             phase.code_allowed
             or has_code_request
+            or shortcut_match
             or (cmd is not None and cmd.command_type.value in ("TRADUCCION", "DAME_SOLUCION_COMPLETA"))
-            or active_mode in ("give_example", "evaluate_code", "resolve_misconception")
+            or active_mode in ("give_example", "evaluate_code", "debug_crash", "resolve_misconception")
+            or is_continuation_query(user_query)
         )
         effective_phase = ResponsePhase(
             phase_id=phase.phase_id,

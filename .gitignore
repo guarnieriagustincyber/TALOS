@@ -91,4 +91,4 @@ node_modules/
 /tmp/opencode/
 
 kasiu-lab/ui/bin/tailwindcss
-kasiu-lab/ui/bin/tailwindcss
+debug_*.txt

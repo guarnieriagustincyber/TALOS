@@ -196,44 +196,49 @@ class SQLiteVectorStore:
         import numpy as np
 
         key = (notebook_id, provider_id, model_id)
-        data_version = int(self._conn.execute("PRAGMA data_version;").fetchone()[0])
         with self._matrix_lock:
+            try:
+                row = self._conn.execute("PRAGMA data_version;").fetchone()
+                data_version = int(row[0]) if row else 0
+            except Exception:
+                data_version = 0
+
             cached = self._matrix_cache.get(key)
             if cached is not None and cached[0] == data_version:
                 self._matrix_cache.move_to_end(key)
                 return cached[1], cached[2]
 
-        query = """
-        SELECT chunk_id, dimensions, vector
-        FROM chunk_embeddings
-        WHERE notebook_id = ?
-        """
-        params: List[Union[str, int]] = [notebook_id]
-        if provider_id:
-            query += " AND provider_id = ?"
-            params.append(provider_id)
-        if model_id:
-            query += " AND model_id = ?"
-            params.append(model_id)
+            query = """
+            SELECT chunk_id, dimensions, vector
+            FROM chunk_embeddings
+            WHERE notebook_id = ?
+            """
+            params: List[Union[str, int]] = [notebook_id]
+            if provider_id:
+                query += " AND provider_id = ?"
+                params.append(provider_id)
+            if model_id:
+                query += " AND model_id = ?"
+                params.append(model_id)
 
-        query += " ORDER BY chunk_id ASC;"
-        cursor = self._conn.cursor()
-        cursor.execute(query, tuple(params))
-        rows = cursor.fetchall()
-        if not rows:
-            return [], np.empty((0, 0), dtype=np.float32)
+            query += " ORDER BY chunk_id ASC;"
+            cursor = self._conn.cursor()
+            cursor.execute(query, tuple(params))
+            rows = cursor.fetchall()
+            if not rows:
+                return [], np.empty((0, 0), dtype=np.float32)
 
-        dim = rows[0][1]
-        chunk_ids = [r[0] for r in rows if len(r[2]) == dim * 4]
-        raw_concat = b"".join(r[2] for r in rows if len(r[2]) == dim * 4)
-        matrix = np.frombuffer(raw_concat, dtype=np.float32).reshape((len(chunk_ids), dim))
-        with self._matrix_lock:
-            # Mantener en RAM como máximo 2 cuadernos (LRU eviction)
-            if len(self._matrix_cache) >= 2 and key not in self._matrix_cache:
+            dim = rows[0][1]
+            chunk_ids = [r[0] for r in rows if len(r[2]) == dim * 4]
+            raw_concat = b"".join(r[2] for r in rows if len(r[2]) == dim * 4)
+            matrix = np.frombuffer(raw_concat, dtype=np.float32).reshape((len(chunk_ids), dim))
+
+            # Mantener en RAM como máximo 8 cuadernos (LRU eviction)
+            if len(self._matrix_cache) >= 8 and key not in self._matrix_cache:
                 self._matrix_cache.popitem(last=False)
             self._matrix_cache[key] = (data_version, chunk_ids, matrix)
             self._matrix_cache.move_to_end(key)
-        return chunk_ids, matrix
+            return chunk_ids, matrix
 
     def get_by_chunk_id(self, chunk_id: str) -> Optional[VectorRecord]:
         """Fetch a single vector record by chunk ID."""

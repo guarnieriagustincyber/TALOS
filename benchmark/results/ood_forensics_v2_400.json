@@ -1,0 +1,157 @@
+{
+  "evaluation_run_id": "fase4-eval-official-v2-400",
+  "golden_set_version": "v2.400",
+  "timestamp_utc": "2026-09-24T18:00:00Z",
+  "total_queries": 400,
+  "ood_queries_total": 60,
+  "ood_abstention_success": 57,
+  "ood_leakages_count": 3,
+  "ood_abstention_rate": 0.95,
+  "forensic_summary": {
+    "oracle_false_positive_count": 1,
+    "real_fail_closed_violation_count": 2,
+    "epistemic_impact": "En modo fast offline (retrieval-only), 3 consultas OOD emitieron candidatos en lugar de 0. En modo completo con generación e Invariant Oracle, la tasa de citas autorizadas permanece en 0 (100% de aislamiento en emisión epistémica), pero a nivel de recuperación léxica 2 consultas eludieron el coverage guard debido a densidad de vocabulario canónico legítimo y 1 consulta fue una coincidencia real en el corpus no prevista en el oráculo del dataset."
+  },
+  "leakage_cases": [
+    {
+      "query_id": "GS2-OOD-014",
+      "query_text": "¿Cómo se calcula la tasa de interés compuesto anual?",
+      "category": "ood_trampas",
+      "tags": [
+        "ood",
+        "fail_closed",
+        "adversarial_epistemic",
+        "cultura_pop"
+      ],
+      "oracle_type": "abstention_oracle",
+      "notebook_scope": [
+        "NB-SEC-01-C-PTR"
+      ],
+      "classification": "oracle_false_positive",
+      "classification_label": "Falso Positivo del Oráculo / Coincidencia de Corpus",
+      "retrieved_candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "chk_dc44a8665f2b_73_1",
+          "source_id": "src_marzal_intro_programacion_c",
+          "document_id": "dc44a8665f2b23a6e8ebc148731345f79c0eaf21176d1dc58bd25be46cdd0f24",
+          "chapter": "Página 73",
+          "section": "Sección 1",
+          "page_start": 73,
+          "page_end": 73,
+          "content_snippet": "66 Andrés Marzal/Isabel Gracia - ISBN: 978-84-693-0143-2 Introducción a la programación con C - UJI · 54 Haz un programa que pida al usuario una cantidad de euros, una tasa de interés y un número de años y muestre por pantalla en cuánto se habrá convertido el capital inicial transcurridos esos años si cada año se aplica la tasa de interés introducida..."
+        }
+      ],
+      "root_cause_analysis": "El diseño de la consulta en el Golden Set asumió que el cálculo de tasa de interés compuesto era ajeno (OOD) al corpus técnico de sistemas. Sin embargo, el texto canónico de programación en C ('Introducción a la programación con C', Marzal & Gracia, página 73) contiene explícitamente un ejercicio práctico de programación que instruye al alumno a programar el cálculo de tasa de interés compuesto sobre un capital y número de años. El retriever local y el filtro léxico detectaron legítimamente los términos ('tasa', 'interés', 'capital', 'años') indexados en dicho libro curricular.",
+      "remediation": "Corregir el dataset en la versión v2.401 reubicando GS2-OOD-014 como consulta in-domain con qrels asociados al ejercicio de C, o reemplazarla por una consulta verdaderamente desacoplada de la currícula universitaria (ej. cálculo de hipotecas indexadas por UVA o fisiología vegetal)."
+    },
+    {
+      "query_id": "GS2-OOD-032",
+      "query_text": "¿Qué registro x86-64 utiliza el kernel Linux para el quantum_accumulator_register?",
+      "category": "ood_trampas",
+      "tags": [
+        "ood",
+        "fail_closed",
+        "adversarial_epistemic",
+        "apocrifo"
+      ],
+      "oracle_type": "abstention_oracle",
+      "notebook_scope": [
+        "NB-SEC-01-C-PTR"
+      ],
+      "classification": "real_fail_closed_violation",
+      "classification_label": "Violación Real de Fail-Closed (Evasión Léxica de Trampa Apócrifa)",
+      "retrieved_candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "chk_76e248a62974_407_1",
+          "source_id": "src_stallings_os_internals_7ed",
+          "document_id": "76e248a62974196882b2d33db346a8efd5b8585e45ad89bb81d4859431858ced",
+          "chapter": "Página 407",
+          "section": "Sección 1",
+          "page_start": 407,
+          "page_end": 407,
+          "content_snippet": "8.4 / LINUX MEMORY MANAGEMENT 385 • Page middle directory: The page middle directory may span multiple pages. Each entry in the page middle directory points to one page in the page table. • Page table: The page table may also span multiple pages. Each page table entry refers to one virtual page of the process. To use this three-level paging..."
+        }
+      ],
+      "root_cause_analysis": "La consulta fue construida como una trampa adversaria apócrifa inyectando la entidad inexistente 'quantum_accumulator_register' junto a términos técnicos de alta frecuencia en el corpus de sistemas operativos: 'registro', 'x86-64', 'kernel', 'Linux'. El Coverage Guard de TALOS computa coincidencia de términos informativos; dado que 4 de 5 términos se encuentran densamente representados en el texto canónico de Stallings ('Operating Systems Internals and Design Principles', p. 407), el filtro de cobertura se consideró satisfecho y el índice BM25 puntuó el chunk, evadiendo la abstención preventiva a nivel de recuperación.",
+      "remediation": "Incorporar en el pipeline de recuperación previa un filtro de 'Entidades Técnicas Singulares Compuestas': si una consulta contiene identificadores en notación técnica (snake_case o términos compuestos como 'quantum_accumulator_register') cuya frecuencia documental en el índice léxico sea exactamente 0 (DF=0), forzar la abstención inmediata (0 candidatos emitidos) antes del ranking BM25."
+    },
+    {
+      "query_id": "GS2-OOD-046",
+      "query_text": "¿Qué biblioteca estándar de C contiene la función free_all_memory_at_once()?",
+      "category": "ood_trampas",
+      "tags": [
+        "ood",
+        "fail_closed",
+        "adversarial_epistemic",
+        "ficticio"
+      ],
+      "oracle_type": "abstention_oracle",
+      "notebook_scope": [
+        "NB-SEC-01-C-PTR"
+      ],
+      "classification": "real_fail_closed_violation",
+      "classification_label": "Violación Real de Fail-Closed (Evasión Léxica por Función Ficticia)",
+      "retrieved_candidates": [
+        {
+          "rank": 1,
+          "chunk_id": "chk_1217dd5e6038_769_1",
+          "source_id": "src_joyanes_fundamentos",
+          "document_id": "1217dd5e6038f150f454198b9645b7f4b89929ff88ba3744ca2c446082f4fb47",
+          "chapter": "Página 769",
+          "section": "Sección 1",
+          "page_start": 769,
+          "page_end": 769,
+          "content_snippet": "Guía de sintaxis del lenguaje C 739 D.14. FUNCIONES Las funciones son los bloques de construcción de programas C. Una función es una colección de declaraciones y sentencias. Cada programa C tiene al menos una función: la función main... La biblioteca ANSI C contiene gran cantidad de..."
+        },
+        {
+          "rank": 2,
+          "chunk_id": "Fundamentos de bases de datos .pdf:p838:c0003",
+          "source_id": "src_silberschatz_fundamentos_bd",
+          "document_id": "Fundamentos de bases de datos .pdf",
+          "chapter": null,
+          "section": null,
+          "page_start": 838,
+          "page_end": 838,
+          "content_snippet": "diﬁcación para las funciones de C deﬁnidas por los usuarios. Una vez que se haya creado la biblioteca compartida que contiene la función..."
+        },
+        {
+          "rank": 3,
+          "chunk_id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p769:c0000",
+          "source_id": "src_joyanes_fundamentos",
+          "document_id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf",
+          "chapter": null,
+          "section": null,
+          "page_start": 769,
+          "page_end": 769,
+          "content_snippet": "Guía de sintaxis del lenguaje C 739 D.14. FUNCIONES Las funciones son los bloques de construcción... La biblioteca ANSI C contiene gran cantidad de f..."
+        },
+        {
+          "rank": 4,
+          "chunk_id": "chk_dc44a8665f2b_61_1",
+          "source_id": "src_marzal_intro_programacion_c",
+          "document_id": "dc44a8665f2b23a6e8ebc148731345f79c0eaf21176d1dc58bd25be46cdd0f24",
+          "chapter": "Página 61",
+          "section": "Sección 1",
+          "page_start": 61,
+          "page_end": 61,
+          "content_snippet": "54 Andrés Marzal/Isabel Gracia - ISBN: 978-84-693-0143-2 Introducción a la programación con C - UJI Función C Función matemática sqrt x raíz cuadrada de x sin x seno de x cos x coseno de x..."
+        },
+        {
+          "rank": 5,
+          "chunk_id": "chk_dc44a8665f2b_162_1",
+          "source_id": "src_marzal_intro_programacion_c",
+          "document_id": "dc44a8665f2b23a6e8ebc148731345f79c0eaf21176d1dc58bd25be46cdd0f24",
+          "chapter": "Página 162",
+          "section": "Sección 1",
+          "page_start": 162,
+          "page_end": 162,
+          "content_snippet": "155 Andrés Marzal/Isabel Gracia - ISBN: 978-84-693-0143-2 Introducción a la programación con C - UJI return 0 Si ejecutamos el programa tenemos: Es necesario que toda función se deﬁna en el programa antes de la primera línea en que se usa. Por esta razón, todas nuestras funciones se deﬁnen delante de la función main, que es la función que contiene..."
+        }
+      ],
+      "root_cause_analysis": "La estructura gramatical y semántica de la consulta ('¿Qué biblioteca estándar de C contiene la función...') presenta una saturación casi absoluta de palabras clave estándar de la bibliografía de C ('biblioteca', 'estándar', 'C', 'contiene', 'función'). Los chunks de Joyanes Aguilar y Marzal que describen la biblioteca estándar ANSI C obtuvieron puntajes BM25 significativos impulsados por estos términos ubicuos, a pesar de que el símbolo específico 'free_all_memory_at_once()' no existe en la biblioteca estándar C ni en el corpus.",
+      "remediation": "Integrar un catálogo canónico de símbolos de bibliotecas estándar (C Standard Library Symbol Guard): cuando la consulta formule una pregunta sobre existencia o pertenencia de una función con sufijo '()' en una biblioteca estándar, verificar si el símbolo existe en el índice de símbolos antes de autorizar el despacho de candidatos."
+    }
+  ]
+}

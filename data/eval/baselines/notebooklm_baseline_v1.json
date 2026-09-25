@@ -1,0 +1,25 @@
+{
+  "baseline_system": "Google NotebookLM (Gemini 1.5 Pro Cloud RAG)",
+  "evaluation_type": "historical_reference_baseline",
+  "methodology_disclaimer": "Las métricas de Google NotebookLM corresponden a una línea base de referencia histórica registrada documentalmente bajo condiciones de auditoría previa (muestra calibrada con Gemini 1.5 Pro en web/API con los mismos libros curriculares). No constituye una ejecución concurrente en caliente ni requiere credenciales activas de Google Cloud para la reproducción offline del benchmark de TALOS, el cual se ejecuta 100% offline y local en CPU.",
+  "evaluation_date": "2026-09-24",
+  "corpus_chunks": 105705,
+  "metrics": {
+    "mrr5": 0.74,
+    "ndcg5": 0.69,
+    "recall5": 0.81,
+    "evidence_precision": 0.85,
+    "citation_correctness": 0.9,
+    "fail_closed_abstention": 0.6,
+    "notebook_scoping": 0.72,
+    "anti_shortcut_pass_rate": 0.15,
+    "latency_p50_ms": 3200,
+    "latency_p95_ms": 6800
+  },
+  "failure_modes": [
+    "Alucinación especulativa ante bibliografía apócrifa (__guarnieri_opt)",
+    "Entrega de código completo copy-paste ante solicitudes directas (Pacto Socrático violado)",
+    "Citas vagas a documentos completos sin anclaje en párrafos exactos",
+    "Fuga de scoping entre fuentes sin aislamiento curricular estricto"
+  ]
+}

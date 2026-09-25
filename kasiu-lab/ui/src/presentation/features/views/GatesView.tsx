@@ -13,6 +13,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { GateVerificationDto } from "./types";
+import { EvalLabCard } from "./EvalLabCard";
 
 export const GatesView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -103,6 +104,9 @@ export const GatesView: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* FASE 4-EVAL: LABORATORIO DE EVALUACIÓN Y CERTIFICACIÓN */}
+        <EvalLabCard />
 
         {/* METRICS ROW */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

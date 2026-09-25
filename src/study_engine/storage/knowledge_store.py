@@ -22,7 +22,11 @@ from study_engine.contracts.document import Document
 from study_engine.contracts.notebook import Notebook
 from study_engine.contracts.search import SearchResult
 from study_engine.hierarchy.folder import Folder
-from study_engine.storage.lexical_index import SQLiteLexicalIndex
+from study_engine.storage.lexical_index import (
+    _BILINGUAL_MAP,
+    SPANISH_STOPWORDS,
+    SQLiteLexicalIndex,
+)
 from study_engine.storage.repositories import (
     SQLiteChunkRepository,
     SQLiteDocumentRepository,
@@ -38,13 +42,21 @@ from study_engine.storage.sqlite_engine import SQLiteStorageEngine
 MIN_VECTOR_SIMILARITY = float(os.environ.get("TALOS_MIN_VECTOR_SIMILARITY", "0.87"))
 
 
+
 def _normalize_coverage_word(w: str) -> str:
-    """Normaliza palabra para matching de cobertura: minúsculas y quita sufijo plural 's'/'es'."""
+    """Normaliza palabra para matching de cobertura: minúsculas, mapa bilingüe y sufijo plural."""
+    import unicodedata
     t = w.lower().strip()
+    unaccented = "".join(c for c in unicodedata.normalize("NFD", t) if unicodedata.category(c) != "Mn")
+    if unaccented in _BILINGUAL_MAP:
+        return _BILINGUAL_MAP[unaccented]
     if len(t) > 4 and t.endswith("es"):
-        return t[:-2]
-    if len(t) > 3 and t.endswith("s"):
-        return t[:-1]
+        t = t[:-2]
+    elif len(t) > 3 and t.endswith("s"):
+        t = t[:-1]
+    unaccented_stem = "".join(c for c in unicodedata.normalize("NFD", t) if unicodedata.category(c) != "Mn")
+    if unaccented_stem in _BILINGUAL_MAP:
+        return _BILINGUAL_MAP[unaccented_stem]
     return t
 
 
@@ -551,6 +563,7 @@ class KnowledgeStore:
             if not rows and " " in sanitized:
                 disjunctive_query = self.lexical_index.sanitize_query(query, disjunctive=True)
                 if disjunctive_query and disjunctive_query != sanitized:
+                    fallback_limit = max(limit * 10, 50)
                     fallback_params = (
                         disjunctive_query,
                         notebook_id,
@@ -558,22 +571,15 @@ class KnowledgeStore:
                         clean_source_id,
                         clean_doc_id,
                         clean_doc_id,
-                        limit,
+                        fallback_limit,
                     )
                     with self.engine.transaction() as conn:
                         cursor = conn.cursor()
                         cursor.execute(sql, fallback_params)
                         fallback_rows = cursor.fetchall()
 
-                    # Commit 6: Guarda de cobertura normalizada, sin escape hatch.
-                    # Admisión por camino FTS disyuntivo se decide SOLO por cobertura de términos normalizados:
-                    # tokenizar chunk y query en palabras completas, normalizar (minúsculas, quitar sufijo plural 's'/'es'),
-                    # y computar coverage = |términos query presentes en chunk| / |términos query|.
-                    # Un match de prefijo por wildcard NUNCA cuenta como término presente.
-                    # Umbral de cobertura: len(raw_terms) <= 3 -> 1.0 (todos los términos); len >= 4 -> >= 0.7 (redondeado hacia arriba).
-                    import math
-                    from study_engine.storage.lexical_index import SPANISH_STOPWORDS
-
+                    # Enmienda E-HF3: Cobertura FTS5 sin estrangulamiento
+                    _GENERIC_KEYWORDS = {"int", "char", "void", "float", "double", "short", "long", "main", "null", "true", "false"}
                     raw_terms = [
                         t.strip('"*').lower()
                         for t in sanitized.split()
@@ -584,15 +590,36 @@ class KnowledgeStore:
 
                     filtered_rows = []
                     if n_terms > 0:
-                        required_hits = n_terms if n_terms <= 3 else math.ceil(n_terms * 0.7)
+                        required_hits = 1 if n_terms <= 2 else 2
                         for r in fallback_rows:
-                            chunk_words = re.findall(r"\b\w+\b", r[5].lower())
+                            chunk_words = re.findall(r"[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]+", r[5].lower())
                             chunk_norm_set = {_normalize_coverage_word(w) for w in chunk_words}
-                            hits = sum(1 for term in norm_query_terms if term in chunk_norm_set)
+                            matched_terms = [
+                                term for term in norm_query_terms
+                                if term in chunk_norm_set or _BILINGUAL_MAP.get(term) in chunk_norm_set
+                            ]
+                            hits = len(matched_terms)
                             if hits >= required_hits:
+                                # Prevenir falsos positivos: si n_terms == 2 y solo coincide 1 término:
+                                # 1. No admitir si el único término coincidente es una palabra clave genérica
+                                if n_terms == 2 and hits == 1 and all(t in _GENERIC_KEYWORDS for t in matched_terms):
+                                    continue
+                                # 2. No admitir si alguno de los términos no coincidentes es un término clave de 4-5 caracteres (A5)
+                                if n_terms == 2 and hits < n_terms:
+                                    unmatched_4_5 = [
+                                        t for t in norm_query_terms
+                                        if t not in matched_terms and 4 <= len(t) <= 5
+                                    ]
+                                    if unmatched_4_5:
+                                        for term in unmatched_4_5:
+                                            logger.warning(
+                                                "COVERAGE_GUARD_MISS: term='%s' (len=%d) not covered in chunk '%s' for query='%s'",
+                                                term, len(term), r[0], query,
+                                            )
+                                        continue
                                 filtered_rows.append(r)
                             else:
-                                # A5: Detección de misses para crecimiento dirigido (4-5 chars)
+                                # Detección de misses para logging estructurado
                                 for term in norm_query_terms:
                                     if term not in chunk_norm_set and 4 <= len(term) <= 5:
                                         logger.warning(
@@ -608,7 +635,7 @@ class KnowledgeStore:
                                     term, len(term), query,
                                 )
 
-                    rows = filtered_rows
+                    rows = filtered_rows[:limit]
 
             return [
                 SearchResult(
@@ -884,17 +911,19 @@ class KnowledgeStore:
             embedder=embedder,
         )
 
-        # Gate anti-ruido: descartar evidencia vectorial bajo el umbral de
-        # similitud; sin esto, cualquier consulta (incluso fuera de alcance)
-        # devuelve top-N por orden relativo y salta la abstención del chat.
-        vector_results = [r for r in vector_results if r.score >= MIN_VECTOR_SIMILARITY]
-
         # Enmienda E1: Limitar disyunciones a top-50 por BM25 para evitar ruido
         fts_results = self.fts_search(
             query=effective_query,
             notebook_id=notebook_id,
             limit=50,
         )
+
+        # Gate anti-ruido calibrado: para evitar ruido puro en consultas OOD,
+        # filtrar por similitud mínima. Si hay resultados FTS5, el umbral es el canónico (MIN_VECTOR_SIMILARITY);
+        # si FTS5 devuelve vacío pero hay evidencia vectorial densa coherente (score >= 0.78),
+        # permitir que los vectores aporten candidatos por proximidad semántica (fusión aditiva RRF sin hard gates).
+        threshold = MIN_VECTOR_SIMILARITY if fts_results else min(MIN_VECTOR_SIMILARITY, 0.78)
+        vector_results = [r for r in vector_results if r.score >= threshold]
 
         if vector_results and fts_results:
             fused = self.reciprocal_rank_fusion(vector_results, fts_results, k=60)

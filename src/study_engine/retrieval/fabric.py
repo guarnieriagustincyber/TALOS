@@ -27,6 +27,7 @@ from study_engine.retrieval.adaptive_router import AdaptiveRetrievalRouter, Rout
 from study_engine.retrieval.presentation_filter import filter_presentation
 from study_engine.retrieval.query_rewriter import QueryRewriter
 from study_engine.retrieval.reranker import BaseReranker, JinaReranker
+from study_engine.retrieval.symbol_guard import SymbolGuard
 
 logger = logging.getLogger(__name__)
 
@@ -64,12 +65,14 @@ class RetrievalFabricLite:
         reranker: Optional[BaseReranker] = None,
         query_rewriter: Optional[QueryRewriter] = None,
         content_registry: Optional[Any] = None,
+        symbol_guard: Optional[SymbolGuard] = None,
     ) -> None:
         self.store = store
         self.retriever = retriever
         self.router = router or AdaptiveRetrievalRouter()
         self.reranker = reranker or JinaReranker()
         self.query_rewriter = query_rewriter or QueryRewriter()
+        self.symbol_guard = symbol_guard if symbol_guard is not None else SymbolGuard(store=store)
         self.content_registry = content_registry or getattr(store, "content_registry", None)
         self.trace_logger = get_retrieval_trace_logger()
 
@@ -93,6 +96,31 @@ class RetrievalFabricLite:
 
         # 1. Query re-writing (chokepoint único)
         rewritten_query = self.query_rewriter.rewrite(query) if self.query_rewriter else query
+
+        # 1.5. Symbol & Identifier Guard (Sprint v1.2 / Fase 5 Fail-Closed Chokepoint)
+        if self.symbol_guard is not None:
+            guard_decision = self.symbol_guard.evaluate(query, store=self.store)
+            if not guard_decision.should_abstain and rewritten_query != query:
+                guard_decision = self.symbol_guard.evaluate(rewritten_query, store=self.store)
+
+            if guard_decision.should_abstain:
+                elapsed_ms = (time.perf_counter() - t_start) * 1000.0
+                try:
+                    trace_payload = {
+                        "event": "SYMBOL_GUARD_BLOCKED",
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "query": query,
+                        "rewritten_query": rewritten_query,
+                        "reason": guard_decision.reason,
+                        "symbol": guard_decision.symbol,
+                        "canonicity_asserted": guard_decision.canonicity_asserted,
+                        "matched_markers": guard_decision.matched_markers,
+                        "latency_ms": round(elapsed_ms, 2),
+                    }
+                    self.trace_logger.info(json.dumps(trace_payload))
+                except Exception as log_err:
+                    logger.debug("Error logging symbol guard trace: %s", log_err)
+                return []
 
         # 2. Adaptive routing
         route_decision = self.router.route(rewritten_query)

@@ -30,6 +30,7 @@ from study_engine.web.routes.notebook import admin_router as curriculum_admin_ro
 from study_engine.web.routes.notebook import router as notebook_router
 from study_engine.web.routes.student_exercises import router as student_exercises_router
 from study_engine.web.routes.retrieval import router as retrieval_router
+from study_engine.web.routes.eval import router as eval_router
 
 logger = logging.getLogger(__name__)
 if not logging.getLogger("study_engine.web").handlers:
@@ -167,6 +168,7 @@ def create_app() -> FastAPI:
     app.include_router(curriculum_admin_router)
     app.include_router(student_exercises_router)
     app.include_router(retrieval_router)
+    app.include_router(eval_router)
 
     # Mount static assets directory
     static_dir = (Path(__file__).parent / "static").resolve()

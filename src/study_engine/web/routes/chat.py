@@ -105,6 +105,10 @@ class ChatQueryRequest(BaseModel):
         default=None,
         description="Optional list of authorized source identifiers or doc hashes to restrict retrieval.",
     )
+    recent_turns: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Optional recent conversation turns from client (role, content).",
+    )
 
     @property
     def effective_prompt(self) -> str:
@@ -137,6 +141,10 @@ _ACTIVE_TURN_HISTORIES: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 # Almacena los últimos 4 turnos {role, content} por history_key para inyectar
 # continuidad conversacional real en el prompt sin inflar el contexto global.
 _CONV_TURN_BUFFER: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
+
+# Almacena el último EpistemicContextPack exitoso por history_key / session_key
+# para que consultas deícticas/seguimiento no abstenan falsamente si el store devuelve 0 chunks nuevos.
+_LAST_EPISTEMIC_PACK: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
 # Fase 5.3: racha de turnos consecutivos por KC por sesión/cuaderno —
 # cuando llega a N turnos, TALOS propone un ejercicio certificado para
@@ -466,13 +474,16 @@ _BROAD_QUERY_PATTERN = re.compile(
 def _resolve_retrieval_depth(prompt_text: str) -> Tuple[int, int]:
     """Return (limit, min_sources) for retrieval according to query breadth.
 
-    - Consulta amplia (resumen, repaso de unidad, panorama): 14 chunks, >=4 fuentes.
-    - Consulta específica (déficit de un concepto, cómo se hace X): 6 chunks, >=3 fuentes.
+    - Consulta de depuración / crash / segfault: 8 chunks, >=2 fuentes (evita sobre-expansión y timeout).
+    - Consulta amplia (resumen, repaso de unidad, panorama): 25 chunks, >=4 fuentes.
+    - Consulta específica (déficit de un concepto, cómo se hace X): 15 chunks, >=3 fuentes.
     """
-    q = (prompt_text or "").strip()
+    q = (prompt_text or "").strip().lower()
+    if re.search(r"\b(?:falla|crashea|segfault|crash|segmentation\s+fault|se\s+rompe|puntero\s+salvaje|wild\s+pointer)\b", q):
+        return 8, 2
     if len(q) >= 220 or _BROAD_QUERY_PATTERN.search(q):
-        return 14, 4
-    return 6, 3
+        return 25, 4
+    return 15, 3
 
 
 def _assemble_epistemic_context(
@@ -580,10 +591,11 @@ def _assemble_epistemic_context(
                     logger.warning("No se pudo listar cuadernos para scope global: %s", nb_err)
                     all_notebooks = []
 
-                merged: Dict[str, Tuple[int, Any]] = {}
-                for nb_id in all_notebooks:
+                from concurrent.futures import ThreadPoolExecutor, as_completed
+
+                def _search_single_nb(nb_id: str) -> List[Any]:
                     try:
-                        nb_results = store.search_hybrid(
+                        return store.search_hybrid(
                             query=search_query,
                             notebook_id=nb_id,
                             limit=retrieval_limit,
@@ -593,11 +605,18 @@ def _assemble_epistemic_context(
                         )
                     except Exception as nb_search_err:
                         logger.debug("Scope global: fallo retrieval en %s: %s", nb_id, nb_search_err)
-                        continue
-                    for rank, res in enumerate(nb_results):
-                        cid = getattr(res, "chunk_id", None) or getattr(res, "id", None) or str(rank)
-                        if cid not in merged or merged[cid][0] > rank:
-                            merged[cid] = (rank, res)
+                        return []
+
+                merged: Dict[str, Tuple[int, Any]] = {}
+                workers = min(len(all_notebooks), 8) if all_notebooks else 1
+                with ThreadPoolExecutor(max_workers=workers) as executor:
+                    future_to_nb = {executor.submit(_search_single_nb, nb_id): nb_id for nb_id in all_notebooks}
+                    for future in as_completed(future_to_nb):
+                        nb_results = future.result()
+                        for rank, res in enumerate(nb_results):
+                            cid = getattr(res, "chunk_id", None) or getattr(res, "id", None) or str(rank)
+                            if cid not in merged or merged[cid][0] > rank:
+                                merged[cid] = (rank, res)
                 search_results = [res for rank, res in sorted(merged.values(), key=lambda t: t[0])]
                 search_results = search_results[: max(retrieval_limit, min_sources * 2)]
             elif hasattr(store, "search_hybrid"):
@@ -662,9 +681,11 @@ def _assemble_epistemic_context(
         if search_results and hasattr(store, "engine"):
             try:
                 from study_engine.retrieval.expansion import SectionExpander
-                expander = SectionExpander(engine=store.engine)
+                is_debug_q = bool(re.search(r"\b(?:falla|crashea|segfault|crash|segmentation\s+fault|se\s+rompe)\b", (search_query or "").lower()))
+                exp_ceiling = 1800 if is_debug_q else 5000
+                expander = SectionExpander(engine=store.engine, hard_ceiling_tokens=exp_ceiling)
                 expanded_chunks, expanded_context_text = expander.expand_results(
-                    seed_results=search_results,
+                    seed_results=search_results[:6] if is_debug_q else search_results,
                     source_meta_cache=src_meta_cache,
                 )
                 if expanded_chunks and hasattr(store, "content_registry") and store.content_registry:
@@ -1125,7 +1146,77 @@ def _prepare_chat_context(
 
     # COMMIT 3 (fix/scope): intención no curricular abstiene ANTES del
     # retrieval y aunque haya match léxico de contenido (independencia total).
-    if _is_non_curricular_intent(prompt_text, kcs_list):
+    history_key = f"{request.session_id or 'anon'}:{target_notebook_id}"
+    session_key = f"sess:{request.session_id or 'anon'}"
+
+    # Recuperar turnos: priorizar los enviados por el cliente (fuente de verdad de la UI),
+    # luego el buffer por cuaderno, luego el buffer por sesión global
+    client_turns = [
+        {"role": t.get("role", "user"), "content": t.get("content", "")}
+        for t in (request.recent_turns or [])
+        if isinstance(t, dict) and t.get("content")
+    ]
+    conv_turns = client_turns if client_turns else list(
+        _CONV_TURN_BUFFER.get(history_key) or _CONV_TURN_BUFFER.get(session_key) or []
+    )
+    from study_engine.retrieval.query_rewriter import QueryRewriter, has_deictic_markers, should_rewrite_contextual
+    from study_engine.pedagogy.conversation_state import ConversationState, classify_conversation_state, should_abstain
+
+    rewriter = QueryRewriter()
+    clean_p = (prompt_text or "").strip()
+    is_explicit_reference = bool(re.search(r"\b(?:ejercicio|gu[ií]a|problema|tp)\s+\d+\b", clean_p, re.IGNORECASE))
+    is_deictic = has_deictic_markers(clean_p)
+    should_rew = should_rewrite_contextual(clean_p, conv_turns)
+
+    re_followup = re.compile(
+        r"\b(?:pod[eé]s\s+(?:detallarme|explicarme|profundizar|ampliar|darme\s+m[aá]s|explicar)|"
+        r"explicame(?:\s+m[aá]s)?(?:\s+a\s+detalle)?|"
+        r"detallame(?:\s+m[aá]s)?|"
+        r"profundiz[aá]|"
+        r"ampli[aá](?:\s+eso)?|"
+        r"m[aá]s\s+(?:detalles?|ejemplos?|info)|"
+        r"no\s+(?:logr[eé]\s+)?(?:entender|comprendo|comprend[ií]|entend[ií])|"
+        r"no\s+me\s+qued[oó]\s+claro|"
+        r"me\s+cuesta\s+entender|"
+        r"por\s*qu[eé]\s+(?:es|pasa|ocurre|dec[ií]s|dices|deber[ií]a|se|el)|"
+        r"qu[eé]\s+significa|"
+        r"a\s+qu[eé]\s+te\s+refer[ií]s|"
+        r"me\s+lo\s+explic[aá]s\s+de\s+nuevo|"
+        r"segu[ií]|contin[uú]a|qu[eé]\s+m[aá]s|"
+        r"y\s+eso\s+por\s+qu[eé]\s+pasa|"
+        r"y\s+c[oó]mo\s+ser[ií]a\b|"
+        r"dame\s+un\s+ejemplo|"
+        r"dame\s+m[aá]s\s+ejemplos|"
+        r"c[oó]mo\s+ser[ií]a|"
+        r"mostrame\s+un\s+ejemplo|"
+        r"podr[ií]as\s+explicar(?:\s+de\s+manera\s+conceptual\s+y\s+clara)?|"
+        r"explicame\s+de\s+manera\s+conceptual\s+y\s+clara)\b",
+        re.IGNORECASE,
+    )
+    is_deictic_or_clarification = bool(re.search(
+        r"\b(?:eso|esto|aquello|lo\s+anterior|lo\s+que\s+dijiste|entender|comprend\w*|por\s*qu[eé]|explic\w*|detall\w*|ampli\w*|metadato\w*|integridad|stack|heap|pila|memoria|puntero\w*)\b",
+        clean_p,
+        re.IGNORECASE,
+    ))
+
+    has_fallback_pack = bool(history_key in _LAST_EPISTEMIC_PACK or session_key in _LAST_EPISTEMIC_PACK)
+    is_followup = (
+        not is_explicit_reference
+        and bool(
+            should_rew
+            or is_deictic
+            or re_followup.search(clean_p)
+            or (conv_turns and is_deictic_or_clarification and len(clean_p.split()) <= 10)
+            or (conv_turns and len(clean_p.split()) <= 4)
+        )
+    )
+
+    if is_followup:
+        retrieval_query = rewriter.rewrite_contextual(clean_p, conv_turns)
+    else:
+        retrieval_query = rewriter.rewrite(clean_p)
+
+    if _is_non_curricular_intent(retrieval_query, kcs_list):
         context_pack = EpistemicContextPack(
             formatted_context="",
             citations=[],
@@ -1141,10 +1232,43 @@ def _prepare_chat_context(
         context_pack, raw_chunks = _assemble_epistemic_context(
             store=store,
             container=container,
-            prompt_text=prompt_text,
+            prompt_text=retrieval_query,
             target_notebook_id=target_notebook_id,
             active_sources=request.active_sources,
         )
+
+        # Máquina de estados conversacional con inercia epistémica (CAL §3.2 Multi-Turn)
+        conv_state = classify_conversation_state(
+            query=clean_p,
+            recent_turns=conv_turns,
+            retrieval_results=raw_chunks,
+            has_fallback_pack=has_fallback_pack,
+        )
+
+        # Rescate epistémico para consultas de seguimiento / deícticas en contexto conversacional:
+        # Si la consulta es de seguimiento (o conv_state en AMBIGUOUS_FOLLOWUP / ACTIVE_TECHNICAL_THREAD)
+        # y el retrieval devolvió 0 fragmentos nuevos, reusar el pack epistémico verificado del turno previo.
+        should_abst, abst_reason = should_abstain(conv_state, raw_chunks, has_fallback_pack=has_fallback_pack)
+        if (
+            (getattr(context_pack, "abstained", False) or len(raw_chunks) == 0)
+            and not should_abst
+            and has_fallback_pack
+            and not getattr(context_pack, "resolved_item", None)
+        ):
+            last_pack_tuple = _LAST_EPISTEMIC_PACK.get(history_key) or _LAST_EPISTEMIC_PACK.get(session_key)
+            if last_pack_tuple:
+                logger.info(
+                    "Recuperando context_pack previo para continuidad conversacional (%s, %s, estado=%s)",
+                    history_key, session_key, conv_state.value
+                )
+                prev_pack, prev_chunks = last_pack_tuple
+                context_pack = prev_pack
+                raw_chunks = list(prev_chunks)
+
+        # Si el context_pack es válido y tiene fragmentos, actualizar la caché del último pack epistémico
+        if context_pack and not getattr(context_pack, "abstained", False) and raw_chunks:
+            _LAST_EPISTEMIC_PACK[history_key] = (context_pack, raw_chunks)
+            _LAST_EPISTEMIC_PACK[session_key] = (context_pack, raw_chunks)
 
     # El pipeline SIEMPRE necesita un contrato (SocraticGuard, get_phase);
     # en scope global se usa el contrato neutral sintético.
@@ -1155,8 +1279,11 @@ def _prepare_chat_context(
     )
 
     # ConversationStyleRouter (Ola 5, E24)
-    from study_engine.pedagogy.style_router import ConversationStyleRouter
+    from study_engine.pedagogy.style_router import ConversationStyleRouter, ConversationStyle
     style_result = ConversationStyleRouter.detect_style(prompt_text)
+    # En hilos técnicos activos o seguimientos deícticos, preservar siempre la profundidad formal
+    if (is_followup or conv_state in (ConversationState.AMBIGUOUS_FOLLOWUP, ConversationState.ACTIVE_TECHNICAL_THREAD)) and style_result.style == ConversationStyle.CASUAL_CHAT:
+        style_result = ConversationStyleRouter.detect_style("explicación formal y técnica detallada")
 
     matched_kc_id = _match_kc_id(kcs_list, prompt_text) if kcs_list else None
     if not matched_kc_id and context_pack and getattr(context_pack, "resolved_item", None):
@@ -1392,6 +1519,7 @@ async def chat_query(
 
     target_notebook_id = resolved_scope.notebook_id or target_scope_id
     history_key = f"{request.session_id or 'anon'}:{target_notebook_id}"
+    session_key = f"sess:{request.session_id or 'anon'}"
 
     bkt_directive = maybe_inject_session_digest(container, history_key, bkt_directive)
     if request.requested_phase == "conceptual" and history_key in _ACTIVE_TURN_HISTORIES:
@@ -1401,7 +1529,14 @@ async def chat_query(
     llm_backend = _resolve_chat_backend(container)
 
     # Memoria de corto plazo (Fase 2): recuperar buffer de turnos y registrar el turno actual del usuario.
-    conv_turns: list = list(_CONV_TURN_BUFFER.get(history_key) or [])
+    client_turns = [
+        {"role": t.get("role", "user"), "content": t.get("content", "")}
+        for t in (request.recent_turns or [])
+        if isinstance(t, dict) and t.get("content")
+    ]
+    conv_turns: list = client_turns if client_turns else list(
+        _CONV_TURN_BUFFER.get(history_key) or _CONV_TURN_BUFFER.get(session_key) or []
+    )
     # Registrar el turno del usuario en el buffer (se completa con la respuesta al finalizar)
     conv_turns.append({"role": "user", "content": prompt_text})
 
@@ -1472,34 +1607,36 @@ async def chat_query(
                         "notebook_id": target_notebook_id,
                     },
                 }
+                conv_turns.append({"role": "assistant", "content": f"Abstención: {reason}"})
+                _CONV_TURN_BUFFER[history_key] = conv_turns[-4:]
+                _CONV_TURN_BUFFER[session_key] = conv_turns[-4:]
                 yield f"data: {json.dumps(abstention_payload)}\n\n"
                 return
 
             style_dir = style_result.instruction_directive if style_result else None
-            # Permitir respuesta exhaustiva con diagramas y patrones sin racionamiento de tokens (estilo NotebookLM)
-            live_max_tokens = 3500 if (not request.requested_phase or request.requested_phase == "conceptual") else None
-            accumulated_response_text = ""
             from study_engine.pedagogy.structured_pipeline import classify_pedagogical_intent
             conv_intent = classify_pedagogical_intent(prompt_text)
 
-            # Validador de citas y buffer de streaming (Fase 2 + Commit 1)
+            # Permitir respuesta exhaustiva con diagramas y patrones sin racionamiento de tokens (techo canónico de 3500 tokens)
+            if not request.requested_phase or request.requested_phase == "conceptual":
+                live_max_tokens = 3500
+            else:
+                live_max_tokens = None
+            accumulated_response_text = ""
+
+            # Validador de citas y buffer de streaming (Fase 2 + Commit 1 + Enmienda E-UX1)
             from study_engine.pedagogy.citation_validator import CitationValidator, StreamCitationBuffer
             citation_validator = CitationValidator()
-            stream_citation_buf = StreamCitationBuffer(citation_validator, raw_chunks)
-
-            # Disclaimer determinista hablado ante fallback sin KC confirmado (Commit 3) y/o referencia aproximada (Slice 6.0.5)
-            fallback_prefix = (
-                f"{FALLBACK_DISCLAIMER}\n\n"
-                if matched_kc_id is None
-                else ""
+            # Enmienda E-UX1: strip_invalid=True emite prosa limpia a la UI y guarda telemetría en backend
+            stream_citation_buf = StreamCitationBuffer(
+                citation_validator,
+                raw_chunks,
+                strip_invalid=True,
             )
+
             ref_disclaimer = getattr(context_pack, "reference_disclaimer", None) if context_pack else None
-            lead_prefix = ""
-            if ref_disclaimer:
-                lead_prefix += f"{ref_disclaimer}\n\n"
-            if fallback_prefix:
-                lead_prefix += fallback_prefix
-            disclaimer_emitted = False
+            ref_prefix = f"{ref_disclaimer}\n\n" if ref_disclaimer else ""
+            ref_emitted = False
 
             async for event in pipeline.generate_phased_response(
                 user_query=prompt_text,
@@ -1517,12 +1654,12 @@ async def chat_query(
 
                 if event.event_type == "phase_token":
                     token_str = event.payload.get("token", "")
-                    if lead_prefix and not disclaimer_emitted:
-                        disclaimer_emitted = True
-                        accumulated_response_text += lead_prefix
+                    if ref_prefix and not ref_emitted:
+                        ref_emitted = True
+                        accumulated_response_text += ref_prefix
                         tok_payload = {
                             "event_type": "phase_token",
-                            "payload": {**event.payload, "token": lead_prefix},
+                            "payload": {**event.payload, "token": ref_prefix},
                         }
                         yield f"data: {json.dumps(tok_payload)}\n\n"
 
@@ -1537,12 +1674,12 @@ async def chat_query(
                     continue
 
                 if event.event_type == "phase_complete":
-                    if lead_prefix and not disclaimer_emitted:
-                        disclaimer_emitted = True
-                        accumulated_response_text = lead_prefix + accumulated_response_text
+                    if ref_prefix and not ref_emitted:
+                        ref_emitted = True
+                        accumulated_response_text = ref_prefix + accumulated_response_text
                         tok_payload = {
                             "event_type": "phase_token",
-                            "payload": {"phase": request.requested_phase or "conceptual", "token": lead_prefix},
+                            "payload": {"phase": request.requested_phase or "conceptual", "token": ref_prefix},
                         }
                         yield f"data: {json.dumps(tok_payload)}\n\n"
 
@@ -1564,25 +1701,34 @@ async def chat_query(
                         text=accumulated_response_text,
                         chunks=raw_chunks,
                     )
-                    if invalid_citations:
+                    # Enmienda E-UX1: Telemetría de citas huérfanas / alucinadas detectadas
+                    all_invalid = list(set(invalid_citations + getattr(stream_citation_buf, "stripped_citations", [])))
+                    if all_invalid:
                         logger.warning(
-                            "Auditoría y sanitización de citas detectó referencias no verificadas: %s (válidas: %s)",
-                            invalid_citations,
+                            "[TELEMETRY E-UX1] Citas huérfanas o alucinadas sanitizadas: %s (válidas: %s)",
+                            all_invalid,
                             valid_citations,
                         )
                         audit_payload = {
                             "event_type": "citation_audit",
                             "payload": {
                                 "valid_citations": valid_citations,
-                                "invalid_citations": invalid_citations,
+                                "invalid_citations": all_invalid,
                                 "citation_count": len(valid_citations),
+                                "stripped_from_stream": getattr(stream_citation_buf, "stripped_citations", []),
                             },
                         }
                         yield f"data: {json.dumps(audit_payload)}\n\n"
 
+                    # Sanitizar buffer de memoria conversacional (eliminar tokens residuales para evitar contaminación in-context)
+                    clean_saved_text = re.sub(r"\s*\[ref\. no verificada\]\s*", " ", accumulated_response_text)
+                    clean_saved_text = re.sub(r"\s+([.,;:!?])", r"\1", clean_saved_text).strip()
+                    clean_saved_text = re.sub(r"  +", " ", clean_saved_text)
+
                     # Guardar historial conversacional (últimos 4 turnos) en _CONV_TURN_BUFFER
-                    conv_turns.append({"role": "assistant", "content": accumulated_response_text})
+                    conv_turns.append({"role": "assistant", "content": clean_saved_text})
                     _CONV_TURN_BUFFER[history_key] = conv_turns[-4:]
+                    _CONV_TURN_BUFFER[session_key] = conv_turns[-4:]
 
                     # Enriquecer payload de phase_complete con telemetría cognitiva BKT (Fase 3)
                     if isinstance(payload.get("payload"), dict):
@@ -1602,6 +1748,9 @@ async def chat_query(
                             # a un KC real del catálogo.
                             "fallback": matched_kc_id is None,
                         }
+                        payload["payload"]["fallback_disclaimer"] = (matched_kc_id is None)
+                        if ref_disclaimer:
+                            payload["payload"]["reference_disclaimer"] = ref_disclaimer
 
                     _update_curriculum_progress(
                         container=container,

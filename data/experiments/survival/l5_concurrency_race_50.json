@@ -3,8 +3,8 @@
   "thread_count": 50,
   "metrics": {
     "ADMITTED": 1,
-    "DUPLICATE_REJECTED": 48,
-    "RACE_LOST": 1,
+    "DUPLICATE_REJECTED": 49,
+    "RACE_LOST": 0,
     "COMMIT_REJECTED": 0,
     "TOTAL_SUBMISSIONS": 50
   },

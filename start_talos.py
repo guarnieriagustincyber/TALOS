@@ -28,9 +28,13 @@ if not VENV_PYTHON.exists():
 
 def is_port_in_use(port: int, host: str = "127.0.0.1") -> bool:
     """Verifica si un puerto está ocupado (timeout ultrarrápido de 100ms)."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(0.1)
-        return s.connect_ex((host, port)) == 0
+    for h in (host, "localhost", "127.0.0.1"):
+        try:
+            with socket.create_connection((h, port), timeout=0.15):
+                return True
+        except Exception:
+            pass
+    return False
 
 
 def free_port(port: int) -> None:
@@ -47,14 +51,20 @@ def free_port(port: int) -> None:
         pass
 
 
+os.environ["NO_PROXY"] = "127.0.0.1,localhost,0.0.0.0"
+os.environ["no_proxy"] = "127.0.0.1,localhost,0.0.0.0"
+
+
 def is_backend_healthy() -> bool:
     """Verifica si el backend responde con HTTP 200 a /api/health."""
     try:
+        proxy_handler = urllib.request.ProxyHandler({})
+        opener = urllib.request.build_opener(proxy_handler)
         req = urllib.request.Request(f"http://127.0.0.1:{BACKEND_PORT}/api/health")
-        with urllib.request.urlopen(req, timeout=0.6) as resp:
+        with opener.open(req, timeout=0.6) as resp:
             return resp.status == 200
     except Exception:
-        return False
+        return is_port_in_use(BACKEND_PORT)
 
 
 def spawn_backend() -> subprocess.Popen:
@@ -103,7 +113,7 @@ def spawn_frontend() -> subprocess.Popen:
             stderr=subprocess.DEVNULL,
         )
 
-    frontend_cmd = ["npx", "vite", "--port", str(FRONTEND_PORT)]
+    frontend_cmd = ["npx", "vite", "--port", str(FRONTEND_PORT), "--host", "0.0.0.0"]
     frontend_log = open(ROOT_DIR / "frontend.log", "w", encoding="utf-8")
 
     return subprocess.Popen(
@@ -138,9 +148,18 @@ def main() -> None:
     print("🚀 TALOS - Sistema de Estudio Epistémico")
     print("=" * 60)
 
+    restart_requested = any(arg in sys.argv for arg in ("--restart", "-r", "--reload"))
+    if "--reload" in sys.argv:
+        os.environ["TALOS_DEV_RELOAD"] = "1"
+
+    if restart_requested:
+        print("🔄 Reinicio forzado solicitado (--restart). Liberando puertos...")
+        free_port(BACKEND_PORT)
+        free_port(FRONTEND_PORT)
+
     # Verificación instantánea si ya está corriendo
-    backend_running = is_backend_healthy()
-    frontend_running = is_port_in_use(FRONTEND_PORT)
+    backend_running = False if restart_requested else is_backend_healthy()
+    frontend_running = False if restart_requested else is_port_in_use(FRONTEND_PORT)
 
     if backend_running and frontend_running:
         print("⚡ TALOS ya se encuentra en ejecución activa.")

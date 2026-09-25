@@ -49,7 +49,7 @@ class ConversationStyleRouter:
         re.IGNORECASE,
     )
     RE_VERIFICATION = re.compile(
-        r"^(es (verdad|cierto|correcto) que|\u00bf?es (verdad|cierto|correcto)|\u00bf?se puede|\u00bf?est[aá] bien si|verdad que)\b",
+        r"^(es (verdad|cierto|correcto) que|\u00bf?es (verdad|cierto|correcto)|\u00bf?se puede|\u00bf?est[aá] bien si|verdad que|\u00bf?(?:existe|hay))\b",
         re.IGNORECASE,
     )
     RE_PRACTICE_PHRASE = re.compile(
@@ -57,7 +57,11 @@ class ConversationStyleRouter:
         re.IGNORECASE,
     )
     RE_FORMAL_KEYWORDS = re.compile(
-        r"\b(defin[ií]|demostr[aá]|desarroll[aá]|an[aá]lisis formal|teorema|prueba formal)\b",
+        r"\b(defin[ií]|demostr[aá]|desarroll[aá]|an[aá]lisis formal|teorema|prueba formal|c[oó]digo|algoritmo|funci[oó]n|"
+        r"puntero\w*|memoria|segfault|crash|abi|implementa|explic\w*|c[oó]mo funciona|qu[eé] es|detall\w*|profundiz\w*|ampli\w*|"
+        r"m[aá]s\s+detalles?|m[aá]s\s+a\s+detalle|conceptual(?:mente)?|"
+        r"metadato\w*|integridad|stack|heap|bss|data|text|retorno|frame\s+pointer|direcci[oó]n|registro\w*|"
+        r"ampersand|asterisco|operador\w*|desreferenci\w*)\b",
         re.IGNORECASE,
     )
     RE_CASUAL_SIGNALS = re.compile(
@@ -118,8 +122,11 @@ class ConversationStyleRouter:
         if cls.RE_FORMAL_KEYWORDS.search(clean_q):
             return cls._build_result(ConversationStyle.FORMAL_EXPLANATION)
 
-        # 2f. Casual signals
-        if cls.RE_CASUAL_SIGNALS.search(clean_q):
+        # 2f. Casual signals (solo en texto no-código y en consultas breves)
+        non_code_q = re.sub(r'```.*?```', '', clean_q, flags=re.DOTALL)
+        non_code_q = re.sub(r'"[^"]*"', '', non_code_q)
+        non_code_q = re.sub(r"'[^']*'", '', non_code_q)
+        if len(clean_q.split()) <= 12 and cls.RE_CASUAL_SIGNALS.search(non_code_q):
             return cls._build_result(ConversationStyle.CASUAL_CHAT)
 
         # ---------------------------------------------------------

@@ -36,10 +36,11 @@ class PedagogicalToneDirective(str, Enum):
     )
 
     EPISTEMIC_RIGOR_RULE = (
-        "=== RIGOR EPISTÉMICO MANDATORIO (CITAS [E#]) ===\n"
-        "- Toda afirmación fáctica o técnica DEBE estar respaldada por su cita [E#] correspondiente en la misma oración.\n"
+        "=== RIGOR EPISTÉMICO MANDATORIO Y GESTIÓN DE EVIDENCIAS (CITAS [E#]) ===\n"
+        "- Toda afirmación fáctica basada en las evidencias documentadas del cuaderno DEBE citar su [E#] correspondiente en la misma oración.\n"
+        "- Si el material documental del cuaderno no contiene evidencias específicas para la consulta o respondés con base conceptual general de computación, NO inventes etiquetas [E#] ni agregues referencias apócrifas.\n"
         "- La calidez y la empatía dialéctica NUNCA reemplazan la evidencia documental autorizada.\n"
-        "- Si el material documental del cuaderno no cubre un detalle, declará abstención honesta sobre ese punto específico."
+        "- Si el material documental del cuaderno no cubre un detalle requerido por el programa, declará abstención honesta sobre ese punto específico."
     )
 
 

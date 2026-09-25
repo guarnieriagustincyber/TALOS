@@ -66,16 +66,16 @@ _COLLOQUIAL_EXPANSIONS: List[Tuple[re.Pattern, str]] = [
     ),
     # Punteros y direccionamiento
     (
-        re.compile(r"(?:la\s+flechita|el\s+operador\s+flecha)\s+en\s+c", re.IGNORECASE),
+        re.compile(r"(?:la\s+flechita|el\s+operador\s+flecha)(?:\s+en\s+c)?", re.IGNORECASE),
         "operador de acceso a miembros por puntero desreferenciación flecha estructuras struct",
     ),
     (
-        re.compile(r"(?:el\s+asterisco|el\s+cosito)\s+adelante\s+de\s+(?:un\s+)?puntero", re.IGNORECASE),
-        "operador de desreferenciación indirección punteros valor apuntado",
+        re.compile(r"(?:el\s+asterisco|el\s+cosito)(?:\s+adelante\s+de\s+(?:un\s+)?puntero)?|\basterisco\b", re.IGNORECASE),
+        "operador de desreferenciación indirección punteros * valor apuntado",
     ),
     (
-        re.compile(r"(?:el\s+ampersand|la\s+y\s+griega|el\s+s[ií]mbolo\s+&)\s+en\s+c", re.IGNORECASE),
-        "operador de dirección ampersand obtención de dirección de memoria punteros",
+        re.compile(r"\b(?:el\s+)?(?:ampersand|s[ií]mbolo\s+&|operador\s+&)\b", re.IGNORECASE),
+        "operador de dirección ampersand & obtención de dirección de memoria punteros",
     ),
     # CPU y arquitectura
     (
@@ -86,7 +86,65 @@ _COLLOQUIAL_EXPANSIONS: List[Tuple[re.Pattern, str]] = [
         re.compile(r"(?:las\s+banderitas|los\s+flags)\s+de\s+la\s+cpu", re.IGNORECASE),
         "registro de estado flags RFLAGS carry flag zero flag sign flag overflow flag",
     ),
+    # Identificadores técnicos y llamadas al sistema (Fase 5 / Hotfix v1.2.1)
+    (
+        re.compile(r"\bpthread_mutex_lock\b", re.IGNORECASE),
+        "mutex lock cerrojo exclusión mutua sincronización",
+    ),
+    (
+        re.compile(r"\breg_rsp\b", re.IGNORECASE),
+        "registro rsp stack pointer marco de pila",
+    ),
+    (
+        re.compile(r"\breg_rbp\b", re.IGNORECASE),
+        "registro rbp base pointer marco de pila",
+    ),
+    (
+        re.compile(r"\breg_rip\b", re.IGNORECASE),
+        "registro rip instruction pointer contador de programa",
+    ),
+    (
+        re.compile(r"\breg_rdi_rsi\b", re.IGNORECASE),
+        "registros rdi rsi paso de argumentos ABI System V",
+    ),
+    (
+        re.compile(r"\bsyscall_instruction\b", re.IGNORECASE),
+        "instrucción syscall llamada al sistema paso usuario kernel",
+    ),
+    (
+        re.compile(r"\bstruct_dirent\b", re.IGNORECASE),
+        "directorio archivos entradas inodo sistema de archivos",
+    ),
+    (
+        re.compile(r"\bselect_poll_epoll\b", re.IGNORECASE),
+        "multiplexación de entrada salida select poll epoll descriptores",
+    ),
+    (
+        re.compile(r"\bbrk_sbrk\b", re.IGNORECASE),
+        "llamada brk sbrk asignación memoria dinámica heap",
+    ),
+    (
+        re.compile(r"\bsetjmp_longjmp\b", re.IGNORECASE),
+        "funciones setjmp longjmp saltos no locales registros stack",
+    ),
+    (
+        re.compile(r"\bsigaction\b", re.IGNORECASE),
+        "señales signal struct sigaction manejador handler proceso",
+    ),
+    (
+        re.compile(r"\bwaitpid\b", re.IGNORECASE),
+        "espera de procesos wait waitpid procesos zombis terminación",
+    ),
+    (
+        re.compile(r"\bvalgrind\s+memcheck\b", re.IGNORECASE),
+        "detección de fugas de memoria memory leak herramientas análisis dinámico",
+    ),
+    (
+        re.compile(r"\baddresssanitizer\b", re.IGNORECASE),
+        "detección de accesos inválidos memoria asan compilador",
+    ),
 ]
+
 
 # Canonical singular -> plural inflection mappings for short technical terms (<5 chars or specific inflection needs).
 # Empirically validated against the corpus (hits(plural) > 0 and hits(singular) <= hits(plural)).
@@ -153,4 +211,92 @@ class QueryRewriter:
 
         expanded_query = f"{clean} {' '.join(unique_expansions)}".strip()
         return expanded_query
+
+    def rewrite_contextual(
+        self,
+        query: str,
+        recent_turns: Optional[List[Dict[str, str]]] = None,
+        llm_backend: Optional[Any] = None,
+    ) -> str:
+        """Condense a multi-turn contextual/deictic query into a standalone canonical search query."""
+        base_query = self.rewrite(query)
+        if not should_rewrite_contextual(query, recent_turns):
+            return base_query
+
+        turns = recent_turns or []
+
+        # 1. Extraer el contexto sustantivo de turnos previos
+        substantive_tokens: List[str] = []
+        user_prompts: List[str] = []
+        for t in reversed(turns):
+            content = (t.get("content") or "").strip()
+            if not content:
+                continue
+            if t.get("role") == "user":
+                if not has_deictic_markers(content) and len(content.split()) >= 3:
+                    user_prompts.append(content)
+            elif t.get("role") == "assistant":
+                tech_words = re.findall(
+                    r"\b(?:swap|punteros?|memoria|stack|heap|direcci[oó]n|funci[oó]n|registros?|rdi|rsi|rsp|rbp|valor|referencia)\b",
+                    content,
+                    re.IGNORECASE,
+                )
+                for tw in tech_words:
+                    if tw.lower() not in [st.lower() for st in substantive_tokens]:
+                        substantive_tokens.append(tw)
+
+        # 2. Si hay LLM backend disponible y configurado para reescritura rápida
+        if self.use_llm_fallback and llm_backend is not None and hasattr(llm_backend, "complete"):
+            try:
+                context_summary = " ".join(user_prompts[:2]) + " " + " ".join(substantive_tokens[:6])
+                prompt = (
+                    f"Historial técnico previo: {context_summary[:300]}\n"
+                    f"Pregunta del estudiante: {query}\n"
+                    "Reescribí la pregunta del estudiante en UNA sola consulta técnica de búsqueda (máximo 12 palabras, sin explicaciones):"
+                )
+                from study_engine.contracts.generation import PromptBundle
+                bundle = PromptBundle(system="Sos un optimizador de búsqueda RAG.", user=prompt)
+                resp = llm_backend.complete(bundle)
+                ans = getattr(resp, "text", str(resp)).strip().strip('"').strip("'")
+                if ans and len(ans.split()) >= 2:
+                    return self.rewrite(ans)
+            except Exception as e:
+                logger.debug("LLM query rewrite fallback exception: %s", e)
+
+        # 3. Condensación determinista de alto rendimiento (< 0.1ms)
+        context_prefix = ""
+        if user_prompts:
+            clean_substantive = user_prompts[0]
+            sub_words = [w for w in re.findall(r"[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_]+", clean_substantive) if len(w) > 2]
+            context_prefix = " ".join(sub_words[:8])
+        elif substantive_tokens:
+            context_prefix = " ".join(substantive_tokens[:6])
+
+        if context_prefix:
+            return f"{context_prefix} {base_query}".strip()
+        return base_query
+
+
+_DEICTIC_PATTERNS = [
+    re.compile(r"\b(?:ah[ií]|ac[aá]|all[aá]|eso|esto|aquello|lo\s+anterior|lo\s+que\s+dijiste)\b", re.IGNORECASE),
+    re.compile(r"\b(?:en\s+ese\s+caso|en\s+esta\s+funci[oó]n|en\s+este\s+c[oó]digo|el\s+coso|ese|esa)\b", re.IGNORECASE),
+    re.compile(r"\b(?:c[oó]mo\s+uso|qu[eé]\s+pasa\s+si|y\s+con\s+eso|por\s*qu[eé]\s+ah[ií])\b", re.IGNORECASE),
+]
+
+
+def has_deictic_markers(query: str) -> bool:
+    """Return True if query contains deictic, spatial, or contextual markers."""
+    q = (query or "").strip()
+    return any(p.search(q) for p in _DEICTIC_PATTERNS)
+
+
+def should_rewrite_contextual(query: str, recent_turns: Optional[List[Dict[str, str]]]) -> bool:
+    """Determine if a query requires contextual condensation with prior dialogue turns."""
+    if not recent_turns:
+        return False
+    words = (query or "").split()
+    if len(words) < 12 and (has_deictic_markers(query) or len(words) <= 7):
+        return True
+    return False
+
 

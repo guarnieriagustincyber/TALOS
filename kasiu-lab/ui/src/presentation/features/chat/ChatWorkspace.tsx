@@ -442,6 +442,19 @@ export const ChatWorkspace: React.FC = () => {
   const [studySessionSnapshot, setStudySessionSnapshot] = useState<StudySessionSnapshotData | null>(null);
   const [isStudyActionLoading, setIsStudyActionLoading] = useState(false);
   const lastOpenedNotebookRef = React.useRef<string | null>(null);
+  const chatSessionIdRef = React.useRef<string>(
+    (() => {
+      try {
+        const stored = sessionStorage.getItem("talos_chat_session_id");
+        if (stored) return stored;
+        const created = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        sessionStorage.setItem("talos_chat_session_id", created);
+        return created;
+      } catch {
+        return `sess_${Date.now()}`;
+      }
+    })()
+  );
 
   // Carga o sincroniza la sesión de estudio al seleccionar un cuaderno (Directiva Final v2)
   useEffect(() => {
@@ -887,6 +900,11 @@ export const ChatWorkspace: React.FC = () => {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
+    const priorTurns = messages.slice(-6).map((m) => ({
+      role: m.sender as "user" | "assistant",
+      content: m.text,
+    }));
+
     try {
       // Conexión real a endpoint FastAPI /api/chat/query
       const isFolderOrRoot = activeEntity.id === "root_global" || activeEntity.type === "root" || activeEntity.type === "folder";
@@ -897,6 +915,8 @@ export const ChatWorkspace: React.FC = () => {
           scope_id: activeEntity.id === "root_global" ? "folder_root" : activeEntity.id,
           scope_type: isFolderOrRoot ? "folder" : "notebook",
           requested_scope_id: activeEntity.name,
+          session_id: studySessionSnapshot?.session_id || chatSessionIdRef.current,
+          recent_turns: priorTurns,
         },
         (partialText) => {
           setIsThinking(false);

@@ -179,6 +179,20 @@ class RetrievalService:
         """
         self._last_rejections = []
 
+        # SymbolGuard epistemic fail-closed check (Sprint v1.2 / Fase 5)
+        try:
+            from study_engine.retrieval.symbol_guard import SymbolGuard
+            guard = SymbolGuard(store=self._store)
+            guard_dec = guard.evaluate(query, store=self._store)
+            if guard_dec.should_abstain:
+                logger.info(
+                    "RetrievalService: SymbolGuard blocked query='%s' (reason=%s, symbol=%s)",
+                    query, guard_dec.reason, guard_dec.symbol
+                )
+                return []
+        except Exception as guard_err:
+            logger.debug("SymbolGuard check fallback in RetrievalService: %s", guard_err)
+
         # Chokepoint único de reescritura de consultas (C1)
         effective_query = query
         try:

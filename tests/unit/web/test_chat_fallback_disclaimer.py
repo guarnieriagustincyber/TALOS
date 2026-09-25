@@ -57,10 +57,10 @@ def test_disclaimer_present_when_fallback_active(chat_client):
     bkt = complete_payload.get("bkt_context") or {}
     assert bkt.get("fallback") is True
     assert bkt.get("kc_id") is None
+    assert complete_payload.get("fallback_disclaimer") is True
 
-    # Debe contener el disclaimer exacto al inicio del texto
-    assert FALLBACK_DISCLAIMER in full_text
-    assert full_text.startswith(FALLBACK_DISCLAIMER)
+    # El texto hablado a la UI NO debe estar contaminado con el disclaimer visible
+    assert FALLBACK_DISCLAIMER not in full_text
 
 
 def test_disclaimer_absent_when_kc_matched(chat_client):

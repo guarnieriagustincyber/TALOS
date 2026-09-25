@@ -1,10 +1,70 @@
 """Lexical indexing and BM25 search engine powered by SQLite FTS5."""
 
 import re
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
+import unicodedata
 
 from study_engine.contracts.search import SearchResult
 from study_engine.storage.sqlite_engine import SQLiteStorageEngine
+
+_BILINGUAL_MAP: Dict[str, str] = {
+    "fallo": "fault", "fallos": "fault",
+    "pagina": "page", "paginas": "page",
+    "mayor": "major", "mayores": "major",
+    "menor": "minor", "menores": "minor",
+    "proceso": "process", "procesos": "process",
+    "hilo": "thread", "hilos": "thread",
+    "bloqueo": "deadlock", "bloqueos": "deadlock", "interbloqueo": "deadlock",
+    "condicion": "condition", "condiciones": "condition",
+    "carrera": "race", "carreras": "race",
+    "memoria": "memory", "compartida": "shared", "planificacion": "schedul",
+    "cambio": "switch", "contexto": "context", "seccion": "section", "critica": "critical",
+    "exclusion": "exclusion", "mutua": "mutual", "espera": "wait",
+    "inversion": "inversion", "prioridad": "priority", "desbordamiento": "overflow",
+    "bufer": "buffer", "pila": "stack", "pilas": "stack",
+    "puntero": "pointer", "punteros": "pointer", "direccion": "address", "direcciones": "address",
+    "registro": "register", "registros": "register", "usuario": "user", "usuarios": "user",
+    "nucleo": "kernel", "senal": "signal", "senales": "signal", "tuberia": "pipe", "tuberias": "pipe",
+    "archivo": "file", "archivos": "file", "segmento": "segment", "segmentos": "segment",
+    "tabla": "table", "tablas": "table", "marco": "frame", "marcos": "frame",
+    "reemplazo": "replacement", "asignacion": "allocation", "dinamica": "dynamic", "estatica": "static",
+    "ataque": "attack", "ataques": "attack", "vulnerabilidad": "vulnerability", "vulnerabilidades": "vulnerability",
+    "mitigacion": "mitigation", "mitigaciones": "mitigation",
+    "algoritmo": "algorithm", "algoritmos": "algorithm",
+    "reloj": "clock",
+    "cerrojo": "lock", "cerrojos": "lock",
+    "semaforo": "semaphore", "semaforos": "semaphore",
+    "interrupcion": "interrupt", "interrupciones": "interrupt",
+    "cola": "queue", "colas": "queue",
+    "bloque": "block", "bloques": "block",
+    "hebra": "thread", "hebras": "thread",
+    "llamada": "call", "llamadas": "call",
+    "biblioteca": "library", "bibliotecas": "library",
+    "enlazador": "linker", "cargador": "loader",
+    "tamano": "size", "longitud": "length",
+    "espacio": "space", "espacios": "space",
+    "virtual": "virtual", "virtuales": "virtual",
+    "red": "network", "redes": "network",
+    "servidor": "server", "servidores": "server",
+    "cliente": "client", "clientes": "client",
+    "descriptor": "descriptor", "descriptores": "descriptor",
+    "estado": "state", "estados": "state",
+    "concurrente": "concurrent", "concurrencia": "concurrency",
+    "sincronizacion": "synchronization",
+    "bloqueante": "blocking",
+    "inodo": "inode", "inodos": "inode",
+    "enlace": "link", "enlaces": "link",
+}
+
+
+def _fts_phrase_for_symbol(symbol: str) -> str:
+    """Escapa y construye una frase FTS5 exacta para identificadores técnicos con guiones bajos (Enmienda E-HF4)."""
+    clean = symbol.strip("()[]{};,").replace('"', '""')
+    parts = [p for p in clean.replace("_", " ").split() if p]
+    if not parts:
+        return ""
+    phrase = " ".join(parts)
+    return f'"{phrase}"'
 
 SPANISH_STOPWORDS: Set[str] = {
     # Classical grammatical stopwords
@@ -47,7 +107,7 @@ SPANISH_STOPWORDS: Set[str] = {
     "tuyo", "tuyos", "tú", "u", "un", "una", "unas", "uno", "unos", "vosotras",
     "vosotros", "vuestra", "vuestras", "vuestro", "vuestros", "y", "ya", "yo",
     # Conversational / prompt framing stopwords
-    "explicame", "explícame", "explicar", "explicacion", "explicación",
+    "explicame", "explícame", "explicar", "explicacion", "explicación", "explicá",
     "decime", "décime", "decir", "hola", "saludos", "buenos", "dias", "días",
     "tardes", "noches", "favor", "podrias", "podrías", "podes", "podés",
     "quiero", "saber", "entender", "ayuda", "consulta", "duda", "pregunta",
@@ -55,7 +115,53 @@ SPANISH_STOPWORDS: Set[str] = {
     "seccion", "sección", "secciones", "describe", "describir", "descripción",
     "ocurre", "sucede", "pasa", "exactamente", "paso", "versus", "vs", "cuenta",
     "relaciona", "relacionan", "relación", "genera", "generar",
-    "opina", "opinas", "opinás", "opinan", "opinar", "opinion", "opinión"
+    "opina", "opinas", "opinás", "opinan", "opinar", "opinion", "opinión",
+    # Interrogatives & prompt framing
+    "como", "cómo", "cual", "cuál", "cuales", "cuáles", "cuando", "cuándo",
+    "donde", "dónde", "cuanto", "cuánto", "detalla", "detallá", "detallar",
+    "contrasta", "contrastá", "contrastar", "define", "definir", "definición",
+    "formalmente", "contexto", "respecto", "implicancia", "implicancias",
+    "concepto", "conceptos", "mecanismo", "mecanismos", "fundamento", "fundamentos",
+    "perspectiva", "estándar", "términos", "parámetro", "parámetros",
+    "ejemplo", "ejemplos", "bibliografía", "canónica", "canónico",
+    "problema", "resuelve", "resolver", "utiliza", "sirve", "usar", "diferencia", "diferencias",
+    # Additional conversational, question wrapping & structural words
+    "principales", "principal", "recursos", "recurso", "comparten", "comparte", "compartir",
+    "tiempo", "tiempos", "vida", "velocidad", "existen", "existe", "existencia",
+    "diseño", "sistemas", "sistema", "computación", "analíticamente", "disyuntivas", "elegir",
+    "concretos", "concreto", "reales", "real", "programa", "programas", "código", "máquina",
+    "nivel", "valores", "posibles", "retorno", "devuelve", "recibe", "firma",
+    "casos", "caso", "situación", "situaciones", "modo", "modos", "término",
+    "operaciones", "operación", "síncrono", "asíncrono", "frente", "entre",
+    "cuantos", "cuántos", "cuanta", "cuánta", "cuantas", "cuántas",
+    "quien", "quién", "quienes", "quiénes",
+    "hacer", "hace", "hacen", "hizo", "hacía", "haciendo", "hecho",
+    "maneja", "manejan", "manejar", "afecta", "afectan", "permite", "permiten", "utilizan", "sirven",
+    "consiste", "trata", "muestra", "muestran", "mostrame", "dame", "escribí", "escribime",
+    "mecánica", "mecanica", "física", "fisica", "papel", "juega", "juegan", "rol",
+    "consecuencia", "consecuencias",
+    "dos", "tres", "cuatro", "cinco", "primer", "primera", "segundo", "segunda", "tercer", "tercero", "tercera",
+    "ano", "anos", "año", "años", "buenos", "aires", "ciudad", "calcula", "calcular", "calculo",
+    "directamente", "completo", "completa", "listo", "exacto", "exacta",
+    "trade", "offs", "tradeoff", "tradeoffs",
+    # Question wrappers, verbs and framing terms
+    "detalle", "detalles", "sintaxis", "comportamiento", "comportamientos",
+    "opera", "operan", "operar", "operando", "exactos", "exactas",
+    "programacion", "programación", "operativo", "operativos",
+    "tipo", "tipos", "informacion", "información",
+    "almacena", "almacenan", "almacenar",
+    "produce", "producen", "producir", "producirse",
+    "etapas", "etapa", "ejecuta", "ejecutan", "ejecutar",
+    "nuevo", "nueva", "nuevos", "nuevas",
+    "reemplazar", "reemplaza", "reemplazan",
+    "construir", "construye", "construyen",
+    "punto", "vista", "compará", "compara", "comparar",
+    "arquitectonica", "arquitectónicas", "arquitectónico", "arquitectónicos",
+    "él", "ella", "ellos", "ellas", "imagen", "imágenes",
+    "paso", "pasos", "posix", "linux", "realiza", "realizan", "realizar",
+    "estandar", "manera", "forma",
+    "básica", "basica", "básicas", "basicas", "básico", "basico", "básicos", "basicos",
+    "general", "generales"
 }
 
 
@@ -94,35 +200,50 @@ class SQLiteLexicalIndex:
         for q in quotes:
             clean_q = q.strip()
             if clean_q:
-                # Wrap each word inside quoted phrase
-                phrase_words = [f'"{t}"' for t in re.findall(r"\w+", clean_q)]
+                # Wrap each word inside quoted phrase escaping internal double quotes
+                phrase_words = [f'"{t.replace(chr(34), chr(34) + chr(34))}"' for t in re.findall(r"\w+", clean_q)]
                 if phrase_words:
                     clauses.append(" ".join(phrase_words))
 
-        if len(meaningful) == 1 and not clauses:
-            base = meaningful[0][:-1] if meaningful[0].endswith("*") else meaningful[0]
-            if len(base) >= 5:
-                clauses.append(f'"{base}"*')
+        seen = set()
+        deduped = []
+        for m in meaningful[: self.MAX_QUERY_TOKENS]:
+            if m not in seen:
+                seen.add(m)
+                deduped.append(m)
+
+        for m in deduped:
+            base = m[:-1] if m.endswith("*") else m
+            if "_" in base:
+                # Enmienda E-HF4: frase FTS5 exacta para identificadores técnicos con guiones bajos
+                phrase = _fts_phrase_for_symbol(base)
+                if phrase:
+                    clauses.append(phrase)
+                # Estrictamente NO expandir como bilingüe identificadores de código (E-HF4)
+            elif len(base) >= 5:
+                clean_base = base.replace('"', '""')
+                clauses.append(f'"{clean_base}"*')
+                if disjunctive:
+                    unacc = "".join(c for c in unicodedata.normalize("NFD", base) if unicodedata.category(c) != "Mn")
+                    en_term = _BILINGUAL_MAP.get(unacc)
+                    if en_term and en_term != base and en_term not in seen:
+                        seen.add(en_term)
+                        clauses.append(f'"{en_term}"*' if len(en_term) >= 5 else f'"{en_term}"')
             else:
-                clauses.append(f'"{base}"')
-        elif len(meaningful) > 1:
-            # Deduplicate meaningful terms while preserving order
-            seen = set()
-            deduped = []
-            for m in meaningful[: self.MAX_QUERY_TOKENS]:
-                if m not in seen:
-                    seen.add(m)
-                    deduped.append(m)
-            for m in deduped:
-                base = m[:-1] if m.endswith("*") else m
-                if len(base) >= 5:
-                    clauses.append(f'"{base}"*')
-                else:
-                    clauses.append(f'"{base}"')
-        elif not clauses and not meaningful and words:
+                clean_base = base.replace('"', '""')
+                clauses.append(f'"{clean_base}"')
+                if disjunctive:
+                    unacc = "".join(c for c in unicodedata.normalize("NFD", base) if unicodedata.category(c) != "Mn")
+                    en_term = _BILINGUAL_MAP.get(unacc)
+                    if en_term and en_term != base and en_term not in seen:
+                        seen.add(en_term)
+                        clauses.append(f'"{en_term}"*' if len(en_term) >= 5 else f'"{en_term}"')
+
+        if not clauses and not meaningful and words:
             # Fallback if query consisted only of short words or stopwords
             for w in words[:5]:
-                clauses.append(f'"{w}"')
+                clean_w = w.replace('"', '""')
+                clauses.append(f'"{clean_w}"')
 
         if not clauses:
             return ""
