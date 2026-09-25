@@ -492,6 +492,7 @@ def _assemble_epistemic_context(
     prompt_text: str,
     target_notebook_id: str,
     active_sources: Optional[List[str]] = None,
+    granularity_decision: Optional[Any] = None,
 ) -> Tuple[Optional[EpistemicContextPack], list]:
     """Search knowledge store and build formatted citations and chunks with SectionExpander (Ola 5)."""
     try:
@@ -575,7 +576,92 @@ def _assemble_epistemic_context(
                     search_results.append(sr)
 
         if not search_results:
+            from study_engine.retrieval.granularity_router import RetrievalGranularity, GranularityRouter
+
+            gran_mode = getattr(granularity_decision, "granularity", None) if granularity_decision else None
+
+            if gran_mode == RetrievalGranularity.MACRO and hasattr(store, "search_chapter_summaries"):
+                max_parents = getattr(granularity_decision, "max_parent_nodes", 2)
+                try:
+                    ch_summaries = store.search_chapter_summaries(
+                        query=search_query,
+                        notebook_id=target_notebook_id if target_notebook_id != GLOBAL_SCOPE_ID else None,
+                        limit=max_parents,
+                    )
+                    for rank, cs in enumerate(ch_summaries):
+                        sr = SearchResult(
+                            content=cs.summary_text,
+                            index=rank,
+                            chunk_id=cs.id,
+                            document_id="chapter_summary",
+                            source_id=cs.source_id,
+                            snippet=f"[{cs.title}] {cs.summary_text[:200]}",
+                            page_start=cs.page_start,
+                            page_end=cs.page_end,
+                            score=cs.score or 1.0,
+                        )
+                        search_results.append(sr)
+                except Exception as macro_err:
+                    logger.debug("Error in search_chapter_summaries (MACRO): %s", macro_err)
+
+            elif gran_mode == RetrievalGranularity.HYBRID and hasattr(store, "search_chapter_summaries"):
+                max_parents = getattr(granularity_decision, "max_parent_nodes", 1)
+                max_leaves = getattr(granularity_decision, "max_leaf_chunks", 3)
+                top_parent = None
+                preferred_cid = None
+                try:
+                    ch_summaries = store.search_chapter_summaries(
+                        query=search_query,
+                        notebook_id=target_notebook_id if target_notebook_id != GLOBAL_SCOPE_ID else None,
+                        limit=max_parents,
+                    )
+                    if ch_summaries:
+                        top_parent = ch_summaries[0]
+                        preferred_cid = top_parent.id
+                except Exception as hy_ch_err:
+                    logger.debug("Error searching parent summaries in HYBRID: %s", hy_ch_err)
+
+                retrieval_limit, min_sources = _resolve_retrieval_depth(search_query)
+                leaf_candidates = []
+                if hasattr(store, "search_hybrid"):
+                    try:
+                        leaf_candidates = store.search_hybrid(
+                            query=search_query,
+                            notebook_id=target_notebook_id,
+                            limit=max_leaves * 2,
+                            min_sources=min_sources,
+                            preferred_chapter_id=preferred_cid,
+                        )
+                    except Exception as hy_leaf_err:
+                        logger.debug("Error in search_hybrid during HYBRID mode: %s", hy_leaf_err)
+
+                deduped = GranularityRouter.deduplicate_hybrid_chunks(
+                    candidate_chunks=leaf_candidates,
+                    parent_summary=top_parent,
+                    similarity_threshold=0.85,
+                    max_leaves=max_leaves,
+                )
+
+                if top_parent:
+                    sr_parent = SearchResult(
+                        content=top_parent.summary_text,
+                        index=0,
+                        chunk_id=top_parent.id,
+                        document_id="chapter_summary",
+                        source_id=top_parent.source_id,
+                        snippet=f"[{top_parent.title}] {top_parent.summary_text[:200]}",
+                        page_start=top_parent.page_start,
+                        page_end=top_parent.page_end,
+                        score=top_parent.score or 1.0,
+                    )
+                    search_results.append(sr_parent)
+                search_results.extend(deduped)
+
+        if not search_results:
             retrieval_limit, min_sources = _resolve_retrieval_depth(search_query)
+            gran_mode = getattr(granularity_decision, "granularity", None) if granularity_decision else None
+            if gran_mode == RetrievalGranularity.MICRO and getattr(granularity_decision, "max_leaf_chunks", None):
+                retrieval_limit = min(retrieval_limit, granularity_decision.max_leaf_chunks)
             if target_notebook_id == GLOBAL_SCOPE_ID:
                 # Scope global (COMMIT 2): correr retrieval híbrido por cuaderno y
                 # fundir por chunk_id preservando el mejor rank de cada uno. La
@@ -1229,12 +1315,18 @@ def _prepare_chat_context(
         )
         raw_chunks: List[Any] = []
     else:
+        from study_engine.retrieval.granularity_router import GranularityRouter
+        granularity_decision = GranularityRouter.route(
+            retrieval_query,
+            has_code_block="```" in clean_p,
+        )
         context_pack, raw_chunks = _assemble_epistemic_context(
             store=store,
             container=container,
             prompt_text=retrieval_query,
             target_notebook_id=target_notebook_id,
             active_sources=request.active_sources,
+            granularity_decision=granularity_decision,
         )
 
         # Máquina de estados conversacional con inercia epistémica (CAL §3.2 Multi-Turn)
