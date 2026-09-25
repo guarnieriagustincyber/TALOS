@@ -183,6 +183,66 @@ CREATE TABLE IF NOT EXISTS content_registry (
 CREATE INDEX IF NOT EXISTS idx_content_reg_source ON content_registry(source_id);
 CREATE INDEX IF NOT EXISTS idx_content_reg_type ON content_registry(unit_type);
 CREATE INDEX IF NOT EXISTS idx_content_reg_status ON content_registry(status);
+
+-- 10. Chapter Summaries (RAG Jerárquico Nivel 2 - Fase 3)
+CREATE TABLE IF NOT EXISTS chapter_summaries (
+    id TEXT PRIMARY KEY NOT NULL,
+    notebook_id TEXT NOT NULL,
+    source_id TEXT NOT NULL,
+    chapter_number INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    page_start INTEGER NOT NULL,
+    page_end INTEGER NOT NULL,
+    summary_text TEXT NOT NULL,
+    knowledge_components JSON NOT NULL,
+    core_invariants JSON NOT NULL,
+    token_count INTEGER NOT NULL,
+    sha256_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (notebook_id) REFERENCES notebooks(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_chap_notebook_source 
+ON chapter_summaries(notebook_id, source_id, chapter_number);
+
+CREATE INDEX IF NOT EXISTS idx_chap_kc 
+ON chapter_summaries(knowledge_components);
+
+-- 11. Lexical Full-Text Search (FTS5) Index on Chapter Summaries
+CREATE VIRTUAL TABLE IF NOT EXISTS chapter_summaries_fts USING fts5(
+    id UNINDEXED,
+    notebook_id UNINDEXED,
+    title,
+    summary_text,
+    knowledge_components,
+    tokenize = 'unicode61 remove_diacritics 2 tokenchars ''_-.'''
+);
+
+CREATE TRIGGER IF NOT EXISTS trg_chapter_summaries_ai AFTER INSERT ON chapter_summaries BEGIN
+    INSERT INTO chapter_summaries_fts(id, notebook_id, title, summary_text, knowledge_components)
+    VALUES (new.id, new.notebook_id, new.title, new.summary_text, new.knowledge_components);
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_chapter_summaries_ad AFTER DELETE ON chapter_summaries BEGIN
+    DELETE FROM chapter_summaries_fts WHERE id = old.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_chapter_summaries_au AFTER UPDATE ON chapter_summaries BEGIN
+    DELETE FROM chapter_summaries_fts WHERE id = old.id;
+    INSERT INTO chapter_summaries_fts(id, notebook_id, title, summary_text, knowledge_components)
+    VALUES (new.id, new.notebook_id, new.title, new.summary_text, new.knowledge_components);
+END;
+
+-- 12. Chapter Dense Vectors (Nivel 2)
+CREATE TABLE IF NOT EXISTS chapter_vectors (
+    id TEXT PRIMARY KEY NOT NULL,
+    notebook_id TEXT NOT NULL,
+    dimensions INTEGER NOT NULL,
+    vector BLOB NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id) REFERENCES chapter_summaries(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_chap_vec_notebook ON chapter_vectors(notebook_id);
 """
 
 
@@ -190,7 +250,7 @@ CREATE INDEX IF NOT EXISTS idx_content_reg_status ON content_registry(status);
 class SQLiteStorageEngine:
     """Low-level SQLite connection and schema manager for Study Engine knowledge stores."""
 
-    SCHEMA_VERSION: int = 5  # v5: content_registry (Identidad exacta + anti-leakage, Slice 6.0.5)
+    SCHEMA_VERSION: int = 6  # v6: chapter_summaries + hierarchical RAG (Fase 3)
 
     def __init__(self, db_path: Union[str, Path] = ":memory:"):
         self.db_path = Path(db_path) if db_path != ":memory:" else ":memory:"
@@ -280,6 +340,9 @@ class SQLiteStorageEngine:
 
         if current_v < 5:
             self._migrate_to_v5(cur)
+
+        if current_v < 6:
+            self._migrate_to_v6(cur)
 
         # Ensure default root folder always exists
         cur.execute(
@@ -372,6 +435,87 @@ class SQLiteStorageEngine:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_content_reg_source ON content_registry(source_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_content_reg_type ON content_registry(unit_type);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_content_reg_status ON content_registry(status);")
+
+    def _migrate_to_v6(self, cursor: sqlite3.Cursor) -> None:
+        """v5 -> v6: hierarchical RAG (chapter_summaries, FTS5, chapter_vectors, parent_chapter_id in chunks)."""
+        cursor.execute("PRAGMA table_info(chunks);")
+        cols = {row[1] for row in cursor.fetchall()}
+        if "parent_chapter_id" not in cols:
+            cursor.execute("ALTER TABLE chunks ADD COLUMN parent_chapter_id TEXT DEFAULT NULL;")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_chunks_parent_chapter ON chunks(parent_chapter_id);")
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS chapter_summaries (
+                id TEXT PRIMARY KEY NOT NULL,
+                notebook_id TEXT NOT NULL,
+                source_id TEXT NOT NULL,
+                chapter_number INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                page_start INTEGER NOT NULL,
+                page_end INTEGER NOT NULL,
+                summary_text TEXT NOT NULL,
+                knowledge_components JSON NOT NULL,
+                core_invariants JSON NOT NULL,
+                token_count INTEGER NOT NULL,
+                sha256_hash TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (notebook_id) REFERENCES notebooks(id) ON DELETE CASCADE
+            );
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_chap_notebook_source ON chapter_summaries(notebook_id, source_id, chapter_number);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_chap_kc ON chapter_summaries(knowledge_components);")
+
+        cursor.execute(
+            """
+            CREATE VIRTUAL TABLE IF NOT EXISTS chapter_summaries_fts USING fts5(
+                id UNINDEXED,
+                notebook_id UNINDEXED,
+                title,
+                summary_text,
+                knowledge_components,
+                tokenize = 'unicode61 remove_diacritics 2 tokenchars ''_-.'''
+            );
+            """
+        )
+        cursor.execute(
+            """
+            CREATE TRIGGER IF NOT EXISTS trg_chapter_summaries_ai AFTER INSERT ON chapter_summaries BEGIN
+                INSERT INTO chapter_summaries_fts(id, notebook_id, title, summary_text, knowledge_components)
+                VALUES (new.id, new.notebook_id, new.title, new.summary_text, new.knowledge_components);
+            END;
+            """
+        )
+        cursor.execute(
+            """
+            CREATE TRIGGER IF NOT EXISTS trg_chapter_summaries_ad AFTER DELETE ON chapter_summaries BEGIN
+                DELETE FROM chapter_summaries_fts WHERE id = old.id;
+            END;
+            """
+        )
+        cursor.execute(
+            """
+            CREATE TRIGGER IF NOT EXISTS trg_chapter_summaries_au AFTER UPDATE ON chapter_summaries BEGIN
+                DELETE FROM chapter_summaries_fts WHERE id = old.id;
+                INSERT INTO chapter_summaries_fts(id, notebook_id, title, summary_text, knowledge_components)
+                VALUES (new.id, new.notebook_id, new.title, new.summary_text, new.knowledge_components);
+            END;
+            """
+        )
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS chapter_vectors (
+                id TEXT PRIMARY KEY NOT NULL,
+                notebook_id TEXT NOT NULL,
+                dimensions INTEGER NOT NULL,
+                vector BLOB NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (id) REFERENCES chapter_summaries(id) ON DELETE CASCADE
+            );
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_chap_vec_notebook ON chapter_vectors(notebook_id);")
 
     @contextmanager
     def transaction(self, mode: str = "IMMEDIATE") -> Generator[sqlite3.Connection, None, None]:
