@@ -84,16 +84,39 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
   const [svgContent, setSvgContent] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [isRendering, setIsRendering] = useState<boolean>(true);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<"diagram" | "code">("diagram");
   const [zoom, setZoom] = useState<number>(1);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const cleanCode = useMemo(() => sanitizeMermaidCode(code), [code]);
 
+  // Lazy rendering: sólo renderizar cuando el contenedor entra en el viewport.
+  // Esto evita bloquear el hilo principal al montar múltiples diagramas off-screen.
   useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
     let isMounted = true;
     const renderDiagram = async () => {
       if (!cleanCode) return;
@@ -133,7 +156,7 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
     return () => {
       isMounted = false;
     };
-  }, [cleanCode]);
+  }, [cleanCode, isVisible]);
 
   // Post-procesador dinámico en el DOM: garantiza que todas las cajas (rectángulos y rombos)
   // se adapten matemáticamente al ancho y alto real del texto renderizado sin cortes ni desbordes.
@@ -234,12 +257,22 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
   const handleZoomOut = () => setZoom((z) => Math.max(0.5, +(z - 0.2).toFixed(1)));
   const handleZoomReset = () => setZoom(1);
 
+
   return (
-    <div
+    <div ref={wrapperRef}
       className={`my-4 rounded-[14px] bg-[#090a0f] border border-cyan-500/25 overflow-hidden font-mono shadow-xl transition-all ${
         isExpanded ? "fixed inset-4 z-50 flex flex-col bg-[#07080c]/98 border-cyan-400 shadow-[0_0_50px_rgba(0,0,0,0.9)]" : ""
       }`}
     >
+      {/* Placeholder lazy: visible hasta que el diagrama entre al viewport */}
+      {!isVisible && (
+        <div className="flex items-center gap-2 px-4 py-6 text-zinc-400 text-xs font-mono">
+          <div className="w-3.5 h-3.5 border-2 border-zinc-600 border-t-transparent rounded-full animate-spin shrink-0" />
+          <span>⏳ Cargando diagrama...</span>
+        </div>
+      )}
+      {isVisible && (
+        <>
       {/* Barra de Controles Superior */}
       <div className="flex flex-wrap items-center justify-between px-3.5 py-2 bg-black/70 border-b border-white/[0.08] gap-2 text-xs">
         {/* Identificador de tipo */}
@@ -411,6 +444,8 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
           <span>Vista vectorial interactiva adaptativa</span>
           <span>Hacé zoom o cambiá a "Código" para editar/copiar</span>
         </div>
+      )}
+        </>
       )}
     </div>
   );

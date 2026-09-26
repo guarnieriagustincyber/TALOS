@@ -48,9 +48,9 @@
     }
   ],
   "bkt_updated": true,
-  "p_L_before": 0.1,
-  "p_L_after": 0.5,
+  "p_L_before": 0.9996,
+  "p_L_after": 0.9999,
   "observations": [],
   "next_exercise": "ej_02_pin_seguro",
-  "timestamp": "2026-09-18T03:42:07.913885+00:00"
+  "timestamp": "2026-09-26T13:58:05.074278+00:00"
 }

@@ -20,7 +20,7 @@ import {
   EvidenceTab,
   Message,
 } from "../../views/types";
-import { MessageBody } from "../MessageBody";
+import { MessageBody, MemoizedMessageBody } from "../MessageBody";
 import { ClaimStatusBadge } from "../../views/ClaimStatusBadge";
 import { OpeningBriefView, StudySessionSnapshotData } from "../OpeningBriefView";
 import { DialogueView } from "../DialogueView";
@@ -450,7 +450,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       return;
     }
 
-    // Si la cantidad de mensajes aumentó dentro del mismo chat (usuario envió o asistente respondió)
+    // Si la cantidad de mensajes aumentó dentro del mismo chat
     if (messages.length > prevMessagesCountRef.current) {
       if (prevScrollHeightRef.current > 0 && scrollRef.current) {
         // Carga de mensajes anteriores hacia arriba (lazy load)
@@ -460,8 +460,12 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
         }
         prevScrollHeightRef.current = 0;
       } else {
-        // Mensaje nuevo enviado o recibido: auto-scroll suave único
-        scrollToBottom("smooth");
+        // Nuevo mensaje enviado/recibido: scroll inmediato + fallback anchor
+        scrollToBottom("instant");
+        // Fallback para navegadores que ignoran scrollTo en ciertos frames
+        requestAnimationFrame(() => {
+          scrollBottomAnchorRef.current?.scrollIntoView({ block: "end" });
+        });
       }
     }
     prevMessagesCountRef.current = messages.length;
@@ -692,13 +696,36 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             const isEditingAssistant = editingMessageId === msg.id;
             const pedagogicalBadge = detectPedagogicalBadge(msg.text);
 
+            // Detección del comando >>dia: mira el mensaje de usuario previo
+            // o la apertura del texto del asistente como fallback robusto.
+            const msgIdx = messages.findIndex((m) => m.id === msg.id);
+            const prevMsg = msgIdx > 0 ? messages[msgIdx - 1] : null;
+            const isDiaSummary =
+              (prevMsg?.sender === "user" && prevMsg?.text?.trim() === ">>dia") ||
+              msg.text.startsWith("DIAGNÓSTICO COGNITIVO") ||
+              msg.text.startsWith("Buen día");
+
             return (
               <article
                 key={msg.id}
-                className="rounded-[24px] border border-white/[0.06] bg-gradient-to-b from-[#131316] to-[#0c0c0e] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)] hover:border-white/[0.1] transition-all duration-200 k-fade-in font-sans group relative overflow-hidden"
+                className={
+                  isDiaSummary
+                    ? "rounded-[24px] border border-amber-500/30 bg-gradient-to-br from-amber-950/20 to-zinc-950 p-6 shadow-[0_16px_50px_rgba(245,158,11,0.05)] hover:border-amber-500/50 transition-all duration-200 k-fade-in font-sans group relative overflow-hidden"
+                    : "rounded-[24px] border border-white/[0.06] bg-gradient-to-b from-[#131316] to-[#0c0c0e] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)] hover:border-white/[0.1] transition-all duration-200 k-fade-in font-sans group relative overflow-hidden"
+                }
               >
-                {/* Micro-glow top border highlight */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.14] to-transparent pointer-events-none" />
+                {/* Micro-glow top border highlight — ámbar para >>dia, neutro para el resto */}
+                <div className={`absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent ${isDiaSummary ? "via-amber-400/30" : "via-white/[0.14]"} to-transparent pointer-events-none`} />
+
+                {/* Header especial ☀️ para el Resumen del Día */}
+                {isDiaSummary && (
+                  <div className="flex items-center gap-2 mb-3 pb-3 border-b border-amber-500/15">
+                    <span className="text-base">☀️</span>
+                    <span className="text-xs font-mono font-semibold text-amber-400 tracking-wide uppercase">
+                      Resumen del Día · TALOS
+                    </span>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
@@ -1075,12 +1102,23 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
               </div>
 
               <div className="mt-4">
-                <MessageBody
-                  content={streamedText}
-                  onOpenEvidence={onOpenEvidence}
-                  onOpenCitation={onOpenCitation}
-                />
-                <span className="inline-block w-2 h-4 bg-emerald-400 ml-1 align-middle animate-pulse shadow-[0_0_8px_#10b981]" />
+                {streamedText === "" ? (
+                  /* Skeleton TTFT: zinc-800 animate-pulse mientras llega el primer token */
+                  <div className="space-y-2.5 py-1" aria-label="Cargando respuesta...">
+                    <div className="h-3 bg-zinc-800 animate-pulse rounded-md w-3/4" />
+                    <div className="h-3 bg-zinc-800 animate-pulse rounded-md w-full" />
+                    <div className="h-3 bg-zinc-800 animate-pulse rounded-md w-1/2" />
+                  </div>
+                ) : (
+                  <>
+                    <MemoizedMessageBody
+                      content={streamedText}
+                      onOpenEvidence={onOpenEvidence}
+                      onOpenCitation={onOpenCitation}
+                    />
+                    <span className="inline-block w-2 h-4 bg-emerald-400 ml-1 align-middle animate-pulse shadow-[0_0_8px_#10b981]" />
+                  </>
+                )}
               </div>
             </article>
           )}
@@ -1089,17 +1127,16 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
         </div>
       </div>
 
-      {/* BOTÓN FLOTANTE PARA VOLVER AL ÚLTIMO MENSAJE */}
+      {/* BOTÓN FLOTANTE — solo flecha sutil */}
       {showScrollBottomBtn && (
-        <div className="absolute bottom-4 right-6 sm:right-10 z-30 pointer-events-auto k-fade-in">
+        <div className="absolute bottom-3 right-4 z-30 pointer-events-auto">
           <button
             type="button"
             onClick={() => scrollToBottom("smooth")}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#141417]/95 hover:bg-[#1f1f26] text-white/80 hover:text-white border border-white/[0.14] hover:border-emerald-500/30 shadow-[0_8px_30px_rgba(0,0,0,0.7)] backdrop-blur-md transition-all duration-200 group text-xs font-mono active:scale-95 cursor-pointer select-none"
+            className="w-7 h-7 rounded-full bg-[#1a1a1e]/80 hover:bg-[#26262c] text-white/40 hover:text-white/80 border border-white/[0.08] hover:border-white/[0.16] backdrop-blur-sm transition-all duration-150 flex items-center justify-center active:scale-95 cursor-pointer"
             title="Ir al último mensaje"
           >
-            <ArrowDown className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-y-0.5 transition-transform" />
-            <span className="text-[11px] font-medium tracking-wide">Último mensaje</span>
+            <ArrowDown className="w-3.5 h-3.5" />
           </button>
         </div>
       )}

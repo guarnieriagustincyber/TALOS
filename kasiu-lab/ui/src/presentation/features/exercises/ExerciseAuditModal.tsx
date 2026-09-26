@@ -131,6 +131,8 @@ export const ExerciseAuditModal: React.FC<ExerciseAuditModalProps> = ({
       queryClient.invalidateQueries({ queryKey: ["student-exercises"] });
       queryClient.invalidateQueries({ queryKey: ["exercise-report", exerciseId] });
       queryClient.invalidateQueries({ queryKey: ["student-cognitive-state"] });
+      // Invalidate curriculum roadmap cache to reflect new mastery state
+      queryClient.invalidateQueries({ queryKey: ["curriculum-roadmap", notebookId] });
     },
   });
 

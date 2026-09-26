@@ -337,11 +337,54 @@ export const MessageBody: React.FC<MessageBodyProps> = ({
         {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}
       </h1>
     ),
-    h2: ({ children }: { children?: React.ReactNode }) => (
-      <h2 className="text-lg md:text-xl font-sans font-semibold text-white mt-5 mb-2.5 tracking-tight border-b border-white/[0.06] pb-1.5">
-        {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}
-      </h2>
-    ),
+    h2: ({ children }: { children?: React.ReactNode }) => {
+      // Extrae el texto plano del heading para detección de capa
+      const rawText = typeof children === "string"
+        ? children
+        : Array.isArray(children)
+        ? children.map((c) => (typeof c === "string" ? c : "")).join("")
+        : "";
+      const lowerText = rawText.toLowerCase();
+
+      // Jerarquía Visual Tri-Capa — MODO OSCURO
+      if (lowerText.includes("intuición") || lowerText.includes("intuicion")) {
+        return (
+          <div className="mt-5 mb-2.5 pl-4 border-l-4 border-blue-500/60 bg-blue-500/5 py-2 pr-3 rounded-r-lg">
+            <h2 className="text-lg md:text-xl font-sans font-semibold text-blue-100 tracking-tight">
+              <span className="mr-2 select-none">💡</span>
+              {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}
+            </h2>
+          </div>
+        );
+      }
+      if (lowerText.includes("mecanismo")) {
+        return (
+          <div className="mt-5 mb-2.5 pl-4 border-l-4 border-indigo-500/60 bg-indigo-500/5 py-2 pr-3 rounded-r-lg">
+            <h2 className="text-lg md:text-xl font-sans font-semibold text-indigo-100 tracking-tight">
+              <span className="mr-2 select-none">⚙️</span>
+              {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}
+            </h2>
+          </div>
+        );
+      }
+      if (lowerText.includes("máquina") || lowerText.includes("maquina") || lowerText.includes("silicio")) {
+        return (
+          <div className="mt-5 mb-2.5 pl-4 border-l-4 border-amber-500/60 bg-amber-500/5 py-2 pr-3 rounded-r-lg">
+            <h2 className="text-lg md:text-xl font-sans font-semibold text-amber-100 tracking-tight">
+              <span className="mr-2 select-none">🔬</span>
+              {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}
+            </h2>
+          </div>
+        );
+      }
+
+      // Fallback: estilo base existente para otros títulos h2
+      return (
+        <h2 className="text-lg md:text-xl font-sans font-semibold text-white mt-5 mb-2.5 tracking-tight border-b border-white/[0.06] pb-1.5">
+          {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}
+        </h2>
+      );
+    },
     h3: ({ children }: { children?: React.ReactNode }) => (
       <h3 className="text-base md:text-lg font-sans font-semibold text-cyan-200 mt-4 mb-2">
         {processCitations(children, evidences, onOpenEvidence, onOpenCitation)}

@@ -165,7 +165,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, children }) => {
   const isLongCode = lineCount > 25;
 
   return (
-    <div className="my-4 rounded-[14px] bg-[#090a0f] border border-white/[0.09] overflow-hidden font-mono shadow-xl transition-all">
+    <div className="my-4 rounded-[14px] bg-[#090a0f] border border-white/[0.09] overflow-hidden font-mono shadow-xl transition-all group">
       {/* Encabezado Táctico del Bloque de Código */}
       <div className="flex items-center justify-between px-3.5 py-1.5 bg-black/70 border-b border-white/[0.07] text-white/50 text-[11px]">
         {/* Identificador y Lenguaje */}
@@ -203,11 +203,11 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, children }) => {
             </button>
           )}
 
-          {/* Botón Copiar */}
+          {/* Botón Copiar — visible sólo al hover del bloque */}
           <button
             type="button"
             onClick={handleCopy}
-            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] hover:bg-cyan-500/20 hover:text-cyan-200 hover:border-cyan-500/30 transition text-white/70 text-[10.5px]"
+            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] hover:bg-cyan-500/20 hover:text-cyan-200 hover:border-cyan-500/30 transition text-white/70 text-[10.5px] opacity-0 group-hover:opacity-100 transition-opacity"
             title="Copiar código al portapapeles"
           >
             {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -218,19 +218,19 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, children }) => {
 
       {/* Contenedor de Código con Gutter de Líneas */}
       <div
-        className={`flex overflow-x-auto talos-scroll bg-[#08090d] text-xs leading-relaxed transition-all ${
+        className={`flex overflow-x-auto talos-scroll bg-[#08090d] text-[13px] leading-[1.65] transition-all ${
           isCollapsed ? "max-h-48 overflow-y-hidden relative" : "max-h-[580px] overflow-y-auto"
         }`}
       >
         {/* Números de línea laterales (no seleccionables para no ensuciar el copiado manual) */}
-        <div className="select-none py-3 pl-2 pr-3 text-right text-white/20 border-r border-white/[0.05] bg-black/25 font-mono text-[11px] leading-relaxed shrink-0">
+        <div className="select-none py-3 pl-2 pr-3 text-right text-white/20 border-r border-white/[0.05] bg-black/25 font-mono text-[11px] leading-[1.65] shrink-0">
           {lines.map((_, idx) => (
             <div key={`ln-${idx}`}>{idx + 1}</div>
           ))}
         </div>
 
         {/* Código con Resaltado Sintáctico Prism */}
-        <pre className="p-3 font-mono text-xs leading-relaxed flex-1 overflow-x-auto talos-scroll text-neutral-200 selection:bg-cyan-500/30 selection:text-white">
+        <pre className="p-3 font-mono text-[13px] leading-[1.65] flex-1 overflow-x-auto talos-scroll text-neutral-200 selection:bg-cyan-500/30 selection:text-white">
           <code>
             {highlightedLines.map((lineHtml, idx) => (
               <div

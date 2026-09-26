@@ -10,7 +10,6 @@ import {
   FileText,
   Folder,
   FolderPlus,
-  Hash,
   ListOrdered,
   Loader2,
   Maximize2,
@@ -909,86 +908,6 @@ const NotebooksView: React.FC<{
                 ))}
               </div>
 
-              <section className="rounded-[24px] bg-[#101012] border border-white/[0.08] p-5">
-                <div className="flex items-center justify-between pb-4 border-b border-white/[0.06]">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-white/60" />
-                    <span className="text-xs uppercase tracking-wider text-white/70">
-                      Fuentes y Materiales Indexados
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-white/35">
-                    {notebookSourcesData
-                      ? `${notebookSourcesData.total_sources} documento${notebookSourcesData.total_sources === 1 ? "" : "s"} · ${notebookSourcesData.sources.reduce((acc, s) => acc + (s.chunk_count || 0), 0)} fragmentos`
-                      : "Verificando knowledge base..."}
-                  </span>
-                </div>
-
-                {isSourcesLoading ? (
-                  <div className="h-32 flex items-center justify-center gap-2 text-white/40 text-xs font-mono">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Recuperando fuentes soberanas...</span>
-                  </div>
-                ) : notebookSourcesData && notebookSourcesData.sources.length > 0 ? (
-                  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {notebookSourcesData.sources.map((src) => (
-                      <div
-                        key={src.source_id}
-                        className="rounded-[16px] bg-black border border-white/[0.08] p-4 flex flex-col gap-2 hover:border-white/25 transition group"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <strong className="block text-xs text-white truncate" title={src.title}>
-                              {src.title}
-                            </strong>
-                            <span className="block mt-0.5 text-[10px] text-white/40 truncate">
-                              {src.author}{src.page_count ? ` · ${src.page_count} páginas` : ""}
-                            </span>
-                          </div>
-                          <span className="shrink-0 text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.05] border border-white/[0.08] text-white/60">
-                            {src.chunk_count} chunks
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span
-                            className="flex items-center gap-1 text-[10px] font-mono text-white/30 truncate"
-                            title={src.sha256}
-                          >
-                            <Hash className="w-3 h-3" />
-                            {src.sha256 ? `${src.sha256.slice(0, 16)}…` : "sin digest"}
-                          </span>
-                          {src.sha256 && (
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                  await fetch("/api/sources/open-local", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ doc_hash: src.sha256 }),
-                                  });
-                                } catch {
-                                  /* noop */
-                                }
-                              }}
-                              className="h-7 px-2.5 rounded-[9px] bg-white/[0.06] border border-white/[0.08] text-white/60 text-[10px] uppercase tracking-wider hover:bg-white hover:text-black transition"
-                            >
-                              Abrir PDF
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="mt-4 rounded-[16px] border border-dashed border-white/[0.12] p-6 text-center">
-                    <p className="text-xs text-white/40">
-                      Este cuaderno aún no tiene fuentes indexadas. Usá el botón <strong className="text-white/70">+ Material</strong> para incorporar un PDF canónico.
-                    </p>
-                  </div>
-                )}
-              </section>
-
               <PureSvgRoadmap
                 nodes={data.mindMapNodes}
                 selectedNodeId={selectedNode?.id ?? ""}
@@ -1164,7 +1083,79 @@ const NotebooksView: React.FC<{
                   </div>
                 </div>
               </section>
-            </div>
+
+                {/* SECCIÓN MINIMALISTA Y LIMPIA: FUENTES Y MATERIALES */}
+                <section className="rounded-[20px] bg-[#0e0e11] border border-white/[0.06] p-4.5 font-mono">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-3.5 h-3.5 text-white/50" />
+                      <span className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
+                        Fuentes y Materiales Indexados
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-white/35">
+                      {notebookSourcesData
+                        ? `${notebookSourcesData.total_sources} doc${notebookSourcesData.total_sources === 1 ? "" : "s"} · ${notebookSourcesData.sources.reduce((acc, s) => acc + (s.chunk_count || 0), 0)} chunks`
+                        : "Verificando..."}
+                    </span>
+                  </div>
+
+                  {isSourcesLoading ? (
+                    <div className="py-6 flex items-center justify-center gap-2 text-white/40 text-xs">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Cargando fuentes...</span>
+                    </div>
+                  ) : notebookSourcesData && notebookSourcesData.sources.length > 0 ? (
+                    <div className="mt-3 divide-y divide-white/[0.04]">
+                      {notebookSourcesData.sources.map((src) => (
+                        <div
+                          key={src.source_id}
+                          className="py-2.5 flex items-center justify-between gap-3 text-xs hover:bg-white/[0.02] px-2 rounded-lg transition"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <span className="font-sans font-medium text-white/90 truncate block text-[12.5px]" title={src.title}>
+                              {src.title}
+                            </span>
+                            <span className="text-[10px] text-white/40 truncate block mt-0.5">
+                              {src.author}{src.page_count ? ` · ${src.page_count} págs` : ""}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] text-white/50">
+                              {src.chunk_count} chunks
+                            </span>
+                            {src.sha256 && (
+                              <button
+                                type="button"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    await fetch("/api/sources/open-local", {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ doc_hash: src.sha256 }),
+                                    });
+                                  } catch {
+                                    /* noop */
+                                  }
+                                }}
+                                className="h-6 px-2 rounded-md bg-white/[0.05] border border-white/[0.08] hover:bg-white hover:text-black text-white/70 text-[10px] transition cursor-pointer"
+                              >
+                                Abrir PDF
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-4 text-center text-xs text-white/35">
+                      Sin fuentes indexadas en este cuaderno.
+                    </div>
+                  )}
+                </section>
+              </div>
           )}
 
         </div>

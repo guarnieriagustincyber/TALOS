@@ -953,10 +953,23 @@ def _trigger_background_memory_extraction(
         extractor = PedagogicalMemoryExtractor(tracker)
 
     mem0 = getattr(container, "mem0_manager", None)
-    if not extractor and not mem0:
+    cog_extractor = getattr(container, "cognitive_extractor", None)
+    if not extractor and not mem0 and not cog_extractor:
         return
 
     async def _run_bg() -> None:
+        if cog_extractor:
+            try:
+                await cog_extractor.process_turn_and_persist(
+                    student_id=student_id,
+                    notebook_id=notebook_id,
+                    query=prompt_text,
+                    response_text=response_text,
+                    active_kc=active_kc,
+                    llm_backend=llm_backend,
+                )
+            except Exception as exc:
+                logger.debug("Background cognitive profile extraction error: %s", exc)
         if extractor:
             try:
                 await extractor.process_turn_and_persist(
@@ -1005,7 +1018,8 @@ async def get_session_briefing(
             "notebook_id": target_nb,
         }
 
-    briefing_text = gen.generate_briefing(
+    briefing_fn = getattr(gen, "generate_with_cognitive_profile", gen.generate_briefing)
+    briefing_text = briefing_fn(
         student_id=student_id,
         notebook_id=target_nb,
         student_name="Agustín",
@@ -1755,6 +1769,18 @@ async def chat_query(
             ref_prefix = f"{ref_disclaimer}\n\n" if ref_disclaimer else ""
             ref_emitted = False
 
+            # Slice 3: Construir bloque de perfil cognitivo dinámico (<120 tokens)
+            cognitive_block = ""
+            prof_injector = getattr(container, "profile_injector", None)
+            if prof_injector:
+                try:
+                    cognitive_block = prof_injector.build_injection_block(
+                        student_id=student_id,
+                        active_kc=matched_kc_id,
+                    )
+                except Exception as c_err:
+                    logger.debug("Error building cognitive profile block: %s", c_err)
+
             async for event in pipeline.generate_phased_response(
                 user_query=prompt_text,
                 context_pack=context_pack,
@@ -1763,6 +1789,7 @@ async def chat_query(
                 style_directive=style_dir,
                 override_max_tokens=live_max_tokens,
                 recent_turns=conv_turns,
+                cognitive_profile_block=cognitive_block,
             ):
                 payload = {
                     "event_type": event.event_type,

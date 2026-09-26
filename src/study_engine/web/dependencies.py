@@ -439,11 +439,20 @@ class AppContainer:
             learning_patterns=self.learning_patterns,
             session_memory=self.session_memory,
         )
+        from study_engine.pedagogy.memory.store import CognitiveProfileStore
+        from study_engine.pedagogy.memory.injector import ProfileInjector
+        from study_engine.pedagogy.memory.extractor import CognitiveExtractor
+
+        self.cognitive_profile_store = CognitiveProfileStore(db_path)
+        self.profile_injector = ProfileInjector(self.cognitive_profile_store)
+        self.cognitive_extractor = CognitiveExtractor(self.cognitive_profile_store)
+
         self.session_briefing_generator = SessionBriefingGenerator(
             bkt_tracker=self.bkt_tracker,
             sm2_scheduler=self.spaced_scheduler,
             session_history=self.session_history,
             student_storage=self.student_storage,
+            cognitive_profile_store=self.cognitive_profile_store,
         )
 
         def _get_node_prereqs(node_id: str) -> List[str]:
