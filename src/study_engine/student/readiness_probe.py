@@ -15,6 +15,8 @@ from study_engine.student.contracts import (
     PrerequisiteAssessment,
     ReadinessDecision,
     ReadinessReport,
+    classify_readiness,
+    is_blocking_for_advance,
 )
 
 
@@ -48,15 +50,11 @@ class ReadinessProbe:
 
     def classify_mastery(self, p_L: float) -> str:
         """Classify P(L) into standardized pedagogical tiers."""
-        if p_L >= 0.80:
-            return "DOMINADO"
-        elif p_L >= 0.50:
-            return "NOCIÓN"
-        return "AUSENTE"
+        return classify_readiness(p_L)
 
     def make_decision(self, assessments: List[PrerequisiteAssessment]) -> ReadinessDecision:
         """Compute advisory recommendation based on count of missing prerequisites."""
-        missing = [a for a in assessments if a.status == "AUSENTE"]
+        missing = [a for a in assessments if is_blocking_for_advance(a.status)]
         if not missing:
             return ReadinessDecision.START
         elif len(missing) <= 2:
