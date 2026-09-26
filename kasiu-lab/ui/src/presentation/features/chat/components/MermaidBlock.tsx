@@ -87,6 +87,9 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<"diagram" | "code">("diagram");
   const [zoom, setZoom] = useState<number>(1);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
 
@@ -232,7 +235,7 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
     });
 
     return () => cancelAnimationFrame(rafId);
-  }, [svgContent, viewMode, zoom]);
+  }, [svgContent, viewMode, zoom, pan]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cleanCode);
@@ -255,7 +258,33 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
 
   const handleZoomIn = () => setZoom((z) => Math.min(2.5, +(z + 0.2).toFixed(1)));
   const handleZoomOut = () => setZoom((z) => Math.max(0.5, +(z - 0.2).toFixed(1)));
-  const handleZoomReset = () => setZoom(1);
+  const handleZoomReset = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
+
+  // Pan por arrastre del mouse
+  const handlePanStart = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+    e.preventDefault();
+  };
+
+  React.useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragStartRef.current) return;
+      setPan({ x: e.clientX - dragStartRef.current.x, y: e.clientY - dragStartRef.current.y });
+    };
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      dragStartRef.current = null;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, pan.x, pan.y]);;
 
 
   return (
@@ -417,9 +446,12 @@ export const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
               </div>
             ) : (
               <div
-                className="mermaid-svg-wrapper inline-block transition-transform duration-150 origin-center"
+                onMouseDown={handlePanStart}
+                className={`mermaid-svg-wrapper inline-block transition-transform duration-150 origin-center ${
+                  isDragging ? "cursor-grabbing" : "cursor-grab"
+                }`}
                 style={{
-                  transform: `scale(${zoom})`,
+                  transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
                   transformOrigin: "center center",
                 }}
                 dangerouslySetInnerHTML={{ __html: svgContent }}
