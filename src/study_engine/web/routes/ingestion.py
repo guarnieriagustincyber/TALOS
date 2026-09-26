@@ -133,25 +133,6 @@ def get_ingestion_catalog(
             )
         )
 
-    # If knowledge store has no sources yet, provide deterministic canonical items
-    if not catalog:
-        catalog.append(
-            CALSourceItemDto(
-                source_id="src-prog-punteros",
-                title="Punteros y Gestión de Memoria en C",
-                doc_hash="7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
-                chunk_count=145,
-                converter_id="markitdown",
-                converter_version="1.0.0",
-                conversion_score=0.96,
-                conflict_flag=False,
-                formulas_unextracted=False,
-                trust_level="verified",
-                ocr_provenance="none",
-                ingested_at="2026-09-13T00:00:00Z",
-            )
-        )
-
     return catalog
 
 
