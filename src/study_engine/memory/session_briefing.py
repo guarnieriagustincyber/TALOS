@@ -41,12 +41,14 @@ class SessionBriefingGenerator:
         sm2_scheduler: Optional[Any] = None,
         session_history: Optional[SessionHistory] = None,
         student_storage: Optional[StudentStorage] = None,
+        cognitive_profile_store: Optional[Any] = None,
     ) -> None:
         self.bkt_tracker = bkt_tracker
         self.hint_ledger = hint_ledger
         self.sm2_scheduler = sm2_scheduler
         self.session_history = session_history or SessionHistory()
         self.student_storage = student_storage
+        self.cognitive_profile_store = cognitive_profile_store
 
     def generate_briefing(
         self,
@@ -96,6 +98,40 @@ class SessionBriefingGenerator:
         briefing_lines.append(f"¿Arrancamos con un ejercicio de reforzamiento o preferís avanzar a {next_topic}?")
 
         return "\n".join(briefing_lines)
+
+    def generate_with_cognitive_profile(
+        self,
+        student_id: str = "default_student",
+        notebook_id: str = "default_notebook",
+        student_name: str = "Agustín",
+    ) -> str:
+        """Generates briefing enriched with cognitive profile items (Enmienda E-C3)."""
+        base_brief = self.generate_briefing(student_id=student_id, notebook_id=notebook_id, student_name=student_name)
+        if not self.cognitive_profile_store:
+            return base_brief
+
+        try:
+            items = self.cognitive_profile_store.get_for_injection(user_id=student_id, max_items=3)
+            if not items:
+                return base_brief
+
+            cognitive_notes = []
+            for it in items:
+                cat = it.get("category", "")
+                desc = it.get("description", "")
+                kc = it.get("kc_id", "")
+                occ = it.get("occurrences", 1)
+                if cat in ("RECURRING_MISCONCEPTION", "WEAKNESS"):
+                    occ_str = f" ({occ} veces)" if occ > 1 else ""
+                    cognitive_notes.append(f"Atención en '{kc}': {desc}{occ_str}.")
+
+            if cognitive_notes:
+                extra_block = "\n" + " ".join(cognitive_notes)
+                return base_brief + extra_block
+        except Exception as exc:
+            logger.warning("[SESSION_BRIEFING] Error incorporating cognitive profile: %s", exc)
+
+        return base_brief
 
     def _get_weak_kcs(self, student_id: str, threshold: float = 0.50) -> List[WeakKCInfo]:
         """Consults BKT states and identifies concepts below mastery threshold (INV-W6-2)."""

@@ -21,6 +21,7 @@ class CommandType(str, Enum):
     TRADUCCION = "TRADUCCION"
     EXPLICACION_DESDE_CERO = "EXPLICACION_DESDE_CERO"
     NO_ENTENDI = "NO_ENTENDI"
+    DIAGNOSTICO = "DIAGNOSTICO"
 
 
 @dataclass(frozen=True)
@@ -124,6 +125,13 @@ TEMPLATE_NO_ENTENDI = """Tu salida debe aplicar un CAMBIO DE ENFOQUE pedagógico
 - Mostrá un ejemplo más simple.
 - Hacé una pregunta precisa para detectar dónde se trabó el estudiante."""
 
+TEMPLATE_DIAGNOSTICO = """Tu salida debe emitir un INFORME DE DIAGNÓSTICO COGNITIVO estructurado:
+**DIAGNÓSTICO COGNITIVO DEL ESTUDIANTE**
+1. Estado Actual de Conocimiento (KCs evaluados y nivel de dominio)
+2. Brechas y Misconceptions Recurrentes (errores persistentes detectados en memoria)
+3. Fortalezas Demostradas (conceptos asimilados sólidamente)
+4. Plan de Acción y Próximo Ejercicio Recomendado"""
+
 
 # =========================================================================
 # UNIVERSAL SAFE COMMANDS (Para SocraticGuard en todos los cuadernos)
@@ -188,6 +196,10 @@ _RE_DESDE_CERO = re.compile(
 )
 _RE_NO_ENTENDI = re.compile(
     r"^\s*(?:NO\s+ENTEND[IÍ](?!\s+POR\s*QU[EÉ]|\s+C[OÓ]MO)|NO\s+ENTIENDO(?!\s+POR\s*QU[EÉ]|\s+C[OÓ]MO)|OTRA\s+FORMA|REFORMUL[AÁ]|ME\s+PERD[IÍ])",
+    re.IGNORECASE,
+)
+_RE_DIAGNOSTICO = re.compile(
+    r"^\s*(?:>>\s*(?:dia|diagnostico)|(?:MI\s+)?DIAGN[OÓ]STICO(?:\s+COGNITIVO)?)\b",
     re.IGNORECASE,
 )
 
@@ -293,6 +305,17 @@ def parse_student_command(message: str) -> Optional[ParsedCommand]:
             max_words=400,
             is_structured=True,
             template_instruction=TEMPLATE_NO_ENTENDI,
+        )
+
+    # 8. Diagnóstico cognitivo (>>dia / >>diagnostico)
+    if _RE_DIAGNOSTICO.search(raw):
+        return ParsedCommand(
+            command_type=CommandType.DIAGNOSTICO,
+            target_arg=None,
+            expected_format="DIAGNÓSTICO COGNITIVO",
+            max_words=600,
+            is_structured=True,
+            template_instruction=TEMPLATE_DIAGNOSTICO,
         )
 
     return None

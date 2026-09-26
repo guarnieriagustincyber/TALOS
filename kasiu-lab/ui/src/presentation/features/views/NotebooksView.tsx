@@ -10,7 +10,6 @@ import {
   FileText,
   Folder,
   FolderPlus,
-  Hash,
   ListOrdered,
   Loader2,
   Maximize2,
@@ -37,6 +36,51 @@ const PureSvgRoadmap: React.FC<PureSvgRoadmapProps> = ({
   selectedNodeId,
   onSelectNode,
 }) => {
+  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = React.useRef<{ x: number; y: number } | null>(null);
+
+  const resetTransform = () => setTransform({ x: 0, y: 0, scale: 1 });
+  const zoomIn = () => setTransform(prev => ({ ...prev, scale: Math.min(prev.scale * 1.2, 3) }));
+  const zoomOut = () => setTransform(prev => ({ ...prev, scale: Math.max(prev.scale / 1.2, 0.5) }));
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    setTransform(prev => {
+      const newScale = Math.min(Math.max(prev.scale * (e.deltaY > 0 ? 0.9 : 1.1), 0.5), 3);
+      return { ...prev, scale: newScale };
+    });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX - transform.x, y: e.clientY - transform.y };
+    e.preventDefault();
+  };
+
+  React.useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragStartRef.current) return;
+      setTransform(prev => ({
+        ...prev,
+        x: e.clientX - dragStartRef.current!.x,
+        y: e.clientY - dragStartRef.current!.y,
+      }));
+    };
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      dragStartRef.current = null;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging]);
+
   return (
     <section className="rounded-[24px] bg-[#101012] border border-white/[0.08] p-5 overflow-hidden">
       <div className="flex items-center justify-between pb-4 border-b border-white/[0.06]">
@@ -46,61 +90,87 @@ const PureSvgRoadmap: React.FC<PureSvgRoadmapProps> = ({
             Grafo Topológico Curricular (Roadmap DAG)
           </span>
         </div>
-        <span className="text-[10px] text-white/35">Interactivo · Clic para enfocar</span>
+        <div className="flex items-center gap-2">
+          <button onClick={zoomOut} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors" title="Alejar">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+            </svg>
+          </button>
+          <button onClick={resetTransform} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors" title="Resetear vista">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5m0 0h5m-5 0V4" />
+            </svg>
+          </button>
+          <button onClick={zoomIn} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors" title="Acercar">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div className="mt-4 overflow-x-auto k-scroll pb-2">
-        <svg viewBox="0 0 880 280" className="w-full min-w-[700px] h-60">
-          <defs>
-            <marker
-              id="roadmap-arrow"
-              viewBox="0 0 10 10"
-              refX="8"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto"
-            >
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="rgba(255,255,255,0.4)" />
-            </marker>
-          </defs>
-
-          {/* Aristas / Conexiones */}
-          {nodes.map((node) =>
-            node.connectedTo.map((targetId) => {
-              const targetNode = nodes.find((n) => n.id === targetId);
-              if (!targetNode) return null;
-              return (
-                <line
-                  key={`${node.id}-${targetId}`}
-                  x1={node.x + 60}
-                  y1={node.y + 20}
-                  x2={targetNode.x + 10}
-                  y2={targetNode.y + 20}
-                  stroke={node.status === "completed" ? "#10B981" : "rgba(255,255,255,0.18)"}
-                  strokeWidth="2"
-                  strokeDasharray={node.status === "completed" ? "none" : "4 4"}
-                  markerEnd="url(#roadmap-arrow)"
-                />
-              );
-            })
-          )}
-
-          {/* Nodos */}
-          {nodes.map((node) => {
-            const isSelected = selectedNodeId === node.id;
-            const isCompleted = node.status === "completed";
-            const isCurrent = node.status === "current";
-
-            return (
-              <g
-                key={node.id}
-                onClick={() => onSelectNode(node)}
-                className="cursor-pointer group"
+      <div
+        className="mt-4 overflow-hidden relative"
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onDoubleClick={resetTransform}
+      >
+        <div
+          className="transition-transform duration-200 cursor-grab active:cursor-grabbing"
+          style={{
+            transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+            transformOrigin: "0 0",
+          }}
+        >
+          <svg viewBox="0 0 880 280" className="w-full min-w-[700px] h-60">
+            <defs>
+              <marker
+                id="roadmap-arrow"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto"
               >
-                {/* Radar pulse de radio exterior para el nodo en progreso (current) */}
-                {isCurrent && (
-                  <>
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="rgba(255,255,255,0.4)" />
+              </marker>
+            </defs>
+
+            {/* Aristas */}
+            {nodes.map((node) =>
+              node.connectedTo.map((targetId) => {
+                const targetNode = nodes.find((n) => n.id === targetId);
+                if (!targetNode) return null;
+                return (
+                  <line
+                    key={`${node.id}-${targetId}`}
+                    x1={node.x + 60}
+                    y1={node.y + 20}
+                    x2={targetNode.x + 10}
+                    y2={targetNode.y + 20}
+                    stroke={node.status === "completed" ? "#10B981" : "rgba(255,255,255,0.18)"}
+                    strokeWidth="2"
+                    strokeDasharray={node.status === "completed" ? "none" : "4 4"}
+                    markerEnd="url(#roadmap-arrow)"
+                  />
+                );
+              })
+            )}
+
+            {/* Nodos */}
+            {nodes.map((node) => {
+              const isSelected = selectedNodeId === node.id;
+              const isCompleted = node.status === "completed";
+              const isCurrent = node.status === "current";
+
+              return (
+                <g
+                  key={node.id}
+                  onClick={() => onSelectNode(node)}
+                  className="cursor-pointer group"
+                >
+                  {isCurrent && (
                     <rect
                       x={node.x - 4}
                       y={node.y - 4}
@@ -113,153 +183,92 @@ const PureSvgRoadmap: React.FC<PureSvgRoadmapProps> = ({
                       opacity="0.6"
                       strokeDasharray="4 6"
                     >
-                      <animate
-                        attributeName="stroke-dashoffset"
-                        values="0;20"
-                        dur="2.5s"
-                        repeatCount="indefinite"
-                      />
-                      <animate
-                        attributeName="opacity"
-                        values="0.6;0.15;0.6"
-                        dur="2.5s"
-                        repeatCount="indefinite"
-                      />
+                      <animate attributeName="stroke-dashoffset" values="0;20" dur="2.5s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.6;0.15;0.6" dur="2.5s" repeatCount="indefinite" />
                     </rect>
-                  </>
-                )}
+                  )}
 
-                <rect
-                  x={node.x}
-                  y={node.y}
-                  width="130"
-                  height="44"
-                  rx="12"
-                  fill={isSelected ? "#1c1c22" : "#0d0d10"}
-                  stroke={
-                    isSelected
-                      ? "#ffffff"
-                      : isCompleted
-                      ? "#10B981"
-                      : isCurrent
-                      ? "#F59E0B"
-                      : "rgba(255,255,255,0.12)"
-                  }
-                  strokeWidth={isSelected ? "2" : isCurrent ? "1.8" : "1.5"}
-                  className="transition-all duration-200 group-hover:brightness-125"
-                />
-
-                {/* Ondas concéntricas de radar para el pin de telemetría */}
-                {isCurrent && (
-                  <>
-                    <circle
-                      cx={node.x + 14}
-                      cy={node.y + 22}
-                      r="4"
-                      fill="none"
-                      stroke="#F59E0B"
-                      strokeWidth="1.5"
-                    >
-                      <animate
-                        attributeName="r"
-                        values="4;16;20"
-                        dur="2.2s"
-                        repeatCount="indefinite"
-                      />
-                      <animate
-                        attributeName="opacity"
-                        values="0.9;0.2;0"
-                        dur="2.2s"
-                        repeatCount="indefinite"
-                      />
-                    </circle>
-                    <circle
-                      cx={node.x + 14}
-                      cy={node.y + 22}
-                      r="4"
-                      fill="none"
-                      stroke="#F59E0B"
-                      strokeWidth="1"
-                    >
-                      <animate
-                        attributeName="r"
-                        values="4;10;15"
-                        dur="2.2s"
-                        begin="0.7s"
-                        repeatCount="indefinite"
-                      />
-                      <animate
-                        attributeName="opacity"
-                        values="0.7;0.15;0"
-                        dur="2.2s"
-                        begin="0.7s"
-                        repeatCount="indefinite"
-                      />
-                    </circle>
-                  </>
-                )}
-
-                <circle
-                  cx={node.x + 14}
-                  cy={node.y + 22}
-                  r={isCurrent ? "4.5" : "4"}
-                  fill={isCompleted ? "#10B981" : isCurrent ? "#F59E0B" : "#555"}
-                />
-                <text
-                  x={node.x + 24}
-                  y={node.y + 23}
-                  fill="#ffffff"
-                  fontSize="9.5"
-                  fontWeight="600"
-                  fontFamily="monospace"
-                >
-                  {node.label.length > 13 ? node.label.slice(0, 12) + "…" : node.label}
-                </text>
-                <text
-                  x={node.x + 24}
-                  y={node.y + 35}
-                  fill="rgba(255,255,255,0.4)"
-                  fontSize="7.5"
-                  fontFamily="monospace"
-                >
-                  {node.category}
-                </text>
-
-                {/* Indicador de maestría BKT perimetral */}
-                <g transform={`translate(${node.x + 114}, ${node.y + 22})`}>
-                  <circle r="7.5" fill="#050507" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" />
-                  <circle
-                    r="7.5"
-                    fill="none"
-                    stroke={isCompleted ? "#10B981" : isCurrent ? "#F59E0B" : "rgba(255,255,255,0.2)"}
-                    strokeWidth="1.5"
-                    strokeDasharray="47"
-                    strokeDashoffset={isCompleted ? "0" : isCurrent ? "18" : "38"}
-                    strokeLinecap="round"
-                    transform="rotate(-90)"
+                  <rect
+                    x={node.x}
+                    y={node.y}
+                    width="130"
+                    height="44"
+                    rx="12"
+                    fill={isSelected ? "#1c1c22" : "#0d0d10"}
+                    stroke={
+                      isSelected
+                        ? "#ffffff"
+                        : isCompleted
+                        ? "#10B981"
+                        : isCurrent
+                        ? "#F59E0B"
+                        : "rgba(255,255,255,0.12)"
+                    }
+                    strokeWidth={isSelected ? "2" : isCurrent ? "1.8" : "1.5"}
+                    className="transition-all duration-200 group-hover:brightness-125"
                   />
-                  <text
-                    y="2.5"
-                    textAnchor="middle"
-                    fill={isCompleted ? "#10B981" : isCurrent ? "#F59E0B" : "rgba(255,255,255,0.4)"}
-                    fontSize="5.5"
-                    fontFamily="monospace"
-                    fontWeight="700"
-                  >
-                    {isCompleted ? "100" : isCurrent ? "65" : "15"}
+
+                  {isCurrent && (
+                    <>
+                      <circle cx={node.x + 14} cy={node.y + 22} r="4" fill="none" stroke="#F59E0B" strokeWidth="1.5">
+                        <animate attributeName="r" values="4;16;20" dur="2.2s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.9;0.2;0" dur="2.2s" repeatCount="indefinite" />
+                      </circle>
+                      <circle cx={node.x + 14} cy={node.y + 22} r="4" fill="none" stroke="#F59E0B" strokeWidth="1">
+                        <animate attributeName="r" values="4;10;15" dur="2.2s" begin="0.7s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.7;0.15;0" dur="2.2s" begin="0.7s" repeatCount="indefinite" />
+                      </circle>
+                    </>
+                  )}
+
+                  <circle
+                    cx={node.x + 14}
+                    cy={node.y + 22}
+                    r={isCurrent ? "4.5" : "4"}
+                    fill={isCompleted ? "#10B981" : isCurrent ? "#F59E0B" : "#555"}
+                  />
+                  <text x={node.x + 24} y={node.y + 23} fill="#ffffff" fontSize="9.5" fontWeight="600" fontFamily="monospace">
+                    {node.label.length > 13 ? node.label.slice(0, 12) + "…" : node.label}
                   </text>
+                  <text x={node.x + 24} y={node.y + 35} fill="rgba(255,255,255,0.4)" fontSize="7.5" fontFamily="monospace">
+                    {node.category}
+                  </text>
+
+                  <g transform={`translate(${node.x + 114}, ${node.y + 22})`}>
+                    <circle r="7.5" fill="#050507" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" />
+                    <circle
+                      r="7.5"
+                      fill="none"
+                      stroke={isCompleted ? "#10B981" : isCurrent ? "#F59E0B" : "rgba(255,255,255,0.2)"}
+                      strokeWidth="1.5"
+                      strokeDasharray="47"
+                      strokeDashoffset={isCompleted ? "0" : isCurrent ? "18" : "38"}
+                      strokeLinecap="round"
+                      transform="rotate(-90)"
+                    />
+                    <text
+                      y="2.5"
+                      textAnchor="middle"
+                      fill={isCompleted ? "#10B981" : isCurrent ? "#F59E0B" : "rgba(255,255,255,0.4)"}
+                      fontSize="5.5"
+                      fontFamily="monospace"
+                      fontWeight="700"
+                    >
+                      {isCompleted ? "100" : isCurrent ? "65" : "15"}
+                    </text>
+                  </g>
                 </g>
-              </g>
-            );
-          })}
-        </svg>
+              );
+            })}
+          </svg>
+        </div>
       </div>
     </section>
   );
 };
 
-
-const NotebooksView: React.FC<{
+// ✅ CORREGIDO: Interfaz de props con tipo de retorno correcto
+interface NotebooksViewProps {
   activeEntity: ActiveEntity;
   fsItems: FSItem[];
   selectedNode: MindMapNode | null;
@@ -269,7 +278,9 @@ const NotebooksView: React.FC<{
   onAddMaterial: () => void;
   onCreateFolder: () => void;
   onCreateNotebook: () => void;
-}> = ({
+}
+
+const NotebooksView: React.FC<NotebooksViewProps> = ({
   activeEntity,
   fsItems,
   selectedNode,
@@ -616,7 +627,7 @@ const NotebooksView: React.FC<{
       {/* CONTENIDO DEL CUADERNO O CARPETA */}
       <div className="flex-1 overflow-y-auto k-scroll px-8 py-7 space-y-7">
         <div className="max-w-5xl 2xl:max-w-6xl mx-auto space-y-7">
-          
+
           {/* BANNER DE ERROR O CARGA FAIL-CLOSED */}
           {isLoading && (
             <div className="p-5 rounded-[20px] bg-[#101012] border border-white/[0.08] flex items-center gap-3 text-white/60 text-xs font-mono">
@@ -909,86 +920,6 @@ const NotebooksView: React.FC<{
                 ))}
               </div>
 
-              <section className="rounded-[24px] bg-[#101012] border border-white/[0.08] p-5">
-                <div className="flex items-center justify-between pb-4 border-b border-white/[0.06]">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-white/60" />
-                    <span className="text-xs uppercase tracking-wider text-white/70">
-                      Fuentes y Materiales Indexados
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-white/35">
-                    {notebookSourcesData
-                      ? `${notebookSourcesData.total_sources} documento${notebookSourcesData.total_sources === 1 ? "" : "s"} · ${notebookSourcesData.sources.reduce((acc, s) => acc + (s.chunk_count || 0), 0)} fragmentos`
-                      : "Verificando knowledge base..."}
-                  </span>
-                </div>
-
-                {isSourcesLoading ? (
-                  <div className="h-32 flex items-center justify-center gap-2 text-white/40 text-xs font-mono">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Recuperando fuentes soberanas...</span>
-                  </div>
-                ) : notebookSourcesData && notebookSourcesData.sources.length > 0 ? (
-                  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {notebookSourcesData.sources.map((src) => (
-                      <div
-                        key={src.source_id}
-                        className="rounded-[16px] bg-black border border-white/[0.08] p-4 flex flex-col gap-2 hover:border-white/25 transition group"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <strong className="block text-xs text-white truncate" title={src.title}>
-                              {src.title}
-                            </strong>
-                            <span className="block mt-0.5 text-[10px] text-white/40 truncate">
-                              {src.author}{src.page_count ? ` · ${src.page_count} páginas` : ""}
-                            </span>
-                          </div>
-                          <span className="shrink-0 text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.05] border border-white/[0.08] text-white/60">
-                            {src.chunk_count} chunks
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span
-                            className="flex items-center gap-1 text-[10px] font-mono text-white/30 truncate"
-                            title={src.sha256}
-                          >
-                            <Hash className="w-3 h-3" />
-                            {src.sha256 ? `${src.sha256.slice(0, 16)}…` : "sin digest"}
-                          </span>
-                          {src.sha256 && (
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                  await fetch("/api/sources/open-local", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ doc_hash: src.sha256 }),
-                                  });
-                                } catch {
-                                  /* noop */
-                                }
-                              }}
-                              className="h-7 px-2.5 rounded-[9px] bg-white/[0.06] border border-white/[0.08] text-white/60 text-[10px] uppercase tracking-wider hover:bg-white hover:text-black transition"
-                            >
-                              Abrir PDF
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="mt-4 rounded-[16px] border border-dashed border-white/[0.12] p-6 text-center">
-                    <p className="text-xs text-white/40">
-                      Este cuaderno aún no tiene fuentes indexadas. Usá el botón <strong className="text-white/70">+ Material</strong> para incorporar un PDF canónico.
-                    </p>
-                  </div>
-                )}
-              </section>
-
               <PureSvgRoadmap
                 nodes={data.mindMapNodes}
                 selectedNodeId={selectedNode?.id ?? ""}
@@ -1164,7 +1095,79 @@ const NotebooksView: React.FC<{
                   </div>
                 </div>
               </section>
-            </div>
+
+                {/* SECCIÓN MINIMALISTA Y LIMPIA: FUENTES Y MATERIALES */}
+                <section className="rounded-[20px] bg-[#0e0e11] border border-white/[0.06] p-4.5 font-mono">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-3.5 h-3.5 text-white/50" />
+                      <span className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
+                        Fuentes y Materiales Indexados
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-white/35">
+                      {notebookSourcesData
+                        ? `${notebookSourcesData.total_sources} doc${notebookSourcesData.total_sources === 1 ? "" : "s"} · ${notebookSourcesData.sources.reduce((acc, s) => acc + (s.chunk_count || 0), 0)} chunks`
+                        : "Verificando..."}
+                    </span>
+                  </div>
+
+                  {isSourcesLoading ? (
+                    <div className="py-6 flex items-center justify-center gap-2 text-white/40 text-xs">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Cargando fuentes...</span>
+                    </div>
+                  ) : notebookSourcesData && notebookSourcesData.sources.length > 0 ? (
+                    <div className="mt-3 divide-y divide-white/[0.04]">
+                      {notebookSourcesData.sources.map((src) => (
+                        <div
+                          key={src.source_id}
+                          className="py-2.5 flex items-center justify-between gap-3 text-xs hover:bg-white/[0.02] px-2 rounded-lg transition"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <span className="font-sans font-medium text-white/90 truncate block text-[12.5px]" title={src.title}>
+                              {src.title}
+                            </span>
+                            <span className="text-[10px] text-white/40 truncate block mt-0.5">
+                              {src.author}{src.page_count ? ` · ${src.page_count} págs` : ""}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] text-white/50">
+                              {src.chunk_count} chunks
+                            </span>
+                            {src.sha256 && (
+                              <button
+                                type="button"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    await fetch("/api/sources/open-local", {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ doc_hash: src.sha256 }),
+                                    });
+                                  } catch {
+                                    /* noop */
+                                  }
+                                }}
+                                className="h-6 px-2 rounded-md bg-white/[0.05] border border-white/[0.08] hover:bg-white hover:text-black text-white/70 text-[10px] transition cursor-pointer"
+                              >
+                                Abrir PDF
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-4 text-center text-xs text-white/35">
+                      Sin fuentes indexadas en este cuaderno.
+                    </div>
+                  )}
+                </section>
+              </div>
           )}
 
         </div>
@@ -1248,6 +1251,5 @@ const NotebooksView: React.FC<{
     </main>
   );
 };
-
 
 export default NotebooksView;

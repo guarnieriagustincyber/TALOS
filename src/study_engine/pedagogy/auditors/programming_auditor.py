@@ -11,6 +11,7 @@ Evaluates:
 """
 
 import ast
+import hashlib
 import re
 from typing import Any, Dict, List, Optional
 
@@ -146,9 +147,14 @@ class ProgrammingExerciseAuditor(BaseExerciseAuditor):
         score = round((len(passed_evaluable) / len(total_evaluable) * 100.0), 1) if total_evaluable else 0.0
         is_passed = score >= 70.0 and all(c.passed for c in checks if c.name == "syntax")
 
-        # BKT Update
+        # BKT Update — with content-hash idempotency guard
         target_kc = submission.metadata.get("kc_id") or submission.exercise_id
-        bkt_updated, p_before, p_after = self.update_bkt_if_eligible(target_kc, is_passed, score)
+        content_hash = hashlib.sha256(
+            (submission.raw_content or "").encode("utf-8", errors="replace")
+        ).hexdigest()
+        bkt_updated, p_before, p_after = self.update_bkt_if_eligible(
+            target_kc, is_passed, score, content_hash=content_hash
+        )
 
         return ExerciseAuditReport(
             exercise_id=submission.exercise_id,

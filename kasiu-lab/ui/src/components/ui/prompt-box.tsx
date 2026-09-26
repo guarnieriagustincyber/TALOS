@@ -157,28 +157,28 @@ export const PromptBox: React.FC<PromptBoxProps> = ({
                 data-size="icon-sm"
                 onClick={() => setMenuOpen((prev) => !prev)}
                 className={cn(
-                  "size-8 rounded-2xl border border-white/[0.08] flex items-center justify-center transition-all cursor-pointer",
+                  "size-7 rounded-xl border border-white/[0.07] flex items-center justify-center transition-all cursor-pointer",
                   menuOpen
-                    ? "bg-white/10 text-white border-white/20"
-                    : "bg-white/[0.02] text-white/60 hover:bg-white/[0.07] hover:text-white"
+                    ? "bg-white/[0.12] text-white border-white/20 shadow-xs"
+                    : "bg-white/[0.03] text-white/50 hover:bg-white/[0.08] hover:text-white/90 hover:border-white/[0.14]"
                 )}
                 aria-label="Acciones y prompts socráticos"
                 title="Acciones rápidas socráticas"
               >
-                <Plus className="w-4 h-4 stroke-[2]" />
+                <Plus className="w-3.5 h-3.5 stroke-[2]" />
               </button>
 
               {/* Floating Menu Popover */}
               <AnimatePresence>
                 {menuOpen && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 8 }}
+                    initial={{ opacity: 0, scale: 0.96, y: 6 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 8 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute bottom-full left-0 mb-2 w-72 rounded-2xl border border-white/[0.1] bg-[#0c0d12]/98 backdrop-blur-2xl p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] z-50 font-mono text-xs"
+                    exit={{ opacity: 0, scale: 0.96, y: 6 }}
+                    transition={{ duration: 0.12 }}
+                    className="absolute bottom-full left-0 mb-2 w-72 rounded-2xl border border-white/[0.08] bg-[#0d0e12]/98 backdrop-blur-2xl p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] z-50 font-mono text-xs"
                   >
-                    <div className="px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/35 font-semibold">
+                    <div className="px-2.5 py-1 text-[9.5px] uppercase tracking-wider text-white/35 font-semibold">
                       Comandos Socráticos
                     </div>
                     {DEFAULT_ACTIONS.map((action) => (
@@ -186,7 +186,7 @@ export const PromptBox: React.FC<PromptBoxProps> = ({
                         key={action.id}
                         type="button"
                         onClick={() => handleSelectAction(action)}
-                        className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left text-white/80 hover:text-white hover:bg-white/[0.07] transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer text-xs"
                       >
                         {action.icon}
                         <span className="truncate">{action.label}</span>
@@ -197,63 +197,63 @@ export const PromptBox: React.FC<PromptBoxProps> = ({
               </AnimatePresence>
             </div>
 
-            {/* Quick action inline pills */}
+            {/* Quick action inline pills — estéticos, minimalistas y limpios */}
             <button
               type="button"
               onClick={() => handleSelectAction(DEFAULT_ACTIONS[0])}
-              className="h-7 px-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.06] hover:border-emerald-500/30 text-white/60 hover:text-white text-[11px] font-mono flex items-center gap-1.5 transition-all select-none cursor-pointer"
+              className="h-7 px-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.06] hover:border-emerald-500/30 text-white/55 hover:text-white text-[11px] font-mono flex items-center gap-1.5 transition-all select-none cursor-pointer group"
               title="Pedir ejercicio socrático certified"
             >
-              <Code2 className="w-3 h-3 text-emerald-400" />
+              <Code2 className="w-3 h-3 text-emerald-400/80 group-hover:text-emerald-300 transition-colors" />
               <span>/practicar</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleSelectAction(DEFAULT_ACTIONS[1])}
-              className="h-7 px-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/20 text-white/60 hover:text-white text-[11px] font-mono hidden sm:flex items-center gap-1.5 transition-all select-none cursor-pointer"
+              className="h-7 px-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/15 text-white/55 hover:text-white text-[11px] font-mono hidden sm:flex items-center gap-1.5 transition-all select-none cursor-pointer group"
               title="Explicar simple"
             >
-              <Sparkles className="w-3 h-3 text-white/50" />
+              <Sparkles className="w-3 h-3 text-white/40 group-hover:text-white/70 transition-colors" />
               <span>Explicar</span>
             </button>
 
-            {/* Right side: Send / Stop button only */}
+            {/* Right side: Send / Stop button */}
             <div className="flex items-center ml-auto">
               <AnimatePresence mode="wait">
                 {isBusy ? (
                   <motion.button
                     key="stop"
-                    initial={{ scale: 0.8, opacity: 0 }}
+                    initial={{ scale: 0.85, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
+                    exit={{ scale: 0.85, opacity: 0 }}
                     type="button"
                     onClick={onStop}
-                    className="size-8 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                    className="size-7 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 flex items-center justify-center transition-all cursor-pointer active:scale-95"
                     title="Detener respuesta (Abort)"
                   >
-                    <Square className="w-3 h-3 fill-current animate-pulse" />
+                    <Square className="w-2.5 h-2.5 fill-current animate-pulse" />
                   </motion.button>
                 ) : (
                   <motion.button
                     key="send"
-                    whileHover={canSend ? { scale: 1.05 } : {}}
-                    whileTap={canSend ? { scale: 0.92 } : {}}
+                    whileHover={canSend ? { scale: 1.04 } : {}}
+                    whileTap={canSend ? { scale: 0.94 } : {}}
                     type="submit"
                     disabled={!canSend}
                     data-slot="button"
                     data-variant="default"
                     data-size="icon-sm"
                     className={cn(
-                      "size-8 rounded-2xl flex items-center justify-center transition-all",
+                      "size-7 rounded-xl flex items-center justify-center transition-all",
                       canSend
-                        ? "bg-white text-black hover:bg-emerald-300 shadow-[0_0_14px_rgba(255,255,255,0.25)] cursor-pointer"
-                        : "bg-white/[0.04] text-white/20 border border-white/[0.06] cursor-not-allowed"
+                        ? "bg-white text-black hover:bg-emerald-300 shadow-[0_0_12px_rgba(255,255,255,0.2)] cursor-pointer"
+                        : "bg-white/[0.03] text-white/20 border border-white/[0.05] cursor-not-allowed"
                     )}
                     aria-label="Send"
                     title="Enviar mensaje (Enter)"
                   >
-                    <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                    <ArrowUp className="w-3.5 h-3.5 stroke-[2.5]" />
                     <span className="sr-only">Send</span>
                   </motion.button>
                 )}

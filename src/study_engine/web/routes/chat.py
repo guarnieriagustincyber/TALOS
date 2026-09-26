@@ -448,10 +448,26 @@ def _handle_folder_streaming(decision: Dict[str, Any]) -> StreamingResponse:
     return StreamingResponse(folder_event_stream(), media_type="text/event-stream")
 
 
-def _resolve_chat_backend(container: AppContainer) -> Any:
-    """Determine active LLM backend from container or fall back to offline oracle."""
+def _resolve_chat_backend(container: AppContainer, estimated_tokens: Optional[int] = None) -> Any:
+    """Determine active LLM backend from container or fall back to offline oracle.
+
+    If estimated_tokens is provided and container provides select_provider_tier,
+    dynamically reorders the cascade so large prompts (>5000 tokens) route
+    directly to Gemini/Cloudflare without bouncing on Groq's 7k ITPM rate limit.
+    """
     llm_backend = getattr(container, "llm_backend", None)
     if llm_backend is not None:
+        if estimated_tokens is not None and hasattr(container, "select_provider_tier"):
+            try:
+                from study_engine.llm.multi_fallback import MultiFallbackBackend
+                ordered = container.select_provider_tier(estimated_tokens)
+                return MultiFallbackBackend(
+                    providers=ordered,
+                    timeout_per_provider=llm_backend.timeout_per_provider,
+                    provider_timeouts=getattr(llm_backend, "provider_timeouts", None),
+                )
+            except Exception as e:
+                logger.debug("Error adaptando backend por tokens: %s", e)
         return llm_backend
     if hasattr(container.controller, "tutor_policy") and hasattr(container.controller.tutor_policy, "generator"):
         return container.controller.tutor_policy.generator
@@ -492,6 +508,7 @@ def _assemble_epistemic_context(
     prompt_text: str,
     target_notebook_id: str,
     active_sources: Optional[List[str]] = None,
+    granularity_decision: Optional[Any] = None,
 ) -> Tuple[Optional[EpistemicContextPack], list]:
     """Search knowledge store and build formatted citations and chunks with SectionExpander (Ola 5)."""
     try:
@@ -575,7 +592,92 @@ def _assemble_epistemic_context(
                     search_results.append(sr)
 
         if not search_results:
+            from study_engine.retrieval.granularity_router import RetrievalGranularity, GranularityRouter
+
+            gran_mode = getattr(granularity_decision, "granularity", None) if granularity_decision else None
+
+            if gran_mode == RetrievalGranularity.MACRO and hasattr(store, "search_chapter_summaries"):
+                max_parents = getattr(granularity_decision, "max_parent_nodes", 2)
+                try:
+                    ch_summaries = store.search_chapter_summaries(
+                        query=search_query,
+                        notebook_id=target_notebook_id if target_notebook_id != GLOBAL_SCOPE_ID else None,
+                        limit=max_parents,
+                    )
+                    for rank, cs in enumerate(ch_summaries):
+                        sr = SearchResult(
+                            content=cs.summary_text,
+                            index=rank,
+                            chunk_id=cs.id,
+                            document_id="chapter_summary",
+                            source_id=cs.source_id,
+                            snippet=f"[{cs.title}] {cs.summary_text[:200]}",
+                            page_start=cs.page_start,
+                            page_end=cs.page_end,
+                            score=cs.score or 1.0,
+                        )
+                        search_results.append(sr)
+                except Exception as macro_err:
+                    logger.debug("Error in search_chapter_summaries (MACRO): %s", macro_err)
+
+            elif gran_mode == RetrievalGranularity.HYBRID and hasattr(store, "search_chapter_summaries"):
+                max_parents = getattr(granularity_decision, "max_parent_nodes", 1)
+                max_leaves = getattr(granularity_decision, "max_leaf_chunks", 3)
+                top_parent = None
+                preferred_cid = None
+                try:
+                    ch_summaries = store.search_chapter_summaries(
+                        query=search_query,
+                        notebook_id=target_notebook_id if target_notebook_id != GLOBAL_SCOPE_ID else None,
+                        limit=max_parents,
+                    )
+                    if ch_summaries:
+                        top_parent = ch_summaries[0]
+                        preferred_cid = top_parent.id
+                except Exception as hy_ch_err:
+                    logger.debug("Error searching parent summaries in HYBRID: %s", hy_ch_err)
+
+                retrieval_limit, min_sources = _resolve_retrieval_depth(search_query)
+                leaf_candidates = []
+                if hasattr(store, "search_hybrid"):
+                    try:
+                        leaf_candidates = store.search_hybrid(
+                            query=search_query,
+                            notebook_id=target_notebook_id,
+                            limit=max_leaves * 2,
+                            min_sources=min_sources,
+                            preferred_chapter_id=preferred_cid,
+                        )
+                    except Exception as hy_leaf_err:
+                        logger.debug("Error in search_hybrid during HYBRID mode: %s", hy_leaf_err)
+
+                deduped = GranularityRouter.deduplicate_hybrid_chunks(
+                    candidate_chunks=leaf_candidates,
+                    parent_summary=top_parent,
+                    similarity_threshold=0.85,
+                    max_leaves=max_leaves,
+                )
+
+                if top_parent:
+                    sr_parent = SearchResult(
+                        content=top_parent.summary_text,
+                        index=0,
+                        chunk_id=top_parent.id,
+                        document_id="chapter_summary",
+                        source_id=top_parent.source_id,
+                        snippet=f"[{top_parent.title}] {top_parent.summary_text[:200]}",
+                        page_start=top_parent.page_start,
+                        page_end=top_parent.page_end,
+                        score=top_parent.score or 1.0,
+                    )
+                    search_results.append(sr_parent)
+                search_results.extend(deduped)
+
+        if not search_results:
             retrieval_limit, min_sources = _resolve_retrieval_depth(search_query)
+            gran_mode = getattr(granularity_decision, "granularity", None) if granularity_decision else None
+            if gran_mode == RetrievalGranularity.MICRO and getattr(granularity_decision, "max_leaf_chunks", None):
+                retrieval_limit = min(retrieval_limit, granularity_decision.max_leaf_chunks)
             if target_notebook_id == GLOBAL_SCOPE_ID:
                 # Scope global (COMMIT 2): correr retrieval híbrido por cuaderno y
                 # fundir por chunk_id preservando el mejor rank de cada uno. La
@@ -741,6 +843,7 @@ def _assemble_epistemic_context(
                 "author": author_str,
                 "section": section_str,
                 "epistemic_role": role_str,
+                "document_id": getattr(res, "document_id", "doc"),
             })
             citation_idx += 1
 
@@ -850,10 +953,23 @@ def _trigger_background_memory_extraction(
         extractor = PedagogicalMemoryExtractor(tracker)
 
     mem0 = getattr(container, "mem0_manager", None)
-    if not extractor and not mem0:
+    cog_extractor = getattr(container, "cognitive_extractor", None)
+    if not extractor and not mem0 and not cog_extractor:
         return
 
     async def _run_bg() -> None:
+        if cog_extractor:
+            try:
+                await cog_extractor.process_turn_and_persist(
+                    student_id=student_id,
+                    notebook_id=notebook_id,
+                    query=prompt_text,
+                    response_text=response_text,
+                    active_kc=active_kc,
+                    llm_backend=llm_backend,
+                )
+            except Exception as exc:
+                logger.debug("Background cognitive profile extraction error: %s", exc)
         if extractor:
             try:
                 await extractor.process_turn_and_persist(
@@ -902,7 +1018,8 @@ async def get_session_briefing(
             "notebook_id": target_nb,
         }
 
-    briefing_text = gen.generate_briefing(
+    briefing_fn = getattr(gen, "generate_with_cognitive_profile", gen.generate_briefing)
+    briefing_text = briefing_fn(
         student_id=student_id,
         notebook_id=target_nb,
         student_name="Agustín",
@@ -1229,12 +1346,18 @@ def _prepare_chat_context(
         )
         raw_chunks: List[Any] = []
     else:
+        from study_engine.retrieval.granularity_router import GranularityRouter
+        granularity_decision = GranularityRouter.route(
+            retrieval_query,
+            has_code_block="```" in clean_p,
+        )
         context_pack, raw_chunks = _assemble_epistemic_context(
             store=store,
             container=container,
             prompt_text=retrieval_query,
             target_notebook_id=target_notebook_id,
             active_sources=request.active_sources,
+            granularity_decision=granularity_decision,
         )
 
         # Máquina de estados conversacional con inercia epistémica (CAL §3.2 Multi-Turn)
@@ -1526,7 +1649,15 @@ async def chat_query(
         _ACTIVE_TURN_HISTORIES[history_key].clear()
 
     phase_history = _ACTIVE_TURN_HISTORIES.setdefault(history_key, PhaseHistory())
-    llm_backend = _resolve_chat_backend(container)
+
+    # Estimación rápida de tokens de entrada (1 token ≈ 4 caracteres en español)
+    # Si supera los 5.000 tokens, _resolve_chat_backend prioriza Gemini / Cloudflare Direct
+    # para evitar rebotar contra el límite estricto de 7.000 ITPM de la capa gratuita de Groq.
+    ctx_len = len(context_pack.formatted_context) if context_pack and getattr(context_pack, "formatted_context", None) else 0
+    sys_prompt_len = len(getattr(contract, "base_system_prompt", "")) if contract else 10000
+    estimated_input_tokens = (sys_prompt_len + ctx_len + len(prompt_text)) // 4
+
+    llm_backend = _resolve_chat_backend(container, estimated_tokens=estimated_input_tokens)
 
     # Memoria de corto plazo (Fase 2): recuperar buffer de turnos y registrar el turno actual del usuario.
     client_turns = [
@@ -1638,6 +1769,18 @@ async def chat_query(
             ref_prefix = f"{ref_disclaimer}\n\n" if ref_disclaimer else ""
             ref_emitted = False
 
+            # Slice 3: Construir bloque de perfil cognitivo dinámico (<120 tokens)
+            cognitive_block = ""
+            prof_injector = getattr(container, "profile_injector", None)
+            if prof_injector:
+                try:
+                    cognitive_block = prof_injector.build_injection_block(
+                        student_id=student_id,
+                        active_kc=matched_kc_id,
+                    )
+                except Exception as c_err:
+                    logger.debug("Error building cognitive profile block: %s", c_err)
+
             async for event in pipeline.generate_phased_response(
                 user_query=prompt_text,
                 context_pack=context_pack,
@@ -1646,6 +1789,7 @@ async def chat_query(
                 style_directive=style_dir,
                 override_max_tokens=live_max_tokens,
                 recent_turns=conv_turns,
+                cognitive_profile_block=cognitive_block,
             ):
                 payload = {
                     "event_type": event.event_type,

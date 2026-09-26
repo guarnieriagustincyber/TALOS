@@ -824,6 +824,7 @@ class StructuredResponsePipeline:
         style_directive: Optional[str] = None,
         recent_turns: Optional[List[dict]] = None,
         metacognitive_profile: Optional[Dict[str, Any]] = None,
+        cognitive_profile_block: Optional[str] = None,
     ) -> str:
         """Assemble the specialized prompt for this phase with PhaseHistory, intent routing, and BKT adaptation."""
         predecessor_context = self.history.format_predecessors_context()
@@ -1002,6 +1003,15 @@ class StructuredResponsePipeline:
         if bkt_directive:
             parts.append(bkt_directive)
 
+        # 2.1 Inyección de Perfil Cognitivo Dinámico (Opción C - Jefe Final)
+        if cognitive_profile_block:
+            parts.append(
+                "=== PERFIL COGNITIVO HISTÓRICO DEL ESTUDIANTE (MEMORIA EPISTÉMICA) ===\n"
+                f"{cognitive_profile_block}\n"
+                "INSTRUCCIÓN: Usá este perfil para evitar repetir explicaciones que ya fallaron, "
+                "adaptar el nivel de andamiaje y desafiar socráticamente sus conceptos erróneos recurrentes."
+            )
+
         # Inyección de directiva de tono pedagógico y andamiaje emocional (Fase 4 v1.1)
         tone_directive = build_pedagogical_tone_directive(
             query=user_query,
@@ -1174,6 +1184,7 @@ class StructuredResponsePipeline:
         override_max_tokens: Optional[int] = None,
         recent_turns: Optional[List[dict]] = None,
         metacognitive_profile: Optional[Dict[str, Any]] = None,
+        cognitive_profile_block: Optional[str] = None,
     ) -> AsyncGenerator[StreamEvent, None]:
         """Generate response for a specific phase with streaming, guards, intent routing, and BKT adaptation.
 
@@ -1252,6 +1263,7 @@ class StructuredResponsePipeline:
             style_directive=style_directive,
             recent_turns=recent_turns,
             metacognitive_profile=metacognitive_profile,
+            cognitive_profile_block=cognitive_profile_block,
         )
 
         yield StreamEvent(

@@ -1,15 +1,46 @@
 """Unified high-level KnowledgeStore facade for Study Engine storage subsystem."""
 
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
+import hashlib
 import json
 import logging
 import os
 import re
+import struct
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ChapterSummary:
+    """Representation of a Level 2 Chapter Summary (Parent-Document in Hierarchical RAG)."""
+
+    id: str  # Format: 'chap_{notebook_id}_{source_id}_{chapter_num}'
+    notebook_id: str
+    source_id: str
+    chapter_number: int
+    title: str
+    page_start: int
+    page_end: int
+    summary_text: str
+    knowledge_components: List[str] = field(default_factory=list)
+    core_invariants: List[str] = field(default_factory=list)
+    token_count: int = 0
+    sha256_hash: str = ""
+    created_at: Optional[str] = None
+    score: Optional[float] = None
+    source_title: Optional[str] = None
+
+    def __post_init__(self):
+        if not self.sha256_hash:
+            canonical = f"{self.notebook_id}:{self.source_id}:{self.chapter_number}:{self.title}:{self.summary_text}"
+            self.sha256_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+        if not self.token_count:
+            self.token_count = len(self.summary_text.split())
 
 from study_engine.contracts.catalog import (
     NotebookConflictError,
@@ -899,6 +930,7 @@ class KnowledgeStore:
         min_sources: int = 3,
         vector_store: Optional[Any] = None,
         embedder: Optional[Any] = None,
+        preferred_chapter_id: Optional[str] = None,
     ) -> List[SearchResult]:
         # Query passed from upstream retrieval chokepoint (C1)
         effective_query = query
@@ -932,8 +964,340 @@ class KnowledgeStore:
         else:
             fused = fts_results
 
+        # Enmienda E-M4: Ponderación/boost si se especificó capítulo padre preferente
+        if preferred_chapter_id:
+            try:
+                with self.engine.transaction() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        "SELECT id FROM chunks WHERE parent_chapter_id = ?;",
+                        (preferred_chapter_id,),
+                    )
+                    pref_chunk_ids = {r[0] for r in cursor.fetchall()}
+
+                for r in fused:
+                    if r.chunk_id in pref_chunk_ids:
+                        r.score += 0.25
+                fused.sort(key=lambda x: x.score, reverse=True)
+            except Exception as ex_pref:
+                logger.debug("Error applying preferred_chapter_id boost: %s", ex_pref)
+
         diverse = self._ensure_source_diversity(fused, min_sources=min_sources)
         return diverse[:limit]
+
+    # ------------------------------------------------------------------
+    # CHAPTER SUMMARIES & HIERARCHICAL RAG (NIVEL 2 - FASE 3)
+    # ------------------------------------------------------------------
+    def add_chapter_summary(
+        self,
+        summary: ChapterSummary,
+        vector: Optional[List[float]] = None,
+    ) -> ChapterSummary:
+        """Atomically insert or replace a chapter summary, updating FTS and chapter_vectors."""
+        if not isinstance(summary, ChapterSummary):
+            raise TypeError(f"Expected ChapterSummary instance, got {type(summary).__name__}")
+
+        if not summary.sha256_hash:
+            canonical = f"{summary.notebook_id}:{summary.source_id}:{summary.chapter_number}:{summary.title}:{summary.summary_text}"
+            summary.sha256_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+        if not summary.token_count:
+            summary.token_count = len(summary.summary_text.split())
+
+        kc_json = json.dumps(summary.knowledge_components)
+        invariants_json = json.dumps(summary.core_invariants)
+
+        with self.engine.transaction() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO chapter_summaries (
+                    id, notebook_id, source_id, chapter_number, title,
+                    page_start, page_end, summary_text, knowledge_components,
+                    core_invariants, token_count, sha256_hash
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    notebook_id=excluded.notebook_id,
+                    source_id=excluded.source_id,
+                    chapter_number=excluded.chapter_number,
+                    title=excluded.title,
+                    page_start=excluded.page_start,
+                    page_end=excluded.page_end,
+                    summary_text=excluded.summary_text,
+                    knowledge_components=excluded.knowledge_components,
+                    core_invariants=excluded.core_invariants,
+                    token_count=excluded.token_count,
+                    sha256_hash=excluded.sha256_hash;
+                """,
+                (
+                    summary.id,
+                    summary.notebook_id,
+                    summary.source_id,
+                    summary.chapter_number,
+                    summary.title,
+                    summary.page_start,
+                    summary.page_end,
+                    summary.summary_text,
+                    kc_json,
+                    invariants_json,
+                    summary.token_count,
+                    summary.sha256_hash,
+                ),
+            )
+
+            emb = vector
+            if emb is None:
+                emb = self._get_embedding(f"{summary.title}\n{summary.summary_text}")
+
+            if emb:
+                packed = struct.pack(f"{len(emb)}f", *emb)
+                cursor.execute(
+                    """
+                    INSERT INTO chapter_vectors (id, notebook_id, dimensions, vector)
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT(id) DO UPDATE SET
+                        notebook_id=excluded.notebook_id,
+                        dimensions=excluded.dimensions,
+                        vector=excluded.vector;
+                    """,
+                    (summary.id, summary.notebook_id, len(emb), packed),
+                )
+
+        return summary
+
+    def get_chapter_summary(self, chapter_id: str) -> Optional[ChapterSummary]:
+        """Retrieve a ChapterSummary by ID."""
+        with self.engine.transaction() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT cs.id, cs.notebook_id, cs.source_id, cs.chapter_number, cs.title,
+                       cs.page_start, cs.page_end, cs.summary_text, cs.knowledge_components,
+                       cs.core_invariants, cs.token_count, cs.sha256_hash, cs.created_at,
+                       s.title as source_title
+                FROM chapter_summaries cs
+                LEFT JOIN sources s ON s.source_id = cs.source_id
+                WHERE cs.id = ?;
+                """,
+                (chapter_id,),
+            )
+            row = cursor.fetchone()
+            if not row:
+                return None
+
+            return ChapterSummary(
+                id=row[0],
+                notebook_id=row[1],
+                source_id=row[2],
+                chapter_number=row[3],
+                title=row[4],
+                page_start=row[5],
+                page_end=row[6],
+                summary_text=row[7],
+                knowledge_components=json.loads(row[8]) if row[8] else [],
+                core_invariants=json.loads(row[9]) if row[9] else [],
+                token_count=row[10],
+                sha256_hash=row[11],
+                created_at=row[12],
+                source_title=row[13] or "",
+            )
+
+    def get_chapter_summaries_by_notebook(self, notebook_id: str) -> List[ChapterSummary]:
+        """Retrieve all ChapterSummaries belonging to a notebook, ordered by chapter_number."""
+        with self.engine.transaction() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT cs.id, cs.notebook_id, cs.source_id, cs.chapter_number, cs.title,
+                       cs.page_start, cs.page_end, cs.summary_text, cs.knowledge_components,
+                       cs.core_invariants, cs.token_count, cs.sha256_hash, cs.created_at,
+                       s.title as source_title
+                FROM chapter_summaries cs
+                LEFT JOIN sources s ON s.source_id = cs.source_id
+                WHERE cs.notebook_id = ?
+                ORDER BY cs.chapter_number ASC, cs.id ASC;
+                """,
+                (notebook_id,),
+            )
+            rows = cursor.fetchall()
+
+        results = []
+        for row in rows:
+            results.append(
+                ChapterSummary(
+                    id=row[0],
+                    notebook_id=row[1],
+                    source_id=row[2],
+                    chapter_number=row[3],
+                    title=row[4],
+                    page_start=row[5],
+                    page_end=row[6],
+                    summary_text=row[7],
+                    knowledge_components=json.loads(row[8]) if row[8] else [],
+                    core_invariants=json.loads(row[9]) if row[9] else [],
+                    token_count=row[10],
+                    sha256_hash=row[11],
+                    created_at=row[12],
+                    source_title=row[13] or "",
+                )
+            )
+        return results
+
+    def link_chunk_to_chapter(self, chunk_id: str, chapter_id: str) -> None:
+        """Associate a leaf chunk with its parent chapter summary."""
+        with self.engine.transaction() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE chunks SET parent_chapter_id = ? WHERE id = ?;",
+                (chapter_id, chunk_id),
+            )
+
+    def compute_notebook_merkle_root(self, notebook_id: str) -> str:
+        """Compute cryptographic Merkle Root of all chapter summaries for cache invalidation (Enmienda E-M5)."""
+        with self.engine.transaction() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT sha256_hash FROM chapter_summaries
+                WHERE notebook_id = ?
+                ORDER BY chapter_number ASC, id ASC;
+                """,
+                (notebook_id,),
+            )
+            rows = cursor.fetchall()
+
+        if not rows:
+            return hashlib.sha256(b"empty").hexdigest()
+
+        hashes: List[bytes] = []
+        for r in rows:
+            h_str = r[0]
+            try:
+                if len(h_str) == 64:
+                    hashes.append(bytes.fromhex(h_str))
+                else:
+                    hashes.append(hashlib.sha256(h_str.encode("utf-8")).digest())
+            except Exception:
+                hashes.append(hashlib.sha256(h_str.encode("utf-8")).digest())
+
+        while len(hashes) > 1:
+            if len(hashes) % 2 == 1:
+                hashes.append(hashes[-1])
+            hashes = [
+                hashlib.sha256(hashes[i] + hashes[i + 1]).digest()
+                for i in range(0, len(hashes), 2)
+            ]
+
+        return hashes[0].hex()
+
+    def search_chapter_summaries(
+        self,
+        query: str,
+        notebook_id: Optional[str] = None,
+        limit: int = 3,
+    ) -> List[ChapterSummary]:
+        """Search chapter summaries using hybrid FTS5 + dense vector ranking."""
+        fts_hits: List[Tuple[str, float]] = []
+        clean_terms = re.findall(r"\w+", query)
+        if clean_terms:
+            fts_query = " OR ".join([f'"{t}"' for t in clean_terms if len(t) > 2])
+            if not fts_query:
+                fts_query = clean_terms[0]
+            with self.engine.transaction() as conn:
+                cursor = conn.cursor()
+                try:
+                    if notebook_id:
+                        cursor.execute(
+                            """
+                            SELECT cs.id, rank
+                            FROM chapter_summaries_fts cs_fts
+                            JOIN chapter_summaries cs ON cs.id = cs_fts.id
+                            WHERE chapter_summaries_fts MATCH ? AND cs.notebook_id = ?
+                            ORDER BY rank ASC
+                            LIMIT ?;
+                            """,
+                            (fts_query, notebook_id, max(limit * 2, 10)),
+                        )
+                    else:
+                        cursor.execute(
+                            """
+                            SELECT cs.id, rank
+                            FROM chapter_summaries_fts cs_fts
+                            JOIN chapter_summaries cs ON cs.id = cs_fts.id
+                            WHERE chapter_summaries_fts MATCH ?
+                            ORDER BY rank ASC
+                            LIMIT ?;
+                            """,
+                            (fts_query, max(limit * 2, 10)),
+                        )
+                    fts_hits = cursor.fetchall()
+                except Exception as ex:
+                    logger.debug("FTS chapter search failed: %s, falling back to LIKE", ex)
+                    like_pat = f"%{clean_terms[0]}%"
+                    if notebook_id:
+                        cursor.execute(
+                            "SELECT id, 1.0 FROM chapter_summaries WHERE (title LIKE ? OR summary_text LIKE ?) AND notebook_id = ? LIMIT ?;",
+                            (like_pat, like_pat, notebook_id, limit),
+                        )
+                    else:
+                        cursor.execute(
+                            "SELECT id, 1.0 FROM chapter_summaries WHERE title LIKE ? OR summary_text LIKE ? LIMIT ?;",
+                            (like_pat, like_pat, limit),
+                        )
+                    fts_hits = cursor.fetchall()
+
+        vector_hits: List[Tuple[str, float]] = []
+        q_emb = self._get_embedding(query)
+        if q_emb:
+            q_vec = np.array(q_emb, dtype=np.float32)
+            q_norm = float(np.linalg.norm(q_vec))
+            if q_norm > 1e-9:
+                with self.engine.transaction() as conn:
+                    cursor = conn.cursor()
+                    if notebook_id:
+                        cursor.execute(
+                            "SELECT id, dimensions, vector FROM chapter_vectors WHERE notebook_id = ?;",
+                            (notebook_id,),
+                        )
+                    else:
+                        cursor.execute("SELECT id, dimensions, vector FROM chapter_vectors;")
+                    rows = cursor.fetchall()
+
+                scores = []
+                for cid, dims, vblob in rows:
+                    try:
+                        v = struct.unpack(f"{dims}f", vblob)
+                        arr = np.array(v, dtype=np.float32)
+                        dot = float(np.dot(q_vec, arr))
+                        norm = float(np.linalg.norm(arr))
+                        sim = dot / (q_norm * norm) if norm > 1e-9 else 0.0
+                        scores.append((cid, sim))
+                    except Exception as e_vec:
+                        logger.debug("Vector unpack error for chapter %s: %s", cid, e_vec)
+                scores.sort(key=lambda x: x[1], reverse=True)
+                vector_hits = scores[: max(limit * 2, 10)]
+
+        rrf_scores: Dict[str, float] = {}
+        for rank_idx, (cid, _) in enumerate(fts_hits):
+            rrf_scores[cid] = rrf_scores.get(cid, 0.0) + (1.0 / (60.0 + rank_idx + 1))
+
+        for rank_idx, (cid, _) in enumerate(vector_hits):
+            rrf_scores[cid] = rrf_scores.get(cid, 0.0) + (1.0 / (60.0 + rank_idx + 1))
+
+        if not rrf_scores:
+            if notebook_id:
+                return self.get_chapter_summaries_by_notebook(notebook_id)[:limit]
+            return []
+
+        sorted_ids = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)
+        results: List[ChapterSummary] = []
+        for cid in sorted_ids[:limit]:
+            summary = self.get_chapter_summary(cid)
+            if summary:
+                summary.score = rrf_scores[cid]
+                results.append(summary)
+
+        return results
 
     # ------------------------------------------------------------------
     # STATS & HEALTH
@@ -957,6 +1321,9 @@ class KnowledgeStore:
             cursor.execute("SELECT COUNT(*) FROM chunks_fts;")
             fts_count = int(cursor.fetchone()[0])
 
+            cursor.execute("SELECT COUNT(*) FROM chapter_summaries;")
+            chap_count = int(cursor.fetchone()[0])
+
         db_size = 0
         if not self.engine._is_memory and isinstance(self.engine.db_path, Path):
             if self.engine.db_path.exists():
@@ -968,6 +1335,7 @@ class KnowledgeStore:
             "documents_count": doc_count,
             "chunks_count": chk_count,
             "fts_chunks_count": fts_count,
+            "chapter_summaries_count": chap_count,
             "schema_version": self.engine.get_schema_version(),
             "db_size_bytes": db_size,
         }

@@ -54,6 +54,7 @@ import ConfigView from "../views/ConfigView";
 import { chatService, QueryAbortedError } from "../../../services/chatService";
 import type { StudySessionSnapshotData } from "./OpeningBriefView";
 import { studySessionService } from "../../../services/studySessionService";
+import { CognitiveProfileDrawer } from "./components/CognitiveProfileDrawer";
 
 import { ChatHeader, TopRail } from "./components/ChatHeader";
 import { ChatSidebar, CurriculumRail } from "./components/ChatSidebar";
@@ -76,6 +77,32 @@ const MONO_STYLES = `
     --k-text-4: #464646;
     --k-line: rgba(255,255,255,.08);
     --k-line-strong: rgba(255,255,255,.14);
+  }
+
+  /* Scrollbar universal para toda la app (Firefox + Webkit) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.32);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  *::-webkit-scrollbar-corner {
+    background: transparent;
   }
 
   .k-scroll {
@@ -397,6 +424,7 @@ export const ChatWorkspace: React.FC = () => {
   const [fontScale, setFontScale] = useState<"standard" | "comfort" | "large">("comfort");
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
   const [isStudySliceOpen, setIsStudySliceOpen] = useState(false);
+  const [isCognitiveDrawerOpen, setIsCognitiveDrawerOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -1076,6 +1104,7 @@ export const ChatWorkspace: React.FC = () => {
             onToggleP1={() => setIsP1Open((v) => !v)}
             onToggleP3={() => setIsP3Open((v) => !v)}
             onOpenStudySlice={() => setIsStudySliceOpen(true)}
+            onOpenCognitiveProfile={() => setIsCognitiveDrawerOpen(true)}
           />
         )}
 
@@ -2030,6 +2059,12 @@ export const ChatWorkspace: React.FC = () => {
           isOpen={isStudySliceOpen}
           onClose={() => setIsStudySliceOpen(false)}
           initialNotebookId={activeEntity.id}
+        />
+
+        {/* DRAWER PERFIL COGNITIVO */}
+        <CognitiveProfileDrawer
+          isOpen={isCognitiveDrawerOpen}
+          onClose={() => setIsCognitiveDrawerOpen(false)}
         />
 
       </div>
