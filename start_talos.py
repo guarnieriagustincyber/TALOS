@@ -13,7 +13,6 @@ import urllib.request
 import webbrowser
 from pathlib import Path
 
-# Configuración
 BACKEND_PORT = 8000
 FRONTEND_PORT = 5173
 ROOT_DIR = Path(__file__).parent.resolve()
@@ -21,13 +20,11 @@ BACKEND_DIR = ROOT_DIR
 FRONTEND_DIR = ROOT_DIR / "kasiu-lab" / "ui"
 VENV_PYTHON = ROOT_DIR / ".venv" / "bin" / "python"
 
-# Si no existe el venv, usar el python del sistema
 if not VENV_PYTHON.exists():
     VENV_PYTHON = Path(sys.executable)
 
 
 def is_port_in_use(port: int, host: str = "127.0.0.1") -> bool:
-    """Verifica si un puerto está ocupado (timeout ultrarrápido de 100ms)."""
     for h in (host, "localhost", "127.0.0.1"):
         try:
             with socket.create_connection((h, port), timeout=0.15):
@@ -37,12 +34,38 @@ def is_port_in_use(port: int, host: str = "127.0.0.1") -> bool:
     return False
 
 
+def kill_orphans() -> None:
+    """Mata procesos huérfanas de ejecuciones previas (zombies de uvicorn/embeddings)."""
+    try:
+        # Matar cualquier proceso uvicorn que apunte a nuestro app
+        subprocess.run(
+            ["pkill", "-9", "-f", "study_engine.web.app"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        subprocess.run(
+            ["pkill", "-9", "-f", "uvicorn src.study_engine"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        # Esperar a que los sockets se liberen
+        for _ in range(20):
+            if not is_port_in_use(BACKEND_PORT) and not is_port_in_use(FRONTEND_PORT):
+                break
+            time.sleep(0.05)
+    except Exception:
+        pass
+
+
 def free_port(port: int) -> None:
-    """Libera el puerto solo si está ocupado."""
     if not is_port_in_use(port):
         return
     try:
-        subprocess.run(["fuser", "-k", f"{port}/tcp"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(
+            ["fuser", "-k", f"{port}/tcp"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
         for _ in range(10):
             time.sleep(0.05)
             if not is_port_in_use(port):
@@ -56,7 +79,6 @@ os.environ["no_proxy"] = "127.0.0.1,localhost,0.0.0.0"
 
 
 def is_backend_healthy() -> bool:
-    """Verifica si el backend responde con HTTP 200 a /api/health."""
     try:
         proxy_handler = urllib.request.ProxyHandler({})
         opener = urllib.request.build_opener(proxy_handler)
@@ -68,7 +90,7 @@ def is_backend_healthy() -> bool:
 
 
 def spawn_backend() -> subprocess.Popen:
-    """Spawnea el backend FastAPI en segundo plano."""
+    kill_orphans()  # ← CLAVE: limpiar zombies antes de spawner
     free_port(BACKEND_PORT)
 
     dev_mode = os.environ.get("TALOS_DEV_RELOAD", "0").lower() in ("1", "true", "yes")
@@ -81,6 +103,10 @@ def spawn_backend() -> subprocess.Popen:
         "0.0.0.0",
         "--port",
         str(BACKEND_PORT),
+        "--workers",
+        "1",  # ← CLAVE: explícito para evitar surprises
+        "--timeout-keep-alive",
+        "5",
     ]
     if dev_mode:
         backend_cmd.append("--reload")
@@ -90,6 +116,7 @@ def spawn_backend() -> subprocess.Popen:
     existing_pythonpath = env.get("PYTHONPATH", "")
     env["PYTHONPATH"] = f"{ROOT_DIR}:{ROOT_DIR / 'src'}:{existing_pythonpath}"
 
+    # start_new_session=True crea un process group propio para matar limpiamente
     return subprocess.Popen(
         backend_cmd,
         cwd=str(BACKEND_DIR),
@@ -97,11 +124,11 @@ def spawn_backend() -> subprocess.Popen:
         stderr=subprocess.STDOUT,
         text=True,
         env=env,
+        start_new_session=True,
     )
 
 
 def spawn_frontend() -> subprocess.Popen:
-    """Spawnea el frontend de Vite en segundo plano."""
     free_port(FRONTEND_PORT)
 
     css_file = FRONTEND_DIR / "src" / "styles" / "tactical.css"
@@ -122,11 +149,20 @@ def spawn_frontend() -> subprocess.Popen:
         stdout=frontend_log,
         stderr=subprocess.STDOUT,
         text=True,
+        start_new_session=True,
     )
 
 
+from typing import Optional  # ← agregar este import arriba del archivo
+
+
+def kill_process_group(proc: Optional[subprocess.Popen]) -> None:
+    """Mata el proceso Y todos sus hijos (incluyendo el modelo de embeddings)."""
+    if proc is None or proc.poll() is not None:
+        return
+
+
 def open_browser() -> None:
-    """Abre el navegador con la URL de TALOS de forma asíncrona."""
     url = f"http://localhost:{FRONTEND_PORT}"
     print(f"🌐 Abriendo TALOS en {url}...")
     try:
@@ -154,10 +190,10 @@ def main() -> None:
 
     if restart_requested:
         print("🔄 Reinicio forzado solicitado (--restart). Liberando puertos...")
+        kill_orphans()
         free_port(BACKEND_PORT)
         free_port(FRONTEND_PORT)
 
-    # Verificación instantánea si ya está corriendo
     backend_running = False if restart_requested else is_backend_healthy()
     frontend_running = False if restart_requested else is_port_in_use(FRONTEND_PORT)
 
@@ -174,7 +210,6 @@ def main() -> None:
         print(f"❌ Error: No se encontró {FRONTEND_DIR}")
         sys.exit(1)
 
-    # Iniciar procesos concurrentemente (en paralelo)
     backend_process = None
     frontend_process = None
 
@@ -190,7 +225,6 @@ def main() -> None:
     else:
         print("🎨 TALOS Frontend ya activo.")
 
-    # Espera concurrente con sondeo de 100ms
     timeout = 25.0
     start_time = time.time()
     b_ready = backend_running
@@ -199,14 +233,12 @@ def main() -> None:
     while time.time() - start_time < timeout:
         if backend_process and backend_process.poll() is not None:
             print("❌ Error: El backend no pudo iniciar (revisar backend.log)")
-            if frontend_process:
-                frontend_process.terminate()
+            kill_process_group(frontend_process)
             sys.exit(1)
 
         if frontend_process and frontend_process.poll() is not None:
             print("❌ Error: El frontend no pudo iniciar (revisar frontend.log)")
-            if backend_process:
-                backend_process.terminate()
+            kill_process_group(backend_process)
             sys.exit(1)
 
         if not b_ready:
@@ -221,10 +253,8 @@ def main() -> None:
 
     if not (b_ready and f_ready):
         print("❌ Timeout esperando inicio de servicios.")
-        if backend_process:
-            backend_process.terminate()
-        if frontend_process:
-            frontend_process.terminate()
+        kill_process_group(backend_process)
+        kill_process_group(frontend_process)
         sys.exit(1)
 
     print("✅ Servicios listos en paralelo!")
@@ -238,16 +268,9 @@ def main() -> None:
     print("\nPresioná Ctrl+C para detener todo.\n")
 
     def handle_shutdown(signum, frame):
-        print("\n\n🛑 Deteniendo TALOS...")
-        if backend_process:
-            backend_process.terminate()
-        if frontend_process:
-            frontend_process.terminate()
-        if backend_process:
-            backend_process.wait()
-        if frontend_process:
-            frontend_process.wait()
-        print("👋 TALOS detenido. Hasta pronto!")
+        print("\n\n🛑 Deteniendo TALOS (incluyendo hijos del modelo de embeddings)...")
+
+        print("👋 TALOS detenido limpiamente. Hasta pronto!")
         sys.exit(0)
 
     signal.signal(signal.SIGINT, handle_shutdown)
