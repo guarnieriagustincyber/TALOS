@@ -1334,8 +1334,12 @@ class StructuredResponsePipeline:
                 )
 
             # Perform S4.4 Forensic Audit if auditor is injected and phase is conceptual
-            audit_verdict = "APPROVED"
-            if self.auditor is not None and not guard_triggered:
+            audit_verdict = "NOT_AUDITED"
+            if guard_triggered:
+                audit_verdict = "FLAGGED_BY_GUARD"
+            elif self.auditor is None:
+                audit_verdict = "AUDITOR_UNAVAILABLE"
+            else:
                 raw_ctx_chunks = (
                     getattr(context_pack, "chunks", None)
                     or getattr(context_pack, "packaged_units", None)
@@ -1356,8 +1360,15 @@ class StructuredResponsePipeline:
                         provider_id=getattr(self.llm, "name", "talos-llm"),
                         prompt_hash=p_hash,
                     )
-                    res_v = getattr(audit_res, "overall_verdict", getattr(audit_res, "verdict", "APPROVED"))
-                    audit_verdict = getattr(res_v, "value", str(res_v))
+                    res_v = getattr(
+                        audit_res,
+                        "overall_verdict",
+                        getattr(audit_res, "verdict", None),
+                    )
+                    if res_v is None:
+                        audit_verdict = "AUDIT_RESULT_MISSING"
+                    else:
+                        audit_verdict = getattr(res_v, "value", str(res_v))
                 except (TimeoutError, ConnectionError, asyncio.TimeoutError):
                     # Enmienda E4: Errores transitorios de red/timeout
                     logger.warning("Timeout o error de conexión transitorio en auditoría forense.")
