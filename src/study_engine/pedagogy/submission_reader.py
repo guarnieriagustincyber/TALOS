@@ -21,6 +21,7 @@ class StudentSubmission:
     sections: Dict[str, str] = field(default_factory=dict)
     code_blocks: Dict[str, List[str]] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    raw_content: str = field(default="")
 
     def get_section(self, name: str, default: str = "") -> str:
         """Retrieve cleaned content of a section by name (case and whitespace-insensitive)."""
@@ -136,6 +137,7 @@ class SubmissionReader:
             sections=sections,
             code_blocks=code_blocks,
             metadata=metadata,
+            raw_content=raw_content,
         )
 
     @staticmethod
