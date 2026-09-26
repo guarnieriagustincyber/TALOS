@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from study_engine.config import CANONICAL_STUDENT_ID
+from study_engine.student.contracts import classify_readiness
 from study_engine.web.dependencies import AppContainer, get_container
 
 router = APIRouter(prefix="/api/student", tags=["Student"])
@@ -102,7 +103,7 @@ def assess_topic_readiness(
     raw = report.model_dump()
     prereqs = []
     for ass in report.assessments:
-        status_str = "DOMINADO" if ass.p_L >= 0.70 else ("NOCIÓN" if ass.p_L >= 0.35 else "AUSENTE")
+        status_str = classify_readiness(ass.p_L)
         prereqs.append({
             "prereq_id": ass.kc_id,
             "p_L": ass.p_L,
@@ -191,5 +192,4 @@ def get_metacognitive_profile(
     res = dict(profile)
     res["scaffolding_directive_preview"] = preview
     return res
-
 

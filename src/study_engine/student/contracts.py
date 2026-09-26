@@ -73,7 +73,7 @@ class PrerequisiteAssessment(BaseModel):
     """Assessment of a single prerequisite topic."""
 
     kc_id: str = Field(..., min_length=1)
-    status: str = Field(..., description="DOMINADO | NOCIÓN | AUSENTE")
+    status: str = Field(..., description="DOMINADO | NOCIÓN | EN_PROCESO | AUSENTE")
     p_L: Optional[float] = Field(default=None, ge=0.0, le=1.0)
     confidence: str = Field(default="low", description="high | low")
 
@@ -137,3 +137,34 @@ class AnchorState(BaseModel):
         default_factory=lambda: datetime.now(timezone.utc),
         description="Timestamp of last SM-2 review update",
     )
+
+
+READINESS_DOMINADO = 0.70
+READINESS_NOCION = 0.35
+BLOCKING_STATES = frozenset({"AUSENTE", "EN_PROCESO"})
+
+
+def classify_readiness(p_L: Optional[float]) -> str:
+    """Estado descriptivo de dominio. Única fuente de verdad de umbrales."""
+    if p_L is None:
+        return "AUSENTE"
+    if p_L >= READINESS_DOMINADO:
+        return "DOMINADO"
+    if p_L >= READINESS_NOCION:
+        return "NOCIÓN"
+    return "EN_PROCESO"
+
+
+def is_blocking_for_advance(estado: str) -> bool:
+    """¿Este prerrequisito impide avanzar? AUSENTE y EN_PROCESO bloquean."""
+    return estado in BLOCKING_STATES
+
+
+def remediation_kind(estado: str) -> Optional[str]:
+    if estado == "AUSENTE":
+        return "SCAFFOLD_FROM_ZERO"
+    if estado == "EN_PROCESO":
+        return "TARGETED_REMEDIATION"
+    if estado == "NOCIÓN":
+        return "LIGHT_REVIEW"
+    return None
