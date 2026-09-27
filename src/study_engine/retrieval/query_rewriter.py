@@ -237,7 +237,7 @@ class QueryRewriter:
                     user_prompts.append(content)
             elif t.get("role") == "assistant":
                 tech_words = re.findall(
-                    r"\b(?:swap|punteros?|memoria|stack|heap|direcci[oó]n|funci[oó]n|registros?|rdi|rsi|rsp|rbp|valor|referencia)\b",
+                    r"\b(?:swap|punteros?|memoria|stack|heap|direcci[oó]n|funci[oó]n|registros?|rdi|rsi|rsp|rbp|valor|referencia|sem[aá]foros?|mutex|hilos?|threads?|procesos?|tuber[ií]as?|pipes?|sockets?|inodos?|inodes?|mmu|paginaci[oó]n|segmentos?|deadlocks?|interbloqueos?|schedulers?|planificadores?|despacho|dispatch|contexto|pcb|fork|exec|wait|signal|sistemas?|systems?)\b",
                     content,
                     re.IGNORECASE,
                 )
@@ -298,5 +298,4 @@ def should_rewrite_contextual(query: str, recent_turns: Optional[List[Dict[str, 
     if len(words) < 12 and (has_deictic_markers(query) or len(words) <= 7):
         return True
     return False
-
 
