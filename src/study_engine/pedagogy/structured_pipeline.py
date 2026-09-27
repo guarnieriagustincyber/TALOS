@@ -588,6 +588,7 @@ def build_mode_specific_instruction(
     context_pack: Optional[Any],
     notebook_id: str,
     user_query: Optional[str] = None,
+    context_mode: Optional[str] = None,
 ) -> str:
     """Construye la directiva pedagógica específica según el modo de respuesta seleccionado (Fix S4.1)."""
     mode_config = RESPONSE_MODES.get(mode, RESPONSE_MODES["explain_concept"])
@@ -700,6 +701,15 @@ def build_mode_specific_instruction(
             "### 7. Pregunta Socrática de Verificación Guiada\n"
             "- Cerrá con una pregunta accesible para que el estudiante verifique que consolidó el concepto:\n"
             "  * 'Si una herramienta de red envía un paquete a 012.0.0.1, y el sistema operativo interpreta los octetos con cero inicial en base 8: ¿a qué dirección IP en formato decimal se conectará en realidad el kernel?'\n"
+        )
+
+    if context_mode == "basic" and mode == "explain_concept":
+        return (
+            "=== DIRECTIVA DE RESPUESTA INTRODUCTORIA ===\n"
+            "- Explicá con analogías cotidianas simples y ejemplos concretos sostenidos.\n"
+            "- Usá pseudocódigo legible con mensajes cotidianos (ej: ESCRIBIR 'Error: entrada inválida').\n"
+            "- Evitá diagramas de hardware y detalles de bajo nivel salvo pedido explícito del estudiante.\n"
+            "- Cerrá con una pregunta de verificación básica: pedí un ejemplo cotidiano con entrada, proceso y salida.\n"
         )
 
     if layers == 3:
@@ -825,6 +835,7 @@ class StructuredResponsePipeline:
         recent_turns: Optional[List[dict]] = None,
         metacognitive_profile: Optional[Dict[str, Any]] = None,
         cognitive_profile_block: Optional[str] = None,
+        context_mode: Optional[str] = None,
     ) -> str:
         """Assemble the specialized prompt for this phase with PhaseHistory, intent routing, and BKT adaptation."""
         predecessor_context = self.history.format_predecessors_context()
@@ -959,6 +970,7 @@ class StructuredResponsePipeline:
                 context_pack=context_pack,
                 notebook_id=notebook_id,
                 user_query=user_query,
+                context_mode=context_mode,
             )
             if mode_instruction:
                 parts.append(mode_instruction)
@@ -1185,6 +1197,7 @@ class StructuredResponsePipeline:
         recent_turns: Optional[List[dict]] = None,
         metacognitive_profile: Optional[Dict[str, Any]] = None,
         cognitive_profile_block: Optional[str] = None,
+        context_mode: Optional[str] = None,
     ) -> AsyncGenerator[StreamEvent, None]:
         """Generate response for a specific phase with streaming, guards, intent routing, and BKT adaptation.
 
@@ -1264,6 +1277,7 @@ class StructuredResponsePipeline:
             recent_turns=recent_turns,
             metacognitive_profile=metacognitive_profile,
             cognitive_profile_block=cognitive_profile_block,
+            context_mode=context_mode,
         )
 
         yield StreamEvent(
