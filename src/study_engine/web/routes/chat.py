@@ -1102,6 +1102,41 @@ def _match_kc_id(kcs_list: List[Dict[str, Any]], prompt_text: str) -> Optional[s
     return best_kc
 
 
+def _match_context_kc_id(
+    kcs_list: List[Dict[str, Any]],
+    prompt_text: str,
+    retrieval_query: str,
+    *,
+    is_followup: bool,
+    context_pack: Any = None,
+) -> Optional[str]:
+    matched_kc_id = _match_kc_id(kcs_list, prompt_text) if kcs_list else None
+    if matched_kc_id is None and is_followup and kcs_list:
+        matched_kc_id = _match_kc_id(kcs_list, retrieval_query)
+        if matched_kc_id:
+            logger.debug("KC matched via retrieval_query fallback for deictic query")
+    if not matched_kc_id and context_pack and getattr(context_pack, "resolved_item", None):
+        resolved_item = context_pack.resolved_item
+        matched_kc_id = _match_kc_id(
+            kcs_list,
+            getattr(resolved_item, "statement_text", ""),
+        )
+    return matched_kc_id
+
+
+def _build_cognitive_profile_block(prof_injector: Any, active_kc: Optional[str]) -> str:
+    if not prof_injector:
+        return ""
+    try:
+        return prof_injector.build_injection_block(
+            student_id=CANONICAL_STUDENT_ID,
+            active_kc=active_kc,
+        )
+    except Exception as c_err:
+        logger.warning("Error building cognitive profile block: %s", c_err)
+        return ""
+
+
 # Marcador de scope global (COMMIT 2 fix/scope): una query técnica emitida con
 # scope de carpeta (roadmap, Programación) no se desvía al usuario al cuaderno
 # "correcto"; el roadmap es acceso global por defecto y el retrieval corre
@@ -1422,10 +1457,13 @@ def _prepare_chat_context(
     if (is_followup or conv_state in (ConversationState.AMBIGUOUS_FOLLOWUP, ConversationState.ACTIVE_TECHNICAL_THREAD)) and style_result.style == ConversationStyle.CASUAL_CHAT:
         style_result = ConversationStyleRouter.detect_style("explicación formal y técnica detallada")
 
-    matched_kc_id = _match_kc_id(kcs_list, prompt_text) if kcs_list else None
-    if not matched_kc_id and context_pack and getattr(context_pack, "resolved_item", None):
-        res_item = context_pack.resolved_item
-        matched_kc_id = _match_kc_id(kcs_list, getattr(res_item, "statement_text", ""))
+    matched_kc_id = _match_context_kc_id(
+        kcs_list,
+        prompt_text,
+        retrieval_query,
+        is_followup=is_followup,
+        context_pack=context_pack,
+    )
 
     from study_engine.pedagogy.student_context import (
         determine_pedagogical_context_mode,
@@ -1782,16 +1820,8 @@ async def chat_query(
             ref_emitted = False
 
             # Slice 3: Construir bloque de perfil cognitivo dinámico (<120 tokens)
-            cognitive_block = ""
             prof_injector = getattr(container, "profile_injector", None)
-            if prof_injector:
-                try:
-                    cognitive_block = prof_injector.build_injection_block(
-                        student_id=student_id,
-                        active_kc=matched_kc_id,
-                    )
-                except Exception as c_err:
-                    logger.debug("Error building cognitive profile block: %s", c_err)
+            cognitive_block = _build_cognitive_profile_block(prof_injector, matched_kc_id)
 
             async for event in pipeline.generate_phased_response(
                 user_query=prompt_text,
