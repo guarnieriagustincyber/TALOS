@@ -1790,6 +1790,7 @@ async def chat_query(
                 override_max_tokens=live_max_tokens,
                 recent_turns=conv_turns,
                 cognitive_profile_block=cognitive_block,
+                context_mode=context_mode,
             ):
                 payload = {
                     "event_type": event.event_type,
