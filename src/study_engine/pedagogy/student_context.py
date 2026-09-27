@@ -115,7 +115,7 @@ def determine_pedagogical_context_mode(
     """Determina el modo de contexto pedagógico según maestría BKT y estado de prerrequisitos (Fix S4.2).
 
     Reglas:
-    1. Si algún prerrequisito tiene P(L) < 0.50 -> 'prerequisite_reinforcement'
+    1. Si algún prerrequisito evaluado tiene attempts > 0 y P(L) < 0.50 -> 'prerequisite_reinforcement'
     2. Si P(L) > 0.80 -> 'advanced' (matices, edge cases, optimización a bajo nivel)
     3. Si P(L) < 0.30 -> 'basic' (analogías cotidianas, desglose paso a paso)
     4. En otro caso (0.30 <= P(L) <= 0.80) -> 'intermediate' (consolidación estándar)
@@ -151,9 +151,11 @@ def determine_pedagogical_context_mode(
             try:
                 p_state = bkt_tracker.get_state(prereq)
                 p_val = float(getattr(p_state, "p_L", 0.1))
+                prereq_attempts = int(getattr(p_state, "attempts", 0))
             except Exception:
                 p_val = 0.1
-            if p_val < 0.50:
+                prereq_attempts = 0
+            if prereq_attempts > 0 and p_val < 0.50:
                 unmet_prereqs.append((prereq, p_val))
 
     # 3. Evaluar P(L) y attempts del KC objetivo
@@ -295,5 +297,3 @@ def get_scaffolding_directive(
         )
 
     return "\n".join(lines)
-
-

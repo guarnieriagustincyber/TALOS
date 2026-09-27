@@ -25,7 +25,7 @@ def test_cold_start_returns_basic():
 def test_prereq_priority_over_cold_start():
     tracker = _tracker({
         "target": SimpleNamespace(attempts=0, p_L=0.1),
-        "prereq": SimpleNamespace(attempts=0, p_L=0.1),
+        "prereq": SimpleNamespace(attempts=2, p_L=0.1),
     })
     catalog = {
         "nb": {
