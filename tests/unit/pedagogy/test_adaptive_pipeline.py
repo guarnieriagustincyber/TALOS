@@ -206,7 +206,7 @@ def test_bkt_influences_pedagogical_context_mode():
     dir_inter = build_bkt_adaptation_directive(mode_inter, meta_inter)
     assert "NIVEL INTERMEDIO / CONSOLIDACIÓN" in dir_inter
 
-    # Case 4: Commit 4 - KC no evaluado (attempts == 0) asigna intermediate (neutral)
+    # Case 4: KC identificado sin historial usa el cold-start pedagógico configurado.
     tracker.get_state.side_effect = lambda kc: BKTState(
         kc_id=kc,
         p_L=0.10,
@@ -218,9 +218,9 @@ def test_bkt_influences_pedagogical_context_mode():
         kc_catalog=catalog,
         notebook_id="fase0-soc",
     )
-    assert mode_cold == "intermediate"
+    assert mode_cold == "basic"
     assert meta_cold["attempts"] == 0
-    assert meta_cold["cold_start_mode"] == "intermediate"
+    assert meta_cold["cold_start_mode"] == "basic"
 
 
 def test_prerequisite_reinforcement_triggers_when_unmet():
