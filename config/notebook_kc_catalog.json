@@ -382,6 +382,7 @@
         "kc_id": "so2_gestion_procesos_pcb",
         "title": "Unidad 1: Gestión de procesos e hilos: PCB, estados y cambio de contexto",
         "display_name": "Unidad 1: Procesos, hilos, PCB y cambio de contexto",
+        "aliases": ["sistemas operativos", "gestión de procesos", "procesos", "unidad 1"],
         "unit": 1,
         "prerequisites": [],
         "contextual_status": "Programa Oficial (Cátedra Drapañoti)",
