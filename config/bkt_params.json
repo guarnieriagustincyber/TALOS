@@ -6,7 +6,7 @@
     "p_G": 0.25,
     "p_S": 0.1,
     "strict_no_learn_on_incorrect": true,
-    "cold_start_mode": "intermediate"
+    "cold_start_mode": "basic"
   },
   "notes": [
     "p_T: aprendizaje por paso (solo se aplica si la respuesta es correcta en modo estricto).",

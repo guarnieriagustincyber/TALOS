@@ -1081,8 +1081,22 @@ def _match_kc_id(kcs_list: List[Dict[str, Any]], prompt_text: str) -> Optional[s
         kid = str(kc.get("kc_id") or "")
         if kid and kid.lower() in q:
             return kid
-        hit_terms = [t for t in _kc_search_terms(kc) if re.search(rf"\b{re.escape(t)}\b", q)]
-        hits = len(hit_terms)
+        aliases = {
+            str(alias).strip().lower()
+            for alias in (kc.get("aliases") or [])
+            if isinstance(alias, str) and alias.strip()
+        }
+        matched_aliases = {alias for alias in aliases if alias in q}
+        alias_tokens = {
+            token
+            for alias in matched_aliases
+            for token in re.findall(r"\w+", alias)
+        }
+        hit_terms = [
+            term for term in _kc_search_terms(kc)
+            if term not in alias_tokens and re.search(rf"\b{re.escape(term)}\b", q)
+        ]
+        hits = len(hit_terms) + len(matched_aliases)
         if hits >= 2 and hits > best_hits:
             best_kc, best_hits = kid, hits
     return best_kc
@@ -1424,10 +1438,8 @@ def _prepare_chat_context(
         notebook_id=None if target_notebook_id == GLOBAL_SCOPE_ID else target_notebook_id,
     )
 
-    # Cold-Start C4: Si el item resuelto mapea a un KC curricular donde el estudiante tiene attempts == 0
+    # Cold-Start C4: conservar la guía acelerada del ejercicio con el modo asignado por BKT.
     if context_pack and getattr(context_pack, "resolved_item", None) and bkt_meta.get("attempts", 0) == 0:
-        context_mode = "intermediate"
-        bkt_meta["context_mode"] = "intermediate"
         bkt_directive = build_bkt_adaptation_directive(context_mode, bkt_meta)
         accelerated_proposal = (
             "=== PROPUESTA PEDAGÓGICA ACELERADA (COLD-START C4) ===\n"
