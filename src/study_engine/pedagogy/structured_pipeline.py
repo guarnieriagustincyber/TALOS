@@ -8,6 +8,7 @@ and robust cancellation (abort) handling.
 import asyncio
 from datetime import datetime, timezone
 import logging
+import os
 import re
 from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Sequence
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
@@ -1101,12 +1102,12 @@ class StructuredResponsePipeline:
         context: Optional[str] = None,
     ) -> AsyncGenerator[str, None]:
         """Uniform token streaming adapter across backends."""
-        # Dump forense del prompt final enviado al LLM (para verificación e inspección E2E)
-        try:
-            with open("debug_final_prompt.txt", "w", encoding="utf-8") as f:
-                f.write(f"=== SYSTEM PROMPT ===\n{system_prompt}\n\n=== USER PROMPT ===\n{user_prompt}\n\n=== MAX TOKENS ===\n{max_tokens}\n")
-        except Exception:
-            pass
+        if os.getenv("TALOS_DEBUG_PROMPTS", "false").lower() == "true":
+            try:
+                with open("debug_final_prompt.txt", "w", encoding="utf-8") as f:
+                    f.write(f"=== SYSTEM PROMPT ===\n{system_prompt}\n\n=== USER PROMPT ===\n{user_prompt}\n\n=== MAX TOKENS ===\n{max_tokens}\n")
+            except Exception:
+                pass
 
         # 1. Native async streaming support if present
         if hasattr(self.llm, "stream") and callable(getattr(self.llm, "stream")):

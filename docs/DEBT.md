@@ -36,3 +36,7 @@ Los cuatro casos que pasaron individualmente no importan ni usan directamente la
 - Revisar si `health.py` debe publicar resultados recientes en lugar de un contador fijo.
 
 **Prioridad:** baja; no bloquea la funcionalidad actual.
+
+## Decisión de diseño: gate de relevancia
+
+El gate de relevancia de `RetrievalService` permite el paso de candidatos densos con score bajo siempre que exista al menos un candidato con soporte léxico en el mismo batch. Esto prioriza el recall (no perder contexto potencialmente útil) sobre la precisión estricta, asumiendo que la síntesis filtra ruido. El comportamiento está cubierto por `tests/unit/retrieval/test_relevance_gate_policy.py`; cambiarlo requiere revisar esa política y medir el impacto en recall y precisión.
