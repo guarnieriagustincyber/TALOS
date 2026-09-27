@@ -150,6 +150,46 @@ def test_build_phase_prompt_adapts_to_response_modes():
     assert "Extensión pedagógica objetivo: hasta 1500 palabras" in prompt_misconception
 
 
+def test_basic_explain_concept_uses_introductory_output_rules():
+    contract = PedagogicalContract(
+        contract_id="contract_basic_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    phase = contract.get_phase("conceptual")
+
+    basic_prompt = pipeline.build_phase_prompt(
+        phase=phase,
+        user_query="¿Qué es un proceso en sistemas operativos?",
+        pedagogical_mode="explain_concept",
+        context_mode="basic",
+    )
+    assert "FORMATO INTRODUCTORIO DE RESPUESTA" in basic_prompt
+    assert "Máximo 300 palabras" in basic_prompt
+    assert "pregunta de comprensión básica" in basic_prompt
+    assert "Nivel máquina" not in basic_prompt
+    assert "diagramas limpios" not in basic_prompt
+
+    intermediate_prompt = pipeline.build_phase_prompt(
+        phase=phase,
+        user_query="¿Qué es un proceso en sistemas operativos?",
+        pedagogical_mode="explain_concept",
+        context_mode="intermediate",
+    )
+    assert "Nivel máquina" in intermediate_prompt
+
+
 def test_bkt_influences_pedagogical_context_mode():
     """Verify that BKT mastery levels dictate basic, intermediate, and advanced modes (Fix S4.2)."""
     tracker = MagicMock()

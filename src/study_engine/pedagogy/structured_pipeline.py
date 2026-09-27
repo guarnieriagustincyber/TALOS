@@ -1076,6 +1076,15 @@ class StructuredResponsePipeline:
                 f"{socratic_rule}"
             )
 
+        if context_mode == "basic" and active_mode == "explain_concept" and cmd is None and not is_continuation:
+            rules_block = (
+                "FORMATO INTRODUCTORIO DE RESPUESTA:\n"
+                "- Estructura simple: analogía cotidiana, explicación breve y pregunta de verificación.\n"
+                "- Máximo 300 palabras. No incluyas diagramas ni código salvo que el estudiante los solicite explícitamente.\n"
+                "- Evitá tecnicismos y detalles de bajo nivel; definí cualquier término técnico necesario.\n"
+                "- Cerrá con una pregunta de comprensión básica."
+            )
+
         parts.append(
             f"=== CONSULTA DEL ESTUDIANTE ===\n{user_query}\n\n"
             f"=== INSTRUCCIÓN OBLIGATORIA PARA ESTA FASE ({phase.phase_id.upper()}) ===\n"

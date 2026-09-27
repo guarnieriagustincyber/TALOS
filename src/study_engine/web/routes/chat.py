@@ -1760,9 +1760,9 @@ async def chat_query(
             from study_engine.pedagogy.structured_pipeline import classify_pedagogical_intent
             conv_intent = classify_pedagogical_intent(prompt_text)
 
-            # Permitir respuesta exhaustiva con diagramas y patrones sin racionamiento de tokens (techo canónico de 3500 tokens)
+            # Mantener el presupuesto introductorio de basic acotado y el techo completo para los demás modos.
             if not request.requested_phase or request.requested_phase == "conceptual":
-                live_max_tokens = 3500
+                live_max_tokens = 800 if context_mode == "basic" else 3500
             else:
                 live_max_tokens = None
             accumulated_response_text = ""
