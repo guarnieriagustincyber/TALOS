@@ -136,7 +136,7 @@ def test_chat_direct_reference_and_anti_leakage(test_container):
     complete_events = [e for e in events if e.get("event_type") == "phase_complete"]
     assert len(complete_events) >= 1
     bkt = complete_events[0]["payload"].get("bkt_context") or {}
-    assert bkt.get("context_mode") == "intermediate"
+    assert bkt.get("context_mode") == "prerequisite_reinforcement"
 
 
 def test_chat_fuzzy_needs_review_emits_disclaimer(test_container, monkeypatch):
