@@ -162,11 +162,10 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
         q,
     ))
 
-    # 1. Mermaid / Diagramas de flujo (Obligatorio para flujos lógicos, algoritmos y depuración)
-    if (
-        re.search(r"\b(?:mermaid|diagrama\s+en\s+mermaid|gr[aá]fico\s+en\s+mermaid|diagrama\s+de\s+flujo)\b", q)
-        or shortcut_match
-        or any(w in q for w in ("invertir", "swap", "algoritmo", "funci", "código", "codigo", "crashea", "falla", "segfault", "puntero", "memoria"))
+    # 1. Mermaid / Diagramas de flujo: solo cuando el estudiante los solicita.
+    if re.search(
+        r"\b(?:mermaid|diagrama\s+en\s+mermaid|gr[aá]fico\s+en\s+mermaid|diagrama\s+de\s+flujo)\b",
+        q,
     ):
         directives["mermaid"] = (
             "- DIAGRAMA DE FLUJO EN MERMAID (OBLIGATORIO):\n"
