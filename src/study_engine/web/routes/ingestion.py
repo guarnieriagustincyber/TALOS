@@ -23,6 +23,7 @@ from study_engine.web.dependencies import AppContainer, get_container
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/ingestion", tags=["Ingestion"])
+MAX_COLAB_VECTOR_UPLOAD_BYTES = 50 * 1024 * 1024
 
 
 class CALSourceItemDto(BaseModel):
@@ -456,15 +457,21 @@ async def upload_colab_vectors(
     """Sube un archivo vectors.jsonl generado en Colab e inserta los vectores en vector_store.db."""
     k_db, v_db = _resolve_db_paths(container)
 
-    fname = file.filename or "vectors.jsonl"
+    fname = Path((file.filename or "vectors.jsonl").replace("\\", "/")).name or "vectors.jsonl"
     if not fname.endswith(".jsonl"):
         raise HTTPException(status_code=400, detail="El archivo debe ser formato .jsonl generado por Colab.")
+
+    content = await file.read(MAX_COLAB_VECTOR_UPLOAD_BYTES + 1)
+    if len(content) > MAX_COLAB_VECTOR_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Archivo demasiado grande. Máximo permitido: {MAX_COLAB_VECTOR_UPLOAD_BYTES // (1024 * 1024)} MB",
+        )
 
     from datetime import datetime, timezone
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     target_path = DEFAULT_COLAB_DIR / f"vectors_manual_{ts}_{fname}"
 
-    content = await file.read()
     target_path.write_bytes(content)
 
     try:
