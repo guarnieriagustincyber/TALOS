@@ -279,7 +279,7 @@ def test_prerequisite_reinforcement_triggers_when_unmet():
         if kc_id == "kc_target":
             return BKTState(kc_id=kc_id, p_L=0.85)
         elif kc_id == "kc_prereq_1":
-            return BKTState(kc_id=kc_id, p_L=0.25)
+            return BKTState(kc_id=kc_id, p_L=0.25, attempts=2)
         elif kc_id == "kc_prereq_2":
             return BKTState(kc_id=kc_id, p_L=0.90)
         return BKTState(kc_id=kc_id, p_L=0.1)

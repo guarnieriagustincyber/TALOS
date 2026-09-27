@@ -23,7 +23,12 @@ def test_extractor_loads_kc_catalog(extractor):
     assert "teleco_transmision_datos" in teleco_kcs
 
 
-def test_heuristic_preference_extraction(extractor, store):
+def test_heuristic_preference_extraction(extractor, store, monkeypatch):
+    async def no_llm_extraction(**kwargs):
+        return None
+
+    monkeypatch.setattr(extractor, "_extract_with_llm", no_llm_extraction)
+
     async def _run():
         query = "prefiero diagramas de flujo y tablas antes que código largo"
         ids = await extractor.process_turn_and_persist(
@@ -42,7 +47,12 @@ def test_heuristic_preference_extraction(extractor, store):
     asyncio.run(_run())
 
 
-def test_heuristic_misconception_extraction(extractor, store):
+def test_heuristic_misconception_extraction(extractor, store, monkeypatch):
+    async def no_llm_extraction(**kwargs):
+        return None
+
+    monkeypatch.setattr(extractor, "_extract_with_llm", no_llm_extraction)
+
     async def _run():
         query = "yo pensaba que la atenuacion era equivalente al retardo de fase"
         ids = await extractor.process_turn_and_persist(
