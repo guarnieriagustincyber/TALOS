@@ -491,11 +491,270 @@ RESPONSE_MODES: Dict[str, Dict[str, Any]] = {
 }
 
 
+class ResponseIntent(BaseModel):
+    """Resolved task and explicit output constraints for one learner turn."""
+
+    model_config = ConfigDict(frozen=True)
+
+    task: str
+    mode: str
+    depth: Optional[Literal["brief", "standard", "deep"]] = None
+    max_sentences: Optional[int] = None
+    max_lines: Optional[int] = None
+    max_words: Optional[int] = None
+    output_format: Optional[Literal["table", "list", "pseudocode", "diagram", "plain_text", "code"]] = None
+    include: tuple[str, ...] = ()
+    code_language: Optional[str] = None
+    exclude_code: bool = False
+    exclude_follow_up: bool = False
+
+    @property
+    def has_explicit_constraints(self) -> bool:
+        return any(
+            (
+                self.depth is not None,
+                self.max_sentences is not None,
+                self.max_lines is not None,
+                self.max_words is not None,
+                self.output_format is not None,
+                bool(self.include),
+                self.code_language is not None,
+                self.exclude_code,
+                self.exclude_follow_up,
+            )
+        )
+
+    def to_prompt_instruction(self) -> str:
+        constraints: List[str] = []
+        if self.max_sentences is not None:
+            constraints.append(f"no excedas {self.max_sentences} frase(s)")
+        if self.max_lines is not None:
+            constraints.append(f"no excedas {self.max_lines} línea(s)")
+        if self.max_words is not None:
+            constraints.append(f"no excedas {self.max_words} palabra(s)")
+        if self.depth == "deep":
+            constraints.append("priorizá el mecanismo y los matices esenciales dentro del límite pedido")
+        elif self.depth == "brief":
+            constraints.append("mantené la respuesta breve y directa")
+
+        lines = [
+            "=== CONTRATO RESUELTO PARA ESTE TURNO ===",
+            f"- Tarea principal: {self.task}.",
+        ]
+        if constraints:
+            lines.append(f"- Restricciones explícitas del estudiante: {'; '.join(constraints)}.")
+        if self.output_format is not None:
+            lines.append(f"- Formato solicitado: {self.output_format}.")
+        if self.include:
+            lines.append(f"- Elementos pedidos explícitamente: {', '.join(self.include)}.")
+        if self.task == "proponer o continuar un ejercicio guiado":
+            lines.append(
+                "- Conservá el tema del historial reciente, proponé un ejercicio claro y evaluable, "
+                "y esperá el intento sin revelar la solución completa."
+            )
+        if self.code_language is not None:
+            lines.append(
+                f"- El estudiante pidió explícitamente un ejemplo en {self.code_language}; "
+                "podés incluir el bloque de código necesario y explicarlo al nivel adecuado."
+            )
+        if self.exclude_code:
+            lines.append("- El estudiante excluyó el código ejecutable; no agregues bloques de código.")
+        if self.exclude_follow_up:
+            lines.append("- No agregues una pregunta, ejercicio ni oferta de continuación al final.")
+        if (
+            self.task == "proponer o continuar un ejercicio guiado"
+            or constraints
+            or self.output_format is not None
+            or self.include
+            or self.code_language is not None
+            or self.exclude_code
+            or self.exclude_follow_up
+        ):
+            lines.extend(
+                (
+                    "- Este contrato prevalece solo sobre preferencias de extensión, formato y cierre que lo contradigan.",
+                    "- Conservá exactitud técnica, límites de alcance, seguridad y requisitos de evidencia/fuentes.",
+                    "- Si el límite impide cubrir todos los matices, no afirmes exhaustividad; priorizá lo esencial.",
+                )
+            )
+        return "\n".join(lines)
+
+
+_NEGATED_SYNTHESIS_PATTERNS = (
+    re.compile(r"\bno\s+(?:(?:lo|me\s+lo)\s+)?resumas?\b", re.IGNORECASE),
+    re.compile(r"\bno\s+hagas?\s+(?:un\s+)?resumen\b", re.IGNORECASE),
+    re.compile(r"\bno\s+(?:quiero|necesito)\s+(?:que\s+me\s+)?(?:des?\s+)?(?:un\s+)?resumen\b", re.IGNORECASE),
+    re.compile(r"\bno\s+(?:(?:lo|me\s+lo)\s+)?sintetices?\b", re.IGNORECASE),
+    re.compile(r"\bno\s+hagas?\s+una?\s+s[ií]ntesis\b", re.IGNORECASE),
+)
+
+
+def _has_negated_synthesis_request(query: str) -> bool:
+    return any(pattern.search(query) for pattern in _NEGATED_SYNTHESIS_PATTERNS)
+
+
+def resolve_response_intent(
+    user_query: str,
+    pedagogical_mode: Optional[str] = None,
+) -> ResponseIntent:
+    """Resolve the requested task separately from explicit output constraints."""
+    q = user_query.strip()
+    q_lower = q.lower()
+    synthesis_negated = _has_negated_synthesis_request(q)
+
+    exercise_request = bool(
+        re.search(
+            r"\b(?:hagamos|h[aá]game|dame|proponeme|prop[oó]n)\s+"
+            r"(?:(?:el|un)\s+)?ejercicio\b|\bejercicio\s+para\s+(?:practicar|resolver)\b",
+            q_lower,
+        )
+    )
+    if exercise_request:
+        mode = pedagogical_mode or "explain_concept"
+        task = "proponer o continuar un ejercicio guiado"
+    elif synthesis_negated:
+        mode = pedagogical_mode or classify_pedagogical_intent(q)
+        if mode == "quick_answer":
+            mode = "explain_concept"
+    elif re.search(
+        r"\b(?:resum(?:e|í|i|ime|ir)|resumen|sintetiz(?:a|á|ame|ame)|s[ií]ntesis|"
+        r"en\s+una\s+frase|en\s+pocas\s+palabras|brevemente|tl\s*;?\s*dr)\b",
+        q_lower,
+    ):
+        mode = "quick_answer"
+    else:
+        mode = pedagogical_mode or classify_pedagogical_intent(q)
+
+    if exercise_request:
+        task = "proponer o continuar un ejercicio guiado"
+    elif mode == "quick_answer":
+        task = "sintetizar o responder brevemente"
+    elif mode == "give_example":
+        task = "proporcionar un ejemplo"
+    elif mode == "compare":
+        task = "comparar"
+    elif mode == "resolve_misconception":
+        task = "resolver una concepción errónea"
+    elif mode == "evaluate_code":
+        task = "evaluar código o una solución"
+    elif mode == "deep_dive":
+        task = "explicar en profundidad"
+    elif mode == "simplify":
+        task = "explicar de forma sencilla"
+    else:
+        task = "responder la consulta"
+
+    depth: Optional[Literal["brief", "standard", "deep"]] = None
+    if mode == "quick_answer":
+        depth = "brief"
+    elif re.search(
+        r"\b(?:en\s+profundidad|a\s+fondo|exhaustiv[oa]|con\s+todos\s+los\s+detalles|paso\s+a\s+paso)\b",
+        q_lower,
+    ):
+        depth = "deep"
+    elif re.search(r"\b(?:breve|brevemente|conciso|concisa|corto|corta)\b", q_lower):
+        depth = "brief"
+
+    count_match = re.search(
+        r"\b(?:en\s+)?(\d+)\s+(frases?|oraciones?|l[ií]neas?|palabras?)\b",
+        q_lower,
+    )
+    max_sentences: Optional[int] = None
+    max_lines: Optional[int] = None
+    max_words: Optional[int] = None
+    if count_match:
+        count = int(count_match.group(1))
+        unit = count_match.group(2)
+        if unit.startswith(("frase", "oraci")):
+            max_sentences = count
+        elif unit.startswith("l"):
+            max_lines = count
+        else:
+            max_words = count
+    elif re.search(r"\ben\s+una\s+frase\b", q_lower):
+        max_sentences = 1
+
+    output_format: Optional[
+        Literal["table", "list", "pseudocode", "diagram", "plain_text", "code"]
+    ] = None
+    if re.search(r"\b(?:tabla|cuadro\s+comparativo|formato\s+tabular)\b", q_lower):
+        output_format = "table"
+    elif re.search(r"\b(?:lista|viñetas|vinetas|bullet\s+points)\b", q_lower):
+        output_format = "list"
+    elif re.search(r"\b(?:pseudoc[oó]digo|pseudocode)\b", q_lower):
+        output_format = "pseudocode"
+    elif re.search(r"\b(?:diagrama|mermaid|esquema\s+visual)\b", q_lower):
+        output_format = "diagram"
+    elif re.search(r"\b(?:solo\s+texto|s[oó]lo\s+texto|en\s+prosa)\b", q_lower):
+        output_format = "plain_text"
+
+    requested_includes: List[str] = []
+    if re.search(r"\b(?:con\s+(?:un\s+)?ejemplo|inclu[ií]\s+(?:un\s+)?ejemplo)\b", q_lower):
+        requested_includes.append("ejemplo")
+    if re.search(r"\b(?:con\s+(?:una\s+)?analog[ií]a|inclu[ií]\s+(?:una\s+)?analog[ií]a)\b", q_lower):
+        requested_includes.append("analogía")
+    if re.search(r"\b(?:paso\s+a\s+paso|explic[aá]\s+el\s+mecanismo)\b", q_lower):
+        requested_includes.append("mecanismo paso a paso")
+    if re.search(r"\b(?:conexi[oó]n|relaci[oó]n)\s+(?:con|a)\s+(?:la\s+)?ciberseguridad\b", q_lower):
+        requested_includes.append("conexión con ciberseguridad")
+
+    exclude_code = bool(
+        re.search(
+            r"\b(?:sin\s+(?:usar\s+|incluir\s+|mostrar\s+)?c[oó]digo|"
+            r"no\s+(?:uses|incluyas|muestres|generes)\s+c[oó]digo)\b",
+            q_lower,
+        )
+    )
+    code_language: Optional[str] = None
+    if not exclude_code:
+        code_match = re.search(
+            r"\b(?:ejemplo|c[oó]digo|programa|script|implementaci[oó]n)\b.{0,40}\b(c|python|c\+\+|java|javascript|rust|go)\b|"
+            r"\b(?:en|con)\s+(c\+\+|python|java|javascript|rust|go|c)\b",
+            q_lower,
+        )
+        if code_match:
+            code_language = next(group for group in code_match.groups() if group)
+            output_format = "code"
+            requested_includes.append(f"código {code_language}")
+
+    exclude_follow_up = bool(
+        re.search(
+            r"\b(?:sin\s+pregunta(?:s)?(?:\s+al\s+final)?|"
+            r"no\s+(?:hagas|agregues|incluyas)\s+(?:una\s+)?preguntas?|"
+            r"solo\s+la\s+respuesta|s[oó]lo\s+la\s+respuesta)\b",
+            q_lower,
+        )
+    )
+    if max_sentences == 1 or max_lines is not None or mode == "quick_answer":
+        exclude_follow_up = True
+
+    return ResponseIntent(
+        task=task,
+        mode=mode,
+        depth=depth,
+        max_sentences=max_sentences,
+        max_lines=max_lines,
+        max_words=max_words,
+        output_format=output_format,
+        include=tuple(requested_includes),
+        code_language=code_language,
+        exclude_code=exclude_code,
+        exclude_follow_up=exclude_follow_up,
+    )
+
+
 def classify_pedagogical_intent(user_query: str) -> str:
     """Clasifica la intención pedagógica de la consulta para seleccionar el RESPONSE_MODE óptimo (Fix S4.1)."""
     q = user_query.strip().lower()
 
-    # 1. Quick answer: muy breve / definición rápida
+    # 1. Quick answer: explicit synthesis or very brief answer; ignore negated requests.
+    if not _has_negated_synthesis_request(q) and re.search(
+        r"\b(?:resum(?:e|í|i|ime|ir)|resumen|sintetiz(?:a|á|ame|ame)|s[ií]ntesis|"
+        r"en\s+una\s+frase|en\s+pocas\s+palabras|brevemente|tl\s*;?\s*dr)\b",
+        q,
+    ):
+        return "quick_answer"
+
     if any(p in q for p in (
         "en una frase", "en pocas palabras", "definicion rapida", "definición rápida",
         "respuesta rapida", "respuesta rápida", "brevemente", "en un renglon", "en un renglón",
@@ -526,14 +785,16 @@ def classify_pedagogical_intent(user_query: str) -> str:
 
     # 3. Compare: comparación / contraste / tabla
     if any(p in q for p in (
-        "compara", "comparar", "diferencia entre", "diferencias entre", " vs ", "versus",
+        "compara", "compará", "comparar", "diferencia entre", "diferencias entre", " vs ", "versus",
         "cuadro comparativo", "tabla comparativa", "frente a", "contrastar", "en que se diferencia", "en qué se diferencia"
     )):
         return "compare"
 
     # 4. Give example: código práctico / ejemplo
     if any(p in q for p in (
-        "dame un ejemplo", "dar un ejemplo", "mostrame un ejemplo", "ejemplo practico",
+        "dame un ejemplo", "dar un ejemplo", "mostrame un ejemplo",
+        "mostrar un ejemplo", "podés mostrar un ejemplo", "podes mostrar un ejemplo",
+        "podrias mostrar un ejemplo", "podrías mostrar un ejemplo", "ejemplo practico",
         "ejemplo práctico", "ejemplo de codigo", "ejemplo de código", "como se implementa",
         "cómo se implementa", "ejemplifica", "escribe un script", "escribir codigo", "escribir código"
     )):
@@ -551,7 +812,7 @@ def classify_pedagogical_intent(user_query: str) -> str:
     if any(p in q for p in (
         "en profundidad", "deep dive", "analisis exhaustivo", "análisis exhaustivo",
         "detalle tecnico completo", "detalle técnico completo", "rigor formal exhaustivo",
-        "todos los detalles", "analisis riguroso a fondo", "análisis riguroso a fondo",
+        "todos los detalles", "paso a paso", "analisis riguroso a fondo", "análisis riguroso a fondo",
         "explicame mas", "explicamelo mas", "explicá más", "explica más", "explayate",
         "explayate más", "más detalles", "mas detalles", "a fondo", "quiero mas profundidad",
         "quiero más profundidad"
@@ -840,7 +1101,8 @@ class StructuredResponsePipeline:
         """Assemble the specialized prompt for this phase with PhaseHistory, intent routing, and BKT adaptation."""
         predecessor_context = self.history.format_predecessors_context()
         is_continuation = is_continuation_query(user_query)
-        active_mode = pedagogical_mode or classify_pedagogical_intent(user_query)
+        response_intent = resolve_response_intent(user_query, pedagogical_mode)
+        active_mode = response_intent.mode
 
         # Phase prompt template formatting
         if is_continuation:
@@ -848,6 +1110,13 @@ class StructuredResponsePipeline:
                 "CONTINUACIÓN DE RESPUESTA INTERRUMPIDA O TRUNCADA: El estudiante indica que tu respuesta previa se cortó o pide continuarla. "
                 "Observá atentamente el fragmento previo de TALOS en el historial reciente y continuá exactamente la sección u oración donde se produjo el corte, "
                 "completando los puntos faltantes sin repetir contenido anterior y cerrando con la pregunta socrática."
+            )
+        elif response_intent.task == "proponer o continuar un ejercicio guiado":
+            rendered_phase_instruction = (
+                "EJERCICIO GUIADO: Interpretá la aceptación usando el historial reciente y el contexto pedagógico disponible "
+                "para mantener el mismo tema. Proponé una consigna breve, clara y evaluable, adecuada al nivel observado, "
+                "y pedile al estudiante que intente el primer paso. No reveles la solución completa salvo que la solicite. "
+                "Si no hay contexto suficiente para saber qué ejercicio aceptó, hacé una única pregunta de aclaración."
             )
         elif active_mode == "debug_crash":
             rendered_phase_instruction = (
@@ -886,6 +1155,9 @@ class StructuredResponsePipeline:
 
         notebook_id = getattr(self.contract, "notebook_id", "fase0-soc")
         structural_directives = extract_requested_structural_components(user_query, notebook_id=notebook_id)
+        if response_intent.exclude_code:
+            for code_directive in ("c_code", "python_code", "sql_code"):
+                structural_directives.pop(code_directive, None)
         shortcut_match = bool(re.search(
             r"\b(?:(?:pasame|haceme|dame|escribime|generame)\s+(?:el\s+)?c[oó]digo|haceme\s+la\s+funci[oó]n|haceme\s+el\s+tp|para\s+que\s+lo\s+copie|para\s+copiar\s+y\s+pegar|para\s+copiarlo|c[oó]digo\s+completo\s+terminado|(?:pasame|dame)\s+la\s+soluci[oó]n)\b",
             user_query,
@@ -949,7 +1221,6 @@ class StructuredResponsePipeline:
             parts.append(f"=== DIRECTIVA DE ESTILO Y CONVERSACIÓN (OLA 5, E24) ===\n{style_directive}")
 
         # 1. Determinación de modo pedagógico y directiva correspondiente (Fix S4.1)
-        active_mode = pedagogical_mode or classify_pedagogical_intent(user_query)
         mode_config = RESPONSE_MODES.get(active_mode, RESPONSE_MODES["explain_concept"])
 
         if is_continuation:
@@ -1091,6 +1362,11 @@ class StructuredResponsePipeline:
             f"{rendered_phase_instruction}\n\n"
             f"{rules_block}"
         )
+        if (
+            response_intent.has_explicit_constraints
+            or response_intent.task == "proponer o continuar un ejercicio guiado"
+        ):
+            parts.append(response_intent.to_prompt_instruction())
         return "\n\n".join(parts)
 
     async def _stream_tokens(
@@ -1235,11 +1511,18 @@ class StructuredResponsePipeline:
             )
             return
 
-        active_mode = pedagogical_mode or classify_pedagogical_intent(user_query)
+        response_intent = resolve_response_intent(user_query, pedagogical_mode)
+        active_mode = response_intent.mode
         cmd = parse_student_command(user_query)
         target_notebook_id = getattr(self.contract, "notebook_id", None)
         structural_directives = extract_requested_structural_components(user_query, notebook_id=target_notebook_id)
-        has_code_request = bool(any(k in structural_directives for k in ("python_code", "c_code", "sql_code", "pytest")))
+        if response_intent.exclude_code:
+            for code_directive in ("c_code", "python_code", "sql_code"):
+                structural_directives.pop(code_directive, None)
+        has_code_request = bool(
+            any(k in structural_directives for k in ("python_code", "c_code", "sql_code", "pytest"))
+            or response_intent.code_language is not None
+        )
 
         shortcut_match = bool(re.search(
             r"\b(?:(?:pasame|haceme|dame|escribime|generame)\s+(?:el\s+)?c[oó]digo|haceme\s+la\s+funci[oó]n|haceme\s+el\s+tp|para\s+que\s+lo\s+copie|para\s+copiar\s+y\s+pegar|para\s+copiarlo|c[oó]digo\s+completo\s+terminado|(?:pasame|dame)\s+la\s+soluci[oó]n)\b",
@@ -1259,7 +1542,7 @@ class StructuredResponsePipeline:
         else:
             effective_max_tokens = max(phase.max_tokens, 2500)
 
-        allow_code = (
+        allow_code = not response_intent.exclude_code and (
             phase.code_allowed
             or has_code_request
             or shortcut_match
@@ -1276,6 +1559,11 @@ class StructuredResponsePipeline:
         )
 
         system_prompt = f"{self.contract.base_system_prompt}\n\nFase actual: {phase.phase_id.upper()}."
+        if (
+            response_intent.has_explicit_constraints
+            or response_intent.task == "proponer o continuar un ejercicio guiado"
+        ):
+            system_prompt = f"{system_prompt}\n\n{response_intent.to_prompt_instruction()}"
         phase_user_prompt = self.build_phase_prompt(
             phase=phase,
             user_query=user_query,

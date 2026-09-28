@@ -463,12 +463,12 @@ Para comenzar, preguntame:
 - [x] Fase 0 completada como línea de base e instrumento de evaluación; no se
       asignaron puntajes retrospectivos.
 
-**Resultado:** la matriz registra 14 respuestas TALOS completas localizables,
-2 parciales, 3 incidencias operativas/demoras y 1 respuesta no localizable.
-Para NotebookLM registra respuestas sustantivas completas en los 20 ítems
-localizados por contenido/orden. En TALOS, la alineación semántica de la fila 4
-queda incierta, y la matriz declara expresamente esa limitación. Esto describe
-integridad del registro, **no** es una puntuación de calidad ni demuestra por sí
-solo superioridad general. Los puntajes retrospectivos quedan sin asignar
-porque el protocolo se definió después de la prueba y los transcripts no
-documentan todas las condiciones.
+**Resultado:** TALOS conserva 13 respuestas completas localizables por
+contenido, 1 bloque completo cuya alineación con la pregunta 4 es incierta, 2
+respuestas parciales, 3 incidencias operativas/demoras y 1 respuesta no
+localizable. NotebookLM conserva respuestas sustantivas completas en los 20
+ítems localizados por contenido/orden. Esto describe integridad del registro,
+**no** es una puntuación de calidad ni demuestra por sí solo superioridad
+general. Los puntajes retrospectivos quedan sin asignar porque el protocolo se
+definió después de la prueba y los transcripts no documentan todas las
+condiciones.

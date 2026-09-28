@@ -6,6 +6,7 @@ import pytest
 from study_engine.pedagogy.structured_pipeline import (
     RESPONSE_MODES,
     classify_pedagogical_intent,
+    resolve_response_intent,
     build_mode_specific_instruction,
     StructuredResponsePipeline,
 )
@@ -15,6 +16,7 @@ from study_engine.pedagogy.student_context import (
     determine_pedagogical_context_mode,
     build_bkt_adaptation_directive,
 )
+from study_engine.llm.backends import ProviderCompletion
 from study_engine.student.contracts import BKTState
 from study_engine.web.routes.chat import OfflineKnowledgeBackend
 from study_engine.contracts.search import SearchResult
@@ -65,6 +67,242 @@ def test_intent_router_classification():
     # 8. Default explain concept
     assert classify_pedagogical_intent("¿Qué es un proceso en el sistema operativo?") == "explain_concept"
     assert classify_pedagogical_intent("¿Por qué necesitamos el registro program counter?") == "explain_concept"
+
+
+@pytest.mark.parametrize(
+    ("query", "expected_mode"),
+    [
+        ("En una frase, ¿qué es un proceso?", "quick_answer"),
+        ("Resumí todo lo aprendido en 5 líneas.", "quick_answer"),
+        ("No lo resumas; explicá el mecanismo paso a paso.", "deep_dive"),
+        ("Explicá en profundidad cómo funciona la planificación.", "deep_dive"),
+        ("Mostrame un ejemplo en C de cómo se crea un proceso.", "give_example"),
+        ("Sí, hagamos el ejercicio.", "explain_concept"),
+        ("¿Qué es un proceso?", "explain_concept"),
+    ],
+)
+def test_response_intent_selects_task_without_losing_explicit_constraints(query, expected_mode):
+    intent = resolve_response_intent(query)
+    assert intent.mode == expected_mode
+
+
+def test_response_intent_preserves_explicit_length_and_suppresses_forced_follow_up():
+    intent = resolve_response_intent("Resumí todo lo aprendido sobre procesos en 5 líneas.")
+
+    assert intent.task == "sintetizar o responder brevemente"
+    assert intent.max_lines == 5
+    assert intent.max_sentences is None
+    assert intent.exclude_follow_up is True
+
+    instruction = intent.to_prompt_instruction()
+    assert "no excedas 5 línea(s)" in instruction
+    assert "No agregues una pregunta, ejercicio ni oferta de continuación" in instruction
+    assert "Conservá exactitud técnica" in instruction
+
+
+def test_response_intent_does_not_treat_negated_summary_as_synthesis():
+    intent = resolve_response_intent("No lo resumas; explicá el mecanismo paso a paso.")
+    another_negation = resolve_response_intent("No quiero un resumen; desarrollá la explicación.")
+
+    assert intent.mode == "deep_dive"
+    assert intent.depth == "deep"
+    assert intent.max_lines is None
+    assert "mecanismo paso a paso" in intent.include
+    assert another_negation.mode == "explain_concept"
+
+
+def test_deep_request_respects_explicit_five_line_limit():
+    intent = resolve_response_intent("Explicá en profundidad el context switch en 5 líneas.")
+
+    assert intent.mode == "deep_dive"
+    assert intent.depth == "deep"
+    assert intent.max_lines == 5
+    assert intent.exclude_follow_up is True
+    assert "no excedas 5 línea(s)" in intent.to_prompt_instruction()
+
+
+def test_response_intent_keeps_requested_code_and_respects_code_exclusion():
+    requested = resolve_response_intent("¿Me podés mostrar un ejemplo en C?")
+    excluded = resolve_response_intent("Explicame fork() sin código.")
+
+    assert requested.mode == "give_example"
+    assert requested.code_language == "c"
+    assert requested.exclude_code is False
+    assert "podés incluir el bloque de código necesario" in requested.to_prompt_instruction()
+    assert excluded.exclude_code is True
+
+
+def test_response_intent_recognizes_exercise_acceptance():
+    intent = resolve_response_intent("Sí, hagamos el ejercicio.")
+
+    assert intent.task == "proponer o continuar un ejercicio guiado"
+    assert "Conservá el tema del historial reciente" in intent.to_prompt_instruction()
+    assert "esperá el intento sin revelar la solución completa" in intent.to_prompt_instruction()
+
+
+def test_response_intent_suppresses_socratic_close_when_requested():
+    intent = resolve_response_intent("Definilo en una frase y no hagas una pregunta.")
+
+    assert intent.max_sentences == 1
+    assert intent.exclude_follow_up is True
+
+
+def test_response_intent_preserves_explicit_table_format():
+    intent = resolve_response_intent("Compará procesos e hilos en una tabla.")
+
+    assert intent.mode == "compare"
+    assert intent.output_format == "table"
+    assert "Formato solicitado: table" in intent.to_prompt_instruction()
+
+
+def test_response_contract_is_appended_after_conflicting_phase_instructions():
+    contract = PedagogicalContract(
+        contract_id="contract_response_intent_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}\nCerrá con una pregunta socrática.",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    prompt = pipeline.build_phase_prompt(
+        phase=contract.get_phase("conceptual"),
+        user_query="En una frase, ¿qué es un proceso?",
+    )
+
+    assert prompt.index("Cerrá con una pregunta socrática") < prompt.index("CONTRATO RESUELTO PARA ESTE TURNO")
+    contract_block = prompt.split("=== CONTRATO RESUELTO PARA ESTE TURNO ===", 1)[1]
+    assert "no excedas 1 frase(s)" in contract_block
+    assert "No agregues una pregunta" in contract_block
+
+
+def test_exercise_acceptance_uses_recent_topic_and_does_not_reveal_solution():
+    contract = PedagogicalContract(
+        contract_id="contract_exercise_continuation_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    prompt = pipeline.build_phase_prompt(
+        phase=contract.get_phase("conceptual"),
+        user_query="Sí, hagamos el ejercicio.",
+        recent_turns=[{"role": "assistant", "content": "¿Querés practicar qué es un proceso?"}],
+    )
+
+    assert "EJERCICIO GUIADO" in prompt
+    assert "mantener el mismo tema" in prompt
+    assert "No reveles la solución completa salvo que la solicite" in prompt
+    assert "¿Querés practicar qué es un proceso?" in prompt
+
+
+def test_build_phase_prompt_respects_explicit_code_and_no_code_requests():
+    contract = PedagogicalContract(
+        contract_id="contract_code_constraints_test",
+        notebook_id="fadena-so2",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    phase = contract.get_phase("conceptual")
+
+    code_prompt = pipeline.build_phase_prompt(
+        phase=phase,
+        user_query="¿Me podés mostrar un ejemplo en C de cómo se crea un proceso?",
+    )
+    no_code_prompt = pipeline.build_phase_prompt(
+        phase=phase,
+        user_query="Explicame fork() sin código.",
+    )
+
+    assert "CÓDIGO C ESTÁNDAR Y DEFENSIVO (OBLIGATORIO)" in code_prompt
+    assert "PROTOCOLO ANTI-ATAJO ACTIVADO" not in code_prompt
+    assert "El estudiante pidió explícitamente un ejemplo en c" in code_prompt
+    assert "CÓDIGO C ESTÁNDAR Y DEFENSIVO (OBLIGATORIO)" not in no_code_prompt
+    assert "El estudiante excluyó el código ejecutable" in no_code_prompt
+
+
+def test_generation_phase_code_permission_obeys_explicit_request_constraints():
+    async def _run():
+        contract = PedagogicalContract(
+            contract_id="contract_code_permission_test",
+            notebook_id="fadena-so2",
+            version="1.0.0",
+            authoritative_sources=("src_test",),
+            domain_scope=("test",),
+            base_system_prompt="Tutor TALOS.",
+            response_phases=[
+                ResponsePhase(
+                    phase_id="conceptual",
+                    max_tokens=400,
+                    phase_prompt_template="Explica: {concept}",
+                    code_allowed=True,
+                ),
+            ],
+        )
+        class PromptCaptureBackend:
+            def __init__(self):
+                self.prompt_bundles = []
+
+            def complete(self, prompt_bundle):
+                self.prompt_bundles.append(prompt_bundle)
+                return ProviderCompletion(
+                    text="Respuesta de prueba.",
+                    latency_ms=1.0,
+                    model="prompt-capture",
+                )
+
+        backend = PromptCaptureBackend()
+        pipeline = StructuredResponsePipeline(contract=contract, llm_backend=backend)
+        cases = (
+            ("¿Me podés mostrar un ejemplo en C?", True),
+            ("Explicame fork() sin código.", False),
+        )
+        for index, (query, expected_code_permission) in enumerate(cases):
+            events = [
+                event
+                async for event in pipeline.generate_phased_response(
+                    user_query=query,
+                    requested_phase="conceptual",
+                )
+            ]
+            phase_start = next(event for event in events if event.event_type == "phase_start")
+            assert phase_start.payload["code_allowed"] is expected_code_permission
+            system_prompt = backend.prompt_bundles[index].system_prompt
+            assert "CONTRATO RESUELTO PARA ESTE TURNO" in system_prompt
+            if not expected_code_permission:
+                assert "El estudiante excluyó el código ejecutable" in system_prompt
+            else:
+                assert "El estudiante pidió explícitamente un ejemplo en c" in system_prompt
+
+    import asyncio
+
+    asyncio.run(_run())
 
 
 def test_build_phase_prompt_adapts_to_response_modes():
