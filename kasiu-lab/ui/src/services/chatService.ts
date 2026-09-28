@@ -25,6 +25,7 @@ export interface ChatQueryUiModel {
   facet_coverage?: Record<string, 'SUFFICIENT' | 'PARTIAL' | 'MISSING'>;
   abstained?: boolean;
   abstention_reason?: string | null;
+  bkt_context?: SseBktContext;
   mermaid_diagram?: string | null;
   processing_ms: number;
 }
@@ -54,6 +55,10 @@ interface SseCitation {
   authority_weight?: number;
   authorityWeight?: number;
   namespace?: string;
+  author?: string;
+  section?: string;
+  epistemic_role?: string;
+  epistemicRole?: string;
 }
 
 interface SseBktContext {
@@ -64,14 +69,27 @@ interface SseBktContext {
   fallback?: boolean;
 }
 
+function normalizeBktContext(context?: SseBktContext | null): SseBktContext | undefined {
+  if (!context) return undefined;
+  return {
+    kc_id: context.kc_id ?? null,
+    context_mode: context.context_mode,
+    p_L: typeof context.p_L === 'number' ? context.p_L : undefined,
+    unmet_prerequisites: Array.isArray(context.unmet_prerequisites)
+      ? context.unmet_prerequisites.filter((item): item is string => typeof item === 'string')
+      : undefined,
+    fallback: typeof context.fallback === 'boolean' ? context.fallback : undefined,
+  };
+}
+
 interface SseEventPayload {
   token?: string;
   citations?: SseCitation[];
   facet_coverage?: Record<string, 'SUFFICIENT' | 'PARTIAL' | 'MISSING'>;
   abstained?: boolean;
   abstention_reason?: string | null;
-  decision?: { message?: string };
   bkt_context?: SseBktContext;
+  decision?: { message?: string };
   message?: string;
   detail?: string;
   error?: string;
@@ -213,6 +231,7 @@ export const chatService = {
       let capturedFacetCoverage: Record<string, 'SUFFICIENT' | 'PARTIAL' | 'MISSING'> = {};
       let capturedAbstained: boolean = false;
       let capturedAbstentionReason: string | null = null;
+      let capturedBktContext: SseBktContext | undefined;
 
       try {
         while (!done && reader) {
@@ -246,19 +265,23 @@ export const chatService = {
                           citationId,
                           sourceId,
                           source_id: sourceId,
-                          sourceTitle: citation.source_title || citation.sourceTitle || sourceId || 'Documento Canónico',
-                          source_title: citation.source_title || citation.sourceTitle || sourceId || 'Documento Canónico',
-                          page: citation.page ?? citation.page_start ?? citation.pageStart ?? 1,
-                          pageStart: citation.page ?? citation.page_start ?? citation.pageStart ?? 1,
+                          sourceTitle: citation.source_title || citation.sourceTitle || undefined,
+                          source_title: citation.source_title || citation.sourceTitle || undefined,
+                          page: citation.page ?? citation.page_start ?? citation.pageStart ?? undefined,
+                          pageStart: citation.page ?? citation.page_start ?? citation.pageStart ?? undefined,
                           pageEnd: citation.page_end ?? citation.pageEnd ?? null,
                           chunkText: citation.chunk_text || citation.chunkText || citation.content || '',
                           chunk_text: citation.chunk_text || citation.chunkText || citation.content || '',
                           chunkId: citation.chunk_id || citation.chunkId || null,
-                          relevanceScore: citation.relevance_score ?? citation.relevanceScore ?? 0.85,
-                          relevance_score: citation.relevance_score ?? citation.relevanceScore ?? 0.85,
+                          relevanceScore: citation.relevance_score ?? citation.relevanceScore ?? undefined,
+                          relevance_score: citation.relevance_score ?? citation.relevanceScore ?? undefined,
                           docHash: citation.doc_hash || citation.docHash || null,
                           authorityWeight: citation.authority_weight ?? citation.authorityWeight ?? 1.0,
                           namespace,
+                          author: citation.author,
+                          section: citation.section,
+                          epistemicRole: citation.epistemic_role || citation.epistemicRole,
+                          epistemic_role: citation.epistemic_role || citation.epistemicRole,
                         };
                       });
                     }
@@ -276,7 +299,7 @@ export const chatService = {
                       fullText = eventPayload.decision.message;
                     }
                     if (eventPayload?.bkt_context) {
-                      console.debug('Contexto BKT de la respuesta:', eventPayload.bkt_context);
+                      capturedBktContext = normalizeBktContext(eventPayload.bkt_context);
                     }
                   } else if (eventData.event_type === 'error') {
                     const errorMessage = eventPayload?.message || eventPayload?.detail || eventPayload?.error;
@@ -321,12 +344,15 @@ export const chatService = {
         facet_coverage: capturedFacetCoverage,
         abstained: capturedAbstained,
         abstention_reason: capturedAbstentionReason,
+        bkt_context: capturedBktContext,
         mermaid_diagram: null,
         processing_ms: Math.round(t1 - t0),
       };
     }
 
-    const raw = (await response.json()) as BackendChatResponse;
+    const raw = (await response.json()) as BackendChatResponse & {
+      bkt_context?: SseBktContext | null;
+    };
     const t1 = performance.now();
     const adapted = adaptBackendChatResponse(raw);
 
@@ -341,6 +367,8 @@ export const chatService = {
       chunkId: e.evidence_id,
       authorityWeight: e.verification_score ?? 1.0,
       namespace: 'E',
+      sourceTitle: e.citations[0]?.source_title,
+      source_title: e.citations[0]?.source_title,
     }));
 
     return {
@@ -348,6 +376,7 @@ export const chatService = {
       evidences: convertedCitations,
       abstained: adapted.abstained,
       abstention_reason: adapted.abstention_reason,
+      bkt_context: normalizeBktContext(raw.bkt_context),
       mermaid_diagram: adapted.mermaid_diagram,
       processing_ms: Math.round(t1 - t0),
     };
