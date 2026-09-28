@@ -1,7 +1,7 @@
 # Suite de fixes y estabilización previa a Fase 7
 
 **Fecha:** 2026-09-28
-**Estado:** plan aprobado para ejecución; baseline pendiente de captura
+**Estado:** punto 0 completado; gates de corrección pendientes
 **Alcance:** armonizar políticas, contratos multi-cuaderno y fiabilidad antes de
 continuar con evaluación pedagógica multi-currículo.
 
@@ -37,6 +37,34 @@ Antes de tocar código de producción:
 **Salida:** baseline fechada, reproducible y asociada al commit inicial de la
 suite. Si la suite global no puede ejecutarse, registrar el bloqueo concreto y
 usar solo checks alternativos que no se presenten como equivalentes.
+
+### Resultado de baseline — 2026-09-28
+
+- Punto de partida: rama `main`, commit `0e57eea`, árbol limpio antes de las
+  pruebas; Python 3.12.3 y pytest 9.1.1 en `.venv`.
+- Suite global: `.venv/bin/pytest -q` — **2695 passed, 7 skipped, 0 failed**,
+  138 warnings, 313.47 s.
+- Suite focalizada de contexto F5, endpoint SSE/UI, rewriter, finish reason,
+  pipeline adaptativo y prompt socrático — **100 passed**, 5 warnings,
+  7.19 s.
+- Sintaxis del consumidor UI: `node --check
+  src/study_engine/web/static/js/chat.js` — pasó.
+- Las pruebas globales reescribieron cuatro resultados versionados:
+  `benchmark/results/evaluation_report.json`,
+  `benchmark/results/evaluation_report.md`,
+  `benchmark/results/latest_summary.json` y
+  `data/experiments/survival/l5_concurrency_race_50.json`. Se restauraron a su
+  contenido del commit inicial después de revisar los diffs; el árbol quedó
+  limpio. El reporte Fase 4-eval generado durante tests sintéticos mostró
+  MRR@5/nDCG@5 de retrieval en cero y estado FAIL, aunque pytest terminó sin
+  fallos. Tratar esto como un problema de aislamiento/efectos laterales de la
+  suite y no como un resultado de evaluación del producto; no modificar esos
+  umbrales ni promocionar ese reporte.
+
+**Conclusión de punto 0:** la base funcional es reproducible en el entorno
+actual. Antes de usar repetidamente la suite global como gate, conviene
+aislar sus salidas generadas para que no reescriba reportes y evidencia
+versionados.
 
 ## Gate 1 — Alinear políticas y nomenclatura
 
