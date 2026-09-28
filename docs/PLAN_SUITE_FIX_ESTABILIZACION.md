@@ -139,6 +139,127 @@ equivalentes siguen fuera de alcance.
   textuales; no detecta paráfrasis semánticas y no reemplaza controles de
   evaluación ni revisión humana.
 
+### Registro detallado de la etapa de evaluaciones protegidas
+
+#### Qué se encontró
+
+El cierre de Gate 1 había armonizado la política escrita, pero la ruta de chat
+aún no aplicaba una guarda runtime a evaluaciones activas. La intención del
+estudiante o una instrucción del prompt no bastan para distinguir una práctica
+normal de una evaluación protegida, y una bandera proporcionada por el cliente
+sería manipulable. A la vez, prohibir todas las soluciones completas habría
+roto las prácticas no protegidas, donde el pedido explícito sí debe respetarse.
+
+El repositorio ya separaba los fragmentos de enunciado de los solucionarios en
+`ContentRegistryRepository`, con un accessor específico para las soluciones.
+El punto fiable para decidir la protección era el ítem curricular resuelto por
+el servidor (`EpistemicContextPack.resolved_item`), no texto libre ni un ID
+declarado por el estudiante. El riesgo restante era que el modelo incluyera
+parte del solucionario en una respuesta que se transmitía token a token por
+SSE: una comprobación posterior al streaming no podría retirar lo ya mostrado.
+
+#### Solución planteada e implementada
+
+Se adoptó un criterio opt-in de servidor: un ítem está protegido solo si sus
+metadatos confiables contienen
+`assessment.protected=true` y `assessment.status` es `active` o `in_progress`.
+La ausencia de marca, un estado distinto (por ejemplo `draft`) o
+`protected=false` conserva el comportamiento ordinario de práctica.
+
+La integración está en [`chat.py`](../src/study_engine/web/routes/chat.py) y el
+criterio textual compartido en
+[`solution_protection.py`](../src/study_engine/pedagogy/solution_protection.py):
+
+1. El chat resuelve el ítem desde el registro del servidor y guarda su
+   `content_id` en una caché efímera por contexto de sesión, cuaderno, alcance y
+   fuentes, con TTL de una hora. Esto mantiene la protección en seguimientos
+   que no repiten la referencia mientras comparten ese contexto y proceso.
+2. Carga el solucionario solo mediante `get_solution_chunks()`; no lo añade al
+   contexto visible ni al manifiesto de evidencias.
+3. Si el solucionario no está disponible, responde fail-closed. Si se solicita
+   explícitamente la solución completa, produce una negativa determinista antes
+   de llamar al LLM.
+4. Para otras consultas, añade una instrucción de protección al `system_prompt`
+   y retiene los tokens de la respuesta hasta terminar la fase. Compara el
+   texto final normalizado contra las soluciones: una coincidencia completa o
+   un fragmento textual sustancial se sustituye por una negativa segura antes
+   de emitir SSE.
+5. La política pedagógica sigue permitiendo soluciones completas solicitadas
+   para prácticas no protegidas. El contrato, los prompts comunes y los
+   mensajes de narrador se armonizaron con esa distinción.
+
+La implementación y las pruebas se guardaron en el commit
+`d4fc5b3` (`fix(pedagogy): protect active assessments from solution leaks`).
+El cambio también aisló los artefactos del benchmark y de la prueba de
+concurrencia en `tmp_path`, para que las suites no reescriban evidencia
+versionada.
+
+#### Incidencias, correcciones y límites conocidos
+
+- **Artefactos de prueba modificados:** la baseline inicial mostró que el
+  benchmark y la prueba de concurrencia podían escribir resultados en rutas
+  versionadas. Se corrigieron ambos tests para usar almacenamiento temporal y
+  se comprobó que los artefactos versionados permanecieran intactos tras la
+  suite final.
+- **Variación de latencia preexistente en Gate 1:** una ejecución intermedia
+  midió 51.95 ms frente al umbral estricto de 50 ms en
+  `test_sqlite_query_latency_p95_under_50ms`. El test aislado y la suite global
+  secuencial posterior pasaron; se conservó el umbral y se registró como
+  variabilidad de medición, no como regresión de la protección.
+- **Cobertura del rechazo seguro:** se añadió una prueba para el caso sin
+  solucionario registrado. Confirma que la ruta no invoque al LLM y emita el
+  estado explícito `PROTECTED_ASSESSMENT_UNAVAILABLE`.
+- **Sin fallos funcionales pendientes en la validación final:** la batería
+  focalizada y la suite global terminaron correctamente. Los warnings son
+  avisos de deprecación preexistentes de FastAPI/Starlette, no fallos de esta
+  etapa.
+- **Límite del detector:** normalizar texto y buscar coincidencias literales
+  reduce fugas accidentales, pero no detecta una solución parafraseada ni
+  demuestra que dos respuestas sean semánticamente equivalentes. El buffering
+  también aumenta la latencia percibida para ítems protegidos.
+- **Límite de estado:** la caché de ítem activo es en memoria y local al
+  proceso; el TTL no es persistencia distribuida. La continuidad entre
+  reinicios o workers y las transiciones de sesión deben definirse antes de
+  usar este mecanismo como garantía de una evaluación productiva.
+
+#### Estado de la etapa y evidencia de cierre
+
+La protección runtime inicial del endpoint de chat está implementada y
+verificada; no significa que todas las evaluaciones de TALOS estén protegidas.
+Para aplicar la guarda, cada evaluación debe tener metadatos correctos en el
+registro confiable y un solucionario canónico recuperable. La integración en
+TutorPolicy/Study Loop, el almacenamiento distribuido de estado y la detección
+semántica siguen pendientes.
+
+- Batería focalizada final: **83 passed, 17 warnings**.
+- Suite global final: `.venv/bin/pytest -q` — **2703 passed, 7 skipped,
+  0 failed**, 144 warnings, 351.57 s.
+- `git diff --check` y enlaces Markdown relativos: correctos.
+- Los artefactos versionados del benchmark/supervivencia no cambiaron.
+
+#### Siguientes pasos
+
+1. Completar Gate 2: aislar el perfil pedagógico por cuaderno y demostrar
+   integración desde currículum y fuentes hasta el prompt final, incluyendo
+   controles contra contaminación entre materias.
+2. Antes de conectar TutorPolicy/Study Loop, definir un contrato evaluativo
+   común: quién activa y cierra una evaluación, estados terminales, autoridad
+   que escribe metadatos y comportamiento ante cambios o correcciones del
+   registro.
+3. Ampliar las pruebas de protección para manipulación de campos cliente,
+   `in_progress`, estados inactivos, cambio de ítem/alcance/fuentes, expiración
+   del TTL y solucionario ausente o no legible. Aclarar si el estado efímero
+   basta o si se necesita almacenamiento compartido entre workers.
+4. Mantener el gate de streaming F6 separado: verificar múltiples fases,
+   truncamiento, cancelación, error después de tokens y ausencia de un terminal
+   exitoso antes de marcar una respuesta completa.
+5. Medir falsos positivos y falsos negativos del detector textual con casos
+   sintéticos. Si se requiere cobertura semántica, fijar primero el modelo de
+   amenaza y los criterios de aceptación; no presentar el detector actual
+   como una garantía de integridad.
+6. Solo después, avanzar a la evaluación multi-currículo PED-F7 con una rúbrica
+   congelada y resultados desglosados por materia e intención.
+
 ## Gate 2 — Aislar el perfil pedagógico por cuaderno
 
 - Resolver perfiles por IDs registrados exactos, no por subcadena ambigua.
