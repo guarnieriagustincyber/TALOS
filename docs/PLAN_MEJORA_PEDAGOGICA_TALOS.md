@@ -205,6 +205,10 @@ Identificador en esta hoja de ruta: **F4-formato** (no confundir con las fases
   “volviendo a lo anterior”.
 - Verificar que contexto, historial y recuperación preserven la información
   necesaria para responder seguimientos.
+- El evento `phase_complete` expone `conversation_context` (origen, cantidad,
+  ausencia y truncamiento) y `evidence_provenance` (fuente, autor, páginas,
+  documento, hash y rol epistémico) para que la continuidad y la procedencia
+  sean observables sin exponer el contenido interno del historial.
 - Tratar perfil y estimaciones de conocimiento como evidencia provisional.
 - No inferir dominio por haber recibido una explicación o acertado una sola
   respuesta.
@@ -244,7 +248,7 @@ Identificador en esta hoja de ruta: **F4-formato** (no confundir con las fases
 | 2 — Modos pedagógicos | Estrategias de explicación, práctica, corrección y reexplicación | Fase 1 | Implementada localmente; criterios prompt-level verificados; sin commit |
 | 3 — Rigor y ciberseguridad | Afirmaciones técnicas contextualizadas y razonamiento seguro | Fases 1–2 | Implementada localmente; guardas de prompt y regresiones offline verificadas |
 | 4 — Formato y código | Formato fiel al pedido, código controlado y salida usable | Fases 1–3 | Implementada y validada localmente; límites de validación semántica documentados |
-| 5 — Fuentes y continuidad | Seguimientos coherentes y procedencia de afirmaciones visible | Fases 1–4; recuperación/contexto existentes | Prerequisito de rutas, perfil y alcance implementado localmente; Fase 5 aún pendiente |
+| 5 — Fuentes y continuidad | Seguimientos coherentes y procedencia de afirmaciones visible | Fases 1–4; recuperación/contexto existentes | En curso: contexto conversacional y procedencia estructurada observables; ambigüedad y discrepancias aún pendientes |
 | 6 — Streaming y fiabilidad | Respuesta visible íntegra o fallo explícito, medible y recuperable | Camino de chat/streaming; instrumentación disponible | Diseñada en este documento; pendiente de implementación |
 | 7 — Evaluación y aprendizaje | Evidencia reproducible de calidad y, por separado, aprendizaje | Fases 0–6 estabilizadas | Diseñada en este documento; pendiente de autorización/ejecución |
 
@@ -1760,19 +1764,17 @@ línea de base; consultar
 para los hallazgos, límites y protocolo. No repetir setup ni lanzar otra
 ejecución del benchmark sin solicitud explícita. La Fase 1 está implementada y
 validada; Fases 2–4-formato están implementadas y F4-formato fue comprometida
-en `c401b4e`. El prerequisito técnico documentado antes de Fase 5 está
-implementado localmente; la Fase 5 funcional y las Fases 6–7 siguen pendientes,
-no aceptadas.
+en `c401b4e`. El prerequisito técnico documentado antes de Fase 5 está implementado; el
+primer slice funcional de Fase 5 también quedó implementado y validado. Las
+Fases 6–7 siguen pendientes, no aceptadas.
 
 ### Snapshot de handoff actualizado el 2026-09-28
 
-- Branch/HEAD observados: `main` / `c401b4e`; 9 commits locales adelante de
-  `origin/main`; no se hizo push.
-- Cambios actuales sin commit incluyen el prerequisito F5 y los tres tests de
-  F4 que ya estaban modificados antes de este trabajo. Revisar `git status`
-  antes de preparar cualquier commit y no incluir cambios previos por accidente.
-- No se creó commit ni se hizo push en este sprint.
-- Siguiente trabajo: implementación funcional de **Fase 5 — Fuentes, memoria y
-  continuidad**, comenzando por pruebas de ambigüedad de antecedentes,
-  ausencia/truncamiento de historial, procedencia visible y discrepancia entre
-  fuentes. No repetir el benchmark y conservar el perímetro de datos y módulos.
+- Branch/HEAD observados: `main`; no se hizo push.
+- El commit de corrección BKT/cold-start es `6748ca7`; el slice de Fase 5 se
+  registra en el commit siguiente.
+- Los tres tests de F4 modificados antes de este trabajo permanecen fuera de
+  ambos commits.
+- Siguiente trabajo: continuar Fase 5 con ambigüedad de antecedentes y
+  discrepancias entre fuentes. No repetir el benchmark y conservar el
+  perímetro de datos y módulos.

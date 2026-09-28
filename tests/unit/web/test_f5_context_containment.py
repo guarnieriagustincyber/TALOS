@@ -4,6 +4,7 @@ from study_engine.web.routes.chat import (
     _CONV_TURN_BUFFER,
     _LAST_EPISTEMIC_PACK,
     _epistemic_cache_key,
+    _conversation_context_metadata,
     _prepare_chat_context,
     _resolve_conversation_turns,
     _sanitize_recent_turns,
@@ -68,6 +69,44 @@ def test_recent_turns_truncate_total_payload_to_reasonable_size():
 
     assert sum(len(turn["content"]) for turn in turns) <= 12000
     assert [turn["role"] for turn in turns] == ["user", "assistant"]
+
+
+def test_conversation_context_metadata_reports_client_fallback_and_truncation():
+    metadata = _conversation_context_metadata(
+        server_turns=[],
+        client_turns=[
+            {"role": "user", "content": "P" * 5000},
+            {"role": "assistant", "content": "respuesta"},
+        ],
+        resolved_turns=[
+            {"role": "user", "content": "P" * 4000},
+            {"role": "assistant", "content": "respuesta"},
+        ],
+        current_prompt="consulta actual",
+    )
+
+    assert metadata == {
+        "source": "client",
+        "turn_count": 2,
+        "missing": False,
+        "truncated": True,
+    }
+
+
+def test_conversation_context_metadata_reports_missing_history():
+    metadata = _conversation_context_metadata(
+        server_turns=None,
+        client_turns=None,
+        resolved_turns=[],
+        current_prompt="consulta actual",
+    )
+
+    assert metadata == {
+        "source": "none",
+        "turn_count": 0,
+        "missing": True,
+        "truncated": False,
+    }
 
 
 def test_epistemic_cache_is_partitioned_by_scope_and_source_filter():

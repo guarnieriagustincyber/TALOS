@@ -103,6 +103,49 @@ def _resolve_conversation_turns(
     return _sanitize_recent_turns(client_turns, current_prompt=current_prompt)
 
 
+def _conversation_context_metadata(
+    *,
+    server_turns: Optional[List[Dict[str, Any]]],
+    client_turns: Optional[List[Dict[str, Any]]],
+    resolved_turns: List[Dict[str, str]],
+    current_prompt: str,
+) -> Dict[str, Any]:
+    """Describe which bounded history was used without exposing its contents."""
+    sanitized_server = _sanitize_recent_turns(server_turns, current_prompt=current_prompt)
+    sanitized_client = _sanitize_recent_turns(client_turns, current_prompt=current_prompt)
+    if sanitized_server:
+        source = "server"
+    elif sanitized_client:
+        source = "client"
+    else:
+        source = "none"
+
+    def exceeded_limits(turns: Optional[List[Dict[str, Any]]]) -> bool:
+        if not turns:
+            return False
+        if len(turns) > _MAX_RECENT_MESSAGES:
+            return True
+        if any(
+            isinstance(turn, dict)
+            and isinstance(turn.get("content"), str)
+            and len(turn["content"]) > _MAX_RECENT_TURN_CHARS
+            for turn in turns
+        ):
+            return True
+        return sum(
+            len(turn.get("content", ""))
+            for turn in turns
+            if isinstance(turn, dict) and isinstance(turn.get("content"), str)
+        ) > _MAX_RECENT_HISTORY_CHARS
+
+    return {
+        "source": source,
+        "turn_count": len(resolved_turns),
+        "missing": source == "none",
+        "truncated": exceeded_limits(server_turns) or exceeded_limits(client_turns),
+    }
+
+
 def _epistemic_cache_key(
     *,
     session_id: Optional[str],
@@ -1821,9 +1864,16 @@ async def chat_query(
     llm_backend = _resolve_chat_backend(container, estimated_tokens=estimated_input_tokens)
 
     # Memoria de corto plazo (Fase 2): recuperar buffer de turnos y registrar el turno actual del usuario.
+    server_turns = _CONV_TURN_BUFFER.get(context_cache_key)
     conv_turns: list = _resolve_conversation_turns(
-        server_turns=_CONV_TURN_BUFFER.get(context_cache_key),
+        server_turns=server_turns,
         client_turns=request.recent_turns,
+        current_prompt=prompt_text,
+    )
+    conversation_context = _conversation_context_metadata(
+        server_turns=server_turns,
+        client_turns=request.recent_turns,
+        resolved_turns=conv_turns,
         current_prompt=prompt_text,
     )
     # Registrar el turno del usuario en el buffer (se completa con la respuesta al finalizar)
@@ -2042,6 +2092,22 @@ async def chat_query(
                             "fallback": matched_kc_id is None,
                         }
                         payload["payload"]["fallback_disclaimer"] = (matched_kc_id is None)
+                        payload["payload"]["conversation_context"] = conversation_context
+                        payload["payload"]["evidence_provenance"] = [
+                            {
+                                "citation_id": chunk.get("citation_id") or chunk.get("id"),
+                                "source_id": chunk.get("source_id"),
+                                "source_title": chunk.get("source_title"),
+                                "author": chunk.get("author"),
+                                "page_start": chunk.get("page_start"),
+                                "page_end": chunk.get("page_end"),
+                                "document_id": chunk.get("document_id"),
+                                "chunk_id": chunk.get("chunk_id"),
+                                "doc_hash": chunk.get("doc_hash"),
+                                "epistemic_role": chunk.get("epistemic_role"),
+                            }
+                            for chunk in raw_chunks
+                        ]
                         if ref_disclaimer:
                             payload["payload"]["reference_disclaimer"] = ref_disclaimer
 

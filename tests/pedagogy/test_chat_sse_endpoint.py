@@ -86,6 +86,16 @@ def test_chat_query_sse_notebook_streaming(client_with_setup):
     complete_ev = [e for e in events if e["event_type"] == "phase_complete"][0]
     assert complete_ev["payload"]["completed_phase"] == "conceptual"
     assert "pseudocode" in complete_ev["payload"]["next_phases"]
+    conversation_context = complete_ev["payload"]["conversation_context"]
+    assert conversation_context["source"] == "none"
+    assert conversation_context["missing"] is True
+    assert conversation_context["truncated"] is False
+    provenance = complete_ev["payload"]["evidence_provenance"]
+    assert provenance
+    assert all(
+        {"citation_id", "source_id", "source_title", "page_start", "doc_hash"} <= set(item)
+        for item in provenance
+    )
 
 
 def test_chat_ui_global_folder_scope_streams_compatible_sse(client_with_setup):
