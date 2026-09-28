@@ -24,27 +24,26 @@ from study_engine.pedagogy.structured_pipeline import (
 )
 
 
-def test_anti_shortcut_guard_skeleton_enforcement():
-    """Test 1: Socratic guard against shortcut requests."""
+def test_explicit_complete_code_request_preserves_requested_c_solution():
+    """An explicit complete-solution request is not replaced by the anti-shortcut skeleton."""
     query = (
         "Tengo que hacer una función en C para invertir una cadena in-place "
         "modificando la memoria sin duplicar el array. Pasame el código completo terminado para copiar y pegar."
     )
     directives = extract_requested_structural_components(query)
 
-    # Pytest must be suppressed on shortcuts, but Mermaid diagram is preserved/mandatory
+    # A request for a complete implementation selects C, but does not imply tests or diagrams.
     assert "pytest" not in directives
-    assert "mermaid" in directives
+    assert "mermaid" not in directives
+    assert "CÓDIGO C ESTÁNDAR Y DEFENSIVO" in directives["c_code"]
+    assert "ESQUELETO DEFENSIVO" not in directives["c_code"]
 
     pipeline = StructuredResponsePipeline(contract=FASE0_CONTRACT, llm_backend=MagicMock())
     phase = FASE0_CONTRACT.get_phase("conceptual")
     prompt = pipeline.build_phase_prompt(phase=phase, user_query=query)
 
-    # Must contain defensive skeleton directive with /* TODO
-    assert "/* TODO" in prompt
-    assert "PROTOCOLO ANTI-ATAJO ACTIVADO" in prompt
-    # Must NOT force complete implementation
-    assert "DADO QUE EL ESTUDIANTE SOLICITÓ AUDITORÍA O IMPLEMENTACIÓN COMPLETA, ES OBLIGATORIO" not in prompt
+    assert "SOLUCIÓN COMPLETA SOLICITADA" in prompt
+    assert "PROTOCOLO ANTI-ATAJO ACTIVADO" not in prompt
 
 
 def test_fail_closed_abi_no_forced_heavy_pseudocode():
@@ -61,24 +60,23 @@ def test_fail_closed_abi_no_forced_heavy_pseudocode():
 
 
 def test_debug_crash_routing_and_no_bloat():
-    """Test 3: Crash queries route to debug_crash with silicon focus, Mermaid diagram, and no Pytest bloat."""
+    """Test 3: Crash queries route to debug_crash without unsolicited formats or test code."""
     query = "char *s; strcpy(s, \"hola\"); ¿por qué crashea con Segmentation Fault?"
     intent = classify_pedagogical_intent(query)
     assert intent == "debug_crash"
 
     directives = extract_requested_structural_components(query)
     assert "pytest" not in directives
-    assert "mermaid" in directives
+    assert "mermaid" not in directives
 
     pipeline = StructuredResponsePipeline(contract=FASE0_CONTRACT, llm_backend=MagicMock())
     phase = FASE0_CONTRACT.get_phase("conceptual")
     prompt = pipeline.build_phase_prompt(phase=phase, user_query=query, pedagogical_mode=intent)
 
-    # Verify MMU, SIGSEGV, wild pointer, and Mermaid flowchart are required
+    # The diagnostic route stays focused and does not force a diagram.
     prompt_lower = prompt.lower()
-    assert "sigsegv" in prompt_lower or "mmu" in prompt_lower or "salvaje" in prompt_lower or "basura" in prompt_lower
     assert "batería de pruebas automatizadas con pytest" not in prompt_lower
-    assert "flowchart td" in prompt_lower
+    assert "flowchart td" not in prompt_lower
 
 
 def test_citation_sanitization_enmienda_e_ux1():
@@ -188,9 +186,9 @@ def test_repeated_followups_and_client_turns_and_rescue_pack():
         _prepare_chat_context,
         ChatQueryRequest,
         _CONV_TURN_BUFFER,
-        _epistemic_cache_key,
         _LAST_EPISTEMIC_PACK,
         EpistemicContextPack,
+        _epistemic_cache_key,
     )
     from study_engine.hierarchy.scope_resolver import ScopeResolver
     from study_engine.pedagogy.style_contracts import ConversationStyle
@@ -269,9 +267,9 @@ def test_deictic_misconception_followup_rescues_epistemic_pack():
     from study_engine.web.routes.chat import (
         _prepare_chat_context,
         ChatQueryRequest,
-        _epistemic_cache_key,
         _LAST_EPISTEMIC_PACK,
         EpistemicContextPack,
+        _epistemic_cache_key,
     )
     from study_engine.hierarchy.scope_resolver import ScopeResolver
     from study_engine.pedagogy.style_contracts import ConversationStyle
@@ -454,9 +452,9 @@ def test_turn_4_deictic_ampersand_followup():
     from study_engine.web.routes.chat import (
         _prepare_chat_context,
         ChatQueryRequest,
-        _epistemic_cache_key,
         _LAST_EPISTEMIC_PACK,
         EpistemicContextPack,
+        _epistemic_cache_key,
     )
     from study_engine.hierarchy.scope_resolver import ScopeResolver
 
@@ -545,9 +543,5 @@ def test_turn_4_deictic_ampersand_followup():
     assert getattr(context_pack, "abstained", False) is False
     assert len(raw_chunks) > 0
     assert raw_chunks[0]["id"] == "E775"
-
-
-
-
 
 

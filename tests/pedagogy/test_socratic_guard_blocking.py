@@ -42,7 +42,8 @@ def test_socratic_guard_blocks_exact_forbidden_pattern(conceptual_phase):
     assert res2.allowed is False
     assert res2.blocked_reason == "CODE_BLOCK_DETECTED_IN_NON_CODE_PHASE"
     assert "🛑 **[TALOS SocraticGuard]**" in res2.replacement_message
-    assert "primero pseudocódigo" in res2.replacement_message
+    assert "bloque ejecutable" in res2.replacement_message
+    assert "diagrama" not in res2.replacement_message
 
 
 def test_socratic_guard_rolling_buffer_catches_split_tokens(conceptual_phase):
