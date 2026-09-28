@@ -57,7 +57,7 @@ def test_classify_sources_by_role_so2():
     assert "Stallings" in classified["technical"][0]
 
 
-def test_build_tri_layer_instruction_contains_feynman_and_socratic_closing():
+def test_build_tri_layer_instruction_keeps_explanatory_layers_optional():
     chunks = [
         {"source_id": "src_joyanes_fundamentos", "source_title": "Joyanes Aguilar"},
         {"source_id": "src_urrutia_programacion_c_principiantes", "source_title": "Urrutia Landa"},
@@ -65,11 +65,13 @@ def test_build_tri_layer_instruction_contains_feynman_and_socratic_closing():
     pack = EpistemicContextPack(formatted_context="", citations=[], chunks=chunks)
     instruction = build_tri_layer_instruction(pack, "fadena-lenguajes")
 
-    assert "Capa 1: Intuición Conceptual y Analogía" in instruction
-    assert "Richard Feynman" in instruction
-    assert "Capa 2: Mecanismo y Formalismo Riguroso" in instruction
-    assert "Capa 3: Nivel de Máquina e Implementación Práctica" in instruction
-    assert "CIERRE SOCRÁTICO OBLIGATORIO" in instruction
+    assert "Intuición o analogía" in instruction
+    assert "Mecanismo o formalismo" in instruction
+    assert "Implementación o nivel de máquina" in instruction
+    assert "no conviertas esta lista en tres secciones obligatorias" in instruction
+    assert "solo si es útil" in instruction
+    assert "Richard Feynman" not in instruction
+    assert "CIERRE SOCRÁTICO OBLIGATORIO" not in instruction
 
 
 def test_offline_knowledge_backend_tri_layer_and_socratic_questions():
@@ -92,11 +94,11 @@ def test_offline_knowledge_backend_tri_layer_and_socratic_questions():
         assert "Desafío Socrático:" in text, f"Falta cierre socrático obligatorio en: {q}"
 
 
-def test_extract_technical_checklist_and_threat_intel_injection():
-    """Verify technical checklist extraction and iconic vulnerability threat intel injection (Fase 7.4)."""
+def test_extract_technical_checklist_and_security_evidence_instruction():
+    """Verify technical checklist extraction and evidence-bounded security context."""
     from study_engine.pedagogy.structured_pipeline import (
         extract_technical_checklist,
-        inject_threat_intel,
+        build_security_evidence_instruction,
         StructuredResponsePipeline,
     )
     from study_engine.pedagogy.fase0_seed import FASE0_CONTRACT
@@ -106,9 +108,8 @@ def test_extract_technical_checklist_and_threat_intel_injection():
     assert "Zero Flag" in entities
     assert "Carry Flag" in entities
 
-    threat_intel = inject_threat_intel(query)
-    assert "Heartbleed" in threat_intel
-    assert "CVE-2014-0160" in threat_intel
+    security_instruction = build_security_evidence_instruction(query)
+    assert security_instruction == ""
 
     pipeline = StructuredResponsePipeline(contract=FASE0_CONTRACT, llm_backend=None)
     phase = FASE0_CONTRACT.get_phase("conceptual")
@@ -117,7 +118,8 @@ def test_extract_technical_checklist_and_threat_intel_injection():
     assert "LISTA DE VERIFICACIÓN DE COBERTURA TÉCNICA OBLIGATORIA" in prompt
     assert "'Zero Flag'" in prompt
     assert "'Carry Flag'" in prompt
-    assert "ANCLAJE A THREAT INTEL" in prompt
-    assert "Heartbleed" in prompt
-    assert "Feynman de Barrio" in prompt
-
+    assert "ANCLAJE A THREAT INTEL" not in prompt
+    assert "CRITERIOS DE EVIDENCIA PARA AFIRMACIONES DE SEGURIDAD" not in prompt
+    assert "Heartbleed" not in prompt
+    assert "Tarea resuelta: responder la consulta." in prompt
+    assert "Feynman de Barrio" not in prompt

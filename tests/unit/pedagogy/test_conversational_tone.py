@@ -104,8 +104,10 @@ class TestToneDirectiveBuilder:
     def test_frustration_directive_injection(self) -> None:
         directive = build_pedagogical_tone_directive("no entiendo nada, me tiene podrido este tema")
         assert "EMPATÍA ANTE DIFICULTAD" in directive
-        assert "FEYNMAN DE BARRIO" in directive
+        assert "USO CUIDADOSO DE ANALOGÍAS" in directive
+        assert "solo si aclara el mecanismo" in directive
         assert "RIGOR EPISTÉMICO MANDATORIO" in directive
+        assert "CONTEXTO Y ALCANCE DE AFIRMACIONES TÉCNICAS" in directive
 
     def test_reasoning_directive_injection(self) -> None:
         directive = build_pedagogical_tone_directive(
@@ -178,7 +180,8 @@ class TestPipelinePromptToneInjection:
         prompt_frustrated = pipeline.build_phase_prompt(phase, "no cacho nada, me tiene podrido este tema")
         assert "NUNCA halagues de forma vacía" in prompt_frustrated
         assert "EMPATÍA ANTE DIFICULTAD" in prompt_frustrated
-        assert "FEYNMAN DE BARRIO" in prompt_frustrated
+        assert "USO CUIDADOSO DE ANALOGÍAS" in prompt_frustrated
+        assert "no la presentes como mecanismo literal" in prompt_frustrated.lower()
 
         # 2. Structured deduction query
         prompt_reasoning = pipeline.build_phase_prompt(

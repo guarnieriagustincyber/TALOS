@@ -240,9 +240,9 @@ Identificador en esta hoja de ruta: **F4-formato** (no confundir con las fases
 | Fase | Resultado de salida | Dependencia principal | Estado al actualizar este plan |
 |---|---|---|---|
 | 0 — Línea de base | Evidencia preservada, rúbrica y protocolo | Evidencia de la comparación del usuario | Completada como línea de base; sin puntuación retrospectiva |
-| 1 — Contrato por turno | Una decisión tipada de tarea y restricciones que gobierna el prompt | Fase 0; flujo actual del chat | Implementada localmente; 38 pruebas focalizadas pasaron; sin commit |
-| 2 — Modos pedagógicos | Estrategias de explicación, práctica, corrección y reexplicación | Fase 1 | Diseñada en este documento; pendiente de implementación |
-| 3 — Rigor y ciberseguridad | Afirmaciones técnicas contextualizadas y razonamiento seguro | Fases 1–2 | Diseñada en este documento; pendiente de implementación |
+| 1 — Contrato por turno | Una decisión tipada de tarea y restricciones que gobierna el prompt | Fase 0; flujo actual del chat | Implementada y validada en `0661226`; sin push |
+| 2 — Modos pedagógicos | Estrategias de explicación, práctica, corrección y reexplicación | Fase 1 | Implementada localmente; criterios prompt-level verificados; sin commit |
+| 3 — Rigor y ciberseguridad | Afirmaciones técnicas contextualizadas y razonamiento seguro | Fases 1–2 | Implementada localmente; guardas de prompt y regresiones offline verificadas |
 | 4 — Formato y código | Formato fiel al pedido, código controlado y salida usable | Fases 1–3 | Diseñada en este documento; pendiente de implementación |
 | 5 — Fuentes y continuidad | Seguimientos coherentes y procedencia de afirmaciones visible | Fases 1–4; recuperación/contexto existentes | Diseñada en este documento; pendiente de implementación |
 | 6 — Streaming y fiabilidad | Respuesta visible íntegra o fallo explícito, medible y recuperable | Camino de chat/streaming; instrumentación disponible | Diseñada en este documento; pendiente de implementación |
@@ -853,6 +853,103 @@ necesarios.
 Anotar los modos creados/ajustados, archivos exactos, tests ejecutados,
 incidencias conocidas, comportamiento no cubierto y decisión de salida. No
 marcar la fase completada solo porque se haya añadido texto a un prompt.
+
+### Registro de implementación — 2026-09-28
+
+- **Estado:** implementada localmente; los criterios de aceptación de Fase 2
+  se cumplen en el nivel verificable del resolvedor y del prompt ensamblado.
+  Esto no demuestra obediencia del modelo ni mejora de aprendizaje.
+- **Archivos:** `src/study_engine/pedagogy/structured_pipeline.py`,
+  `tests/unit/pedagogy/test_adaptive_pipeline.py`,
+  `tests/unit/pedagogy/test_tri_layer_synthesis.py` y este plan.
+- **Decisiones:** se reutilizan `ResponseIntent`, `resolve_response_intent`,
+  `classify_pedagogical_intent` y `parse_student_command`; no se creó un
+  clasificador paralelo ni se llamó a un modelo para seleccionar modos. Se
+  añadió una política semántica final por tarea para concepto, profundización,
+  síntesis, ejercicio guiado, solución completa explícita, feedback/corrección,
+  reparación de misconception, reexplicación, recomendación y laboratorio
+  conceptual. La política evita formatos, analogías, código y preguntas de
+  cierre obligatorios cuando no aportan. Una petición explícita de solución
+  completa ya no activa el protocolo anti-atajo; el feedback solo puede usar
+  intentos visibles y pide compartirlos si faltan. Las recomendaciones son
+  tentativas y no afirman dominio. No se modificó BKT, estado del estudiante,
+  historial persistente ni fuentes.
+- **Comandos y resultados reales:**
+  - `./.venv/bin/pytest -q tests/unit/pedagogy/test_adaptive_pipeline.py` —
+    51 passed, 2 warnings (FastAPI `on_event` deprecado).
+  - `./.venv/bin/pytest -q tests/unit/pedagogy tests/pedagogy/test_structured_pipeline_phases.py tests/pedagogy/test_command_parser.py` —
+    201 passed, 7 warnings (FastAPI `on_event` y Starlette `TestClient`).
+  - `python3 -m compileall -q src/study_engine/pedagogy/structured_pipeline.py tests/unit/pedagogy/test_adaptive_pipeline.py tests/unit/pedagogy/test_tri_layer_synthesis.py` —
+    pasó.
+  - `git diff --check` — pasó.
+- **Cobertura:** las pruebas deterministas ejercitan tareas distintas, formato
+  final del prompt, aceptación del ejercicio, solicitudes de solución completa
+  expresadas de varias formas, feedback con intentos correctos/parciales/
+  erróneos/vacíos o ausentes, reexplicación, recomendación, laboratorio y
+  ejemplos de proceso/DNS. Un backend de captura mock verifica el flujo de
+  generación sin proveedores externos.
+- **Warnings, límites y riesgos:** persisten dos warnings preexistentes de
+  deprecación de `FastAPI.on_event`; no se cambiaron como parte de esta fase.
+  La detección es heurística determinista sobre expresiones reconocidas; las
+  formulaciones no reconocidas vuelven al modo conceptual conservador.
+  Las pruebas demuestran resolución y ensamblado del prompt, no la calidad
+  de una respuesta de modelo real, su exactitud final ni aprendizaje. No se
+  ejecutó el benchmark ni se llamó a proveedores.
+- **Decisión de salida:** criterios locales de Fase 2 verificados. No marcar
+  como evaluación pedagógica externa; Fase 3 sigue pendiente.
+
+### Registro de implementación — Fase 3, 2026-09-28
+
+- **Estado:** implementada localmente; se verificó la resolución y el prompt
+  ensamblado. Esto no constituye verificación factual de salidas de modelo ni
+  demuestra una mejora pedagógica.
+- **Inventario/conflictos encontrados:** los prompts heredados daban por
+  sentados Linux/x86-64/System V, imponían diagramas/código/cierres, forzaban
+  analogías y añadían CVE/incidentes desde palabras clave sin evidencia
+  contextual. Las directivas de depuración, revisión de código y reparación
+  de confusiones también prescribían causas o ataques concretos ajenos a la
+  consulta en ciertos casos.
+- **Archivos:** `src/study_engine/pedagogy/structured_pipeline.py`,
+  `src/study_engine/pedagogy/prompts.py`,
+  `tests/unit/pedagogy/test_adaptive_pipeline.py`,
+  `tests/unit/pedagogy/test_tri_layer_synthesis.py`,
+  `tests/unit/pedagogy/test_conversational_tone.py` y este plan.
+- **Decisiones:** se añadió una regla de contexto técnico que exige separar
+  principio general de detalle dependiente de sistema, arquitectura, ABI,
+  compilador, versión o configuración; cuando el contexto aporta el entorno,
+  limita la afirmación a este, y cuando no, evita suponerlo. Las analogías
+  quedan opcionales y deben declarar su límite cuando aplique. Casos de
+  vulnerabilidad/CVE requieren precondiciones, mecanismo causal, impacto
+  delimitado y evidencia; se retiró la tabla hardcodeada que ligaba palabras
+  clave a incidentes y se sustituyó por `build_security_evidence_instruction`,
+  que no inyecta hechos históricos. Se flexibilizaron las dimensiones de la
+  plantilla tri-capa y las instrucciones de depuración, auditoría y
+  misconception para no imponer una plataforma, mecanismo, longitud o
+  consecuencia de seguridad no sustentada.
+- **Pruebas y comandos exactos:**
+  - `./.venv/bin/pytest -q tests/unit/pedagogy/test_adaptive_pipeline.py tests/unit/pedagogy/test_tri_layer_synthesis.py tests/unit/pedagogy/test_conversational_tone.py tests/unit/pedagogy/test_introductory_calibration.py` —
+    107 passed, 2 warnings (`FastAPI.on_event` deprecado).
+  - `./.venv/bin/pytest -q tests/unit/pedagogy tests/pedagogy/test_structured_pipeline_phases.py tests/pedagogy/test_command_parser.py` —
+    208 passed, 7 warnings (`FastAPI.on_event` y `Starlette TestClient`).
+  - `python3 -m compileall -q src/study_engine/pedagogy/structured_pipeline.py src/study_engine/pedagogy/prompts.py tests/unit/pedagogy/test_adaptive_pipeline.py tests/unit/pedagogy/test_tri_layer_synthesis.py tests/unit/pedagogy/test_conversational_tone.py` —
+    pasó.
+  - `git diff --check` — pasó.
+- **Cobertura y límites:** tests representativos verifican entorno no provisto
+  y contexto que especifica Linux x86-64, preguntas conceptuales generales,
+  consulta histórica y CVE sin evidencia, analogía limitada y ausencia de
+  conexión de seguridad forzada; además, comprueban que una revisión no
+  introduzca un CVE o una arquitectura por defecto. Son pruebas del contenido
+  de instrucciones, no verificadores de verdad ni de obediencia del LLM. No se
+  consultaron fuentes externas ni se verificó individualmente la taxonomía
+  histórica del repositorio; las menciones históricas requieren evidencia
+  autorizada en el contexto. No se repitió benchmark ni se cambió BKT/estado
+  del estudiante.
+- **Warnings, riesgos y decisión:** quedan siete warnings de deprecación
+  preexistentes en la suite amplia. La directiva reduce prescripciones
+  infundadas, pero no garantiza exactitud factual; para afirmaciones sensibles
+  sigue haciendo falta revisión de contenido respaldada por fuentes, fuera
+  del gate offline. Los criterios de implementación local de Fase 3 quedan
+  verificados; Fase 4-formato y Fases 5–7 siguen pendientes.
 
 ## Fase 3 — Rigor técnico y conexión con ciberseguridad
 
@@ -1525,26 +1622,24 @@ para los hallazgos, límites y protocolo. No repetir setup ni lanzar otra
 ejecución del benchmark sin solicitud explícita. Antes de continuar, comprobar
 el estado actual de Git; no asumir que ramas o cambios descritos en handoffs
 anteriores siguen vigentes. La Fase 1 está implementada y validada con las
-pruebas focalizadas mencionadas; los cambios están sin commit y no hubo push.
-Las Fases 2–7 tienen ahora diseño detallado en este documento; esto no significa
-que estén implementadas, aprobadas para evaluación externa ni aceptadas.
+pruebas focalizadas mencionadas y forma parte del commit local `0661226`; no
+hubo push. Las Fases 2 y 3 se implementaron en el árbol local y sus registros
+están arriba; no hubo commit ni evaluación externa. Las Fases 4-formato a 7
+continúan diseñadas, no implementadas ni aceptadas.
 
-### Snapshot de handoff verificado el 2026-09-28
+### Snapshot de handoff actualizado el 2026-09-28
 
-- Branch observada: `main`; HEAD observado: `f1cf8f8`.
-- Git reportó `main...origin/main [adelante 6]` en esa verificación. Es una
-  observación puntual; volver a consultar remotos antes de cualquier operación
-  de sincronización.
-- Hay cambios locales sin commit en:
-  - `docs/FASE0_LINEA_BASE_TALOS_NOTEBOOKLM.md` — actualización local de la
-    evidencia de Fase 0.
-  - `docs/PLAN_MEJORA_PEDAGOGICA_TALOS.md` — plan rector y handoff.
-  - `src/study_engine/pedagogy/structured_pipeline.py` — implementación de
-    Fase 1.
-  - `tests/unit/pedagogy/test_adaptive_pipeline.py` — regresiones de Fase 1.
-- No hubo commit ni push de estos cambios en el snapshot. No descartar, resetear
-  ni sobrescribirlos al retomar; inspeccionar el diff actual porque puede haber
-  cambiado.
-- Siguiente acción segura: cerrar/revisar el diff de Fase 1 y sus documentos;
-  no empezar una implementación de Fase 2 hasta que el árbol y el alcance se
-  hayan revisado.
+- Branch observada: `main`; HEAD: `0661226745a75c4431465c2b939926f0748699ac`.
+- Git reportó `main...origin/main [adelante 7]`; no se hizo push.
+- Hay cambios locales sin commit de Fases 2 y 3 en:
+  - `src/study_engine/pedagogy/prompts.py`
+  - `src/study_engine/pedagogy/structured_pipeline.py`
+  - `tests/unit/pedagogy/test_adaptive_pipeline.py`
+  - `tests/unit/pedagogy/test_tri_layer_synthesis.py`
+  - `tests/unit/pedagogy/test_conversational_tone.py`
+  - `docs/PLAN_MEJORA_PEDAGOGICA_TALOS.md`
+- El árbol estaba limpio al comenzar la sesión; estos son los cambios de esta
+  implementación y su registro. No se creó commit.
+- Siguiente fase de implementación: **F4-formato — Formato, pseudocódigo y
+  código**. Antes de trabajarla, volver a revisar este plan, la evidencia de
+  Fase 0 y el estado real de Git.

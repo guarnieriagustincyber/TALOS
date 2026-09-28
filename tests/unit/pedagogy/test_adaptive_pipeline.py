@@ -140,6 +140,350 @@ def test_response_intent_recognizes_exercise_acceptance():
     assert "esperá el intento sin revelar la solución completa" in intent.to_prompt_instruction()
 
 
+@pytest.mark.parametrize(
+    ("query", "expected_task"),
+    [
+        ("¿Qué es un proceso?", "responder la consulta"),
+        ("Explicá en profundidad cómo se planifica un proceso.", "explicar en profundidad"),
+        ("Resumí los estados de un proceso en 3 líneas.", "sintetizar o responder brevemente"),
+        ("DAME LA SOLUCIÓN COMPLETA del ejercicio.", "entregar solución completa solicitada"),
+        ("Pasame la solución completa del ejercicio.", "entregar solución completa solicitada"),
+        ("Dame el código completo terminado del ejercicio.", "entregar solución completa solicitada"),
+        ("Revisá mi respuesta: un proceso es un programa en ejecución.", "revisar un intento o corregir una respuesta"),
+        ("No entendí cómo decide el scheduler; explicámelo de otra manera.", "reexplicar con otro enfoque"),
+        ("¿Qué tema conviene estudiar ahora a partir de esto?", "recomendar el siguiente paso"),
+        ("Armemos un laboratorio conceptual de DNS.", "diseñar un laboratorio conceptual"),
+    ],
+)
+def test_response_intent_resolves_distinct_pedagogical_tasks(query, expected_task):
+    assert resolve_response_intent(query).task == expected_task
+
+
+@pytest.mark.parametrize(
+    "attempt",
+    [
+        "Un proceso es un programa en ejecución.",
+        "Un proceso tiene recursos propios, aunque varios procesos pueden compartir archivos.",
+        "Un proceso y un programa son lo mismo.",
+        "",
+    ],
+)
+def test_feedback_strategy_uses_available_attempt_and_asks_when_missing(attempt):
+    contract = PedagogicalContract(
+        contract_id="contract_feedback_strategy_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    phase = contract.get_phase("conceptual")
+    with_attempt = pipeline.build_phase_prompt(
+        phase=phase,
+        user_query="Revisá mi respuesta.",
+        recent_turns=[{"role": "user", "content": attempt}],
+    )
+    without_attempt = pipeline.build_phase_prompt(phase=phase, user_query="Revisá mi intento.")
+
+    assert "Usá solo el intento disponible" in with_attempt
+    assert "el primer error concreto" in with_attempt
+    assert "No inventes un intento" in without_attempt
+    assert "pedile que comparta su respuesta" in without_attempt
+    if attempt:
+        assert attempt in with_attempt
+
+
+@pytest.mark.parametrize(
+    ("query", "expected_instruction"),
+    [
+        ("¿Qué es un proceso en sistemas operativos?", "Contestá primero la pregunta"),
+        ("Explicá en profundidad el aislamiento de procesos.", "Desarrollá capas pertinentes"),
+        ("Resumí el aislamiento de procesos en 3 líneas.", "Conservá el hecho central"),
+        ("Sí, hagamos el ejercicio.", "Proponé una consigna clara"),
+        ("DAME LA SOLUCIÓN COMPLETA del ejercicio.", "Entregá la solución completa solicitada"),
+        ("Pasame la solución completa del ejercicio.", "Entregá la solución completa solicitada"),
+        ("Dame el código completo terminado del ejercicio.", "Entregá la solución completa solicitada"),
+        ("No entendí cómo decide el scheduler; explicámelo de otra manera.", "cambiá realmente"),
+        ("¿Qué tema conviene estudiar ahora a partir de esto?", "No afirmes dominio"),
+        ("Armemos un laboratorio conceptual de DNS.", "No ejecutes acciones reales"),
+    ],
+)
+def test_assembled_prompt_includes_task_specific_adaptive_strategy(query, expected_instruction):
+    contract = PedagogicalContract(
+        contract_id="contract_mode_strategy_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}\nCerrá con una pregunta socrática.",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    prompt = pipeline.build_phase_prompt(
+        phase=contract.get_phase("conceptual"),
+        user_query=query,
+    )
+
+    assert "ESTRATEGIA PEDAGÓGICA PARA ESTA TAREA" in prompt
+    assert expected_instruction in prompt
+    assert prompt.rfind("ESTRATEGIA PEDAGÓGICA PARA ESTA TAREA") > prompt.rfind(
+        "Cerrá con una pregunta socrática"
+    )
+
+
+def test_explicit_complete_solution_is_not_replaced_by_anti_shortcut_policy():
+    contract = PedagogicalContract(
+        contract_id="contract_explicit_solution_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    for query in (
+        "DAME LA SOLUCIÓN COMPLETA del ejercicio.",
+        "Pasame la solución completa del ejercicio.",
+        "Dame el código completo terminado del ejercicio.",
+    ):
+        prompt = pipeline.build_phase_prompt(
+            phase=contract.get_phase("conceptual"),
+            user_query=query,
+        )
+
+        assert "SOLUCIÓN COMPLETA SOLICITADA" in prompt
+        assert "PROTOCOLO ANTI-ATAJO ACTIVADO" not in prompt
+        assert "No reveles la solución completa" not in prompt
+
+
+def test_generation_sends_adaptive_task_policy_to_mocked_backend():
+    import asyncio
+
+    async def _run():
+        class PromptCaptureBackend:
+            def __init__(self):
+                self.prompt_bundles = []
+
+            def complete(self, prompt_bundle):
+                self.prompt_bundles.append(prompt_bundle)
+                return ProviderCompletion(
+                    text="Respuesta determinista.",
+                    latency_ms=1.0,
+                    model="prompt-capture",
+                )
+
+        contract = PedagogicalContract(
+            contract_id="contract_task_strategy_generation_test",
+            notebook_id="fase0-soc",
+            version="1.0.0",
+            authoritative_sources=("src_test",),
+            domain_scope=("test",),
+            base_system_prompt="Tutor TALOS.",
+            response_phases=[
+                ResponsePhase(
+                    phase_id="conceptual",
+                    max_tokens=400,
+                    phase_prompt_template="Explica: {concept}",
+                ),
+            ],
+        )
+        backend = PromptCaptureBackend()
+        pipeline = StructuredResponsePipeline(contract=contract, llm_backend=backend)
+
+        cases = (
+            (
+                "DAME LA SOLUCIÓN COMPLETA del ejercicio.",
+                [],
+                "SOLUCIÓN COMPLETA SOLICITADA",
+            ),
+            (
+                "Revisá mi respuesta.",
+                [{"role": "user", "content": "Un proceso es un programa en ejecución."}],
+                "revisar un intento o corregir una respuesta",
+            ),
+            (
+                "¿Qué tema conviene estudiar ahora?",
+                [{"role": "assistant", "content": "Estuvimos repasando procesos e hilos."}],
+                "No afirmes dominio",
+            ),
+            (
+                "¿Qué tema me recomendás estudiar ahora?",
+                [],
+                "pedí una aclaración breve",
+            ),
+        )
+        for query, recent_turns, expected_prompt_text in cases:
+            events = [
+                event
+                async for event in pipeline.generate_phased_response(
+                    user_query=query,
+                    requested_phase="conceptual",
+                    recent_turns=recent_turns,
+                )
+            ]
+            assert any(event.event_type == "phase_complete" for event in events)
+
+            user_prompt = backend.prompt_bundles[-1].messages[0].content
+            assert expected_prompt_text in user_prompt
+            if "SOLUCIÓN COMPLETA" in query:
+                phase_start = next(event for event in events if event.event_type == "phase_start")
+                assert phase_start.payload["code_allowed"] is True
+                assert "PROTOCOLO ANTI-ATAJO ACTIVADO" not in user_prompt
+
+    asyncio.run(_run())
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "¿Qué es una dirección IPv4?",
+        "¿Qué es un proceso?",
+        "Explicá el contexto histórico de Heartbleed.",
+        "¿Qué condiciones hicieron posible CVE-2021-29921?",
+        "Explicá por qué una analogía de direcciones puede ser limitada.",
+    ],
+)
+def test_prompt_adds_contextual_rigor_without_inventing_sources_or_security_links(query):
+    contract = PedagogicalContract(
+        contract_id="contract_contextual_rigor_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    prompt = pipeline.build_phase_prompt(
+        phase=contract.get_phase("conceptual"),
+        user_query=query,
+    )
+
+    assert "CONTEXTO Y ALCANCE DE AFIRMACIONES TÉCNICAS" in prompt
+    assert "No supongas sistema operativo, arquitectura, ABI, compilador, versión ni configuración" in prompt
+    assert "No inventes citas, versiones ni fuentes consultadas" in prompt
+    assert "No fuerces una conexión con ciberseguridad" in prompt
+    assert "Explicá el límite de la analogía" in prompt
+    assert "No presentes un CVE o caso histórico como universal" in prompt
+
+
+def test_known_environment_is_preserved_and_not_overridden_by_default_assumptions():
+    from study_engine.web.routes.chat import EpistemicContextPack
+
+    contract = PedagogicalContract(
+        contract_id="contract_known_environment_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}",
+            ),
+        ],
+    )
+    context_pack = EpistemicContextPack(
+        formatted_context="[E1] El ejemplo de esta consulta usa Linux x86-64.",
+        citations=[],
+        chunks=[],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    prompt = pipeline.build_phase_prompt(
+        phase=contract.get_phase("conceptual"),
+        user_query="¿Qué hace este syscall?",
+        context_pack=context_pack,
+    )
+
+    assert "[E1] El ejemplo de esta consulta usa Linux x86-64." in prompt
+    assert "Si el contexto sí especifica el entorno, circunscribí la afirmación a ese entorno" in prompt
+    assert "No supongas sistema operativo, arquitectura, ABI, compilador, versión ni configuración" in prompt
+
+
+def test_generic_ipv4_explanation_does_not_force_an_unverified_cve_mapping():
+    contract = PedagogicalContract(
+        contract_id="contract_unverified_historical_case_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+    prompt = pipeline.build_phase_prompt(
+        phase=contract.get_phase("conceptual"),
+        user_query="¿Qué es una dirección IPv4?",
+    )
+
+    assert "CVE-2021-29921" not in prompt
+    assert "ANCLAJE A THREAT INTEL" not in prompt
+    assert "No presentes un CVE o caso histórico como universal" in prompt
+
+
+def test_concept_strategy_is_not_programming_specific_or_forced_to_use_analogies():
+    contract = PedagogicalContract(
+        contract_id="contract_cross_subject_strategy_test",
+        notebook_id="fase0-soc",
+        version="1.0.0",
+        authoritative_sources=("src_test",),
+        domain_scope=("test",),
+        base_system_prompt="Tutor TALOS.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                max_tokens=400,
+                phase_prompt_template="Explica: {concept}",
+            ),
+        ],
+    )
+    pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
+
+    for query in ("¿Qué es un proceso?", "¿Qué es DNS?"):
+        prompt = pipeline.build_phase_prompt(
+            phase=contract.get_phase("conceptual"),
+            user_query=query,
+        )
+        strategy = prompt.rsplit("ESTRATEGIA PEDAGÓGICA PARA ESTA TAREA", 1)[1]
+        assert "analogía solo si aporta" in strategy
+        assert "no fuerces python" in strategy.lower()
+
+
 def test_response_intent_suppresses_socratic_close_when_requested():
     intent = resolve_response_intent("Definilo en una frase y no hagas una pregunta.")
 
@@ -363,29 +707,26 @@ def test_build_phase_prompt_adapts_to_response_modes():
     assert "RESPUESTA RÁPIDA Y CONCISA" in prompt_quick
     assert "Extensión pedagógica objetivo: hasta 100 palabras" in prompt_quick
 
-    # Mode: Evaluate code / Forensic audit -> 2500 words, bug-by-bug forensic protocol
+    # Code review is contextual and does not force unrelated CVEs or implementation details.
     prompt_audit = pipeline.build_phase_prompt(
         phase=phase,
         user_query="Auditar la siguiente solución en Python para validar IPv4",
         pedagogical_mode="evaluate_code",
     )
-    assert "AUDITORÍA FORENSE DE CÓDIGO Y CIBERDEFENSA" in prompt_audit
-    assert "Auditoría Técnica y Análisis de Bugs (Diagnóstico Forense Específico)" in prompt_audit
-    assert "REGLA DE ORO DE SEGURIDAD EN PYTHON" in prompt_audit
-    assert "es_digito_ascii" in prompt_audit
-    assert "CVE-2021-29921" in prompt_audit
+    assert "REVISIÓN DE CÓDIGO Y ANÁLISIS TÉCNICO" in prompt_audit
+    assert "No inventes vulnerabilidades, impacto de seguridad, arquitectura ni CVE" in prompt_audit
+    assert "CVE-2021-29921" not in prompt_audit
+    assert "No supongas sistema operativo, arquitectura, ABI, compilador, versión ni configuración" in prompt_audit
 
-    # Mode: Resolve misconception -> 1500 words, epistemic scaffolding
+    # Misconception repair is context-specific instead of hard-coding one unrelated example.
     prompt_misconception = pipeline.build_phase_prompt(
         phase=phase,
         user_query="No entiendo por qué 010.0.0.1 es un error si en matemáticas 010 es 10",
         pedagogical_mode="resolve_misconception",
     )
-    assert "RESOLUCIÓN DE CONFLICTO EPISTÉMICO Y ANDAMIAJE SOCRÁTICO" in prompt_misconception
-    assert "Validación Cognitiva y Desarme de la Frustración" in prompt_misconception
-    assert "Regla de Oro: Modelar el Mecanismo, No Metáforas Vacías" in prompt_misconception
-    assert "Parser Differential / CVE-2021-29921" in prompt_misconception
-    assert "Extensión pedagógica objetivo: hasta 1500 palabras" in prompt_misconception
+    assert "REPARACIÓN DE CONCEPTO" in prompt_misconception
+    assert "resolver una concepción errónea" in prompt_misconception
+    assert "dónde deja de aplicar" in prompt_misconception
 
 
 def test_basic_explain_concept_uses_introductory_output_rules():

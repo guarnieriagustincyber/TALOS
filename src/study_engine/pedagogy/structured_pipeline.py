@@ -254,93 +254,21 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
     return directives
 
 
-ICONIC_VULNERABILITIES: Dict[str, Dict[str, str]] = {
-    "buffer_overflow": {
-        "case": "Morris Worm (1988)",
-        "description": "Primer gusano de Internet que explotó un buffer overflow en gets() de fingerd",
-        "impact": "Infectó el 10% de las computadoras conectadas a ARPANET/Internet en esa época.",
-    },
-    "out_of_bounds_read": {
-        "case": "Heartbleed (2014, CVE-2014-0160)",
-        "description": "Falla de validación de longitud en OpenSSL TLS Heartbeat que permitía leer 64KB de memoria adyacente",
-        "impact": "Filtró claves privadas SSL/TLS, credenciales y sesiones de millones de servidores web.",
-    },
-    "race_condition": {
-        "case": "Dirty COW (CVE-2016-5195) / TOCTOU",
-        "description": "Condición de carrera en el subsistema de memoria Copy-On-Write del kernel Linux",
-        "impact": "Permitió escalamiento local de privilegios a root sin dejar rastro en logs de auditoría.",
-    },
-    "integer_overflow": {
-        "case": "Ariane 5 Flight 501 (1996)",
-        "description": "Conversión de un flotante de 64 bits a entero con signo de 16 bits sin verificación de límites",
-        "impact": "Autodestrucción del cohete a los 37 segundos del lanzamiento con pérdida de 370M USD.",
-    },
-    "null_dereference": {
-        "case": "Ataques de Kernel NULL Pointer Dereference (CVE-2009-2692)",
-        "description": "Mapeo de la página cero (mmap_min_addr) para ejecutar shellcode en anillo 0 al desreferenciar puntero nulo",
-        "impact": "Compromiso total del kernel del sistema operativo mediante vectores locales.",
-    },
-    "sql_injection": {
-        "case": "Inyección SQL y Bypass de Autenticación (Tautología ' OR '1'='1)",
-        "description": "Concatenación no parametrizada de strings donde el motor SQL confunde datos del usuario con instrucciones de control",
-        "impact": "Exfiltración masiva de credenciales y volcado no autorizado de bases de datos relacionales en producción.",
-    },
-    "command_injection": {
-        "case": "finger.cgi y Shell Injection (Stallings Cap. 11 / Morris / Perl CGI)",
-        "description": "Inyección de metacaracteres (; | &&) en llamadas al sistema (os.system / exec) sin sanitización de frontera",
-        "impact": "Ejecución remota de comandos del sistema operativo (RCE) con los privilegios del servidor web.",
-    },
-    "tdd_edge_cases": {
-        "case": "Heartbleed (CVE-2014-0160) por ausencia de test de longitud de frontera",
-        "description": "Falta de un test unitario que verificara la coincidencia entre la longitud declarada y el tamaño real del búfer en OpenSSL Heartbeat",
-        "impact": "Lectura masiva no autorizada de 64KB de memoria RAM contigua filtrando claves privadas SSL y credenciales en todo el mundo.",
-    },
-    "parser_differential": {
-        "case": "Parser Differential en Validación de IP (CVE-2021-29921 / inet_addr Octal Bypass)",
-        "description": "Ambigüedad semántica entre bibliotecas de alto nivel (Python/Go/Rust) que parsean octetos como decimal vs bibliotecas C del kernel (inet_addr) que interpretan ceros a la izquierda (ej. '010.0.0.1') en base 8 (octal)",
-        "impact": "Bypass de firewalls, WAFs y filtros de red permitiendo Server-Side Request Forgery (SSRF), IP Spoofing y enrutamiento arbitrario no autorizado.",
-    },
-    "unicode_injection": {
-        "case": "Unicode Digit Bypass e Incompatibilidad de Encoding (str.isdigit() vs ASCII)",
-        "description": "Aceptación de caracteres numéricos de alfabetos extranjeros (arábigo, devanagari) que str.isdigit() considera dígitos válidos en Python, pero que provocan desbordamientos o crashes al ser consumidos por sockets del sistema operativo",
-        "impact": "Denegación de Servicio (DoS), desincronización de estado y vulnerabilidades de inyección en capas de transporte.",
-    },
-}
-
-
-def inject_threat_intel(user_query: str) -> str:
-    """Inyecta un caso histórico real y emblemático si la consulta involucra vulnerabilidades de bajo nivel."""
+def build_security_evidence_instruction(user_query: str) -> str:
+    """Add evidence constraints for security topics without asserting an incident."""
     q_lower = user_query.lower()
-    selected_key = None
-    if any(w in q_lower for w in ("parser differential", "octal", "ceros a la izquierda", "leading zero", "ipv4", "direccion ip", "dirección ip")):
-        selected_key = "parser_differential"
-    elif any(w in q_lower for w in ("unicode", "is_digit", "isdigit", "devanagari", "arábigo", "arabigo")):
-        selected_key = "unicode_injection"
-    elif any(w in q_lower for w in ("tdd", "test driven", "pruebas unitarias", "leyes del tdd", "edge cases", "testing defensivo")):
-        selected_key = "tdd_edge_cases"
-    elif any(w in q_lower for w in ("sql injection", "inyeccion sql", "inyección sql", "sqli", "prepared statement")):
-        selected_key = "sql_injection"
-    elif any(w in q_lower for w in ("command injection", "inyeccion de comandos", "inyección de comandos", "os command", "shell injection")):
-        selected_key = "command_injection"
-    elif any(w in q_lower for w in ("out of bound", "fuera de limites", "fuera de límites", "cortocircuito", "short-circuit", "lectura fuera")):
-        selected_key = "out_of_bounds_read"
-    elif any(w in q_lower for w in ("buffer overflow", "desbordamiento de buffer", "desbordamiento de búfer", "desbordamiento de pila")):
-        selected_key = "buffer_overflow"
-    elif any(w in q_lower for w in ("integer overflow", "desbordamiento de entero", "desbordamiento aritmético")):
-        selected_key = "integer_overflow"
-    elif any(w in q_lower for w in ("condicion de carrera", "condición de carrera", "toctou", "race condition")):
-        selected_key = "race_condition"
-    elif any(w in q_lower for w in ("puntero nulo", "null pointer", "desreferencia")):
-        selected_key = "null_dereference"
-
-    if selected_key and selected_key in ICONIC_VULNERABILITIES:
-        info = ICONIC_VULNERABILITIES[selected_key]
+    if re.search(
+        r"\b(?:cve[-\s]?\d{4}[-\s]?\d+|vulnerabil\w*|exploit|"
+        r"ataque|inyecci[oó]n|inyeccion|desbordamiento|condici[oó]n de carrera|"
+        r"race condition|ipv4|direcci[oó]n ip|dirección ip|heartbleed|dirty cow)\b",
+        q_lower,
+    ):
         return (
-            f"=== ANCLAJE A THREAT INTEL Y CASOS HISTÓRICOS REALES ===\n"
-            f"- Conectá la vulnerabilidad teórica con el incidente real: **{info['case']}**.\n"
-            f"- Contexto: {info['description']}.\n"
-            f"- Impacto en el mundo real: {info['impact']}.\n"
-            "- Explicá brevemente cómo la mala validación en el código o bucle habilita este vector de ataque concreto.\n"
+            "=== CRITERIOS DE EVIDENCIA PARA AFIRMACIONES DE SEGURIDAD ===\n"
+            "- No agregues ni infieras un CVE o incidente histórico solo por palabras clave. Mencionalo únicamente si "
+            "la evidencia autorizada disponible respalda la relación específica; si no, indicá que no fue verificada.\n"
+            "- Al analizar un riesgo pertinente, separá precondiciones, mecanismo causal, impacto plausible y límites, "
+            "y mitigación con sus trade-offs. No afirmes explotabilidad sin evidencia suficiente.\n"
         )
     return ""
 
@@ -462,18 +390,14 @@ def build_tri_layer_instruction(
     tech_note = f" (Fuentes: {', '.join(classified['technical'])})" if classified["technical"] else ""
 
     instruction = (
-        "=== DIRECTIVA DE SÍNTESIS DIALÉCTICA TRI-CAPA (ESTILO FEYNMAN + RIGOR) ===\n"
-        "Estructurá tu respuesta integrando orgánicamente las siguientes tres dimensiones:\n"
-        f"1. **Capa 1: Intuición Conceptual y Analogía{ped_note}**:\n"
-        "   - Explicá la idea fundamental con estilo apasionado y directo (Richard Feynman).\n"
-        "   - Usá una analogía vívida del mundo real ANTES de las definiciones formales.\n"
-        f"2. **Capa 2: Mecanismo y Formalismo Riguroso{form_note}**:\n"
-        "   - Explicá la teoría rigurosa, modelos matemáticos, algoritmos o invariantes formales.\n"
-        "   - Respaldá con precisión terminológica y citas explícitas de las fuentes formales.\n"
-        f"3. **Capa 3: Nivel de Máquina e Implementación Práctica{tech_note}**:\n"
-        "   - Aterrizá el concepto a la realidad física: impacto en memoria, syscalls, registros o código idiomático.\n\n"
-        "=== CIERRE SOCRÁTICO OBLIGATORIO ===\n"
-        "- Toda respuesta DEBE culminar con una pregunta socrática contextual desafiante que interrogue el modelo mental del estudiante (ej: '¿Qué pasaría si...?', '¿Por qué preferimos X en lugar de Y?').\n"
+        "=== DIMENSIONES EXPLICATIVAS DISPONIBLES ===\n"
+        f"- Intuición o analogía{ped_note}: usala solo si ayuda a esta pregunta; explicá qué representa y dónde deja de aplicar.\n"
+        f"- Mecanismo o formalismo{form_note}: desarrollalo cuando sea necesario para responder con precisión. "
+        "Cita las fuentes formales únicamente cuando estén disponibles en el contexto.\n"
+        f"- Implementación o nivel de máquina{tech_note}: incluí esta capa solo si el tema o el pedido lo requiere; "
+        "explicita el sistema, arquitectura o versión si se conocen y no los supongas si faltan.\n"
+        "- Elegí y ordená las dimensiones pertinentes según la tarea; no conviertas esta lista en tres secciones obligatorias.\n"
+        "- Agregá una pregunta de comprobación o continuación solo si es útil y compatible con el formato y la extensión pedidos.\n"
     )
     return instruction
 
@@ -601,6 +525,20 @@ def resolve_response_intent(
     q = user_query.strip()
     q_lower = q.lower()
     synthesis_negated = _has_negated_synthesis_request(q)
+    parsed_command = parse_student_command(q)
+    explicit_solution_request = bool(
+        parsed_command is not None
+        and parsed_command.command_type.value == "DAME_SOLUCION_COMPLETA"
+    ) or bool(
+        re.search(
+            r"\b(?:dame|pasame|pasá|mostrame|mostrá|quiero)\s+(?:la\s+)?"
+            r"soluci[oó]n\s+completa\b|\b(?:soluci[oó]n|c[oó]digo|"
+            r"implementaci[oó]n)\s+complet[oa]\s+(?:del|de\s+este|de\s+la)\b|"
+            r"\b(?:dame|pasame|pasá|mostrame|mostrá|quiero)\s+(?:el\s+)?"
+            r"(?:c[oó]digo|implementaci[oó]n)\s+complet[oa](?:\s+terminad[oa])?\b",
+            q_lower,
+        )
+    )
 
     exercise_request = bool(
         re.search(
@@ -609,9 +547,44 @@ def resolve_response_intent(
             q_lower,
         )
     )
-    if exercise_request:
+    recommendation_request = bool(
+        re.search(
+            r"\b(?:qu[eé]\s+(?:tema|t[oó]pico|concepto)\s+(?:me\s+)?"
+            r"(?:conviene|recomend[aá]s?|estudiar|seguir)|"
+            r"(?:qu[eé]\s+sigue|por\s+d[oó]nde\s+seguimos|"
+            r"qu[eé]\s+estudio\s+ahora|recomendame\s+(?:un\s+)?(?:tema|siguiente\s+paso)))\b",
+            q_lower,
+        )
+    )
+    laboratory_request = bool(
+        re.search(
+            r"\b(?:laboratorio|lab)\s+(?:conceptual|guiado|de\s+pr[aá]ctica)\b|"
+            r"\b(?:armemos|diseñ[aá]|propon[eé])\s+(?:un\s+)?(?:laboratorio|lab)\b",
+            q_lower,
+        )
+    )
+    feedback_request = bool(
+        re.search(
+            r"\b(?:revis[aá]|correg[ií]|evalu[aá]|verific[aá])\s+"
+            r"(?:mi\s+)?(?:respuesta|intento|soluci[oó]n|ejercicio|c[oó]digo)\b|"
+            r"\b(?:qu[eé]\s+hice\s+mal|en\s+qu[eé]\s+me\s+equivoqu[eé]|"
+            r"est[aá]\s+bien\s+mi\s+(?:respuesta|soluci[oó]n|c[oó]digo))\b",
+            q_lower,
+        )
+    )
+    reexplanation_request = bool(
+        re.search(
+            r"\b(?:no\s+entend[ií]|no\s+entiendo|no\s+comprendo|"
+            r"no\s+me\s+queda\s+claro|explic[aá]melo?\s+de\s+otra\s+"
+            r"(?:manera|forma)|otra\s+forma\s+de\s+explicarlo)\b",
+            q_lower,
+        )
+    )
+
+    if explicit_solution_request:
+        mode = pedagogical_mode or classify_pedagogical_intent(q)
+    elif exercise_request:
         mode = pedagogical_mode or "explain_concept"
-        task = "proponer o continuar un ejercicio guiado"
     elif synthesis_negated:
         mode = pedagogical_mode or classify_pedagogical_intent(q)
         if mode == "quick_answer":
@@ -625,10 +598,23 @@ def resolve_response_intent(
     else:
         mode = pedagogical_mode or classify_pedagogical_intent(q)
 
-    if exercise_request:
+    if explicit_solution_request:
+        task = "entregar solución completa solicitada"
+    elif exercise_request:
         task = "proponer o continuar un ejercicio guiado"
     elif mode == "quick_answer":
         task = "sintetizar o responder brevemente"
+    elif feedback_request:
+        task = "revisar un intento o corregir una respuesta"
+    elif reexplanation_request and not re.search(
+        r"\b(?:pero|en\s+(?:matem[aá]ticas|realidad)|si\s+(?:el|la|un|una))\b",
+        q_lower,
+    ):
+        task = "reexplicar con otro enfoque"
+    elif recommendation_request:
+        task = "recomendar el siguiente paso"
+    elif laboratory_request:
+        task = "diseñar un laboratorio conceptual"
     elif mode == "give_example":
         task = "proporcionar un ejemplo"
     elif mode == "compare":
@@ -740,6 +726,77 @@ def resolve_response_intent(
         code_language=code_language,
         exclude_code=exclude_code,
         exclude_follow_up=exclude_follow_up,
+    )
+
+
+def build_pedagogical_strategy_instruction(intent: ResponseIntent) -> str:
+    """Build an adaptable task policy that takes precedence over legacy style defaults."""
+    task_instructions = {
+        "responder la consulta": (
+            "- Contestá primero la pregunta de forma directa; definí solo los términos necesarios.\n"
+            "- Explicá el mecanismo o agregá un ejemplo cuando ayude a entender, no por rutina.\n"
+            "- Usá una analogía solo si aporta; no fuerces Python, código, secciones ni una pregunta final."
+        ),
+        "explicar en profundidad": (
+            "- Desarrollá capas pertinentes: intuición, conceptos/prerrequisitos, mecanismo y matices técnicos "
+            "que correspondan al tema y al pedido.\n"
+            "- La profundidad no implica longitud ilimitada: respetá cualquier límite explícito y señalá lo que "
+            "quede fuera sin afirmar exhaustividad."
+        ),
+        "sintetizar o responder brevemente": (
+            "- Conservá el hecho central y la precisión dentro del formato y límite solicitados.\n"
+            "- Omití introducciones, cierres, quizzes y preguntas adicionales que excedan el pedido."
+        ),
+        "proponer o continuar un ejercicio guiado": (
+            "- Proponé una consigna clara, evaluable y vinculada al tema disponible; indicá un primer paso "
+            "accionable y esperá el intento.\n"
+            "- No reveles la solución completa salvo que el estudiante la pida explícitamente."
+        ),
+        "entregar solución completa solicitada": (
+            "- Entregá la solución completa solicitada en el formato pedido, con explicación proporcional y "
+            "verificaciones o casos límite pertinentes.\n"
+            "- No apliques la regla de no revelar soluciones ni un protocolo anti-atajo contra este pedido."
+        ),
+        "revisar un intento o corregir una respuesta": (
+            "- Usá solo el intento disponible en la consulta o el historial reciente: señalá primero lo "
+            "correcto, después el primer error concreto y por qué, y ofrecé un siguiente paso útil.\n"
+            "- No inventes un intento ni repitas toda la solución si no hace falta; si no hay respuesta visible, "
+            "decilo y pedile que comparta su respuesta."
+        ),
+        "resolver una concepción errónea": (
+            "- Identificá la intuición o afirmación concreta del estudiante y separá qué parte es válida de "
+            "dónde deja de aplicar.\n"
+            "- Explicá el mecanismo y el contexto pertinente sin asumir una materia, versión, causa o analogía "
+            "que no estén sustentadas."
+        ),
+        "reexplicar con otro enfoque": (
+            "- Reconocé brevemente la dificultad y cambiá realmente la representación, escala o ejemplo; "
+            "dividí el paso confuso y revisá un prerrequisito si hace falta.\n"
+            "- No repitas literalmente la explicación anterior ni afirmes conocer qué falló si el historial no lo muestra."
+        ),
+        "recomendar el siguiente paso": (
+            "- Basá la recomendación en los temas y preguntas visibles, como propuesta tentativa y explicando "
+            "por qué conecta con ellos.\n"
+            "- No afirmes dominio o progreso medido por una respuesta aislada; si falta contexto, reconocelo y "
+            "pedí una aclaración breve."
+        ),
+        "diseñar un laboratorio conceptual": (
+            "- Indicá objetivo, entorno o precondiciones relevantes, pasos seguros, resultado esperado e "
+            "interpretación; adaptalos a la materia.\n"
+            "- No ejecutes acciones reales ni propongas operaciones inseguras implícitamente."
+        ),
+    }
+    instruction = task_instructions.get(intent.task)
+    if instruction is None:
+        return ""
+    return (
+        "=== ESTRATEGIA PEDAGÓGICA PARA ESTA TAREA ===\n"
+        f"Tarea resuelta: {intent.task}.\n"
+        f"{instruction}\n"
+        "Estas reglas describen requisitos semánticos, no una plantilla textual fija. "
+        "Respetá exactitud, seguridad, fuentes y límites superiores; el contrato explícito del turno "
+        "prevalece sobre las preferencias de formato o cierre. No fuerces una pregunta socrática ni otro "
+        "componente de plantilla salvo que la tarea o el estudiante lo requieran.\n"
     )
 
 
@@ -864,104 +921,34 @@ def build_mode_specific_instruction(
 
     if mode == "debug_crash" or is_debug_question:
         return (
-            "=== DIRECTIVA DE DEPURACIÓN PEDAGÓGICA Y ANÁLISIS FORENSE DE FALLAS (PROTOCOLO TALOS) ===\n"
-            "El estudiante consulta por un fallo, caída o comportamiento anómalo en su código (ej. Segmentation Fault, puntero no inicializado, violación de acceso).\n"
-            "Tu misión es desarmar la causa raíz con empatía cognitiva, física de silicio, profundidad analítica y máxima claridad pedagógica (extensión ágil y concisa: 600 - 900 palabras, directa y sin redundancias).\n\n"
-            "ESTRUCTURA OBLIGATORIA DE LA RESPUESTA:\n\n"
-            "### 1. ¿Por qué crashea si el puntero ya está declarado? (Diagnóstico Forense de Raíz)\n"
-            "- Explicá los dos factores determinantes en el Stack Frame:\n"
-            "  1. **Solo se reservó espacio para la dirección (8 bytes en 64 bits), no para los datos**: No se apartó ningún byte en la RAM para almacenar el texto.\n"
-            "  2. **El puntero salvaje (*Wild Pointer*)**: En C, las variables locales en la pila NO se inicializan automáticamente en NULL ni en 0x0; contienen el patrón de bits residual ('basura') dejado por funciones o procesos previos.\n\n"
-            "### 2. ¿Por qué `if (s == NULL)` NO resuelve el problema? (Falsa Ilusión de Seguridad)\n"
-            "- Aclarale al estudiante la trampa conceptual más común:\n"
-            "  * `NULL` en C es la dirección cero (`0x0`).\n"
-            "  * Como `s` contiene basura arbitraria de la RAM (ej. `0x7fff5fb2a1bc`), casi con certeza es distinta de `0x0`.\n"
-            "  * La condición `if (s == NULL)` evalúa a FALSA, el programa entra confiado al `strcpy` y se estrella de la misma manera.\n"
-            "  * Regla de oro: `if (s == NULL)` solo sirve para verificar asignaciones explícitas (como `malloc` o retornos), NUNCA detecta basura en la pila.\n\n"
-            "### 3. Analogía Cotidiana de la Falla (Feynman de Barrio)\n"
-            "- Usá una metáfora vívida y concreta del mundo real (ej. un anotador con un garabato viejo ilegible que le das a un flete para que lleve muebles a esa dirección fantasma y la policía lo frena al chocar contra un terreno privado o comisaría).\n\n"
-            "### 4. Anatomía en Silicio y Memoria RAM (La Firma TALOS)\n"
-            "- Bajá al hardware: mostrá cómo la CPU intenta desreferenciar la dirección basura cargada en registros (%rdi/%rsi) para la función (`strcpy`), colisionando contra la Unidad de Manejo de Memoria (MMU).\n"
-            "- Explicá que la MMU detecta una dirección no mapeada o sin permisos de escritura en la tabla de páginas y dispara una interrupción de hardware, haciendo que el kernel envíe la señal SIGSEGV (Segmentation Fault).\n"
-            "- **DIAGRAMA DE FLUJO INTERACTIVO EN MERMAID (OBLIGATORIO)**: Generá un bloque ```mermaid (`flowchart TD`) modelando el ciclo del fallo: Declaración de puntero salvaje -> Basura en Stack -> Condición `if (s == NULL)` evalúa a Falso -> Invocación `strcpy` -> MMU intercepta violación en tabla de páginas -> Señal SIGSEGV.\n"
-            "- **ESQUEMA DE MEMORIA FÍSICA OBLIGATORIO**: Esquema visual limpio en bloque ```text con cajas Unicode (┌, ├, └, │, ─) mostrando el Stack Frame con la variable 's' conteniendo basura y el choque en la MMU.\n\n"
-            "### 5. Cómo se soluciona en C de forma correcta (Patrones Defensivos)\n"
-            "- Mostrá ambas alternativas con código C completo, limpio y comentado:\n"
-            "  * **Opción A: Búfer estático en Pila (Stack)**: Reservar memoria contigua fija con `char s[32];` y copia delimitada con `strncpy` o `snprintf` garantizando terminación nula `\\0`.\n"
-            "  * **Opción B: Asignación dinámica en Montículo (Heap)**: Reservar memoria con `malloc`, donde SÍ corresponde la cláusula de guarda `if (s == NULL)`, copia de datos y liberación con `free(s)`.\n\n"
-            "### 6. Error Común de Principiante\n"
-            "- Sintetizá en una viñeta la trampa de confundir 'declarar un puntero' (`char *s;`) con 'asignar memoria' (`char s[32];` o `malloc`).\n\n"
-            "### 7. Pregunta Socrática de Verificación Guiada\n"
-            "- Proponé un escenario breve con código (ej. declarar `char s[5]; strcpy(s, \"hola mundo\");`) y dos preguntas puntuales para que el estudiante razone qué ocurre físicamente en el Stack Frame y qué peligro representa.\n"
+            "=== ANÁLISIS PEDAGÓGICO DE FALLAS ===\n"
+            "- Partí del síntoma y del código/entorno realmente provistos; si faltan, pedí el dato mínimo o separá hipótesis de hechos.\n"
+            "- Explicá la secuencia causal y las condiciones necesarias para reproducir el fallo. No asumas lenguaje, memoria, arquitectura, "
+            "señal, sistema operativo ni causa raíz sin evidencia.\n"
+            "- Ofrecé una comprobación o corrección segura y proporcional al pedido. Usá código, diagramas o analogías solo si ayudan "
+            "y respetá las restricciones explícitas."
         )
 
     if mode == "evaluate_code" or fmt in ("forensic_audit", "review"):
         return (
-            "=== DIRECTIVA DE AUDITORÍA FORENSE DE CÓDIGO Y CIBERDEFENSA (PROTOCOLO TALOS) ===\n"
-            "El estudiante te ha presentado una solución o código para auditar. "
-            "NUNCA comiences reescribiendo la solución desde cero sin antes realizar una auditoría forense rigurosa, explícita y bug-por-bug del código del alumno.\n\n"
-            "ESTRUCTURA OBLIGATORIA DE LA AUDITORÍA FORENSE:\n\n"
-            "### 1. Auditoría Técnica y Análisis de Bugs (Diagnóstico Forense Específico)\n"
-            "- **¿Qué está bien?**: Reconocé en 2 o 3 viñetas concisas qué aspectos estructurales o heurísticos de la solución del estudiante están correctamente encaminados (ej. separación en tokens, comprobación básica de longitud).\n"
-            "- **¿Qué está incompleto, mal o vulnerable? (Edge Cases y Vulnerabilidades de Ciberseguridad)**:\n"
-            "  Desglosá CADA falla de forma individual, con nombre técnico, citando la línea o fragmento vulnerable exacto:\n"
-            "  * **[Nombre Técnico del Bug / Vector]**: (ej: 'Ceros a la izquierda -> Parser Differential / Ambigüedad Octal vs Decimal (CVE-2021-29921)', 'Inyección de Dígitos Unicode no ASCII en str.isdigit()', 'Agotamiento de Memoria en Heap por split() sin Cláusula Bouncer de longitud previa (Riesgo DoS)').\n"
-            "  * **El Bug en el código**: Citá el fragmento exacto del alumno donde reside la falla.\n"
-            "  * **Mecanismo de falla**: Explicá qué ocurre ante entradas maliciosas concretas (ej: qué retorna la función ante '010.0.0.1', '192.168.1.١', o una cadena de 10 MB de puntos).\n"
-            "  * **Peligro en Ciberseguridad / CVE real**: Explicá cómo las librerías C de bajo nivel del sistema operativo (ej. inet_addr) o los sockets procesan este valor, y cómo un atacante puede eludir firewalls (WAF), provocar SSRF o voltear el servicio.\n\n"
-            "### 2. Anatomía en Silicio y Memoria RAM (La Firma TALOS)\n"
-            "- Bajá al hardware: mostrá cómo la CPU, la memoria RAM (Heap vs Stack), los registros de propósito general (RSI/RDI para punteros de strings), la ALU y las banderas de registro FLAGS (ZF, CF, SF) procesan la entrada y dónde la falla del código se manifiesta a nivel de máquina.\n"
-            "- Incluí un diagrama visual limpio en bloque ```text con cajas Unicode (┌, ├, └, │, ─) representando la memoria o búfer en el Heap/Stack.\n\n"
-            "### 3. Entregables de Ingeniería Certificados (Solución Defensiva)\n"
-            "- **Contratos Formales PRE / POST**: Precondiciones estrictas (tipos, límites físicos, codificación) y Postcondiciones (invariantes de formato, no-mutabilidad, garantías de retorno).\n"
-            "- **Diagrama de Flujo en Mermaid**: Diagrama visual estructurado (flowchart TD o graph TD) modelando el flujo de decisiones defensivo Fail-Fast.\n"
-            "- **Pseudocódigo Estructurado**: Notación algorítmica rigurosa (tipo Joyanes / UPSAM) con cláusulas de guarda explícitas.\n"
-            "- **Código de Producción con Fixes Explícitos**: Código limpio, fuertemente tipado (Type Hints) y con funciones auxiliares defensivas para evitar trampas sutiles del lenguaje.\n"
-            "  * REGLA DE ORO DE SEGURIDAD EN PYTHON: NUNCA uses o aceptes 'str.isdigit()' para validar campos estrictamente decimales o de red (IPv4, puertos, IDs). En Python, 'str.isdigit()' retorna True para caracteres numéricos Unicode no ASCII de otros alfabetos (como arábigo '١٢٣' o devanagari '۱۲۳'). Implementá explícitamente una función auxiliar segura como 'es_digito_ascii(s)' usando 'all(\"0\" <= c <= \"9\" for c in s)' o 'c in string.digits'.\n"
-            "  * REGLA DE ORO DE SEMÁNTICA C (Stack vs Heap): En memoria de Stack (arrays locales `char buf[16];`), NUNCA valides `if (buf == NULL)` ya que el puntero estático siempre es válido. Validá límites de tamaño. En memoria dinámica de Heap (`malloc`/`calloc`), SIEMPRE validá `if (ptr == NULL)` inmediatamente después de la asignación.\n"
-            "  * CLÁUSULA BOUNCER DE FRONTERA DE LONGITUD (Fail-Fast Anti-DoS): En validación de IPv4 u otros protocolos, siempre aplicá una guardia de longitud física previa (ej. '7 <= len(ip) <= 15') ANTES de llamar a 'split()', para evitar ataques de agotamiento de memoria Heap ante strings maliciosos gigantes.\n"
-            "  * AMBIGÜEDAD OCTAL (CVE-2021-29921 / Parser Differential): Explicá y bloqueá rigurosamente cualquier cero no significativo a la izquierda (ej. '010.0.0.1' o '192.168.01.1'), ya que las funciones C del sistema operativo (inet_addr) lo interpretan en base 8 (octal), habilitando bypass de firewalls y SSRF.\n"
-            "- **Suite de Pruebas Automatizadas (Pytest)**: Batería exhaustiva de tests unitarios que incluya específicamente tests para cada bug detectado.\n"
-            "### 4. Cierre Socrático de Arquitectura de Misión Crítica\n"
-            "- Rematá con una pregunta socrática de alto nivel de sistemas que confronte el rendimiento y la seguridad en entornos reales (ej. procesamiento Zero-Copy, kernel-bypass con DPDK/eBPF a 10M pps, o concurrencia multihilo).\n"
+            "=== REVISIÓN DE CÓDIGO Y ANÁLISIS TÉCNICO ===\n"
+            "- Analizá el código o intento realmente provisto; no inventes fragmentos ni defectos. Separá aciertos, problemas observables "
+            "y preguntas que dependan de contexto ausente.\n"
+            "- Para cada problema, indicá el fragmento y la condición que lo activa, el efecto plausible y un siguiente paso o corrección "
+            "proporcional. No atribuyas vulnerabilidad, impacto o explotabilidad sin precondiciones y evidencia suficientes.\n"
+            "- No fuerces CVE, ejemplos de ataque, arquitectura, lenguaje, código de reemplazo, complejidad o formato de informe si no son "
+            "pertinentes o solicitados."
         )
 
     if mode == "resolve_misconception" or fmt == "epistemic_scaffolding":
         return (
-            "=== DIRECTIVA DE RESOLUCIÓN DE CONFLICTO EPISTÉMICO Y ANDAMIAJE SOCRÁTICO (PROTOCOLO TALOS) ===\n"
-            "El estudiante manifiesta una confusión o cuestiona una regla técnica basándose en su intuición previa "
-            "(ej. 'en matemáticas 010 es 10, ¿por qué decís que es un peligro?').\n"
-            "Tu misión como tutor epistémico senior es desarmar la confusión con empatía cognitiva, rigor formal y aterrizaje en silicio.\n\n"
-            "ESTRUCTURA OBLIGATORIA DE LA RESPUESTA:\n\n"
-            "### 1. Validación Cognitiva y Desarme de la Frustración (Empatía Pedagógica)\n"
-            "- Comenzá reconociendo explícitamente que la intuición del alumno es 100% correcta en su propio marco de referencia:\n"
-            "  * 'Tenés toda la razón desde la matemática decimal pura: en la vida diaria (base 10), un cero a la izquierda no altera la magnitud (010 = 10).'\n"
-            "- Aclarale de inmediato que el problema surge cuando cruzamos la frontera hacia el software de sistemas y el silicio, donde rigen convenciones históricas de bajo nivel.\n\n"
-            "### 2. Analogía Intrínseca al Mecanismo Real (Regla de Oro: Modelar el Mecanismo, No Metáforas Vacías)\n"
-            "- NUNCA uses analogías desconectadas (como molinetes de boliche o aduanas si el tema es conversión de bases numéricas o tipos de datos).\n"
-            "- La analogía DEBE modelar exactamente el agrupamiento/conteo por bloques:\n"
-            "  * Ejemplo para Base 8 / Octal: Imaginate un restaurante donde las mesas están organizadas en filas de 8 mesas (o un odómetro que solo tiene dígitos del 0 al 7, o cajas que cierran al llegar a 8 unidades). Si alguien pide la 'Mesa 010', el mozo que cuenta en filas de 8 entiende: 1 fila completa (8 mesas) + 0 sueltas = Mesa 8 real. Vos, pensando en base 10, esperabas la mesa 10.\n\n"
-            "### 3. Rigor Matemático y Tabla de Conteo\n"
-            "- Mostrá la tabla de correspondencia entre el sistema Decimal (Base 10) y el sistema Octal (Base 8) en el punto de divergencia:\n"
-            "  * Decimal 7 -> Octal 07\n"
-            "  * Decimal 8 -> Octal 010 (¡aquí ocurre el salto de orden de magnitud!)\n"
-            "  * Decimal 9 -> Octal 011\n"
-            "  * Decimal 10 -> Octal 012\n"
-            "- Demostrá la fórmula formal de polinomios de potencias en LaTeX:\n"
-            "  $$\\text{Octal } 010 = (0 \\times 8^2) + (1 \\times 8^1) + (0 \\times 8^0) = 8 \\text{ decimal}$$\n\n"
-            "### 4. La Viñeta del Ataque Real: Cómo se Explota la Ambigüedad (Parser Differential / CVE-2021-29921)\n"
-            "- NO dejes el peligro como un enigma abstracto para que el alumno lo adivine; mostrá el cuadro de ataque con dos componentes hablando entre sí:\n"
-            "  1. Tu WAF o Firewall en Python: usa `int('010')`, ve el número 10 en decimal. Como la IP 10.0.0.1 no está en la lista negra, permite el paso del paquete.\n"
-            "  2. La Pila de Red del Sistema Operativo / Router (escrito en C con `inet_addr` o `inet_aton` de POSIX): lee el '0' inicial y asume base octal. Interpreta '010' como 8, y conecta directamente a la IP restringida 8.0.0.1 (servidor interno protegido / SSRF).\n"
-            "  - Conclusión: El atacante elude el firewall explotando la ambigüedad sintáctica entre capas.\n\n"
-            "### 5. Anatomía en Silicio y Memoria RAM (La Firma TALOS)\n"
-            "- Diagrama ASCII de memoria RAM (búfer de entrada, puntero de lectura, registros de CPU RSI/RDI, y evaluación en la ALU).\n"
-            "- Explicá cómo la función del kernel lee byte a byte desde el puntero y activa la rama de decodificación octal ante el byte ASCII '0' (0x30).\n\n"
-            "### 6. Patrón Algorítmico Defensivo y Código / Pseudocódigo\n"
-            "- Mostrá el algoritmo en pseudocódigo o código Python seguro que implementa la regla de Fail-Fast: rechazar octetos con ceros a la izquierda innecesarios (`len(p) > 1 and p[0] == '0'`).\n\n"
-            "### 7. Pregunta Socrática de Verificación Guiada\n"
-            "- Cerrá con una pregunta accesible para que el estudiante verifique que consolidó el concepto:\n"
-            "  * 'Si una herramienta de red envía un paquete a 012.0.0.1, y el sistema operativo interpreta los octetos con cero inicial en base 8: ¿a qué dirección IP en formato decimal se conectará en realidad el kernel?'\n"
+            "=== REPARACIÓN DE CONFUSIÓN CONCEPTUAL ===\n"
+            "- Respondé a la afirmación o intuición concreta del estudiante: reconocé qué parte puede ser válida y delimitá dónde cambia "
+            "el significado o deja de aplicar.\n"
+            "- Explicá el mecanismo y las condiciones relevantes para este concepto. Si la diferencia depende de lenguaje, plataforma, "
+            "versión o configuración, hacé explícita esa dependencia en vez de asumir un caso.\n"
+            "- Cambiá de representación solo si ayuda; explicá el límite de la analogía y no añadas incidentes, CVE o consecuencias de "
+            "seguridad sin evidencia autorizada."
         )
 
     if context_mode == "basic" and mode == "explain_concept":
@@ -979,7 +966,11 @@ def build_mode_specific_instruction(
         form_note = f" (Fuentes: {', '.join(classified['formal'])})" if classified["formal"] else ""
         tech_note = f" (Fuentes: {', '.join(classified['technical'])})" if classified["technical"] else ""
 
-        depth_hint = " Desarrollá con máxima exhaustividad enciclopédica (800-1500 palabras)." if mode == "deep_dive" else " Desarrollá con profundidad sólida y analítica (mínimo 600 palabras de prosa explicativa)."
+        depth_hint = (
+            " Desarrollá las capas pertinentes con rigor, sin asumir una extensión ilimitada."
+            if mode == "deep_dive"
+            else " Ajustá la profundidad a la tarea y a las restricciones explícitas."
+        )
         return (
             f"=== DIRECTIVA DE SÍNTESIS DIALÉCTICA DIMENSIONAL (ESTILO FEYNMAN + RIGOR){depth_hint} ===\n"
             "Estructurá tu respuesta con la máxima legibilidad y riqueza visual, combinando prosa fluida con jerarquía nítida. "
@@ -992,36 +983,30 @@ def build_mode_specific_instruction(
             "  * **`RIP / EIP` (*Instruction Pointer*):** Contiene la dirección física de la próxima instrucción...\n"
             "  * **`RSP / ESP` (*Stack Pointer*):** Marca la cima actual de la pila...\n"
             "  * **`FLAGS (ZF/CF)`:** Almacena el resultado eléctrico de la ALU...\n"
-            "- **RIGOR EN LA ELECCIÓN DE ESTRUCTURAS DE CONTROL**: Al explicar o diseñar algoritmos, seleccioná siempre la estructura canónica y óptima según la naturaleza del problema (ej: si la cantidad de iteraciones es conocida de antemano o acotada por un rango, priorizá la estructura `PARA ... HASTA ... [PASO ...] HACER` (`for`), contrastándola educativamente con el `MIENTRAS` manual y explicando por qué el `PARA` es la mejor práctica algorítmica y de ingeniería).\n"
-            "- **DIAGRAMA VISUAL INTERACTIVO EN MERMAID (OBLIGATORIO)**: Generá SIEMPRE un bloque ```mermaid (`flowchart TD` o `graph TD`) modelando el flujo de decisiones, la ejecución algorítmica (ej. convergencia y swap de dos punteros en swap in-place), transiciones de estado o ciclo de datos. El frontend lo renderiza nativamente como un diagrama vectorial interactivo.\n"
-            "- **DIAGRAMA FÍSICO DE MEMORIA/ARQUITECTURA OBLIGATORIO (EN BLOQUE ```text)**: Para mapas de memoria (Stack Frames, buffers contiguos, registros x86, layout Text/Data/BSS/Heap/Stack), es OBLIGATORIO incluir un esquema visual limpio en bloque ```text utilizando caracteres de dibujo de caja (┌, ├, └, │, ─). Este diagrama es texto plano, se incluye SIEMPRE y no es opt-in.\n"
+            "- **RIGOR EN LA ELECCIÓN DE ESTRUCTURAS DE CONTROL**: Al explicar o diseñar algoritmos, elegí la estructura que corresponda al problema y justificá el trade-off cuando sea relevante; no declares una forma universalmente óptima.\n"
+            "- **DIAGRAMAS**: Usá Mermaid o un esquema de texto solo si aclara el flujo, los estados o la disposición que pregunta el estudiante.\n"
+            "- **MAPAS DE MEMORIA/ARQUITECTURA**: Incluí una representación solo si el tema la requiere o el estudiante la pide; distinguí el modelo conceptual del layout dependiente de implementación.\n"
             "- **REGLA DE FAIL-CLOSED DIRECTO (TÉRMINOS APÓCRIFOS O INEXISTENTES)**: Si la consulta del alumno indaga sobre una supuesta directiva, opción, función o término apócrifo/inexistente (ej: `__fast_ptr_opt` u optimizaciones mágicas inventadas):\n"
             "  1. Tu primera frase de respuesta DEBE ser tajante y directa: 'Frenemos la pelota un segundo, che: la directiva [TÉRMINO] no existe.' (o '[TÉRMINO] no existe.').\n"
             "  2. Segunda frase: Explicá con concisión que no forma parte de ningún estándar oficial (C, POSIX, System V ABI ni compiladores GCC/Clang).\n"
             "  3. Tercera frase: Redirigí a lo que SÍ existe ('Lo que sí existe y se utiliza en la arquitectura real es...').\n"
             "  ESTRICTAMENTE PROHIBIDO dar rodeos diplomáticos como 'La supuesta directiva no forma parte de ninguna especificación estándar... por lo que no existe a nivel de optimización de silicio'. Sé directo: '[TÉRMINO] no existe'.\n"
-            "- **EJEMPLOS CON SYNTAX HIGHLIGHTING (CÓDIGO REAL EJECUTABLE)**: Además del pseudocódigo formal, es OBLIGATORIO incluir bloques de código real en el lenguaje del cuaderno (```python para fase0-soc, ```c o ```python para fadena-lenguajes/so2) con comentarios claros inline explicando la precondición, la cláusula de guarda y la invocación segura. EXCEPCIÓN SOCRÁTICA (ANTI-ATAJO): Si el estudiante solicita resolución directa de un ejercicio o TP ('pasame el código', 'haceme la función', 'para copiar'), NUNCA entregues el código resuelto completo; generá un esqueleto defensivo con la firma de función y comentarios /* TODO: COMPLETAR LÓGICA */, cerrando con una pregunta de prueba de escritorio.\n"
-            "- **PRECISIÓN DE ARQUITECTURA Y REGISTROS (x86-64 System V ABI)**: Al discutir C, Sistemas Operativos, punteros y paso de parámetros en arquitecturas modernas, asumí por defecto x86-64 y la ABI System V (Linux/POSIX). Para paso de argumentos por registro usá %rdi (1º), %rsi (2º), %rdx (3º), %rcx (4º), %r8, %r9. NO uses %eax/%ebx/%ecx para paso de parámetros a menos que el contexto sea explícitamente x86 de 32 bits o ensamblador heredado.\n"
+            "- **EJEMPLOS DE CÓDIGO**: Incluí código ejecutable solo si se solicita o si es necesario para explicar la tarea. Respetá el lenguaje indicado y no bloquees una solución completa expresamente pedida.\n"
+            "- **PRECISIÓN DE ARQUITECTURA Y REGISTROS**: No asumas ISA, OS, ABI, convención de llamada ni registros. Si el contexto no los especifica, presentá el principio general o declaralos como un ejemplo condicionado; no atribuyas un registro a un rol universal.\n"
             "- **SANITIZACIÓN ESTRICTA DE SALIDA**: Prohibido mostrar al usuario etiquetas internas del motor de búsqueda o de confianza. NUNCA imprimas texto como '[ref. no verificada]', '[E# missing]', o tags de probabilidad.\n"
-            "- **TABLAS COMPARATIVAS DE CONCEPTOS O NIVELES**: Siempre que compares conceptos (ej: Stack vs Heap, PARA vs MIENTRAS, Valor vs Referencia, o Pirámide de Testing), incluí una tabla Markdown compacta y clara.\n"
+            "- **TABLAS COMPARATIVAS**: Usá una tabla cuando facilite la comparación; una respuesta directa no la necesita por defecto.\n"
             "- **TONO RIOPLATENSE NATURAL Y DIRECTO**: Utilizá giros cercanos y naturales ('che', 'fijate', 'mirá cómo conmuta en la RAM', 'vamos paso a paso desarmando el silicio') manteniendo rigurosa seriedad técnica y sin saludos ni halagos iniciales.\n\n"
-            "DIMENSIONES CONCEPTUALES OBLIGATORIAS:\n"
-            f"- **Dimensión Intuitiva y Analógica (Estilo 'Feynman de Barrio'){ped_note}**:\n"
-            "   * Creá libremente una analogía cotidiana, original y tangible que encaje con exactitud en la física del problema.\n"
-            "   * REGLA DE ORO DE ANALOGÍAS: La analogía DEBE modelar el mecanismo físico/matemático real del concepto. Para bases numéricas o conteo, usá agrupamientos o cajas por bloques; para memoria/buffers, casilleros delimitados; para concurrencia, recursos físicos compartidos; para redes, logística o correspondencia. NUNCA fuerces molinetes o aduanas si el concepto es numérico o de tipos de datos.\n"
-            "   * Explicá la idea intuitiva de forma directa antes de la formalización.\n"
-            f"- **Dimensión Formal y Algorítmica{form_note}**:\n"
-            "   * Teoría rigurosa, modelos matemáticos, invariantes y citas explícitas [E#] (si hay evidencias autorizadas en el contexto).\n"
-            "   * Mostrá la estructura canónica en pseudocódigo formal estructurado (tipo Joyanes / Cátedra FaDeNA). Si la consulta refiere a directivas apócrifas o inexistentes (ej. __fast_ptr_opt), aplicá Fail-Closed directo desde la primera frase ('__fast_ptr_opt no existe.') y explicá las convenciones estándar (System V ABI, %rdi/%rsi) sin inventar pseudocódigo.\n"
-            f"- **Dimensión Física y de Máquina{tech_note}**:\n"
-            "   * Bajá al silicio: transistores CMOS, ALU, instrucciones x86 (LOOP, CMP, TEST, JZ, JNZ), registros y banderas FLAGS.\n"
-            "- **Capas Adicionales de Seguridad / Ciberdefensa**: Si el tema lo amerita, analizá la superficie de ataque o el impacto en disponibilidad (DoS por bucles infinitos, Buffer Overflow, etc.) anclándolo a incidentes reales con precisión forense.\n"
-            "- **CIERRE SOCRÁTICO OBLIGATORIO**: Toda respuesta conceptual o técnica DEBE culminar con una pregunta socrática desafiante o un mini-escenario de borde (edge case) que invite al alumno a pensar y responder (ej: '¿Qué pasaría con la bandera ZF si el usuario ingresa N = 0?', '¿Por qué un compilador moderno reemplazaría un bucle contado por desenrollado (loop unrolling)?').\n"
+            "DIMENSIONES DISPONIBLES (ELEGÍ SOLO LAS PERTINENTES):\n"
+            f"- Intuición o analogía opcional{ped_note}: usala solo si aclara el concepto y explicá su límite.\n"
+            f"- Definición, mecanismo, formalismo o pseudocódigo{form_note}: incluí las partes que ayuden a responder el pedido.\n"
+            f"- Detalle de implementación o máquina{tech_note}: agregalo solo cuando la pregunta lo requiera y con plataforma/ABI explícitas si se conocen.\n"
+            "- Implicaciones de seguridad: conectalas solo cuando haya una relación causal defendible y evidencia para las afirmaciones específicas; no agregues incidentes por rutina.\n"
+            "- Cerrá con pregunta o propuesta de continuación solo cuando sea útil y compatible con el contrato del turno.\n"
         )
     elif layers == 1:
         return (
             "=== DIRECTIVA DE SÍNTESIS SIMPLIFICADA (ESTILO FEYNMAN ACCESIBLE) ===\n"
-            "- Explicá la intuición central usando una analogía cotidiana directa y vívida.\n"
+            "- Explicá la intuición central con lenguaje sencillo; usá una analogía cotidiana solo si ayuda y delimitá su alcance.\n"
             "- Desmitificá cualquier complejidad innecesaria; priorizá la claridad absoluta sobre la jerga técnica.\n"
             "- No fuerces capas de formalismo matemático ni código de máquina salvo que sea indispensable para la intuición.\n"
         )
@@ -1111,6 +1096,12 @@ class StructuredResponsePipeline:
                 "Observá atentamente el fragmento previo de TALOS en el historial reciente y continuá exactamente la sección u oración donde se produjo el corte, "
                 "completando los puntos faltantes sin repetir contenido anterior y cerrando con la pregunta socrática."
             )
+        elif response_intent.task == "entregar solución completa solicitada":
+            rendered_phase_instruction = (
+                "SOLUCIÓN COMPLETA SOLICITADA: Resolvé el ejercicio o consulta en el formato que pidió el estudiante. "
+                "Explicá las decisiones relevantes y verificá el resultado con comprobaciones pertinentes, sin añadir "
+                "componentes o lenguajes que no ayuden a completar la tarea."
+            )
         elif response_intent.task == "proponer o continuar un ejercicio guiado":
             rendered_phase_instruction = (
                 "EJERCICIO GUIADO: Interpretá la aceptación usando el historial reciente y el contexto pedagógico disponible "
@@ -1118,34 +1109,49 @@ class StructuredResponsePipeline:
                 "y pedile al estudiante que intente el primer paso. No reveles la solución completa salvo que la solicite. "
                 "Si no hay contexto suficiente para saber qué ejercicio aceptó, hacé una única pregunta de aclaración."
             )
+        elif response_intent.task == "revisar un intento o corregir una respuesta":
+            rendered_phase_instruction = (
+                "FEEDBACK Y CORRECCIÓN: Revisá la respuesta concreta que el estudiante compartió en este turno o en el "
+                "historial reciente. No supongas contenido ausente."
+            )
+        elif response_intent.task == "reexplicar con otro enfoque":
+            rendered_phase_instruction = (
+                "REEXPLICACIÓN: Retomá el concepto o paso señalado y usá una representación o escala diferente a la "
+                "explicación disponible, sin repetirla literalmente."
+            )
+        elif response_intent.task == "recomendar el siguiente paso":
+            rendered_phase_instruction = (
+                "RECOMENDACIÓN DE CONTINUIDAD: Proponé un siguiente tema conectado con lo que aparece en la conversación; "
+                "tratá la recomendación como tentativa y no como evaluación del dominio del estudiante."
+            )
+        elif response_intent.task == "diseñar un laboratorio conceptual":
+            rendered_phase_instruction = (
+                "LABORATORIO CONCEPTUAL: Diseñá una actividad segura con objetivo, precondiciones, pasos, resultado esperado "
+                "e interpretación; describí la actividad, no la ejecutes."
+            )
+        elif response_intent.task == "resolver una concepción errónea":
+            rendered_phase_instruction = (
+                "REPARACIÓN DE CONCEPTO: Respondé a la afirmación o intuición concreta expresada, explicando dónde aplica "
+                "y dónde deja de aplicar en el contexto relevante."
+            )
         elif active_mode == "debug_crash":
             rendered_phase_instruction = (
-                "DEPURACIÓN FORENSE Y ANÁLISIS DE FALLAS: El estudiante reporta un fallo de memoria o crash (ej. Segmentation Fault). "
-                "1. Diagnóstico certero a nivel silicio: puntero salvaje (wild pointer) en Stack con valor basura residual de la pila, "
-                "provocando que la MMU emita la señal SIGSEGV al kernel al intentar escribir en una página no asignada o de solo lectura. "
-                "2. Explicación explícita de por qué if (s == NULL) no sirve frente a variables automáticas en la pila (la basura de la pila casi nunca es 0x0). "
-                "3. Esquema visual OBLIGATORIO de la memoria RAM (Stack Frame con cajas Unicode ┌, ├, └, │, ─ en bloque ```text). "
-                "4. Contraste defensivo OBLIGATORIO en código C: "
-                "   - Opción A: Búfer estático en Pila (Stack) con array local fijo `char s[32];` y copia delimitada con `snprintf` o `strncpy`. "
-                "   - Opción B: Asignación dinámica en Montículo (Heap) con `malloc`, chequeo obligatorio `if (s == NULL)` y `free(s)`. "
-                "5. Explicá cuándo aplica cada validación y por qué NULL solo protege asignaciones dinámicas. "
-                "6. Diagrama de flujo OBLIGATORIO en bloque ```mermaid (`flowchart TD`) modelando el ciclo del fallo: puntero salvaje -> condición `if (s == NULL)` evalúa a falso -> MMU intercepta violación -> SIGSEGV. "
-                "PROHIBIDO: NO generes suites de Pytest."
+                "ANÁLISIS DE FALLA: Partí del síntoma, código y entorno realmente provistos. Separá observaciones de hipótesis; "
+                "explicá una secuencia causal solo cuando sus condiciones estén justificadas. No asumas lenguaje, arquitectura, "
+                "sistema operativo, causa raíz, señal o mecanismo de hardware ausentes. Proponé una comprobación o corrección "
+                "segura y proporcional al pedido."
             )
         elif active_mode == "evaluate_code":
             rendered_phase_instruction = (
-                "AUDITORÍA FORENSE DE CÓDIGO DEL ESTUDIANTE: Analizá minuciosamente el código y la solución provista en la consulta. "
-                "Identificá y señalá explícitamente cada bug, caso de borde omitido y riesgo de ciberseguridad antes de presentar la solución corregida. "
-                "No comiences inventando analogías genéricas ni reescribiendo desde cero sin haber auditado primero los errores del alumno."
+                "REVISIÓN DE CÓDIGO: Analizá el artefacto realmente provisto antes de sugerir cambios. Separá defectos observables "
+                "de hipótesis que requieran más contexto; explica las condiciones que activan cada problema y su efecto plausible. "
+                "No inventes vulnerabilidades, impacto de seguridad, arquitectura ni CVE. Ofrecé correcciones proporcionales a lo pedido."
             )
         elif active_mode == "resolve_misconception":
             rendered_phase_instruction = (
-                "RESOLUCIÓN DE CONFLICTO EPISTÉMICO Y ANDAMIAJE SOCRÁTICO: El estudiante expresa una duda o confronta un concepto "
-                "basándose en su intuición previa (ej. '010 es igual a 10 en matemáticas, ¿por qué es un error?'). "
-                "1. Validá de entrada su lógica previa para no frustrarlo ('Tenés razón en matemáticas decimales puras...'). "
-                "2. Usá una analogía cotidiana que modele EXACTAMENTE el mecanismo físico real (ej. agrupamiento en filas de 8, odómetros de 8 posiciones), NUNCA analogías forzadas de molinetes. "
-                "3. Explicá la divergencia semántica entre capas (abstracción matemática vs bajo nivel POSIX/C en silicio) con fórmulas y tablas. "
-                "4. Mostrá la historia concreta del ataque o falla (ej. cómo el firewall ve 10 y el router ve 8 habilitando SSRF) ANTES de la pregunta socrática."
+                "REPARACIÓN DE CONFUSIÓN: Respondé a la intuición concreta expresada y explicá dónde aplica y dónde deja de aplicar. "
+                "Describí el mecanismo y las condiciones relevantes para el tema; si depende de lenguaje, versión, plataforma o "
+                "configuración, señalalo. No añadas una analogía, formalismo, hardware, ataque ni caso histórico por rutina."
             )
         else:
             rendered_phase_instruction = phase.phase_prompt_template.format(
@@ -1162,7 +1168,7 @@ class StructuredResponsePipeline:
             r"\b(?:(?:pasame|haceme|dame|escribime|generame)\s+(?:el\s+)?c[oó]digo|haceme\s+la\s+funci[oó]n|haceme\s+el\s+tp|para\s+que\s+lo\s+copie|para\s+copiar\s+y\s+pegar|para\s+copiarlo|c[oó]digo\s+completo\s+terminado|(?:pasame|dame)\s+la\s+soluci[oó]n)\b",
             user_query,
             re.IGNORECASE,
-        ))
+        )) and response_intent.task != "entregar solución completa solicitada"
         if shortcut_match:
             rendered_phase_instruction = (
                 "PROTOCOLO ANTI-ATAJO ACTIVADO (PACTO SOCRÁTICO Y EJERCICIO GUIADO COMPLETO):\n"
@@ -1223,6 +1229,17 @@ class StructuredResponsePipeline:
         # 1. Determinación de modo pedagógico y directiva correspondiente (Fix S4.1)
         mode_config = RESPONSE_MODES.get(active_mode, RESPONSE_MODES["explain_concept"])
 
+        strategy_tasks = {
+            "responder la consulta",
+            "explicar en profundidad",
+            "proponer o continuar un ejercicio guiado",
+            "entregar solución completa solicitada",
+            "revisar un intento o corregir una respuesta",
+            "resolver una concepción errónea",
+            "reexplicar con otro enfoque",
+            "recomendar el siguiente paso",
+            "diseñar un laboratorio conceptual",
+        }
         if is_continuation:
             continuation_block = (
                 "=== PROTOCOLO DE CONTINUACIÓN DE RESPUESTA TRUNCADA (OBLIGATORIO) ===\n"
@@ -1235,7 +1252,7 @@ class StructuredResponsePipeline:
                 "5. Tono y formato: Mantené el mismo rigor técnico, formato Markdown y estilo pedagógico."
             )
             parts.append(continuation_block)
-        else:
+        elif response_intent.task not in strategy_tasks:
             mode_instruction = build_mode_specific_instruction(
                 mode=active_mode,
                 context_pack=context_pack,
@@ -1258,9 +1275,9 @@ class StructuredResponsePipeline:
             )
 
         # 1.2 Anclaje a Threat Intel / Casos Históricos (Fase 7.4)
-        threat_intel_directive = inject_threat_intel(user_query)
-        if threat_intel_directive:
-            parts.append(threat_intel_directive)
+        security_evidence_directive = build_security_evidence_instruction(user_query)
+        if security_evidence_directive:
+            parts.append(security_evidence_directive)
 
         # 1.3 Checklist de entregables y componentes estructurales expresamente solicitados
         if structural_directives:
@@ -1367,6 +1384,9 @@ class StructuredResponsePipeline:
             or response_intent.task == "proponer o continuar un ejercicio guiado"
         ):
             parts.append(response_intent.to_prompt_instruction())
+        strategy_instruction = build_pedagogical_strategy_instruction(response_intent)
+        if strategy_instruction:
+            parts.append(strategy_instruction)
         return "\n\n".join(parts)
 
     async def _stream_tokens(

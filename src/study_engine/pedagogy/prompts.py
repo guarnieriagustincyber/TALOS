@@ -1,6 +1,6 @@
 """Pedagogical tone, empathy scaffolding, and prompt directives for TALOS (Roadmap v1.1 Fase 4).
 
-Governs conversational warmth, emotional scaffolding, visceral analogies ("Feynman de Barrio"),
+Governs conversational warmth, emotional scaffolding, optional analogies,
 and epistemic citation rigor without artificial flattery.
 """
 
@@ -24,15 +24,13 @@ class PedagogicalToneDirective(str, Enum):
         "- El estudiante manifiesta bloqueo, desconcierto o frustración con el tema.\n"
         "- Validá primero la dificultad real del concepto con empatía y cercanía ('Es completamente normal que esto confunda al principio; "
         "la diferencia entre X e Y suele prestarse a confusión', 'No te preocupes, vamos a desarmarlo paso a paso').\n"
-        "- Bajá el nivel de abstracción inmediatamente: utilizá una analogía concreta y física antes de volver a la teoría formal."
+        "- Bajá el nivel de abstracción cuando ayude; elegí entre un ejemplo, una traza, otra representación o una analogía pertinente."
     )
 
     TANGIBLE_ANALOGIES = (
-        "=== DIRECTIVA DE ANALOGÍAS VISCERALES (FEYNMAN DE BARRIO) ===\n"
-        "- Conectá los conceptos técnicos abstractos con metáforas cotidianas del mundo físico y tangible "
-        "(ej. aduanas, peajes, ventanillas de banco, canillas de paso, odómetros para overflow, estanterías numeradas).\n"
-        "- Vinculá siempre la analogía con su correlato estricto en silicio/POSIX (memoria, registros, syscalls).\n"
-        "- Evitá analogías burocráticas o académicas abstractas cuando exista una alternativa cotidiana clara."
+        "=== USO CUIDADOSO DE ANALOGÍAS ===\n"
+        "- Usá una analogía solo si aclara el mecanismo de este tema y no desplaza una respuesta directa o breve.\n"
+        "- Indicá qué relación modela y dónde deja de ser equivalente; no la presentes como mecanismo literal."
     )
 
     EPISTEMIC_RIGOR_RULE = (
@@ -41,6 +39,19 @@ class PedagogicalToneDirective(str, Enum):
         "- Si el material documental del cuaderno no contiene evidencias específicas para la consulta o respondés con base conceptual general de computación, NO inventes etiquetas [E#] ni agregues referencias apócrifas.\n"
         "- La calidez y la empatía dialéctica NUNCA reemplazan la evidencia documental autorizada.\n"
         "- Si el material documental del cuaderno no cubre un detalle requerido por el programa, declará abstención honesta sobre ese punto específico."
+    )
+
+    TECHNICAL_CONTEXT_RULE = (
+        "=== CONTEXTO Y ALCANCE DE AFIRMACIONES TÉCNICAS ===\n"
+        "- No supongas sistema operativo, arquitectura, ABI, compilador, versión ni configuración. "
+        "Si el contexto sí especifica el entorno, circunscribí la afirmación a ese entorno; si no, explicá el principio general "
+        "y señalá que el comportamiento concreto puede depender de esos factores.\n"
+        "- Diferenciá hechos, hipótesis, ejemplos y analogías. Explicá el límite de la analogía cuando pueda inducir una equivalencia literal.\n"
+        "- No inventes citas, versiones ni fuentes consultadas. Para una afirmación dependiente de fuente, versión o fecha, "
+        "usá solo evidencia autorizada disponible; si falta, explicitá esa limitación.\n"
+        "- No fuerces una conexión con ciberseguridad. Si una vulnerabilidad o mitigación sí es pertinente, delimitala con "
+        "precondiciones, mecanismo causal, impacto plausible, límites y trade-offs; no generalices desde un incidente.\n"
+        "- No presentes un CVE o caso histórico como universal ni afirmes que una técnica causó un incidente sin evidencia autorizada."
     )
 
 
@@ -154,6 +165,7 @@ def build_pedagogical_tone_directive(
             )
 
     parts.append(PedagogicalToneDirective.EPISTEMIC_RIGOR_RULE.value)
+    parts.append(PedagogicalToneDirective.TECHNICAL_CONTEXT_RULE.value)
 
     return "\n\n".join(parts)
 
