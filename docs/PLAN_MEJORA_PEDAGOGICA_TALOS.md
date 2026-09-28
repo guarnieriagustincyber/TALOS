@@ -46,6 +46,16 @@ mantener esta distinción si el roadmap global cambia.
   cuando resulte pertinente.
 - Ese prompt estaba orientado a programación desde cero. No copiar literalmente
   sus plantillas de pseudocódigo/Python a todas las materias de TALOS.
+- El usuario también compartió el historial completo de ese cuaderno de Fase 0
+  de programación. Usarlo como evidencia de dinámica, continuidad y preferencias
+  de estudio en ese currículum; no como plantilla de materia ni oráculo técnico.
+  Los principios de interacción transferibles deben separarse de las
+  representaciones específicas de cada programa. Ver el diagnóstico y gates en
+  [Diagnóstico multi-cuaderno y plan de continuidad](./DIAGNOSTICO_MULTICUADERNO_Y_PLAN_DE_CONTINUIDAD.md).
+- La ejecución previa a Fase 7 está secuenciada en la
+  [suite de fixes y estabilización](./PLAN_SUITE_FIX_ESTABILIZACION.md):
+  primero capturar una baseline actual, después armonizar políticas, aislar
+  perfiles por cuaderno y cerrar aceptación F5/F6 antes de evaluar.
 - En la inspección previa se identificaron componentes existentes de intención,
   ensamblado de prompts y respuesta pedagógica en
   `src/study_engine/pedagogy/structured_pipeline.py`, además del manejo SSE en
@@ -1577,7 +1587,11 @@ datos de participantes.
 1. Mantener los 20 enunciados canónicos del usuario como corpus original; no
    sustituirlos por variantes del JSON sin versionar y documentar el cambio.
 2. Mantener separado un Golden Set futuro, ampliado y curado por materia,
-   intención, dificultad, restricción, plataforma y riesgo técnico.
+   currículum/cuaderno, intención, dificultad, restricción, plataforma,
+   representación esperada y riesgo técnico. Incluir casos de interacción
+   pedagógica equivalentes en currículos distintos para detectar contaminación
+   entre perfiles; no generalizar las plantillas del cuaderno de programación
+   a otras materias.
 3. Para cada ítem añadir criterios mínimos de respuesta aceptable, condiciones
    que hacen la respuesta incorrecta y referencias autorizadas si exige fuentes.
 4. No publicar transcripts privados, material con copyright, prompts secretos
@@ -1769,16 +1783,27 @@ para los hallazgos, límites y protocolo. No repetir setup ni lanzar otra
 ejecución del benchmark sin solicitud explícita. La Fase 1 está implementada y
 validada; Fases 2–4-formato están implementadas y F4-formato fue comprometida
 en `c401b4e`. El prerequisito técnico documentado antes de Fase 5 está implementado; el
-primer slice funcional de Fase 5 también quedó implementado y validado. Las
-Fases 6–7 siguen pendientes, no aceptadas.
+primer slice funcional de Fase 5 también quedó implementado y validado. El
+estado posterior a los commits `2c35e5d` y `fe1765e`, y las brechas multi-
+cuaderno/fiabilidad identificadas, están en
+[Diagnóstico multi-cuaderno y plan de continuidad](./DIAGNOSTICO_MULTICUADERNO_Y_PLAN_DE_CONTINUIDAD.md).
+Las Fases 6–7 siguen pendientes, no aceptadas.
 
 ### Snapshot de handoff actualizado el 2026-09-28
 
 - Branch/HEAD observados: `main`; no se hizo push.
-- El commit de corrección BKT/cold-start es `6748ca7`; el slice de Fase 5 se
-  registra en el commit siguiente.
-- Los tres tests de F4 modificados antes de este trabajo permanecen fuera de
-  ambos commits.
-- Siguiente trabajo: continuar Fase 5 con ambigüedad de antecedentes y
-  discrepancias entre fuentes. No repetir el benchmark y conservar el
-  perímetro de datos y módulos.
+- Commits posteriores relevantes: `6748ca7` (cold-start/BKT),
+  `3b388b9` (procedencia/contexto SSE), `5f2eaaf` (UI),
+  `2c35e5d` (referencias/conflictos) y `fe1765e` (regresión de continuidad).
+- El commit `ea060ad` guardó los tres tests Socratic que habían quedado
+  separados; el árbol se reportó limpio tras el commit.
+- La última suite global reportada en el handoff anterior fue 2695 passed,
+  7 skipped y 0 failures. En la revisión del 2026-09-28 se ejecutaron 35
+  pruebas focalizadas F5/SSE y `node --check` para `chat.js`; ambos gates
+  pasaron. No se repitió la suite completa ni se llamó a un proveedor real.
+- Siguiente trabajo recomendado: capturar la baseline post-commit conforme a
+  la [suite de estabilización](./PLAN_SUITE_FIX_ESTABILIZACION.md); después
+  ejecutar Gate A/B del diagnóstico multi-cuaderno, cerrar criterios de F5,
+  reparar los estados terminales de F6 y preparar F7 con cobertura de varios
+  currículos. No repetir el benchmark comparativo sin aprobación y condiciones
+  registradas.
