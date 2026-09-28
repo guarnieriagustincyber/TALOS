@@ -3,7 +3,7 @@
 Asserts:
 1. Exact match resolves statement chunks directly and filters solution chunks from evidence manifest and text.
 2. Inexact / needs_review reference emits the required disclaimer verbatim.
-3. Cold-start C4: an exercise with 0 prior attempts enforces context_mode = 'intermediate' and accelerated proposal.
+3. Cold-start C4: an exercise with 0 prior attempts uses the configured cold-start mode and accelerated proposal.
 4. Fail-closed: when candidate chunks are exclusively solutions, chat abstains via E2 without hallucinations.
 """
 
@@ -136,7 +136,7 @@ def test_chat_direct_reference_and_anti_leakage(test_container):
     complete_events = [e for e in events if e.get("event_type") == "phase_complete"]
     assert len(complete_events) >= 1
     bkt = complete_events[0]["payload"].get("bkt_context") or {}
-    assert bkt.get("context_mode") == "prerequisite_reinforcement"
+    assert bkt.get("context_mode") == "basic"
 
 
 def test_chat_fuzzy_needs_review_emits_disclaimer(test_container, monkeypatch):

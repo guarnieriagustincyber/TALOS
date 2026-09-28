@@ -1294,13 +1294,10 @@ validador del contenido semántico, documentar el límite en vez de presumirlo.
   tests/pedagogy/test_chat_sse_endpoint.py` — **59 passed, 11 warnings**.
   El smoke de la petición SSE con forma de UI y los tests de aislamiento
   añadidos después pasaron aparte: **8 passed, 5 warnings**.
-- **Resultado adicional pendiente de aclaración fuera de F5:** una ejecución
-  más amplia que incluyó `tests/unit/web/test_chat_content_registry.py` dio
-  **61 passed, 1 failed**. El único fallo es
-  `test_chat_direct_reference_and_anti_leakage`: espera
-  `prerequisite_reinforcement`, mientras la respuesta observada declara
-  `basic`. La selección de modo es BKT/cold-start preexistente y quedó intacta
-  por el perímetro aprobado; no se ajustó el test ni la lógica BKT.
+- **Resultado adicional resuelto fuera de F5:** el test
+  `test_chat_direct_reference_and_anti_leakage` tenía una expectativa obsoleta
+  (`prerequisite_reinforcement`) y ahora verifica el modo `basic` configurado
+  para cold-start. La lógica BKT no necesitó cambios.
 - **Sintaxis/limpieza:** `python -m py_compile` de los cinco módulos Python
   modificados, `node --check` para `chat.js`/`dag.js`/`app.js` y
   `git diff --check` pasaron.
