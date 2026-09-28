@@ -39,18 +39,31 @@ const PureSvgRoadmap: React.FC<PureSvgRoadmapProps> = ({
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = React.useRef<{ x: number; y: number } | null>(null);
+  const viewportRef = React.useRef<HTMLDivElement>(null);
 
   const resetTransform = () => setTransform({ x: 0, y: 0, scale: 1 });
   const zoomIn = () => setTransform(prev => ({ ...prev, scale: Math.min(prev.scale * 1.2, 3) }));
   const zoomOut = () => setTransform(prev => ({ ...prev, scale: Math.max(prev.scale / 1.2, 0.5) }));
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    setTransform(prev => {
-      const newScale = Math.min(Math.max(prev.scale * (e.deltaY > 0 ? 0.9 : 1.1), 0.5), 3);
-      return { ...prev, scale: newScale };
-    });
-  };
+  const svgWidth = Math.max(880, ...nodes.map((node) => node.x + 145));
+  const svgHeight = Math.max(280, ...nodes.map((node) => node.y + 60));
+
+  React.useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setTransform(prev => {
+        const newScale = Math.min(Math.max(prev.scale * (e.deltaY > 0 ? 0.9 : 1.1), 0.5), 3);
+        return { ...prev, scale: newScale };
+      });
+    };
+
+    viewport.addEventListener("wheel", handleWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", handleWheel);
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
@@ -110,8 +123,8 @@ const PureSvgRoadmap: React.FC<PureSvgRoadmapProps> = ({
       </div>
 
       <div
-        className="mt-4 overflow-hidden relative"
-        onWheel={handleWheel}
+        ref={viewportRef}
+        className="mt-4 overflow-hidden relative overscroll-contain"
         onMouseDown={handleMouseDown}
         onDoubleClick={resetTransform}
       >
@@ -122,7 +135,10 @@ const PureSvgRoadmap: React.FC<PureSvgRoadmapProps> = ({
             transformOrigin: "0 0",
           }}
         >
-          <svg viewBox="0 0 880 280" className="w-full min-w-[700px] h-60">
+          <svg
+            viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+            className="block w-full min-w-[700px] h-auto"
+          >
             <defs>
               <marker
                 id="roadmap-arrow"

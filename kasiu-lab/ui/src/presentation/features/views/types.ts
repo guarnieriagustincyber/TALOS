@@ -55,6 +55,14 @@ export interface Citation {
   epistemic_role?: "pedagogical" | "formal" | "technical" | string;
 }
 
+export interface BktContext {
+  kc_id?: string | null;
+  context_mode?: string;
+  p_L?: number;
+  unmet_prerequisites?: string[];
+  fallback?: boolean;
+}
+
 export interface Message {
   id: string;
   sender: "user" | "assistant";
@@ -66,6 +74,7 @@ export interface Message {
   facetCoverage?: Record<string, "SUFFICIENT" | "PARTIAL" | "MISSING">;
   abstained?: boolean;
   abstentionReason?: string | null;
+  bktContext?: BktContext;
   claims?: ClaimItemDto[];
   edited?: boolean;
 }
@@ -503,5 +512,4 @@ export interface NotebookSourcesResponseDto {
   total_sources: number;
   sources: NotebookSourceItemDto[];
 }
-
 

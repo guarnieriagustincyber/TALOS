@@ -64,6 +64,7 @@ export const CurriculumProgress: React.FC<CurriculumProgressProps> = ({
 
 
   const handleWheel = (e: React.WheelEvent) => {
+    if (!e.ctrlKey) return;
     e.preventDefault();
     setTransform(prev => {
       const newScale = Math.min(Math.max(prev.scale * (e.deltaY > 0 ? 0.9 : 1.1), 0.5), 3);
@@ -188,19 +189,19 @@ export const CurriculumProgress: React.FC<CurriculumProgressProps> = ({
 
 
       <div
-        className="flex-1 overflow-hidden relative"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative"
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onDoubleClick={handleDoubleClick}
       >
         <div
-          className="absolute inset-0 transition-transform duration-200"
+          className="relative min-h-full transition-transform duration-200"
           style={{
             transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
             transformOrigin: "0 0",
           }}
         >
-          <div className="flex-1 overflow-hidden p-4 space-y-3">
+          <div className="min-h-full p-4 space-y-3">
             {isLoading && (
               <div className="py-12 flex flex-col items-center justify-center gap-2 text-white/40">
                 <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />

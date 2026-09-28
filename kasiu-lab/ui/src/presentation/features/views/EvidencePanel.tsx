@@ -82,7 +82,7 @@ export const buildDynamicMermaidCode = (
   };
 
   const activeRoles = Array.from(
-    new Set(sources.map((s) => s.epistemicRole || s.epistemic_role || "pedagogical"))
+    new Set(sources.map((s) => s.epistemicRole || s.epistemic_role || "other"))
   );
 
   activeRoles.forEach((roleKey) => {
@@ -94,17 +94,17 @@ export const buildDynamicMermaidCode = (
 
   sources.slice(0, 8).forEach((c, idx) => {
     const eId = `E${idx + 1}`;
-    const roleKey = c.epistemicRole || c.epistemic_role || "pedagogical";
+    const roleKey = c.epistemicRole || c.epistemic_role || "other";
     const rId = `ROLE_${roleKey}`;
-    const title = (c.sourceTitle || c.source_title || c.author || "Fuente")
+    const title = (c.sourceTitle || c.source_title || "Fuente sin título")
       .replace(/["\n]/g, "'")
       .slice(0, 30);
     const p = c.page || c.pageStart || 1;
-    const hash = (c.docHash || "canon").slice(0, 8);
-    const relVal = c.relevanceScore ?? c.relevance_score ?? 0.85;
-    const rel = (Number(relVal) * 100).toFixed(0);
+    const hash = (c.docHash || "sin-hash").slice(0, 8);
+    const relevance = c.relevanceScore ?? c.relevance_score;
+    const rel = relevance == null ? "" : ` (${(Number(relevance) * 100).toFixed(0)}% rel)`;
     lines.push(
-      `    ${rId} --> ${eId}["[${c.citationId || eId}] ${title} (p.${p})<br/>SHA: ${hash}... (${rel}% rel)"]`
+      `    ${rId} --> ${eId}["[${c.citationId || eId}] ${title} (p.${p})<br/>SHA: ${hash}...${rel}"]`
     );
     lines.push(`    style ${eId} fill:#1a2332,stroke:#06b6d4,color:#06b6d4`);
   });
@@ -112,59 +112,12 @@ export const buildDynamicMermaidCode = (
   return lines.join("\n");
 };
 
-// ==========================================
-// DATA: FUENTES DOCUMENTALES (PÁGINA)
-// ==========================================
-interface DocSource {
-  id: string;
+interface EvidenceDocument {
   title: string;
-  shortName: string;
   hash: string;
-  totalPages: number;
   defaultPage: number;
-  dpi: number;
-  canonicalQuote: string;
-  sectionTitle: string;
+  sectionTitle?: string;
 }
-
-const CANONICAL_DOCS: DocSource[] = [
-  {
-    id: "kurose_ross",
-    title: "Computer Networking: A Top-Down Approach (8th Edition)",
-    shortName: "Kurose & Ross",
-    hash: "7599e188b2645104576b5502400565aff7892ef02abb866ed6899ef9b5865a9a",
-    totalPages: 890,
-    defaultPage: 238,
-    dpi: 150,
-    sectionTitle: "Sección 3.5: Connection-Oriented Transport: TCP",
-    canonicalQuote:
-      "TCP connection establishment utilizes a three-way handshake: the client sends a SYN segment, the server allocates buffers and variables and responds with a SYNACK segment, and finally the client allocates buffers and responds with an ACK segment.",
-  },
-  {
-    id: "rfc_793",
-    title: "RFC 793: Transmission Control Protocol (DARPA 1981)",
-    shortName: "RFC 793",
-    hash: "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
-    totalPages: 85,
-    defaultPage: 24,
-    dpi: 140,
-    sectionTitle: "Section 3.3: Sequence Numbers & Clock Selection",
-    canonicalQuote:
-      "The protocol places no restriction on the particular frequencies of clocks which may be used, but the rate of advance should be approximately proportional to real time, clock-driven ISN generation prevents duplicate packets from old incarnations.",
-  },
-  {
-    id: "stallings_security",
-    title: "Computer Security: Principles and Practice (3rd Edition)",
-    shortName: "Stallings Security",
-    hash: "0aa9aa4cc0b23293bf20cb1c6968030220427145008143d39b5963d3724c36b1",
-    totalPages: 838,
-    defaultPage: 45,
-    dpi: 140,
-    sectionTitle: "Chapter 1: Overview of Computer Security",
-    canonicalQuote:
-      "Computer Security: The protection afforded to an automated information system in order to attain the applicable objectives of preserving the integrity, availability, and confidentiality of information system resources.",
-  },
-];
 
 // ==========================================
 // DATA: TRAMAS PCAP Y ANÁLISIS FORENSE
@@ -355,7 +308,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
   tab,
   notes,
   activeScope = "General",
-  docHash = "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+  docHash,
   initialPage,
   activeCitation,
   consultedSources = [],
@@ -401,12 +354,13 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
     if (roleFilter === "all") return consultedSources;
     return consultedSources.filter((src) => {
       const r = (src.epistemic_role || src.epistemicRole || "").toLowerCase();
+      if (roleFilter === "other") return !r || !["pedagogical", "formal", "technical"].includes(r);
       return r === roleFilter.toLowerCase();
     });
   }, [consultedSources, roleFilter]);
 
   const pedCount = (consultedSources || []).filter(
-    (s) => (s.epistemic_role || s.epistemicRole || "pedagogical").toLowerCase() === "pedagogical"
+    (s) => (s.epistemic_role || s.epistemicRole || "").toLowerCase() === "pedagogical"
   ).length;
   const formCount = (consultedSources || []).filter(
     (s) => (s.epistemic_role || s.epistemicRole || "").toLowerCase() === "formal"
@@ -416,14 +370,17 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
   ).length;
 
   const getRoleStyle = (role?: string) => {
-    const r = (role || "pedagogical").toLowerCase();
+    const r = role?.toLowerCase();
     if (r === "formal") {
       return { label: "Formal", badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" };
     }
     if (r === "technical") {
       return { label: "Técnico", badge: "bg-amber-500/20 text-amber-300 border-amber-500/40" };
     }
-    return { label: "Pedagógico", badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" };
+    if (r === "pedagogical") {
+      return { label: "Pedagógico", badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" };
+    }
+    return { label: "Sin clasificar", badge: "bg-zinc-800 text-zinc-300 border-zinc-700" };
   };
 
   const handleCopyActiveCitation = () => {
@@ -431,8 +388,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
     const title =
       activeCitation.sourceTitle ||
       activeCitation.source_title ||
-      activeCitation.sourceId ||
-      "Fuente canónica";
+      "Título no disponible";
     const page = activeCitation.page ?? activeCitation.pageStart ?? 1;
     const text = activeCitation.chunkText || activeCitation.chunk_text || "";
     const formatted = `«${text}» — ${title}, pág. ${page}${
@@ -453,7 +409,8 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
   const handleOpenCitationLocalPdf = async () => {
     if (!activeCitation) return;
     const page = activeCitation.page ?? activeCitation.pageStart ?? 1;
-    const hashToOpen = activeCitation.docHash || activeDoc.hash;
+    const hashToOpen = activeCitation.docHash;
+    if (!hashToOpen) return;
     try {
       await fetch(
         `/api/evidence/open-local-pdf?hash=${encodeURIComponent(hashToOpen)}&page=${page}`
@@ -507,28 +464,32 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
   // ----------------------------------------
   // TAB 2: PÁGINA (PyMuPDF) STATE
   // ----------------------------------------
-  const [selectedDocId, setSelectedDocId] = useState<string>("kurose_ross");
+  const [selectedDocHash, setSelectedDocHash] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [dpi, setDpi] = useState<number>(150);
   const [isPdfLoading, setIsPdfLoading] = useState(false);
   const [pdfLoadError, setPdfLoadError] = useState(false);
   const [copiedCitation, setCopiedCitation] = useState(false);
 
-  const activeDoc = useMemo(() => {
-    return CANONICAL_DOCS.find((d) => d.id === selectedDocId) || CANONICAL_DOCS[0];
-  }, [selectedDocId]);
+  const pageDocuments = useMemo(() => {
+    const documents = new Map<string, EvidenceDocument>();
+    [...consultedSources, ...(activeCitation ? [activeCitation] : [])].forEach((citation) => {
+      const hash = citation.docHash;
+      if (!hash || documents.has(hash)) return;
+      documents.set(hash, {
+        hash,
+        title: citation.sourceTitle || citation.source_title || "Título no disponible",
+        defaultPage: citation.page ?? citation.pageStart ?? 1,
+        sectionTitle: citation.section,
+      });
+    });
+    return Array.from(documents.values());
+  }, [consultedSources, activeCitation]);
 
-  useEffect(() => {
-    if (docHash) {
-      const matched = CANONICAL_DOCS.find(
-        (d) => d.hash.toLowerCase().startsWith(docHash.toLowerCase()) ||
-               docHash.toLowerCase().startsWith(d.hash.toLowerCase())
-      );
-      if (matched) {
-        setSelectedDocId(matched.id);
-      }
-    }
-  }, [docHash]);
+  const activeDoc = useMemo(() => {
+    const preferredHash = selectedDocHash || activeCitation?.docHash || docHash;
+    return pageDocuments.find((document) => document.hash === preferredHash) || pageDocuments[0] || null;
+  }, [pageDocuments, selectedDocHash, activeCitation, docHash]);
 
   useEffect(() => {
     if (initialPage && initialPage >= 1) {
@@ -539,17 +500,8 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
   // Sincronizar automáticamente cuando el usuario selecciona una cita
   useEffect(() => {
     if (activeCitation) {
-      const citeHash = activeCitation.docHash;
-      if (citeHash) {
-        const matched = CANONICAL_DOCS.find(
-          (d) => d.hash.toLowerCase().startsWith(citeHash.toLowerCase()) ||
-                 citeHash.toLowerCase().startsWith(d.hash.toLowerCase())
-        );
-        if (matched) {
-          setSelectedDocId(matched.id);
-        }
-      }
       const page = activeCitation.page ?? activeCitation.pageStart;
+      if (activeCitation.docHash) setSelectedDocHash(activeCitation.docHash);
       if (page && page >= 1) {
         setCurrentPage(page);
       }
@@ -557,17 +509,17 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
     }
   }, [activeCitation]);
 
-  const handleDocChange = (docId: string) => {
-    const target = CANONICAL_DOCS.find((d) => d.id === docId);
+  const handleDocChange = (hash: string) => {
+    const target = pageDocuments.find((document) => document.hash === hash);
     if (target) {
-      setSelectedDocId(target.id);
+      setSelectedDocHash(target.hash);
       setCurrentPage(target.defaultPage);
       setPdfLoadError(false);
     }
   };
 
   const handlePageNav = (newPage: number) => {
-    if (newPage >= 1 && newPage <= activeDoc.totalPages) {
+    if (newPage >= 1 && activeDoc) {
       setCurrentPage(newPage);
       setIsPdfLoading(true);
       setPdfLoadError(false);
@@ -575,7 +527,9 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
   };
 
   const handleCopyCitation = () => {
-    const citation = `[Aserción Canónica] "${activeDoc.canonicalQuote}" — Fuente: ${activeDoc.title} (Pág. ${currentPage}), SHA-256: ${activeDoc.hash}`;
+    if (!activeDoc || !activeCitation) return;
+    const quote = activeCitation.chunkText || activeCitation.chunk_text || "";
+    const citation = `${quote ? `«${quote}» — ` : ""}${activeDoc.title} (Pág. ${currentPage}), SHA-256: ${activeDoc.hash}`;
     navigator.clipboard.writeText(citation);
     setCopiedCitation(true);
     setTimeout(() => setCopiedCitation(false), 2000);
@@ -583,7 +537,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
 
   const handleOpenLocalPdf = async () => {
     try {
-      await chatService.openLocalSource(activeDoc.hash);
+      if (activeDoc) await chatService.openLocalSource(activeDoc.hash);
     } catch (err) {
       console.error("Error al abrir visor local:", err);
     }
@@ -861,10 +815,9 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                         </span>
                       )}
                       <h3 className="text-sm font-semibold text-white leading-snug">
-                        {activeCitation.sourceTitle ||
-                          activeCitation.source_title ||
-                          activeCitation.sourceId ||
-                          "Documento Canónico TALOS"}
+                        {                        activeCitation.sourceTitle ||
+                        activeCitation.source_title ||
+                        "Título no disponible"}
                       </h3>
                       <div className="flex flex-wrap items-center gap-3 pt-0.5 text-[11px] font-mono text-white/60">
                         <span className="flex items-center gap-1 text-cyan-300 font-semibold">
@@ -997,6 +950,17 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                     >
                       Técnicas ({techCount})
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setRoleFilter("other")}
+                      className={`px-2 py-1 rounded-[8px] border transition ${
+                        roleFilter === "other"
+                          ? "bg-zinc-700 text-zinc-200 border-zinc-500 font-bold"
+                          : "bg-black/30 text-zinc-400 border-white/[0.06] hover:text-zinc-200"
+                      }`}
+                    >
+                      Sin clasificar ({consultedSources.length - pedCount - formCount - techCount})
+                    </button>
                   </div>
                 )}
 
@@ -1006,8 +970,9 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                     {filteredSources.map((src, idx) => {
                       const role = getRoleStyle(src.epistemic_role || src.epistemicRole);
                       const pageNum = src.page ?? src.pageStart ?? 1;
-                      const scorePct = Math.round((src.relevanceScore ?? src.relevance_score ?? 0.85) * 100);
-                      const title = src.sourceTitle || src.source_title || "Documento Canónico";
+                      const relevance = src.relevanceScore ?? src.relevance_score;
+                      const scorePct = relevance == null ? null : Math.round(relevance * 100);
+                      const title = src.sourceTitle || src.source_title || "Título no disponible";
                       const excerptText = src.chunkText || src.chunk_text || "";
 
                       return (
@@ -1028,9 +993,11 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                                 Pág. {pageNum}
                               </span>
                             </div>
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9.5px] font-bold shrink-0">
-                              {scorePct}%
-                            </span>
+                            {scorePct !== null && (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9.5px] font-bold shrink-0">
+                                {scorePct}%
+                              </span>
+                            )}
                           </div>
 
                           {/* Título y Autor */}
@@ -1319,10 +1286,10 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                             {displayedSources.map((c, sIdx) => {
                               const isSelected = selectedCitationIndex === sIdx;
                               const cId = c.citationId || `E${sIdx + 1}`;
-                              const authorName = c.author || c.source_id?.replace("src_", "").slice(0, 14) || "Cátedra";
                               const pageNum = c.page || c.pageStart || 1;
-                              const hashShort = (c.docHash || "canon").slice(0, 7);
-                              const rel = Math.round((c.relevanceScore ?? c.relevance_score ?? 0.85) * 100);
+                              const hashShort = (c.docHash || "sin-hash").slice(0, 7);
+                              const relevance = c.relevanceScore ?? c.relevance_score;
+                              const rel = relevance == null ? null : Math.round(relevance * 100);
 
                               return (
                                 <g
@@ -1351,7 +1318,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                                     textAnchor="middle"
                                     fontWeight="700"
                                   >
-                                    [{cId}] {authorName.slice(0, 14)}
+                                    [{cId}]{c.author ? ` ${c.author.slice(0, 14)}` : ""}
                                   </text>
                                   <text
                                     x={roleXs[sIdx]}
@@ -1360,7 +1327,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                                     fontSize="7.5"
                                     textAnchor="middle"
                                   >
-                                    p. {pageNum} · Rel: {rel}%
+                                    p. {pageNum} · Rel: {rel === null ? "N/D" : `${rel}%`}
                                   </text>
                                   <text
                                     x={roleXs[sIdx]}
@@ -1370,7 +1337,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                                     textAnchor="middle"
                                     fontWeight="600"
                                   >
-                                    SHA: {hashShort}.. ✓
+                                    SHA: {hashShort}..
                                   </text>
                                 </g>
                               );
@@ -1382,7 +1349,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                       {/* Status bar */}
                       <rect x="30" y="240" width="380" height="22" rx="6" fill="#00000080" stroke="#ffffff10" />
                       <text x="220" y="255" fill="#10B981" fontSize="8" textAnchor="middle" fontWeight="700">
-                        MOTOR EPISTÉMICO: {consultedSources.length}/{consultedSources.length} CITAS CON ENLACE CRIPTOGRÁFICO VERIFICADO
+                        MOTOR EPISTÉMICO: {consultedSources.filter((citation) => citation.docHash).length}/{consultedSources.length} CITAS CON HASH DISPONIBLE
                       </text>
                     </svg>
                       </div>
@@ -1397,23 +1364,24 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                           <span className="px-2 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 font-mono text-[10px] font-bold">
                             [{activeEvidenceCitation.citationId || `E${selectedCitationIndex + 1}`}]
                           </span>
-                          <span className="text-xs font-semibold text-white">
-                            {activeEvidenceCitation.author || "Autoría de cátedra"}
-                          </span>
+                          {activeEvidenceCitation.author && (
+                            <span className="text-xs font-semibold text-white">
+                              {activeEvidenceCitation.author}
+                            </span>
+                          )}
                         </div>
-                        <span className="text-[9px] text-emerald-400 font-mono flex items-center gap-1">
-                          <Check className="w-3 h-3" />
-                          HASH RESUELTO
-                        </span>
+                        {activeEvidenceCitation.docHash && (
+                          <span className="text-[9px] text-emerald-400 font-mono">HASH DISPONIBLE</span>
+                        )}
                       </div>
 
                       <div className="space-y-1.5 text-[11px]">
                         <p className="text-white/80 font-medium">
-                          {activeEvidenceCitation.sourceTitle || activeEvidenceCitation.source_title || "Fuente oficial de cátedra"}
+                          {activeEvidenceCitation.sourceTitle || activeEvidenceCitation.source_title || "Título no disponible"}
                         </p>
                         <div className="flex items-center gap-4 text-[10px] text-white/45">
-                          <span>Página: <strong className="text-white/80">{activeEvidenceCitation.page || activeEvidenceCitation.pageStart || 1}</strong></span>
-                          <span>Relevancia: <strong className="text-cyan-300">{Math.round(Number(activeEvidenceCitation.relevanceScore ?? activeEvidenceCitation.relevance_score ?? 0.85) * 100)}%</strong></span>
+                          <span>Página: <strong className="text-white/80">{activeEvidenceCitation.page || activeEvidenceCitation.pageStart || "N/D"}</strong></span>
+                          <span>Relevancia: <strong className="text-cyan-300">{(activeEvidenceCitation.relevanceScore ?? activeEvidenceCitation.relevance_score) == null ? "N/D" : `${Math.round(Number(activeEvidenceCitation.relevanceScore ?? activeEvidenceCitation.relevance_score) * 100)}%`}</strong></span>
                         </div>
                         {activeEvidenceCitation.docHash && (
                           <div className="text-[9px] font-mono text-white/40 break-all bg-black/40 p-1.5 rounded border border-white/[0.04]">
@@ -1447,7 +1415,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
           {/* ========================================================= */}
           {/* SECCIÓN 2: PÁGINA (PyMuPDF RENDERIZADO EN VIVO) */}
           {/* ========================================================= */}
-          {tab === "pagina" && (
+          {tab === "pagina" && activeDoc && (
             <div className="space-y-3.5">
               {/* Document Switcher & Extracto de Referencia */}
               <div className="rounded-[16px] bg-[#121214] border border-white/[0.08] p-3 space-y-2.5">
@@ -1462,12 +1430,12 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                     </span>
                   </div>
                   <select
-                    value={selectedDocId}
+                    value={activeDoc.hash}
                     onChange={(e) => handleDocChange(e.target.value)}
                     className="w-full h-8 rounded-[9px] bg-black border border-white/[0.08] px-2.5 text-xs text-white outline-none focus:border-white/30"
                   >
-                    {CANONICAL_DOCS.map((doc) => (
-                      <option key={doc.id} value={doc.id}>
+                    {pageDocuments.map((doc) => (
+                      <option key={doc.hash} value={doc.hash}>
                         {doc.title}
                       </option>
                     ))}
@@ -1493,11 +1461,10 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                     </button>
                     <button
                       onClick={() => handlePageNav(currentPage + 1)}
-                      disabled={currentPage >= activeDoc.totalPages}
                       title="Ver página siguiente para contexto adyacente"
                       className="px-2 h-6 rounded-[6px] bg-black border border-white/[0.08] flex items-center gap-0.5 text-[10px] font-mono text-white/70 hover:text-white hover:bg-white/10 transition disabled:opacity-20"
                     >
-                      {currentPage < activeDoc.totalPages ? currentPage + 1 : ""}
+                      {currentPage + 1}
                       <ChevronRight className="w-3 h-3" />
                     </button>
 
@@ -1518,8 +1485,8 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
               {/* Rendered Page Display via PyMuPDF */}
               <div className="rounded-[20px] bg-[#101012] border border-white/[0.08] overflow-hidden">
                 <div className="px-4 py-2.5 border-b border-white/[0.06] flex items-center justify-between text-[10px]">
-                  <span className="text-white/60 font-semibold">{activeDoc.sectionTitle}</span>
-                  <span className="text-emerald-400 font-mono">SHA-256 Lock</span>
+                  <span className="text-white/60 font-semibold">{activeDoc.sectionTitle || activeDoc.title}</span>
+                  <span className="text-emerald-400 font-mono">SHA-256: {activeDoc.hash.slice(0, 12)}…</span>
                 </div>
 
                 <div className="p-3 bg-black/80 flex flex-col items-center justify-center min-h-[260px] relative">
@@ -1544,7 +1511,7 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                         className="rounded-[10px] shadow-lg max-h-[380px] object-contain border border-white/[0.06]"
                       />
                     </div>
-                  ) : (
+              ) : (
                     /* Fallback when backend page-render endpoint is offline or hash not available */
                     <div className="p-5 text-center space-y-3 font-mono">
                       <FileText className="w-8 h-8 text-white/30 mx-auto" />
@@ -1552,9 +1519,11 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                       <p className="text-[11px] text-white/50 leading-relaxed max-w-[260px] mx-auto">
                         Visualización de extracto verificado bajo hash SHA-256:
                       </p>
-                      <div className="rounded-[10px] bg-[#151517] border border-white/[0.06] p-3 text-left text-[11px] text-white/80 leading-relaxed">
-                        “{activeDoc.canonicalQuote}”
-                      </div>
+                      {activeCitation?.chunkText || activeCitation?.chunk_text ? (
+                        <div className="rounded-[10px] bg-[#151517] border border-white/[0.06] p-3 text-left text-[11px] text-white/80 leading-relaxed">
+                          “{activeCitation.chunkText || activeCitation.chunk_text}”
+                        </div>
+                      ) : <p className="text-[11px] text-white/50">No hay extracto disponible para esta cita.</p>}
                     </div>
                   )}
                 </div>
@@ -1563,9 +1532,9 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                 <div className="p-3.5 bg-[#121214] border-t border-white/[0.06] space-y-2.5">
                   <div className="rounded-[12px] bg-black/50 border border-white/[0.06] p-3 text-[11px] text-white/75 leading-relaxed">
                     <span className="block text-[9px] uppercase tracking-wider text-white/35 mb-1 font-bold">
-                      Cita Canónica Vinculada (Pág. {currentPage})
+                      Extracto citado (Pág. {currentPage})
                     </span>
-                    “{activeDoc.canonicalQuote}”
+                    {activeCitation?.chunkText || activeCitation?.chunk_text || "No hay extracto disponible para esta cita."}
                   </div>
 
                   <div className="flex gap-2">
@@ -1586,7 +1555,12 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
                     </button>
                   </div>
                 </div>
+                </div>
               </div>
+          )}
+          {tab === "pagina" && !activeDoc && (
+            <div className="rounded-[16px] bg-[#101012] border border-dashed border-white/[0.1] p-6 text-center text-xs text-white/50">
+              No hay citas con documento asociado para mostrar en el visor.
             </div>
           )}
 
