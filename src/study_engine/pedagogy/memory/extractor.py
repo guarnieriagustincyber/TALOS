@@ -1,12 +1,9 @@
-"""CognitiveExtractor — Asynchronous, Grounded Cognitive Extraction (Opción C).
+"""CognitiveExtractor — Explicit-preference profile updates (Opción C).
 
 Design & Guarantees:
-- Zero TTFT Impact: Runs exclusively out-of-band in background asyncio tasks.
-- Grounded KC: Extracts or maps insights ONLY to validated KCs from config/notebook_kc_catalog.json.
-- Fallback Cascade (E-C2):
-  1. Groq (Fast/Micro-LLM: qwen/qwen3.8-27b or llama-3.3-70b-versatile)
-  2. Gemini Flash Lite (gemini-3.5-flash-lite)
-  3. Deterministic Heuristics (Offline rule-based regex)
+- A single turn never writes an inferred weakness or mastery claim to the profile.
+- Only explicit preference statements are persisted by the turn-processing path.
+- Existing extraction helpers remain available for offline analysis and tests.
 """
 
 from __future__ import annotations
@@ -32,6 +29,7 @@ from study_engine.pedagogy.memory.schema import (
     MemoryCategory,
 )
 from study_engine.pedagogy.memory.store import CognitiveProfileStore
+from study_engine.student.preference_tracker import is_explicit_preference_statement
 
 logger = logging.getLogger(__name__)
 
@@ -61,18 +59,18 @@ _HEURISTIC_MISCONCEPTIONS = [
 
 _HEURISTIC_PREFERENCES = [
     re.compile(
-        r"(?:prefiero|me\s+sirve\s+m[aá]s|me\s+ayuda\s+m[aá]s|explicame\s+con)\s+(.+?)(?:\.|\?|$)",
+        r"(?:prefiero|me\s+sirve\s+m[aá]s|me\s+ayuda\s+m[aá]s)\s+(.+?)(?:\.|\?|$)",
         re.IGNORECASE,
     ),
     re.compile(
-        r"(?:mostrame|dame)\s+(?:un\s+ejemplo|un\s+diagrama|una\s+tabla|paso\s+a\s+paso)",
+        r"(?:explicame\s+con|mostrame|dame)\s+(?:un\s+ejemplo|un\s+diagrama|una\s+tabla|paso\s+a\s+paso|.+?)(?:\.|\?|$)",
         re.IGNORECASE,
     ),
 ]
 
 
 class CognitiveExtractor:
-    """Extracts cognitive profile items out-of-band and persists them grounded to KCs."""
+    """Persist explicit preferences without treating one turn as domain evidence."""
 
     def __init__(
         self,
@@ -294,40 +292,32 @@ class CognitiveExtractor:
         active_kc: Optional[str] = None,
         llm_backend: Optional[Any] = None,
     ) -> List[str]:
-        """Extract insights from turn and persist directly to CognitiveProfileStore."""
+        """Persist only explicit learning preferences; a single answer is not mastery evidence."""
         valid_kc = self.validate_kc(notebook_id, active_kc) or active_kc or "GENERAL_STUDY"
         persisted_ids: List[str] = []
 
         try:
-            # 1. Intentar extracción con LLM (Groq -> Gemini)
-            payload = await self._extract_with_llm(
-                query=query,
-                response_text=response_text,
-                student_id=student_id,
-                notebook_id=notebook_id,
-                active_kc=valid_kc,
-                llm_backend=llm_backend,
-            )
+            # A one-turn misconception or an LLM classification is insufficient
+            # evidence for a persistent learner-domain profile.
+            items_to_persist = []
+            if is_explicit_preference_statement(query):
+                items_to_persist = [
+                    item
+                    for item in self._extract_heuristics(
+                        query=query,
+                        student_id=student_id,
+                        active_kc=valid_kc,
+                    )
+                    if item.category == MemoryCategory.PREFERENCE
+                ]
 
-            items_to_persist: List[CognitiveItem] = []
-            if payload and payload.items:
-                items_to_persist = payload.items
-            else:
-                # 2. Fallback E-C2: Heurísticas offline
-                items_to_persist = self._extract_heuristics(
-                    query=query,
-                    student_id=student_id,
-                    active_kc=valid_kc,
-                )
-
-            # Persistir ítems en store
+            # Persistir únicamente declaraciones de preferencia explícitas.
             for item in items_to_persist:
                 row_id = self.store.upsert_item(item)
                 persisted_ids.append(row_id)
                 logger.info(
-                    "[COGNITIVE_EXTRACTOR] Persisted item %s [%s] for KC %s: %s",
+                    "[COGNITIVE_EXTRACTOR] Persisted explicit preference %s for KC %s: %s",
                     row_id,
-                    item.category.value,
                     item.kc_id,
                     item.description[:60],
                 )

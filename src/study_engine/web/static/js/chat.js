@@ -51,6 +51,12 @@ const Chat = (() => {
   function _getInput()   { return document.getElementById("chat-input"); }
   function _getSendBtn() { return document.getElementById("btn-send-chat"); }
 
+  function createSessionId() {
+    return window.crypto && window.crypto.randomUUID
+      ? `chat-${window.crypto.randomUUID()}`
+      : `chat-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
   /** Lock / unlock input while the tutor is thinking. */
   function _setInputLocked(locked) {
     _busy = locked;
@@ -264,7 +270,7 @@ const Chat = (() => {
 
   /** Push a system/welcome message from code (not via the API). */
   function addSystemMessage(text) {
-    const msg = { role: "tutor", text, followup: null, audit: null, telemetry: null, ts: Date.now() };
+    const msg = { role: "tutor", system: true, text, followup: null, audit: null, telemetry: null, ts: Date.now() };
     _messages.push(msg);
     _renderBubble("tutor", text, null, null, null);
     save();
@@ -278,19 +284,69 @@ const Chat = (() => {
     }
   }
 
-  /** Build stateless conversational history from the local message store.
-   *
-   * The client is the single source of truth for chat context; sending it on
-   * every request lets the server stay stateless and survive restarts.
-   * Only student/tutor turns are included (never empty/error placeholders).
-   */
-  function _buildHistory(maxTurns = 10) {
+  /** Build a bounded, unverified client history for server-side sanitization. */
+  function _buildHistory(maxTurns = 20) {
     const roles = new Set(["student", "tutor"]);
     const turns = _messages
-      .filter((m) => roles.has(m.role) && m.text)
+      .filter((m) => roles.has(m.role) && m.text && !m.system && !m.error)
       .slice(-maxTurns)
-      .map((m) => ({ role: m.role, content: m.text }));
+      .map((m) => ({
+        role: m.role === "student" ? "user" : "assistant",
+        content: m.text.slice(0, 4000),
+      }));
     return turns;
+  }
+
+  async function _readSseResponse(response) {
+    if (!response.body) throw new Error("El servidor no inició el flujo de respuesta SSE.");
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    const events = [];
+    let pending = "";
+
+    function consumeFrame(frame) {
+      const data = frame
+        .split(/\r?\n/)
+        .filter((line) => line.startsWith("data:"))
+        .map((line) => line.slice(5).trim())
+        .join("\n");
+      if (data) events.push(JSON.parse(data));
+    }
+
+    while (true) {
+      const { value, done } = await reader.read();
+      pending += decoder.decode(value || new Uint8Array(), { stream: !done });
+      let separator;
+      while ((separator = pending.match(/\r?\n\r?\n/))) {
+        const index = separator.index;
+        consumeFrame(pending.slice(0, index));
+        pending = pending.slice(index + separator[0].length);
+      }
+      if (done) break;
+    }
+    if (pending.trim()) consumeFrame(pending);
+
+    const result = { text: "", audit: null, telemetry: null };
+    for (const event of events) {
+      const payload = event.payload || {};
+      if (event.event_type === "phase_token") {
+        result.text += payload.token || "";
+      } else if (event.event_type === "audit_verdict") {
+        result.audit = payload.verdict || null;
+      } else if (event.event_type === "phase_complete") {
+        result.audit = payload.audit_verdict || payload.verdict || result.audit;
+        result.telemetry = payload.telemetry || null;
+      } else if (event.event_type === "abstention") {
+        result.text = [payload.reason, payload.suggested_action]
+          .filter(Boolean)
+          .join("\n\n");
+      } else if (event.event_type === "error") {
+        throw new Error(payload.message || "Error interno al generar la respuesta.");
+      }
+    }
+
+    if (!result.text.trim()) throw new Error("El flujo SSE terminó sin contenido para mostrar.");
+    return result;
   }
 
   /** Send the current input to the tutor backend. */
@@ -300,6 +356,12 @@ const Chat = (() => {
     const input = _getInput();
     const text = (input ? input.value : "").trim();
     if (!text) return;
+    const recentTurns = _buildHistory();
+    const nodeId = window.selectedNodeId || "";
+    const node = window.currentRoadmapNodes && window.currentRoadmapNodes[nodeId];
+    const prompt = node
+      ? `Tema curricular activo: ${node.title} (${nodeId}).\nConsulta del estudiante: ${text}`
+      : text;
 
     // Append student bubble
     const studentMsg = { role: "student", text, followup: null, audit: null, telemetry: null, ts: Date.now() };
@@ -312,41 +374,46 @@ const Chat = (() => {
     _showTyping();
 
     try {
-      const res = await fetch("/api/session/turn/conceptual", {
+      const res = await fetch("/api/chat/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          prompt,
+          scope_type: "folder",
+          scope_id: "folder_root",
+          requested_scope_id: nodeId || null,
+          requested_phase: "conceptual",
           session_id: window.activeSessionId,
-          student_message: text,
-          history: _buildHistory(),
+          recent_turns: recentTurns,
         }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      if (!(res.headers.get("content-type") || "").includes("text/event-stream")) {
+        throw new Error("El servidor devolvió una respuesta que no es SSE.");
+      }
+      const data = await _readSseResponse(res);
       _removeTyping();
 
       // Update provider banner
-      if (data.telemetry) {
+      if (data.telemetry && data.telemetry.provider) {
         updateProviderBanner(data.telemetry.provider);
       }
 
       const tutorMsg = {
         role: "tutor",
-        text: data.response_text,
-        followup: data.pedagogical_followup,
-        audit: data.audit_verdict,
+        text: data.text,
+        followup: null,
+        audit: data.audit,
         telemetry: data.telemetry,
-        qtype: data.question_type,
         ts: Date.now(),
       };
       _messages.push(tutorMsg);
-      _renderBubble("tutor", data.response_text, data.pedagogical_followup, data.audit_verdict, data.telemetry, data.question_type);
+      _renderBubble("tutor", data.text, null, data.audit, data.telemetry);
       save();
     } catch (err) {
       _removeTyping();
-      const errMsg = { role: "tutor", text: `⚠️ Error al procesar el turno: ${err.message}`, followup: null, audit: null, telemetry: null, ts: Date.now() };
-      _messages.push(errMsg);
+      const errMsg = { role: "tutor", error: true, text: `⚠️ Error al procesar el turno: ${err.message}`, followup: null, audit: null, telemetry: null, ts: Date.now() };
       _renderBubble("tutor", errMsg.text, null, null, null);
       save();
     } finally {
@@ -434,6 +501,7 @@ const Chat = (() => {
   }
 
   return {
+    createSessionId,
     send,
     handleKeyPress,
     addSystemMessage,

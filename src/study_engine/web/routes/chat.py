@@ -7,6 +7,7 @@ import logging
 import re
 from types import SimpleNamespace
 from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Tuple
+from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
@@ -34,6 +35,108 @@ PREPARE_CONTEXT_ARITY = 11
 FALLBACK_DISCLAIMER = (
     "No pude confirmar un concepto específico del cuaderno; respondo con base conceptual general de fuentes verificadas."
 )
+
+_MAX_RECENT_MESSAGES = 20
+_MAX_RECENT_TURN_CHARS = 4000
+_MAX_RECENT_HISTORY_CHARS = 12000
+
+
+def _sanitize_recent_turns(
+    recent_turns: Optional[List[Dict[str, Any]]],
+    *,
+    current_prompt: str,
+) -> List[Dict[str, str]]:
+    """Normalize and bound untrusted client history to complete alternating turns."""
+    role_aliases = {
+        "user": "user",
+        "student": "user",
+        "assistant": "assistant",
+        "tutor": "assistant",
+    }
+    normalized: List[Dict[str, str]] = []
+    for turn in recent_turns or []:
+        if not isinstance(turn, dict):
+            continue
+        role = role_aliases.get(str(turn.get("role", "")).strip().lower())
+        content = turn.get("content")
+        if role is None or not isinstance(content, str):
+            continue
+        content = content.strip()
+        if not content:
+            continue
+        entry = {"role": role, "content": content[:_MAX_RECENT_TURN_CHARS]}
+        if normalized and normalized[-1]["role"] == role:
+            normalized[-1] = entry
+        else:
+            normalized.append(entry)
+
+    if normalized and normalized[-1]["role"] == "user":
+        if normalized[-1]["content"] == current_prompt.strip():
+            normalized.pop()
+        else:
+            normalized.pop()
+
+    bounded: List[Dict[str, str]] = []
+    char_budget = _MAX_RECENT_HISTORY_CHARS
+    for turn in reversed(normalized[-_MAX_RECENT_MESSAGES:]):
+        if char_budget <= 0:
+            break
+        content = turn["content"][:char_budget]
+        bounded.append({"role": turn["role"], "content": content})
+        char_budget -= len(content)
+    bounded.reverse()
+    if bounded and bounded[0]["role"] == "assistant":
+        bounded.pop(0)
+    return bounded
+
+
+def _resolve_conversation_turns(
+    *,
+    server_turns: Optional[List[Dict[str, Any]]],
+    client_turns: Optional[List[Dict[str, Any]]],
+    current_prompt: str,
+) -> List[Dict[str, str]]:
+    """Prefer this scope's server buffer; use sanitized client history only on cold start."""
+    trusted_buffer = _sanitize_recent_turns(server_turns, current_prompt=current_prompt)
+    if trusted_buffer:
+        return trusted_buffer
+    return _sanitize_recent_turns(client_turns, current_prompt=current_prompt)
+
+
+def _epistemic_cache_key(
+    *,
+    session_id: Optional[str],
+    scope_type: str,
+    scope_id: str,
+    notebook_id: str,
+    active_sources: Optional[List[str]],
+    requested_scope_id: Optional[str] = None,
+) -> str:
+    """Partition fallback evidence by session, resolved scope, and source restrictions."""
+    key_parts = [
+        session_id or "anon",
+        scope_type,
+        scope_id,
+        notebook_id,
+        requested_scope_id or "",
+        sorted(set(active_sources or [])),
+    ]
+    return f"epistemic:{json.dumps(key_parts, ensure_ascii=False, separators=(',', ':'))}"
+
+
+def _request_context_cache_key(
+    request: "ChatQueryRequest",
+    resolved_scope: Any,
+    notebook_id: str,
+) -> str:
+    return _epistemic_cache_key(
+        session_id=request.session_id,
+        scope_type=resolved_scope.scope_type.value,
+        scope_id=resolved_scope.scope_id,
+        notebook_id=notebook_id,
+        active_sources=request.active_sources,
+        requested_scope_id=request.requested_scope_id,
+    )
 
 
 def _pack_prepare_context(
@@ -107,7 +210,7 @@ class ChatQueryRequest(BaseModel):
     )
     recent_turns: Optional[List[Dict[str, Any]]] = Field(
         default=None,
-        description="Optional recent conversation turns from client (role, content).",
+        description="Optional unverified client conversation context, sanitized before use.",
     )
 
     @property
@@ -137,13 +240,12 @@ class ChatQueryRequest(BaseModel):
 # In-memory turn accumulator map with TTL eviction: (session_id or scope_id) -> PhaseHistory
 _ACTIVE_TURN_HISTORIES: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
-# Buffer de turnos conversacionales de corto plazo (Fase 2):
-# Almacena los últimos 4 turnos {role, content} por history_key para inyectar
-# continuidad conversacional real en el prompt sin inflar el contexto global.
+# Buffer conversacional efímero, particionado por sesión y alcance.
+# Conserva hasta 20 mensajes validados por clave de contexto.
 _CONV_TURN_BUFFER: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
-# Almacena el último EpistemicContextPack exitoso por history_key / session_key
-# para que consultas deícticas/seguimiento no abstenan falsamente si el store devuelve 0 chunks nuevos.
+# Almacena el último EpistemicContextPack exitoso particionado por sesión,
+# alcance curricular y restricciones de fuentes.
 _LAST_EPISTEMIC_PACK: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
 # Fase 5.3: racha de turnos consecutivos por KC por sesión/cuaderno —
@@ -982,7 +1084,7 @@ def _trigger_background_memory_extraction(
                 )
             except Exception as exc:
                 logger.debug("Background pedagogical memory extraction error: %s", exc)
-        if mem0:
+        if mem0 and response_text.strip():
             try:
                 mem0.process_turn_memories(
                     student_id=student_id,
@@ -1313,17 +1415,16 @@ def _prepare_chat_context(
     # COMMIT 3 (fix/scope): intención no curricular abstiene ANTES del
     # retrieval y aunque haya match léxico de contenido (independencia total).
     history_key = f"{request.session_id or 'anon'}:{target_notebook_id}"
-    session_key = f"sess:{request.session_id or 'anon'}"
+    context_cache_key = _request_context_cache_key(
+        request,
+        resolved_scope,
+        target_notebook_id,
+    )
 
-    # Recuperar turnos: priorizar los enviados por el cliente (fuente de verdad de la UI),
-    # luego el buffer por cuaderno, luego el buffer por sesión global
-    client_turns = [
-        {"role": t.get("role", "user"), "content": t.get("content", "")}
-        for t in (request.recent_turns or [])
-        if isinstance(t, dict) and t.get("content")
-    ]
-    conv_turns = client_turns if client_turns else list(
-        _CONV_TURN_BUFFER.get(history_key) or _CONV_TURN_BUFFER.get(session_key) or []
+    conv_turns = _resolve_conversation_turns(
+        server_turns=_CONV_TURN_BUFFER.get(context_cache_key),
+        client_turns=request.recent_turns,
+        current_prompt=prompt_text,
     )
     from study_engine.retrieval.query_rewriter import QueryRewriter, has_deictic_markers, should_rewrite_contextual
     from study_engine.pedagogy.conversation_state import ConversationState, classify_conversation_state, should_abstain
@@ -1365,7 +1466,8 @@ def _prepare_chat_context(
         re.IGNORECASE,
     ))
 
-    has_fallback_pack = bool(history_key in _LAST_EPISTEMIC_PACK or session_key in _LAST_EPISTEMIC_PACK)
+    epistemic_key = context_cache_key
+    has_fallback_pack = epistemic_key in _LAST_EPISTEMIC_PACK
     is_followup = (
         not is_explicit_reference
         and bool(
@@ -1427,11 +1529,11 @@ def _prepare_chat_context(
             and has_fallback_pack
             and not getattr(context_pack, "resolved_item", None)
         ):
-            last_pack_tuple = _LAST_EPISTEMIC_PACK.get(history_key) or _LAST_EPISTEMIC_PACK.get(session_key)
+            last_pack_tuple = _LAST_EPISTEMIC_PACK.get(epistemic_key)
             if last_pack_tuple:
                 logger.info(
-                    "Recuperando context_pack previo para continuidad conversacional (%s, %s, estado=%s)",
-                    history_key, session_key, conv_state.value
+                    "Recuperando context_pack previo para continuidad conversacional (%s, estado=%s)",
+                    epistemic_key, conv_state.value
                 )
                 prev_pack, prev_chunks = last_pack_tuple
                 context_pack = prev_pack
@@ -1439,8 +1541,7 @@ def _prepare_chat_context(
 
         # Si el context_pack es válido y tiene fragmentos, actualizar la caché del último pack epistémico
         if context_pack and not getattr(context_pack, "abstained", False) and raw_chunks:
-            _LAST_EPISTEMIC_PACK[history_key] = (context_pack, raw_chunks)
-            _LAST_EPISTEMIC_PACK[session_key] = (context_pack, raw_chunks)
+            _LAST_EPISTEMIC_PACK[epistemic_key] = (context_pack, raw_chunks)
 
     # El pipeline SIEMPRE necesita un contrato (SocraticGuard, get_phase);
     # en scope global se usa el contrato neutral sintético.
@@ -1598,6 +1699,8 @@ async def chat_query(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Either 'prompt' or 'query' must be provided and non-empty.",
         )
+    if not request.session_id:
+        request.session_id = f"chat-{uuid4().hex}"
 
     # Pre-flight DataSanitizer check for Accidental PII / Credentials (Ola 5, Fase 5.1)
     from study_engine.security.data_sanitizer import DataSanitizer
@@ -1690,9 +1793,17 @@ async def chat_query(
             media_type="text/event-stream",
         )
 
-    target_notebook_id = resolved_scope.notebook_id or target_scope_id
+    target_notebook_id = (
+        GLOBAL_SCOPE_ID
+        if resolved_scope.scope_type == ScopeType.FOLDER
+        else (resolved_scope.notebook_id or target_scope_id)
+    )
     history_key = f"{request.session_id or 'anon'}:{target_notebook_id}"
-    session_key = f"sess:{request.session_id or 'anon'}"
+    context_cache_key = _request_context_cache_key(
+        request,
+        resolved_scope,
+        target_notebook_id,
+    )
 
     bkt_directive = maybe_inject_session_digest(container, history_key, bkt_directive)
     if request.requested_phase == "conceptual" and history_key in _ACTIVE_TURN_HISTORIES:
@@ -1710,13 +1821,10 @@ async def chat_query(
     llm_backend = _resolve_chat_backend(container, estimated_tokens=estimated_input_tokens)
 
     # Memoria de corto plazo (Fase 2): recuperar buffer de turnos y registrar el turno actual del usuario.
-    client_turns = [
-        {"role": t.get("role", "user"), "content": t.get("content", "")}
-        for t in (request.recent_turns or [])
-        if isinstance(t, dict) and t.get("content")
-    ]
-    conv_turns: list = client_turns if client_turns else list(
-        _CONV_TURN_BUFFER.get(history_key) or _CONV_TURN_BUFFER.get(session_key) or []
+    conv_turns: list = _resolve_conversation_turns(
+        server_turns=_CONV_TURN_BUFFER.get(context_cache_key),
+        client_turns=request.recent_turns,
+        current_prompt=prompt_text,
     )
     # Registrar el turno del usuario en el buffer (se completa con la respuesta al finalizar)
     conv_turns.append({"role": "user", "content": prompt_text})
@@ -1789,8 +1897,7 @@ async def chat_query(
                     },
                 }
                 conv_turns.append({"role": "assistant", "content": f"Abstención: {reason}"})
-                _CONV_TURN_BUFFER[history_key] = conv_turns[-4:]
-                _CONV_TURN_BUFFER[session_key] = conv_turns[-4:]
+                _CONV_TURN_BUFFER[context_cache_key] = conv_turns[-_MAX_RECENT_MESSAGES:]
                 yield f"data: {json.dumps(abstention_payload)}\n\n"
                 return
 
@@ -1912,10 +2019,9 @@ async def chat_query(
                     clean_saved_text = re.sub(r"\s+([.,;:!?])", r"\1", clean_saved_text).strip()
                     clean_saved_text = re.sub(r"  +", " ", clean_saved_text)
 
-                    # Guardar historial conversacional (últimos 4 turnos) en _CONV_TURN_BUFFER
+                    # Guardar el historial conversacional acotado en el buffer efímero.
                     conv_turns.append({"role": "assistant", "content": clean_saved_text})
-                    _CONV_TURN_BUFFER[history_key] = conv_turns[-4:]
-                    _CONV_TURN_BUFFER[session_key] = conv_turns[-4:]
+                    _CONV_TURN_BUFFER[context_cache_key] = conv_turns[-_MAX_RECENT_MESSAGES:]
 
                     # Enriquecer payload de phase_complete con telemetría cognitiva BKT (Fase 3)
                     if isinstance(payload.get("payload"), dict):

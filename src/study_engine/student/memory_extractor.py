@@ -1,8 +1,8 @@
-"""Pedagogical Memory Extractor for Student Interactions (Semana 2).
+"""Pedagogical Memory Extractor for explicit student preferences.
 
-Extracts conceptual misconceptions, explanation preferences, and domain analogy
-affinities from student dialogue using deterministic heuristics and optional
-lightweight LLM distillation in background tasks.
+The turn-processing path persists explicit preferences only. A single confusion
+or a model-generated interpretation is not sufficient evidence for permanent
+student-profile mutation.
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from study_engine.generation.prompts import (
     compute_canonical_prompt_hash,
 )
 from study_engine.student.pedagogical_memory import PedagogicalMemoryTracker
+from study_engine.student.preference_tracker import is_explicit_preference_statement
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +177,7 @@ class PedagogicalMemoryExtractor:
         try:
             # 1. Check for explicit learning preference first
             pref = self.extract_heuristic_preference(query)
-            if pref:
+            if pref and is_explicit_preference_statement(query):
                 # Check duplication before saving
                 existing = self.tracker.storage.get_pedagogical_memories(
                     student_id=student_id,
@@ -191,36 +192,6 @@ class PedagogicalMemoryExtractor:
                     student_id=student_id,
                     preference_text=pref,
                     confidence=1.0,
-                )
-
-            # 2. Check for misconception (heuristic or resolve_misconception mode)
-            misconception = self.extract_heuristic_misconception(query)
-
-            if not misconception and pedagogical_mode == "resolve_misconception" and llm_backend:
-                misconception = await self.extract_llm_misconception(
-                    query=query,
-                    response_text=response_text,
-                    llm_backend=llm_backend,
-                )
-
-            if misconception:
-                # Check duplication for this KC
-                existing_kc = self.tracker.storage.get_pedagogical_memories(
-                    student_id=student_id,
-                    category="misconception",
-                    kc_id=active_kc,
-                    limit=5,
-                )
-                for m in existing_kc:
-                    if misconception.lower() in m.get("insight", "").lower():
-                        self.tracker.storage.touch_pedagogical_memory(m["id"])
-                        return m["id"]
-
-                return self.tracker.record_misconception(
-                    student_id=student_id,
-                    kc_id=active_kc or "GENERAL",
-                    misconception=misconception,
-                    confidence=0.85,
                 )
 
         except Exception as exc:

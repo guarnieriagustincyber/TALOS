@@ -244,7 +244,7 @@ Identificador en esta hoja de ruta: **F4-formato** (no confundir con las fases
 | 2 — Modos pedagógicos | Estrategias de explicación, práctica, corrección y reexplicación | Fase 1 | Implementada localmente; criterios prompt-level verificados; sin commit |
 | 3 — Rigor y ciberseguridad | Afirmaciones técnicas contextualizadas y razonamiento seguro | Fases 1–2 | Implementada localmente; guardas de prompt y regresiones offline verificadas |
 | 4 — Formato y código | Formato fiel al pedido, código controlado y salida usable | Fases 1–3 | Implementada y validada localmente; límites de validación semántica documentados |
-| 5 — Fuentes y continuidad | Seguimientos coherentes y procedencia de afirmaciones visible | Fases 1–4; recuperación/contexto existentes | Diseñada en este documento; pendiente de implementación |
+| 5 — Fuentes y continuidad | Seguimientos coherentes y procedencia de afirmaciones visible | Fases 1–4; recuperación/contexto existentes | Prerequisito de rutas, perfil y alcance implementado localmente; Fase 5 aún pendiente |
 | 6 — Streaming y fiabilidad | Respuesta visible íntegra o fallo explícito, medible y recuperable | Camino de chat/streaming; instrumentación disponible | Diseñada en este documento; pendiente de implementación |
 | 7 — Evaluación y aprendizaje | Evidencia reproducible de calidad y, por separado, aprendizaje | Fases 0–6 estabilizadas | Diseñada en este documento; pendiente de autorización/ejecución |
 
@@ -1231,6 +1231,91 @@ validador del contenido semántico, documentar el límite en vez de presumirlo.
   de cada salida futura; esos límites quedan explícitos y no se usó ejecución
   automática de código generado.
 
+### Prerequisito técnico F5 — Rutas, perfil y aislamiento de evidencia
+
+- **Estado:** implementado y verificado localmente; no equivale a completar ni
+  aceptar la Fase 5.
+- **Fecha y base:** 2026-09-28; rama `main`, base `c401b4e`.
+- **Decisión de rutas:** `chat.js` usa `POST /api/chat/query` y consume los
+  eventos SSE; no se reactivó un proxy de `/api/session/*`. `dag.js` crea una
+  sesión de chat local con ID por pestaña/sesión, y `app.js` ya no comparte un
+  ID constante entre clientes. El inicio de chat usa el scope curricular
+  global, envía el nodo seleccionado como contexto de la consulta y como
+  `requested_scope_id`. `practice.js` conserva llamadas a rutas legacy de
+  práctica; quedan fuera de este prerequisito y requieren una migración aparte.
+- **Historial:** se prioriza el buffer de servidor para el mismo alcance; solo
+  en cold start se acepta el historial aportado por cliente, como contexto no
+  verificado. Roles `student`/`tutor` se normalizan a `user`/`assistant`, se
+  descartan roles desconocidos, entradas vacías y turnos incompletos, y se
+  conserva una secuencia alternada. Se limitan a 20 mensajes, 4.000 caracteres
+  por mensaje y 12.000 caracteres en total. Los buffers ya no tienen fallback
+  por clave de sesión global.
+- **Alcance de evidencia:** el cache de conversación y el pack epistémico usan
+  claves por sesión, tipo/ID de scope resuelto, cuaderno, `requested_scope_id`
+  y conjunto de `active_sources`. Ya no se rescata evidencia desde una clave
+  global de sesión. Una ausencia de evidencia en otro alcance conserva el
+  comportamiento fail-closed existente.
+- **Perfil:** `CognitiveExtractor` y `PedagogicalMemoryExtractor` no persisten
+  debilidades inferidas ni llaman al LLM para inferirlas a partir de un turno.
+  `Mem0Manager` no registra patrones de error por consulta aislada. Solo se
+  conserva la persistencia de preferencias explícitamente declaradas (por
+  ejemplo, “prefiero…”); peticiones puntuales (“dame un ejemplo”) no se
+  convierten en preferencias duraderas. La ruta de abstención no registra un
+  resumen vacío en memoria episódica. No se modificó BKT ni el esquema de
+  stores.
+- **Archivos de implementación:** `src/study_engine/web/routes/chat.py`,
+  `src/study_engine/web/static/js/chat.js`,
+  `src/study_engine/web/static/js/dag.js`,
+  `src/study_engine/web/static/js/app.js`,
+  `src/study_engine/pedagogy/memory/extractor.py`,
+  `src/study_engine/student/memory_extractor.py`,
+  `src/study_engine/student/preference_tracker.py` y
+  `src/study_engine/memory/mem0_manager.py`.
+- **Pruebas nuevas/ajustadas:** `tests/unit/web/test_f5_context_containment.py`,
+  `tests/unit/web/test_chat_ui_sse_contract.py`,
+  `tests/unit/pedagogy/memory/test_profile_mutation_containment.py`,
+  `tests/unit/pedagogy/memory/test_extractor.py`,
+  `tests/unit/student/test_memory_extractor.py`,
+  `tests/pedagogy/test_chat_sse_endpoint.py`,
+  `tests/pedagogy/test_talos_vs_notebooklm_e2e.py` y
+  `tests/retrieval/test_hierarchical_rag.py`. Los tres tests que ya estaban
+  modificados al comenzar se preservaron; el archivo E2E recibió además
+  ajustes puntuales para usar la nueva clave de evidencia.
+- **Validación principal:** `./.venv/bin/pytest tests/unit/pedagogy/
+  tests/pedagogy/ -q` — **295 passed, 11 warnings** (deprecaciones FastAPI
+  `on_event` y Starlette `TestClient`/httpx).
+- **Validación focalizada:** `./.venv/bin/pytest -q
+  tests/unit/web/test_f5_context_containment.py
+  tests/unit/web/test_chat_ui_sse_contract.py tests/unit/pedagogy/memory
+  tests/unit/student/test_memory_extractor.py
+  tests/unit/student/test_meta_declaration_survives_gate.py
+  tests/pedagogy/test_talos_vs_notebooklm_e2e.py
+  tests/retrieval/test_hierarchical_rag.py
+  tests/pedagogy/test_chat_sse_endpoint.py` — **59 passed, 11 warnings**.
+  El smoke de la petición SSE con forma de UI y los tests de aislamiento
+  añadidos después pasaron aparte: **8 passed, 5 warnings**.
+- **Resultado adicional pendiente de aclaración fuera de F5:** una ejecución
+  más amplia que incluyó `tests/unit/web/test_chat_content_registry.py` dio
+  **61 passed, 1 failed**. El único fallo es
+  `test_chat_direct_reference_and_anti_leakage`: espera
+  `prerequisite_reinforcement`, mientras la respuesta observada declara
+  `basic`. La selección de modo es BKT/cold-start preexistente y quedó intacta
+  por el perímetro aprobado; no se ajustó el test ni la lógica BKT.
+- **Sintaxis/limpieza:** `python -m py_compile` de los cinco módulos Python
+  modificados, `node --check` para `chat.js`/`dag.js`/`app.js` y
+  `git diff --check` pasaron.
+- **Límites:** no se ejecutó navegador real ni proveedor externo; SSE se probó
+  con `TestClient` y el contrato del cliente con tests estáticos más `node
+  --check`. La Fase 5 aún debe cubrir ambigüedad semántica entre antecedentes,
+  citas/localizadores visibles, discrepancias de fuentes y peticiones de
+  aclaración; estos cambios no prueban soporte semántico de citas ni calidad de
+  retrieval.
+- **Privacidad/perímetro:** no se cambió esquema/almacén, BKT ni rutas bajo
+  `state/`, `execution/`, `assessment/` o `audit/`; no se usaron proveedores,
+  benchmark ni transcripciones privadas.
+- **Siguiente:** continuar la implementación de Fase 5 una vez revisado el
+  estado Git. No hacer commit ni push sin solicitud explícita.
+
 ## Fase 5 — Fuentes, memoria y continuidad
 
 ### Objetivo y fundamento
@@ -1677,26 +1762,20 @@ línea de base; consultar
 [FASE0_LINEA_BASE_TALOS_NOTEBOOKLM.md](./FASE0_LINEA_BASE_TALOS_NOTEBOOKLM.md)
 para los hallazgos, límites y protocolo. No repetir setup ni lanzar otra
 ejecución del benchmark sin solicitud explícita. La Fase 1 está implementada y
-validada; Fases 2–4-formato se implementaron localmente y sus registros están
-arriba. Fases 5–7 siguen diseñadas, no implementadas ni aceptadas.
+validada; Fases 2–4-formato están implementadas y F4-formato fue comprometida
+en `c401b4e`. El prerequisito técnico documentado antes de Fase 5 está
+implementado localmente; la Fase 5 funcional y las Fases 6–7 siguen pendientes,
+no aceptadas.
 
 ### Snapshot de handoff actualizado el 2026-09-28
 
-- Branch observada: `main`; HEAD al comenzar F4: `f9de791`.
-- Git reportó `main...origin/main [adelante 8]`; no se hizo push.
-- Fases 2 y 3 forman parte del commit local `f9de791`. Los cambios locales sin
-  commit de F4 incluyen:
-  - `src/study_engine/pedagogy/fase0_seed.py`
-  - `src/study_engine/pedagogy/command_parser.py`
-  - `src/study_engine/pedagogy/structured_pipeline.py`
-  - `src/study_engine/pedagogy/socratic_guard.py`
-  - `src/study_engine/web/static/js/chat.js`
-  - `src/study_engine/web/static/js/dag.js`
-  - `src/study_engine/web/static/css/app.css`
-  - pruebas de F4 y regresiones de prompts/guardia en `tests/`
-  - `docs/PLAN_MEJORA_PEDAGOGICA_TALOS.md`
-- El árbol estaba limpio al iniciar esta implementación. F4 quedó sin commit;
-  no se creó commit ni se hizo push.
-- Siguiente fase: **Fase 5 — Fuentes, memoria y continuidad**. Antes de
-  continuar, comprobar el estado actual de Git y seguir los límites de evidencia
-  y privacidad de este plan.
+- Branch/HEAD observados: `main` / `c401b4e`; 9 commits locales adelante de
+  `origin/main`; no se hizo push.
+- Cambios actuales sin commit incluyen el prerequisito F5 y los tres tests de
+  F4 que ya estaban modificados antes de este trabajo. Revisar `git status`
+  antes de preparar cualquier commit y no incluir cambios previos por accidente.
+- No se creó commit ni se hizo push en este sprint.
+- Siguiente trabajo: implementación funcional de **Fase 5 — Fuentes, memoria y
+  continuidad**, comenzando por pruebas de ambigüedad de antecedentes,
+  ausencia/truncamiento de historial, procedencia visible y discrepancia entre
+  fuentes. No repetir el benchmark y conservar el perímetro de datos y módulos.

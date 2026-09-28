@@ -74,12 +74,11 @@ def test_heuristic_preference_extraction(extractor):
         assert "Preferencia didáctica" in pref
 
 
-def test_process_turn_and_persist_misconception(extractor, mem_storage):
-    """Test full processing and SQLite persistence of a misconception."""
+def test_process_turn_does_not_persist_single_turn_misconception(extractor, mem_storage):
+    """A single expressed confusion must not become permanent profile evidence."""
     query = "Pensé que el stack crecía hacia arriba en la memoria RAM."
     response = "En la arquitectura x86_64, el stack crece hacia direcciones decrecientes."
 
-    # First encounter
     m_id = asyncio.run(
         extractor.process_turn_and_persist(
             student_id="agustin",
@@ -88,18 +87,14 @@ def test_process_turn_and_persist_misconception(extractor, mem_storage):
             active_kc="KC-STACK-01",
         )
     )
-    assert m_id is not None
-    assert m_id > 0
+    assert m_id is None
 
     memories = mem_storage.get_pedagogical_memories(
         student_id="agustin",
         category="misconception",
         kc_id="KC-STACK-01",
     )
-    assert len(memories) == 1
-    assert "stack crecía hacia arriba" in memories[0]["insight"]
-
-    # Duplicate encounter should touch timestamp instead of creating duplicate row
+    assert memories == []
     m_id2 = asyncio.run(
         extractor.process_turn_and_persist(
             student_id="agustin",
@@ -108,14 +103,14 @@ def test_process_turn_and_persist_misconception(extractor, mem_storage):
             active_kc="KC-STACK-01",
         )
     )
-    assert m_id2 == m_id
+    assert m_id2 is None
 
     memories_after = mem_storage.get_pedagogical_memories(
         student_id="agustin",
         category="misconception",
         kc_id="KC-STACK-01",
     )
-    assert len(memories_after) == 1
+    assert memories_after == []
 
 
 def test_process_turn_and_persist_preference(extractor, mem_storage):
@@ -142,8 +137,8 @@ def test_process_turn_and_persist_preference(extractor, mem_storage):
     assert "código en c" in prefs[0]["insight"].lower()
 
 
-def test_chat_query_background_pedagogical_memory_integration(tmp_path):
-    """End-to-end integration: querying chat with a misconception automatically saves to SQLite."""
+def test_chat_query_background_pedagogical_memory_does_not_store_single_misconception(tmp_path):
+    """The background chat extractors must not persist an isolated misconception."""
     import time
     from fastapi.testclient import TestClient
     from datetime import datetime, timezone
@@ -204,5 +199,4 @@ def test_chat_query_background_pedagogical_memory_integration(tmp_path):
         category="misconception",
         kc_id="KC-STACK-01",
     )
-    assert len(memories) >= 1
-    assert "stack crecía hacia arriba" in memories[0]["insight"].lower()
+    assert memories == []

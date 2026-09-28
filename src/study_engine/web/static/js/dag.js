@@ -161,44 +161,22 @@ async function startSessionForActiveNode() {
   if (!window.selectedNodeId) return;
 
   const startBtn = document.getElementById("btn-start-study");
-  const origText = startBtn.textContent;
-  startBtn.textContent = "Iniciando...";
-  startBtn.disabled = true;
+  const node = window.currentRoadmapNodes[window.selectedNodeId];
+  window.activeSessionId = Chat.createSessionId();
 
-  try {
-    const res = await fetch("/api/session/start", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ node_id: window.selectedNodeId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    window.activeSessionId = data.session_id;
-
-    // Update session label
-    const sessLabel = document.getElementById("active-session-label");
-    if (sessLabel) {
-      sessLabel.textContent = `Sesión: ${data.node_id}`;
-      sessLabel.style.color = "#34d399";
-    }
-
-    // Reset and populate chat via the Chat module
-    Chat.reset();
-    Chat.addSystemMessage(
-      `**⚡ Sesión iniciada: ${data.node_title}**\n\n` +
-      `${data.message}\n\n` +
-      `*Acción pedagógica: ${data.initial_action} · Presupuesto: ${data.budget}*`
-    );
-
-    // Focus chat input
-    const input = document.getElementById("chat-input");
-    if (input) input.focus();
-  } catch (err) {
-    console.error("Error al iniciar sesión:", err);
-    Chat.addSystemMessage(`⚠️ Error al iniciar sesión: ${err.message}`);
-  } finally {
-    startBtn.textContent = origText;
-    startBtn.disabled = false;
+  const sessLabel = document.getElementById("active-session-label");
+  if (sessLabel) {
+    sessLabel.textContent = `Sesión: ${node ? node.title : window.selectedNodeId}`;
+    sessLabel.style.color = "#34d399";
   }
+
+  Chat.reset();
+  Chat.addSystemMessage(
+    `**⚡ Sesión de estudio iniciada: ${node ? node.title : window.selectedNodeId}**\n\n` +
+    "Las consultas se enviarán al tutor pedagógico con el tema curricular seleccionado como contexto."
+  );
+
+  const input = document.getElementById("chat-input");
+  if (input) input.focus();
+  if (startBtn) startBtn.blur();
 }

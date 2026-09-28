@@ -36,6 +36,7 @@ from study_engine.web.routes.chat import (
     EpistemicContextPack,
     _LAST_EPISTEMIC_PACK,
     _assemble_epistemic_context,
+    _epistemic_cache_key,
     _prepare_chat_context,
 )
 from study_engine.hierarchy.scope_resolver import ScopeResolver
@@ -335,7 +336,14 @@ def test_deictic_rewritten_hierarchical_retrieval(memory_store):
         chunks=[{"id": "chk_leaf_1", "content": "El operador & permite obtener la dirección"}],
         abstained=False,
     )
-    _LAST_EPISTEMIC_PACK[history_key] = (saved_pack, [{"id": "chk_leaf_1", "content": "El operador & permite obtener la dirección"}])
+    evidence_key = _epistemic_cache_key(
+        session_id=session_id,
+        scope_type="notebook",
+        scope_id="fase0-soc",
+        notebook_id="fase0-soc",
+        active_sources=None,
+    )
+    _LAST_EPISTEMIC_PACK[evidence_key] = (saved_pack, [{"id": "chk_leaf_1", "content": "El operador & permite obtener la dirección"}])
 
     req = ChatQueryRequest(
         prompt=query,

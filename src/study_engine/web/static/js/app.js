@@ -6,7 +6,7 @@
  * polling, and ledger inspection.
  */
 
-window.activeSessionId = "sess-student-study-loop-v1";
+window.activeSessionId = Chat.createSessionId();
 
 document.addEventListener("DOMContentLoaded", () => {
   // Health polling: first check immediately, then every 30 s

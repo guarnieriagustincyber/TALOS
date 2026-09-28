@@ -88,6 +88,32 @@ def test_chat_query_sse_notebook_streaming(client_with_setup):
     assert "pseudocode" in complete_ev["payload"]["next_phases"]
 
 
+def test_chat_ui_global_folder_scope_streams_compatible_sse(client_with_setup):
+    client, container, nb, folder = client_with_setup
+    response = client.post(
+        "/api/chat/query",
+        json={
+            "prompt": "Tema curricular activo: punteros (KC-POINTERS). Consulta del estudiante: ¿Qué es un puntero?",
+            "scope_type": "folder",
+            "scope_id": "folder_root",
+            "requested_scope_id": "KC-POINTERS",
+            "requested_phase": "conceptual",
+            "session_id": "chat-ui-folder-scope-test",
+            "recent_turns": [],
+        },
+    )
+
+    assert response.status_code == 200
+    assert "text/event-stream" in response.headers["content-type"]
+    events = [
+        json.loads(line[6:])
+        for line in response.text.split("\n")
+        if line.startswith("data: ")
+    ]
+    assert any(event["event_type"] == "phase_token" for event in events)
+    assert any(event["event_type"] == "phase_complete" for event in events)
+
+
 def test_chat_query_sse_folder_organizational(client_with_setup):
     """POST /api/chat/query on folder scope handles organizational queries via SSE."""
     client, container, nb, folder = client_with_setup

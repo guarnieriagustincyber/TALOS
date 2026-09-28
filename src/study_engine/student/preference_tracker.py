@@ -47,6 +47,23 @@ _STYLE_PATTERNS = {
     ],
 }
 
+_EXPLICIT_PREFERENCE_PATTERN = re.compile(
+    r"\b(?:yo\s+)?(?:prefiero|me\s+sirve\s+m[aá]s|me\s+ayuda\s+m[aá]s)\b",
+    re.IGNORECASE,
+)
+_NEGATED_PREFERENCE_PATTERN = re.compile(
+    r"\bno\s+(?:yo\s+)?(?:prefiero|me\s+sirve\s+m[aá]s|me\s+ayuda\s+m[aá]s)\b",
+    re.IGNORECASE,
+)
+
+
+def is_explicit_preference_statement(user_query: str) -> bool:
+    """Return whether the student positively states their own learning preference."""
+    query = user_query or ""
+    return bool(_EXPLICIT_PREFERENCE_PATTERN.search(query)) and not bool(
+        _NEGATED_PREFERENCE_PATTERN.search(query)
+    )
+
 
 class PreferenceTracker:
     """Detects, updates, and retrieves student learning preferences."""
@@ -87,7 +104,10 @@ class PreferenceTracker:
         student_id: str,
         user_query: str,
     ) -> List[str]:
-        """Heuristically inspect student query and persist any emerging style preferences."""
+        """Persist preferences only when the student explicitly states a preference."""
+        if not is_explicit_preference_statement(user_query):
+            return []
+
         detected = []
         for key, (pattern, canonical_insight) in _STYLE_PATTERNS.items():
             if pattern.search(user_query):

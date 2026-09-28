@@ -53,12 +53,6 @@ class Mem0Manager:
             user_query=user_query,
         )
 
-        detected_errors = self.learning_patterns.analyze_dialogue_turn(
-            student_id=student_id,
-            user_query=user_query,
-            active_kc=active_kc,
-        )
-
         self.session_memory.record_session_turn(
             student_id=student_id,
             notebook_id=notebook_id,
@@ -68,7 +62,7 @@ class Mem0Manager:
 
         return {
             "preferences_updated": detected_prefs,
-            "patterns_updated": detected_errors,
+            "patterns_updated": [],
         }
 
     def assemble_long_term_directive(

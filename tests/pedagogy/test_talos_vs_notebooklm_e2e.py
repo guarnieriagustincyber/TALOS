@@ -118,7 +118,12 @@ def test_citation_sanitization_enmienda_e_ux1():
 
 def test_conversational_followup_contextual_retrieval():
     """Test 5: Follow-up query ('podes detallarme mas?') inherits context from prior turn."""
-    from study_engine.web.routes.chat import _prepare_chat_context, ChatQueryRequest, _CONV_TURN_BUFFER
+    from study_engine.web.routes.chat import (
+        _prepare_chat_context,
+        ChatQueryRequest,
+        _CONV_TURN_BUFFER,
+        _epistemic_cache_key,
+    )
     from study_engine.hierarchy.scope_resolver import ScopeResolver
 
     mock_container = MagicMock()
@@ -145,8 +150,14 @@ def test_conversational_followup_contextual_retrieval():
     mock_store.get_notebook.return_value = MagicMock(folder_id="roadmap_fase0")
 
     session_id = "test_followup_session"
-    history_key = f"{session_id}:fase0-soc"
-    _CONV_TURN_BUFFER[history_key] = [
+    context_cache_key = _epistemic_cache_key(
+        session_id=session_id,
+        scope_type="notebook",
+        scope_id="fase0-soc",
+        notebook_id="fase0-soc",
+        active_sources=None,
+    )
+    _CONV_TURN_BUFFER[context_cache_key] = [
         {"role": "user", "content": "¿Por qué falla este código? char *s; strcpy(s, 'hola');"},
         {"role": "assistant", "content": "Falla por puntero no inicializado..."}
     ]
@@ -177,6 +188,7 @@ def test_repeated_followups_and_client_turns_and_rescue_pack():
         _prepare_chat_context,
         ChatQueryRequest,
         _CONV_TURN_BUFFER,
+        _epistemic_cache_key,
         _LAST_EPISTEMIC_PACK,
         EpistemicContextPack,
     )
@@ -208,7 +220,14 @@ def test_repeated_followups_and_client_turns_and_rescue_pack():
         chunks=[{"id": "E1", "chunk_text": "Punteros en C"}],
         abstained=False,
     )
-    _LAST_EPISTEMIC_PACK[history_key] = (mock_saved_pack, [{"id": "E1", "chunk_text": "Punteros en C"}])
+    evidence_key = _epistemic_cache_key(
+        session_id=session_id,
+        scope_type="notebook",
+        scope_id="fase0-soc",
+        notebook_id="fase0-soc",
+        active_sources=None,
+    )
+    _LAST_EPISTEMIC_PACK[evidence_key] = (mock_saved_pack, [{"id": "E1", "chunk_text": "Punteros en C"}])
 
     # Client sends recent_turns containing previous question and repeated follow-up
     recent_turns = [
@@ -250,6 +269,7 @@ def test_deictic_misconception_followup_rescues_epistemic_pack():
     from study_engine.web.routes.chat import (
         _prepare_chat_context,
         ChatQueryRequest,
+        _epistemic_cache_key,
         _LAST_EPISTEMIC_PACK,
         EpistemicContextPack,
     )
@@ -281,7 +301,14 @@ def test_deictic_misconception_followup_rescues_epistemic_pack():
         chunks=[{"id": "E363", "chunk_text": "Stack Frame metadatos"}],
         abstained=False,
     )
-    _LAST_EPISTEMIC_PACK[history_key] = (mock_saved_pack, [{"id": "E363", "chunk_text": "Stack Frame metadatos"}])
+    evidence_key = _epistemic_cache_key(
+        session_id=session_id,
+        scope_type="notebook",
+        scope_id="fase0-soc",
+        notebook_id="fase0-soc",
+        active_sources=None,
+    )
+    _LAST_EPISTEMIC_PACK[evidence_key] = (mock_saved_pack, [{"id": "E363", "chunk_text": "Stack Frame metadatos"}])
 
     recent_turns = [
         {"role": "user", "content": "Explícame los conceptos fundamentales de: Layout de memoria de un proceso (Text, Data, BSS, Heap, Stack)"},
@@ -427,6 +454,7 @@ def test_turn_4_deictic_ampersand_followup():
     from study_engine.web.routes.chat import (
         _prepare_chat_context,
         ChatQueryRequest,
+        _epistemic_cache_key,
         _LAST_EPISTEMIC_PACK,
         EpistemicContextPack,
     )
@@ -484,7 +512,14 @@ def test_turn_4_deictic_ampersand_followup():
         chunks=[{"id": "E775", "chunk_text": "Operador de dirección ampersand"}],
         abstained=False,
     )
-    _LAST_EPISTEMIC_PACK[history_key] = (mock_saved_pack, [{"id": "E775", "chunk_text": "Operador de dirección ampersand"}])
+    evidence_key = _epistemic_cache_key(
+        session_id=session_id,
+        scope_type="notebook",
+        scope_id="fase0-soc",
+        notebook_id="fase0-soc",
+        active_sources=None,
+    )
+    _LAST_EPISTEMIC_PACK[evidence_key] = (mock_saved_pack, [{"id": "E775", "chunk_text": "Operador de dirección ampersand"}])
 
     req = ChatQueryRequest(
         prompt=query,

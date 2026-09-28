@@ -48,8 +48,9 @@ def test_heuristic_preference_extraction(extractor, store, monkeypatch):
 
 
 def test_heuristic_misconception_extraction(extractor, store, monkeypatch):
+    """A heuristic may recognize a confusion without persisting it as profile evidence."""
     async def no_llm_extraction(**kwargs):
-        return None
+        raise AssertionError("single-turn misconceptions must not invoke the LLM")
 
     monkeypatch.setattr(extractor, "_extract_with_llm", no_llm_extraction)
 
@@ -62,11 +63,9 @@ def test_heuristic_misconception_extraction(extractor, store, monkeypatch):
             response_text="La atenuación es pérdida de energía, mientras que el retardo distorsiona la forma de onda.",
             active_kc="teleco_transmision_datos",
         )
-        assert len(ids) == 1
+        assert ids == []
         items = store.get_active_items("agustin")
-        assert len(items) == 1
-        assert items[0]["category"] == MemoryCategory.WEAKNESS.value
-        assert items[0]["kc_id"] == "teleco_transmision_datos"
+        assert items == []
 
     asyncio.run(_run())
 
