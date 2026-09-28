@@ -28,6 +28,25 @@ import {
   ConversionConflictDto,
 } from "./types";
 
+async function getResponseErrorMessage(response: Response, fallback: string): Promise<string> {
+  const body = await response.text();
+  if (!body.trim()) return `${fallback} (HTTP ${response.status})`;
+
+  try {
+    const data: unknown = JSON.parse(body);
+    if (typeof data === "object" && data !== null) {
+      const payload = data as { detail?: unknown; message?: unknown };
+      if (typeof payload.detail === "string" && payload.detail.trim()) return payload.detail;
+      if (Array.isArray(payload.detail)) return payload.detail.map(String).join("; ");
+      if (typeof payload.message === "string" && payload.message.trim()) return payload.message;
+    }
+  } catch {
+    return body;
+  }
+
+  return body;
+}
+
 export const IngestionView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTrust, setFilterTrust] = useState<"all" | "verified" | "unverified">("all");
@@ -37,6 +56,8 @@ export const IngestionView: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isSyncingDrive, setIsSyncingDrive] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isPipelineRunning, setIsPipelineRunning] = useState(false);
+  const pipelineLockRef = useRef(false);
   const [actionResult, setActionResult] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -44,6 +65,18 @@ export const IngestionView: React.FC = () => {
     filename?: string;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const beginPipelineOperation = () => {
+    if (pipelineLockRef.current) return false;
+    pipelineLockRef.current = true;
+    setIsPipelineRunning(true);
+    return true;
+  };
+
+  const endPipelineOperation = () => {
+    pipelineLockRef.current = false;
+    setIsPipelineRunning(false);
+  };
 
   // 1. Fetch CAL Catalog
   const {
@@ -88,14 +121,15 @@ export const IngestionView: React.FC = () => {
   });
 
   const handleExportColab = async (uploadToDrive: boolean = true) => {
+    if (!beginPipelineOperation()) return;
     setIsExporting(true);
     setActionResult(null);
     try {
       const res = await fetch(`/api/ingestion/colab/export?upload_to_gdrive=${uploadToDrive}`, {
         method: "POST",
       });
+      if (!res.ok) throw new Error(await getResponseErrorMessage(res, "Error al exportar"));
       const data: ColabExportDto = await res.json();
-      if (!res.ok) throw new Error(data.message || "Error al exportar");
       setActionResult({
         type: "success",
         message: data.message,
@@ -110,18 +144,20 @@ export const IngestionView: React.FC = () => {
       });
     } finally {
       setIsExporting(false);
+      endPipelineOperation();
     }
   };
 
   const handleSyncDrive = async () => {
+    if (!beginPipelineOperation()) return;
     setIsSyncingDrive(true);
     setActionResult(null);
     try {
       const res = await fetch("/api/ingestion/colab/sync-drive", {
         method: "POST",
       });
+      if (!res.ok) throw new Error(await getResponseErrorMessage(res, "Error al sincronizar desde Google Drive"));
       const data: ColabSyncDto = await res.json();
-      if (!res.ok) throw new Error(data.message || "Error al sincronizar desde Google Drive");
       setActionResult({
         type: "success",
         message: data.message,
@@ -136,12 +172,13 @@ export const IngestionView: React.FC = () => {
       });
     } finally {
       setIsSyncingDrive(false);
+      endPipelineOperation();
     }
   };
 
   const handleManualUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !beginPipelineOperation()) return;
     setIsUploading(true);
     setActionResult(null);
     try {
@@ -151,8 +188,8 @@ export const IngestionView: React.FC = () => {
         method: "POST",
         body: formData,
       });
+      if (!res.ok) throw new Error(await getResponseErrorMessage(res, "Error al subir vectors.jsonl"));
       const data: ColabSyncDto = await res.json();
-      if (!res.ok) throw new Error(data.message || "Error al subir vectors.jsonl");
       setActionResult({
         type: "success",
         message: data.message,
@@ -167,6 +204,7 @@ export const IngestionView: React.FC = () => {
       });
     } finally {
       setIsUploading(false);
+      endPipelineOperation();
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -378,7 +416,7 @@ export const IngestionView: React.FC = () => {
             {/* Action 1: Export to Drive / Colab */}
             <button
               onClick={() => handleExportColab(true)}
-              disabled={isExporting || (colabStatus?.pending_chunks === 0)}
+              disabled={isPipelineRunning || (colabStatus?.pending_chunks === 0)}
               className="h-10 px-4 rounded-[14px] bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               {isExporting ? (
@@ -397,7 +435,7 @@ export const IngestionView: React.FC = () => {
             {/* Action 2: Sync from Drive */}
             <button
               onClick={() => handleSyncDrive()}
-              disabled={isSyncingDrive}
+              disabled={isPipelineRunning}
               className="h-10 px-4 rounded-[14px] bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-semibold flex items-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               {isSyncingDrive ? (
@@ -423,7 +461,7 @@ export const IngestionView: React.FC = () => {
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
+              disabled={isPipelineRunning}
               className="h-10 px-4 rounded-[14px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/20 text-white/70 hover:text-white text-xs flex items-center gap-2 transition disabled:opacity-50 shadow-sm"
               title="Subir archivo vectors_*.jsonl descargado de Colab"
             >
