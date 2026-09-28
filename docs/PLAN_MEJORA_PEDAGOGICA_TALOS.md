@@ -243,7 +243,7 @@ Identificador en esta hoja de ruta: **F4-formato** (no confundir con las fases
 | 1 — Contrato por turno | Una decisión tipada de tarea y restricciones que gobierna el prompt | Fase 0; flujo actual del chat | Implementada y validada en `0661226`; sin push |
 | 2 — Modos pedagógicos | Estrategias de explicación, práctica, corrección y reexplicación | Fase 1 | Implementada localmente; criterios prompt-level verificados; sin commit |
 | 3 — Rigor y ciberseguridad | Afirmaciones técnicas contextualizadas y razonamiento seguro | Fases 1–2 | Implementada localmente; guardas de prompt y regresiones offline verificadas |
-| 4 — Formato y código | Formato fiel al pedido, código controlado y salida usable | Fases 1–3 | Diseñada en este documento; pendiente de implementación |
+| 4 — Formato y código | Formato fiel al pedido, código controlado y salida usable | Fases 1–3 | Implementada y validada localmente; límites de validación semántica documentados |
 | 5 — Fuentes y continuidad | Seguimientos coherentes y procedencia de afirmaciones visible | Fases 1–4; recuperación/contexto existentes | Diseñada en este documento; pendiente de implementación |
 | 6 — Streaming y fiabilidad | Respuesta visible íntegra o fallo explícito, medible y recuperable | Camino de chat/streaming; instrumentación disponible | Diseñada en este documento; pendiente de implementación |
 | 7 — Evaluación y aprendizaje | Evidencia reproducible de calidad y, por separado, aprendizaje | Fases 0–6 estabilizadas | Diseñada en este documento; pendiente de autorización/ejecución |
@@ -1169,10 +1169,67 @@ validador del contenido semántico, documentar el límite en vez de presumirlo.
 - La detección regex de bloques no prueba semántica del código; no utilizarla
   para certificar corrección.
 - Un renderer puede aceptar una etiqueta mientras su representación visual sea
-  incorrecta; comprobar las dos superficies.
+  incorrecta; comprobar las dos superficies. La interfaz estática convierte
+  bloques Mermaid a SVG sanitizado y deja visible la fuente textual si falla.
 - No ejecutar código generado automáticamente en entorno del estudiante.
-- No fijar etiquetas no soportadas por la interfaz antes de verificar el
-  renderer y el contrato de Markdown del proyecto.
+- El pseudocódigo se solicita con etiqueta `text`, que es renderizada como un
+  bloque Markdown convencional; esto no certifica su semántica ni impide toda
+  sintaxis de lenguaje ejecutable disfrazada dentro del bloque.
+
+### Registro de implementación F4-formato — 2026-09-28
+
+- **Estado:** implementada localmente y validada con pruebas deterministas y
+  comprobación visual del renderer. No se hizo commit ni push. No se repitió el
+  benchmark, no se llamó a proveedores externos y no se cambió BKT, progreso ni
+  estado del estudiante.
+- **Archivos:** `structured_pipeline.py`, `socratic_guard.py`, `fase0_seed.py`,
+  `command_parser.py`; `chat.js`, `dag.js`, `app.css`; nuevas regresiones en
+  `test_f4_format_policy.py` y ajustes relacionados en
+  `test_socratic_guard_blocking.py`, `test_socratic_system_prompt.py` y
+  `test_talos_vs_notebooklm_e2e.py`.
+- **Decisiones:** `ResponseIntent` gobierna detección de lenguaje, formato y
+  exclusión. Una mención conceptual de “código en C” ya no implica pedir una
+  implementación. “Sin código” elimina las directivas de implementación y
+  tests, anula permisos paralelos de la guardia, y sigue permitiendo
+  pseudocódigo pedido explícitamente en `text`. Las peticiones de solución
+  completa y `:solve` siguen habilitando una solución cuando no hay exclusión.
+  Una etiqueta ejecutable distinta al lenguaje pedido se bloquea en el flujo
+  cuando la salida usa un fence reconocido; etiquetas Markdown desconocidas y
+  fences sin etiqueta también se bloquean. Los prefijos de fences divididos
+  entre tokens se retienen hasta poder validarlos.
+- **Plantillas:** el prompt base y las guías de comandos ya no exigen siempre
+  analogías, código, pseudocódigo, tests, diagramas o preguntas de cierre.
+  Mermaid solo se inyecta como entregable ante pedido explícito. En la UI,
+  Mermaid se renderiza a SVG con DOMPurify; `securityLevel` queda en `strict`.
+  Si el render falla, el error es visible y se conserva el bloque fuente.
+- **Validación ejecutada:**
+  - `./.venv/bin/pytest -q tests/unit/pedagogy tests/pedagogy` — **288 passed**,
+    **11 warnings** de deprecación (FastAPI `on_event` y Starlette
+    `TestClient`/httpx).
+  - `node --check src/study_engine/web/static/js/chat.js` y
+    `node --check src/study_engine/web/static/js/dag.js` — pasaron.
+  - `./.venv/bin/python -m py_compile
+    src/study_engine/pedagogy/structured_pipeline.py
+    src/study_engine/pedagogy/socratic_guard.py
+    src/study_engine/pedagogy/fase0_seed.py
+    src/study_engine/pedagogy/command_parser.py` — pasó.
+  - `git diff --check` — pasó.
+  - Smoke test en navegador local: un bloque Mermaid válido produjo SVG; un
+    diagrama inválido mostró el aviso y conservó la fuente. La página estática
+    no tenía backend, por lo que los endpoints de roadmap y health devolvieron
+    404; no afectó la comprobación del renderer.
+- **Cobertura y límites:** las pruebas verifican ensamblado, permisos, C
+  solicitado, mención conceptual, pseudocódigo, Mermaid pedido/no pedido,
+  exclusiones incluso con fences fragmentados, etiquetas y lenguaje. No hay
+  parser general de código ni validador semántico de pseudocódigo: la guardia
+  solo reconoce fences configurados y patrones prohibidos concretos, por lo
+  que código ejecutable sin fence o disfrazado como texto puede escapar.
+  Longitud y forma final siguen siendo instrucciones al modelo, no garantías;
+  no se afirma que el prompt asegure obediencia del proveedor.
+- **Criterio:** gates offline y renderizado verificados para la matriz cubierta.
+  La aceptación no certifica corrección del código ni cumplimiento semántico
+  de cada salida futura; esos límites quedan explícitos y no se usó ejecución
+  automática de código generado.
 
 ## Fase 5 — Fuentes, memoria y continuidad
 
@@ -1619,27 +1676,27 @@ El plan está guardado en un checkpoint local. La Fase 0 está completada como
 línea de base; consultar
 [FASE0_LINEA_BASE_TALOS_NOTEBOOKLM.md](./FASE0_LINEA_BASE_TALOS_NOTEBOOKLM.md)
 para los hallazgos, límites y protocolo. No repetir setup ni lanzar otra
-ejecución del benchmark sin solicitud explícita. Antes de continuar, comprobar
-el estado actual de Git; no asumir que ramas o cambios descritos en handoffs
-anteriores siguen vigentes. La Fase 1 está implementada y validada con las
-pruebas focalizadas mencionadas y forma parte del commit local `0661226`; no
-hubo push. Las Fases 2 y 3 se implementaron en el árbol local y sus registros
-están arriba; no hubo commit ni evaluación externa. Las Fases 4-formato a 7
-continúan diseñadas, no implementadas ni aceptadas.
+ejecución del benchmark sin solicitud explícita. La Fase 1 está implementada y
+validada; Fases 2–4-formato se implementaron localmente y sus registros están
+arriba. Fases 5–7 siguen diseñadas, no implementadas ni aceptadas.
 
 ### Snapshot de handoff actualizado el 2026-09-28
 
-- Branch observada: `main`; HEAD: `0661226745a75c4431465c2b939926f0748699ac`.
-- Git reportó `main...origin/main [adelante 7]`; no se hizo push.
-- Hay cambios locales sin commit de Fases 2 y 3 en:
-  - `src/study_engine/pedagogy/prompts.py`
+- Branch observada: `main`; HEAD al comenzar F4: `f9de791`.
+- Git reportó `main...origin/main [adelante 8]`; no se hizo push.
+- Fases 2 y 3 forman parte del commit local `f9de791`. Los cambios locales sin
+  commit de F4 incluyen:
+  - `src/study_engine/pedagogy/fase0_seed.py`
+  - `src/study_engine/pedagogy/command_parser.py`
   - `src/study_engine/pedagogy/structured_pipeline.py`
-  - `tests/unit/pedagogy/test_adaptive_pipeline.py`
-  - `tests/unit/pedagogy/test_tri_layer_synthesis.py`
-  - `tests/unit/pedagogy/test_conversational_tone.py`
+  - `src/study_engine/pedagogy/socratic_guard.py`
+  - `src/study_engine/web/static/js/chat.js`
+  - `src/study_engine/web/static/js/dag.js`
+  - `src/study_engine/web/static/css/app.css`
+  - pruebas de F4 y regresiones de prompts/guardia en `tests/`
   - `docs/PLAN_MEJORA_PEDAGOGICA_TALOS.md`
-- El árbol estaba limpio al comenzar la sesión; estos son los cambios de esta
-  implementación y su registro. No se creó commit.
-- Siguiente fase de implementación: **F4-formato — Formato, pseudocódigo y
-  código**. Antes de trabajarla, volver a revisar este plan, la evidencia de
-  Fase 0 y el estado real de Git.
+- El árbol estaba limpio al iniciar esta implementación. F4 quedó sin commit;
+  no se creó commit ni se hizo push.
+- Siguiente fase: **Fase 5 — Fuentes, memoria y continuidad**. Antes de
+  continuar, comprobar el estado actual de Git y seguir los límites de evidencia
+  y privacidad de este plan.

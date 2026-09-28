@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         secondaryColor: "#1e293b",
         tertiaryColor: "#0d121f",
       },
-      securityLevel: "loose",
+      securityLevel: "strict",
     });
   }
 

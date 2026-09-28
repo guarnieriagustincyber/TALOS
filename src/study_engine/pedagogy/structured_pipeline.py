@@ -157,15 +157,21 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
     """
     directives: Dict[str, str] = {}
     q = user_query.lower()
+    response_intent = resolve_response_intent(user_query)
 
     shortcut_match = bool(re.search(
         r"\b(?:(?:pasame|haceme|dame|escribime|generame)\s+(?:el\s+)?c[oó]digo|haceme\s+la\s+funci[oó]n|haceme\s+el\s+tp|para\s+que\s+lo\s+copie|para\s+copiar\s+y\s+pegar|para\s+copiarlo|c[oó]digo\s+completo\s+terminado|(?:pasame|dame)\s+la\s+soluci[oó]n)\b",
         q,
-    ))
+    )) and (
+        response_intent.task != "entregar solución completa solicitada"
+        and not response_intent.exclude_code
+    )
 
-    # 1. Mermaid / Diagramas de flujo: solo cuando el estudiante los solicita.
+    # 1. Mermaid / Diagramas de flujo: only inject a deliverable when requested.
     if re.search(
-        r"\b(?:mermaid|diagrama\s+en\s+mermaid|gr[aá]fico\s+en\s+mermaid|diagrama\s+de\s+flujo)\b",
+        r"\b(?:diagrama(?:s)?\s+(?:de\s+flujo\s+)?en\s+mermaid|gr[aá]fico\s+en\s+mermaid)\b|"
+        r"\b(?:dame|pasame|haceme|hac[eé]|mostrame|mostr[aá]|inclu[ií]|agreg[aá]|gener[aá]|dibuj[aá]|"
+        r"quiero|con)\b.{0,60}\b(?:diagrama|mermaid)\b",
         q,
     ):
         directives["mermaid"] = (
@@ -176,7 +182,10 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
         )
 
     # 2. Pytest / Pruebas Automatizadas
-    if re.search(r"\b(?:pytest|tests?|pruebas?(?:\s+unitarias|\s+automatizadas)?|suite\s+de\s+pruebas|bater[ií]a\s+de\s+pruebas)\b", q):
+    if not response_intent.exclude_code and re.search(
+        r"\b(?:pytest|tests?|pruebas?(?:\s+unitarias|\s+automatizadas)?|suite\s+de\s+pruebas|bater[ií]a\s+de\s+pruebas)\b",
+        q,
+    ):
         directives["pytest"] = (
             "- BATERÍA DE PRUEBAS AUTOMATIZADAS CON PYTEST (OBLIGATORIA):\n"
             "  Generá un bloque completo de pruebas ejecutables en ```python usando `import pytest` (o casos de prueba asertivos en el lenguaje destino).\n"
@@ -191,7 +200,7 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
         directives.pop("pytest", None)
 
     # 3. Código C (Para cuadernos de Lenguajes C o SO2)
-    if re.search(r"\b(?:c[oó]digo(?:\s+en|\s+de)?\s+c\b|en\s+c\b|programa\s+c\b)", q) or (notebook_id and "lenguajes" in notebook_id and "python" not in q and ("código" in q or "codigo" in q or "programa" in q)):
+    if response_intent.code_language == "c":
         if shortcut_match:
             directives["c_code"] = (
                 "- ESQUELETO DEFENSIVO SOCRÁTICO EN C (ANTI-ATAJO Y FADING):\n"
@@ -208,7 +217,7 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
                 "    * Manejo defensivo de valores de retorno y liberación de memoria dinámica sin fugas."
             )
     # 4. Código SQL (Para cuadernos de Bases de Datos / STD)
-    elif re.search(r"\b(?:c[oó]digo(?:\s+en|\s+de)?\s+sql|consulta\s+sql|en\s+sql|query\s+sql|script\s+sql)\b", q) or (notebook_id and "std" in notebook_id and "python" not in q and ("sql" in q or "consulta" in q or "tabla" in q)):
+    elif response_intent.code_language == "sql":
         directives["sql_code"] = (
             "- CONSULTA O ESQUEMA SQL (OBLIGATORIO):\n"
             "  Generá las sentencias en un bloque ```sql estructurado con:\n"
@@ -216,7 +225,7 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
             "    * Parametrización defensiva (Prepared Statements) contra vectores de SQL Injection."
         )
     # 5. Código Python / Implementación general
-    elif re.search(r"\b(?:c[oó]digo(?:\s+en|\s+de)?\s+python|en\s+python|implementaci[oó]n(?:\s+en\s+python)?|funci[oó]n\s+python|script\s+python|c[oó]digo\s+(?:python\s+)?con\s+tests|c[oó]digo\s+ejecutable|implementaci[oó]n)\b", q):
+    elif response_intent.code_language == "python":
         if shortcut_match:
             directives["python_code"] = (
                 "- ESQUELETO DEFENSIVO SOCRÁTICO EN PYTHON (ANTI-ATAJO Y FADING):\n"
@@ -244,10 +253,16 @@ def extract_requested_structural_components(user_query: str, notebook_id: Option
         )
 
     # 7. Pseudocódigo Estructurado
-    if re.search(r"\b(?:pseudoc[oó]digo|pseudocode)\b", q):
+    if re.search(
+        r"\b(?:en\s+(?:pseudoc[oó]digo|pseudocode)|como\s+(?:pseudoc[oó]digo|pseudocode)|"
+        r"(?:dame|mostrame|mostr[aá]|escribime|inclu[ií])\b.{0,40}"
+        r"(?:pseudoc[oó]digo|pseudocode)|requisitos?\b.{0,160}"
+        r"(?:pseudoc[oó]digo|pseudocode))\b",
+        q,
+    ):
         directives["pseudocode"] = (
             "- PSEUDOCÓDIGO ESTRUCTURADO (OBLIGATORIO):\n"
-            "  Diseñá el algoritmo en pseudocódigo claro (estilo Joyanes Aguilar / Spraul) en un bloque ```text o ```pseudocode.\n"
+            "  Diseñá el algoritmo en pseudocódigo claro (estilo Joyanes Aguilar / Spraul) en un bloque ```text.\n"
             "  Usá nombres declarativos en español, control de flujo estructurado (SI/SINO/MIENTRAS/PARA) y comentarios sobre invariantes."
         )
 
@@ -482,7 +497,10 @@ class ResponseIntent(BaseModel):
                 "podés incluir el bloque de código necesario y explicarlo al nivel adecuado."
             )
         if self.exclude_code:
-            lines.append("- El estudiante excluyó el código ejecutable; no agregues bloques de código.")
+            lines.append(
+                "- El estudiante excluyó el código ejecutable y las pruebas; no los incluyas. "
+                "Si pidió pseudocódigo, usá un bloque ```text y mantenelo independiente de la sintaxis de un lenguaje."
+            )
         if self.exclude_follow_up:
             lines.append("- No agregues una pregunta, ejercicio ni oferta de continuación al final.")
         if (
@@ -529,7 +547,7 @@ def resolve_response_intent(
     explicit_solution_request = bool(
         parsed_command is not None
         and parsed_command.command_type.value == "DAME_SOLUCION_COMPLETA"
-    ) or bool(
+    ) or bool(re.search(r"(?<![\w]):solve(?![\w])", q_lower)) or bool(
         re.search(
             r"\b(?:dame|pasame|pasá|mostrame|mostrá|quiero)\s+(?:la\s+)?"
             r"soluci[oó]n\s+completa\b|\b(?:soluci[oó]n|c[oó]digo|"
@@ -663,13 +681,34 @@ def resolve_response_intent(
     output_format: Optional[
         Literal["table", "list", "pseudocode", "diagram", "plain_text", "code"]
     ] = None
-    if re.search(r"\b(?:tabla|cuadro\s+comparativo|formato\s+tabular)\b", q_lower):
+    if re.search(
+        r"\b(?:en\s+(?:una?\s+)?(?:tabla|cuadro\s+comparativo)|"
+        r"formato\s+tabular|(?:dame|mostrame|mostr[aá]|arm[aá]|hac[eé])\s+"
+        r"(?:una?\s+)?tabla)\b",
+        q_lower,
+    ):
         output_format = "table"
-    elif re.search(r"\b(?:lista|viñetas|vinetas|bullet\s+points)\b", q_lower):
+    elif re.search(
+        r"\b(?:en\s+(?:forma\s+de\s+)?lista|en\s+viñetas|en\s+vinetas|"
+        r"bullet\s+points|(?:dame|mostrame|mostr[aá])\s+(?:una?\s+)?lista)\b",
+        q_lower,
+    ):
         output_format = "list"
-    elif re.search(r"\b(?:pseudoc[oó]digo|pseudocode)\b", q_lower):
+    elif re.search(
+        r"\b(?:en\s+(?:pseudoc[oó]digo|pseudocode)|como\s+(?:pseudoc[oó]digo|pseudocode)|"
+        r"(?:dame|mostrame|mostr[aá]|escribime|inclu[ií])\b.{0,40}"
+        r"(?:pseudoc[oó]digo|pseudocode)|requisitos?\b.{0,160}"
+        r"(?:pseudoc[oó]digo|pseudocode))\b",
+        q_lower,
+    ):
         output_format = "pseudocode"
-    elif re.search(r"\b(?:diagrama|mermaid|esquema\s+visual)\b", q_lower):
+    elif re.search(
+        r"\b(?:diagrama(?:\s+de\s+flujo)?\s+en\s+mermaid|"
+        r"en\s+mermaid|con\s+(?:un\s+)?diagrama|"
+        r"(?:dame|haceme|hac[eé]|mostrame|mostr[aá]|inclu[ií]|agreg[aá]|gener[aá])\b.{0,40}"
+        r"\b(?:diagrama|esquema\s+visual))\b",
+        q_lower,
+    ):
         output_format = "diagram"
     elif re.search(r"\b(?:solo\s+texto|s[oó]lo\s+texto|en\s+prosa)\b", q_lower):
         output_format = "plain_text"
@@ -691,15 +730,23 @@ def resolve_response_intent(
             q_lower,
         )
     )
-    code_language: Optional[str] = None
+    code_language: Optional[
+        Literal["c", "python", "c++", "java", "javascript", "rust", "go", "sql", "php"]
+    ] = None
     if not exclude_code:
         code_match = re.search(
-            r"\b(?:ejemplo|c[oó]digo|programa|script|implementaci[oó]n)\b.{0,40}\b(c|python|c\+\+|java|javascript|rust|go)\b|"
-            r"\b(?:en|con)\s+(c\+\+|python|java|javascript|rust|go|c)\b",
+            r"\b(?:dame|pasame|pasá|hacer|haceme|hacé|hace|mostrar|mostrame|mostr[aá]|escribime|escribí|escribe|generame|generá|"
+            r"genera|incluí|inclui|incluye|agregá|agrega|implementá|implementa|programá|programa|"
+            r"diseñar|diseñá|diseña|crear|crea|creá|traducí|traduci|convertí|converti)\b.{0,80}\b(?:c[oó]digo|ejemplo|programa|"
+            r"script|implementaci[oó]n|funci[oó]n)?\b.{0,40}\b(c\+\+|python|java|javascript|rust|go|c|sql|php)\b|"
+            r"\bcon\s+(?:un\s+)?(?:c[oó]digo|ejemplo|implementaci[oó]n)\s+(?:en\s+)?"
+            r"(c\+\+|python|java|javascript|rust|go|c|sql|php)\b|"
+            r"\b(?:c[oó]digo|implementaci[oó]n)\s+(?:en\s+)?"
+            r"(c\+\+|python|java|javascript|rust|go|c|sql|php)\s+con\s+(?:tests?|pytest|pruebas?)\b",
             q_lower,
         )
         if code_match:
-            code_language = next(group for group in code_match.groups() if group)
+            code_language = next(group for group in code_match.groups() if group).lower()
             output_format = "code"
             requested_includes.append(f"código {code_language}")
 
@@ -1162,13 +1209,16 @@ class StructuredResponsePipeline:
         notebook_id = getattr(self.contract, "notebook_id", "fase0-soc")
         structural_directives = extract_requested_structural_components(user_query, notebook_id=notebook_id)
         if response_intent.exclude_code:
-            for code_directive in ("c_code", "python_code", "sql_code"):
+            for code_directive in ("c_code", "python_code", "sql_code", "pytest"):
                 structural_directives.pop(code_directive, None)
         shortcut_match = bool(re.search(
             r"\b(?:(?:pasame|haceme|dame|escribime|generame)\s+(?:el\s+)?c[oó]digo|haceme\s+la\s+funci[oó]n|haceme\s+el\s+tp|para\s+que\s+lo\s+copie|para\s+copiar\s+y\s+pegar|para\s+copiarlo|c[oó]digo\s+completo\s+terminado|(?:pasame|dame)\s+la\s+soluci[oó]n)\b",
             user_query,
             re.IGNORECASE,
-        )) and response_intent.task != "entregar solución completa solicitada"
+        )) and (
+            response_intent.task != "entregar solución completa solicitada"
+            and not response_intent.exclude_code
+        )
         if shortcut_match:
             rendered_phase_instruction = (
                 "PROTOCOLO ANTI-ATAJO ACTIVADO (PACTO SOCRÁTICO Y EJERCICIO GUIADO COMPLETO):\n"
@@ -1182,7 +1232,14 @@ class StructuredResponsePipeline:
                 "5. Esqueleto defensivo en C listo para completar: Con prototipo de función, cláusula de guarda Fail-Fast y comentarios /* TODO: COMPLETAR LÓGICA */ numerados.\n"
                 "6. Prueba de Escritorio Guiada: Proponé una palabra concreta (ej. 'ROMA' o 'TALOS') y dos preguntas específicas para que el estudiante realice la traza paso a paso en papel y determine el número exacto de iteraciones."
             )
-        elif not shortcut_match and (active_mode in ("evaluate_code", "resolve_misconception") or any(k in structural_directives for k in ("python_code", "c_code", "sql_code", "pytest"))):
+        elif (
+            not shortcut_match
+            and not response_intent.exclude_code
+            and (
+                active_mode in ("evaluate_code", "resolve_misconception")
+                or any(k in structural_directives for k in ("python_code", "c_code", "sql_code", "pytest"))
+            )
+        ):
             rendered_phase_instruction = re.sub(
                 r"NO\s+incluyas\s+c[oó]digo\s+fuente.*?\.",
                 "DADO QUE EL ESTUDIANTE SOLICITÓ AUDITORÍA O RESOLUCIÓN EXPRESAMENTE, INCLUÍ LA IMPLEMENTACIÓN COMPLETA Y LOS CASOS DE PRUEBA.",
@@ -1279,6 +1336,17 @@ class StructuredResponsePipeline:
         if security_evidence_directive:
             parts.append(security_evidence_directive)
 
+        nonstandard_identifiers = re.findall(r"\b__[A-Za-z][A-Za-z0-9_]*\b", user_query)
+        if nonstandard_identifiers:
+            identifier = nonstandard_identifiers[0]
+            parts.append(
+                "=== VERIFICACIÓN DE IDENTIFICADORES NO ESTÁNDAR ===\n"
+                f"No asumas que `{identifier}` es real o estándar solo porque aparece en la consulta. "
+                "Verificá el estándar, compilador o plataforma nombrados; si no pertenece al estándar, "
+                "decí que no existe en ese estándar, distinguí posibles extensiones de implementación "
+                "y no inventes su funcionamiento."
+            )
+
         # 1.3 Checklist de entregables y componentes estructurales expresamente solicitados
         if structural_directives:
             directives_text = "\n\n".join(structural_directives.values())
@@ -1328,8 +1396,8 @@ class StructuredResponsePipeline:
                 "REGLAS CRÍTICAS DE SALIDA:\n"
                 "- NUNCA saludes ('Hola', 'Bienvenido', 'Saludos', etc.). Respondé directo a la consulta en la primera oración.\n"
                 "- NUNCA halagues de forma vacía ni uses adulación automática. Si el estudiante formula una deducción sólida o avanza correctamente, reconocé brevemente su lógica con sobriedad ('Excelente razonamiento', 'Vas muy bien encaminado') y avanzá.\n"
-                "- Formato Markdown estricto (listas con guiones, negrita en términos clave, código inline ``, tablas y bloques de código).\n"
-                f"- Extensión estructurada: hasta {cmd.max_words} palabras permitidas. Desarrollá cada sección paso a paso con chunking interno.\n"
+                "- Elegí una estructura Markdown proporcional; no agregues secciones, ejemplos, diagramas ni código que no ayuden a cumplir el pedido.\n"
+                f"- Extensión estructurada: hasta {cmd.max_words} palabras permitidas. Desarrollá los puntos pertinentes sin forzar componentes incompatibles con las restricciones explícitas.\n"
                 "- Cierre OBLIGATORIO con una pregunta socrática desafiante o propuesta de verificación/continuación."
             )
         else:
@@ -1353,13 +1421,13 @@ class StructuredResponsePipeline:
             diagram_fmt = (
                 "diagramas de flujo obligatorios en ```mermaid con sintaxis válida (graph TD)"
                 if "mermaid" in structural_directives
-                else "diagramas limpios en ```text con cajas Unicode (┌, ├, └, │, ─) o ```mermaid según corresponda"
+                else "diagramas solo si fueron pedidos o si aclaran una relación que la prosa no comunica bien"
             )
             rules_block = (
                 "REGLAS CRÍTICAS DE SALIDA:\n"
                 "- NUNCA saludes ('Hola', 'Bienvenido', 'Saludos', etc.). Respondé directo a la consulta en la primera oración.\n"
                 "- NUNCA halagues de forma vacía ni uses adulación automática. Si el estudiante formula una deducción sólida o avanza correctamente, reconocé brevemente su lógica con sobriedad ('Excelente razonamiento', 'Vas muy bien encaminado') y avanzá.\n"
-                f"- Jerarquía visual Markdown nítida: organizá con subtítulos descriptivos (### y ####), listas con viñetas para enumerar registros/conceptos, código inline ``, bloques de código con syntax highlighting (```python o ```c) y {diagram_fmt}.\n"
+                f"- Usá el formato más simple que responda bien al pedido; {diagram_fmt}. Incluí código ejecutable solo si se pidió explícitamente o es necesario y compatible con las restricciones del turno.\n"
                 f"{extension_clause}\n"
                 f"{socratic_rule}"
             )
@@ -1367,7 +1435,7 @@ class StructuredResponsePipeline:
         if context_mode == "basic" and active_mode == "explain_concept" and cmd is None and not is_continuation:
             rules_block = (
                 "FORMATO INTRODUCTORIO DE RESPUESTA:\n"
-                "- Estructura simple: analogía cotidiana, explicación breve y pregunta de verificación.\n"
+                "- Explicación breve y directa; añadí analogía o pregunta de verificación solo si ayudan y no fueron excluidas.\n"
                 "- Máximo 300 palabras. No incluyas diagramas ni código salvo que el estudiante los solicite explícitamente.\n"
                 "- Evitá tecnicismos y detalles de bajo nivel; definí cualquier término técnico necesario.\n"
                 "- Cerrá con una pregunta de comprensión básica."
@@ -1537,7 +1605,7 @@ class StructuredResponsePipeline:
         target_notebook_id = getattr(self.contract, "notebook_id", None)
         structural_directives = extract_requested_structural_components(user_query, notebook_id=target_notebook_id)
         if response_intent.exclude_code:
-            for code_directive in ("c_code", "python_code", "sql_code"):
+            for code_directive in ("c_code", "python_code", "sql_code", "pytest"):
                 structural_directives.pop(code_directive, None)
         has_code_request = bool(
             any(k in structural_directives for k in ("python_code", "c_code", "sql_code", "pytest"))
@@ -1548,7 +1616,7 @@ class StructuredResponsePipeline:
             r"\b(?:(?:pasame|haceme|dame|escribime|generame)\s+(?:el\s+)?c[oó]digo|haceme\s+la\s+funci[oó]n|haceme\s+el\s+tp|para\s+que\s+lo\s+copie|para\s+copiar\s+y\s+pegar|para\s+copiarlo|c[oó]digo\s+completo\s+terminado|(?:pasame|dame)\s+la\s+soluci[oó]n)\b",
             user_query,
             re.IGNORECASE,
-        ))
+        )) and not response_intent.exclude_code
 
         # Token Budget: Si override_max_tokens fue provisto (ej. desde chat.py estilo NotebookLM 800-1000), se respeta estrictamente.
         if override_max_tokens is not None:
@@ -1566,7 +1634,8 @@ class StructuredResponsePipeline:
             phase.code_allowed
             or has_code_request
             or shortcut_match
-            or (cmd is not None and cmd.command_type.value in ("TRADUCCION", "DAME_SOLUCION_COMPLETA"))
+            or response_intent.task == "entregar solución completa solicitada"
+            or (cmd is not None and cmd.command_type.value == "TRADUCCION")
             or active_mode in ("give_example", "evaluate_code", "debug_crash", "resolve_misconception")
             or is_continuation_query(user_query)
         )
@@ -1624,16 +1693,25 @@ class StructuredResponsePipeline:
                     token=token,
                     current_phase=effective_phase,
                     user_query=user_query,
+                    allow_user_override=allow_code,
+                    expected_code_language=response_intent.code_language,
                 )
 
                 if guard_res.allowed:
-                    accumulated_text += guard_res.emitted_token
-                    yield StreamEvent(
-                        event_type="phase_token",
-                        payload={"phase": phase.phase_id, "token": guard_res.emitted_token},
-                    )
+                    if guard_res.emitted_token:
+                        accumulated_text += guard_res.emitted_token
+                        yield StreamEvent(
+                            event_type="phase_token",
+                            payload={"phase": phase.phase_id, "token": guard_res.emitted_token},
+                        )
                 else:
                     guard_triggered = True
+                    if guard_res.emitted_token:
+                        accumulated_text += guard_res.emitted_token
+                        yield StreamEvent(
+                            event_type="phase_token",
+                            payload={"phase": phase.phase_id, "token": guard_res.emitted_token},
+                        )
                     # Truncate and replace with pedagogical intervention
                     replacement = guard_res.replacement_message or SocraticGuard.DEFAULT_REPLACEMENT_MESSAGE
                     accumulated_text += replacement
@@ -1646,6 +1724,15 @@ class StructuredResponsePipeline:
                         },
                     )
                     break
+
+            if not guard_triggered:
+                pending_token = self.guard.flush_pending()
+                if pending_token:
+                    accumulated_text += pending_token
+                    yield StreamEvent(
+                        event_type="phase_token",
+                        payload={"phase": phase.phase_id, "token": pending_token},
+                    )
 
             # COMMIT 5 (feat/stream): finish_reason observable al cierre.
             # finish_reason="length" => el proveedor cortó por max_tokens:

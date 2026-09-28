@@ -35,59 +35,45 @@ class ParsedCommand:
 
 
 # =========================================================================
-# TEMPLATES DE SALIDA OBLIGATORIOS (Socrático TALOS / NotebookLM)
+# GUÍAS DE SALIDA ADAPTABLES POR TAREA
 # =========================================================================
 
-TEMPLATE_MAPA_UNIDAD = """Tu salida debe seguir estrictamente este formato:
+TEMPLATE_MAPA_UNIDAD = """Usá un mapa de unidad conciso y ajustá sus apartados al pedido:
 
 **MAPA DE UNIDAD**
 - Título de la unidad [E#]
 - Idea principal
 - Conceptos fundamentales
-- Qué es cultura general (se puede leer rápido)
-- Qué puntos conviene marcar para practicar
-- Analogía principal para entender la unidad
-- Conexión con programación general, si existe
-- Conexión con ciberseguridad, solo si es natural"""
+- Qué conviene recordar o practicar
+- Analogías o conexiones solo si son pertinentes y tienen fundamento"""
 
-TEMPLATE_EXPLICACION_TEMA = """Tu salida debe seguir estrictamente este formato:
+TEMPLATE_EXPLICACION_TEMA = """Explicá el tema de forma directa y seleccioná solo los elementos que ayuden:
 
 **EXPLICACIÓN DEL TEMA**
 1. ¿Qué es este tema? [E#]
 2. ¿Por qué importa?
 3. Explicación simple sin asumir conocimiento
-4. Analogía
-5. Ejemplo en pseudocódigo
-6. Ejemplo en el lenguaje del notebook
-7. Error común de principiante
-8. Pregunta para verificar si entendió"""
+4. Mecanismo o ejemplo mínimo si aclara la idea
+5. Errores comunes o comprobación solo cuando sean útiles
 
-TEMPLATE_EJERCICIO_GUIADO = """Tu salida debe seguir estrictamente este formato de alto impacto pedagógico:
+No agregues pseudocódigo ni implementación automáticamente."""
+
+TEMPLATE_EJERCICIO_GUIADO = """Proponé una consigna clara y evaluable, adecuada al tema:
 
 **EJERCICIO GUIADO**
-1. Enunciado del ejercicio [E#] (situado en un contexto real de ciberdefensa o ingeniería)
-2. Análisis del problema (Metodología Joyanes / Spraul, dividiendo en sub-responsabilidades)
-3. Contratos Formales PRE/POST (Precondiciones y Postcondiciones rigurosas)
-4. Entradas esperadas
-5. Salidas esperadas
-6. Restricciones (Fail-Fast, sin librerías mágicas, manejo de casos de borde)
-7. Diagrama de Flujo (en Mermaid o caja de texto)
-8. Suite de Pruebas Automatizadas con Pytest (Harness con casos felices, casos hostiles/malformados y valores límite)
-9. Primer paso en pseudocódigo y código real (con cláusulas de guarda iniciales)
-10. Pregunta socrática concreta para que el estudiante continúe el desarrollo en su cuaderno
+1. Enunciado, objetivo y restricciones pertinentes
+2. Un primer paso abordable para que el estudiante continúe
 
-REGLA INVIOLABLE: NO resuelvas todo el ejercicio. Guialo paso a paso. Solo dar la solución completa si el estudiante lo pide explícitamente con "DAME LA SOLUCIÓN COMPLETA"."""
+Agregá contratos, diagramas, tests o código solo si se solicitan o son esenciales para la consigna.
 
-TEMPLATE_SOLUCION_COMPLETA = """Tu salida debe seguir estrictamente este formato:
+No reveles la solución completa antes de que el estudiante la solicite explícitamente."""
+
+TEMPLATE_SOLUCION_COMPLETA = """Entregá la solución completa en el formato y lenguaje pedidos:
 
 **SOLUCIÓN COMPLETA**
-1. Enunciado del ejercicio
-2. Análisis del problema (entradas, salidas, restricciones)
-3. Pseudocódigo completo
-4. Código en el lenguaje del notebook
-5. Explicación paso a paso de cada bloque
-6. Cómo probarlo
-7. Casos límite a considerar"""
+1. Resolución y razonamiento suficientes para verificarla
+2. Código o pseudocódigo solo si corresponde al pedido y no fue excluido
+3. Comprobaciones y casos límite pertinentes, sin imponer otros lenguajes"""
 
 TEMPLATE_VERIFICACION = """Tu salida debe seguir estrictamente este formato:
 
@@ -99,30 +85,24 @@ TEMPLATE_VERIFICACION = """Tu salida debe seguir estrictamente este formato:
 - ¿Cuál sería el siguiente paso mínimo?
 - Si hay error, NO des la solución completa: dá una pista concreta."""
 
-TEMPLATE_TRADUCCION = """Tu salida debe seguir estrictamente este formato:
+TEMPLATE_TRADUCCION = """Traducí el artefacto disponible al lenguaje destino solicitado:
 
 **TRADUCCIÓN**
-1. Pseudocódigo original
-2. Explicación de la traducción
-3. Código en el lenguaje destino
-4. Cómo probarlo
-5. Qué cambiaría si la entrada fuera inválida"""
+1. Código en el lenguaje destino y explicación de las decisiones necesarias
+2. Pruebas o casos límite solo si se piden o son pertinentes"""
 
-TEMPLATE_EXPLICACION_DESDE_CERO = """Tu salida debe seguir estrictamente este formato:
+TEMPLATE_EXPLICACION_DESDE_CERO = """Explicá desde los fundamentos, con extensión y representación proporcionales:
 
 **EXPLICACIÓN DESDE CERO**
 - Definición simple
-- Analogía cotidiana
-- Ejemplo mínimo
-- Palabras clave explicadas
-- Error común
-- Pregunta de verificación"""
+- Términos nuevos explicados
+- Ejemplo, analogía o pregunta solo si aportan a la comprensión"""
 
 TEMPLATE_NO_ENTENDI = """Tu salida debe aplicar un CAMBIO DE ENFOQUE pedagógico:
 - NO repitas exactamente lo mismo.
-- Usá otra analogía diferente a la anterior.
+- Elegí otra representación, analogía o escala si ayuda a destrabar la confusión.
 - Dividí el problema en partes más chicas.
-- Mostrá un ejemplo más simple.
+- Usá un ejemplo más simple solo si es pertinente y compatible con el formato pedido.
 - Hacé una pregunta precisa para detectar dónde se trabó el estudiante."""
 
 TEMPLATE_DIAGNOSTICO = """Tu salida debe emitir un INFORME DE DIAGNÓSTICO COGNITIVO estructurado:

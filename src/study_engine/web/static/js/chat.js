@@ -13,6 +13,7 @@ const Chat = (() => {
   let _messages = [];          // Array of {role, text, followup?, audit?, telemetry?, ts}
   let _busy = false;           // True while waiting for tutor response
   const STORAGE_KEY = "kasiu_chat_history";
+  let _mermaidRenderCount = 0;
 
   // ── Persistence ───────────────────────────────────────────────────
 
@@ -68,6 +69,35 @@ const Chat = (() => {
       (_match, tag) =>
         `<span class="citation-badge" onclick="Chat.openEvidence('${tag}')" title="Clic para ver la fuente epistémica autorizada">[${tag}]</span>`
     );
+  }
+
+  async function _renderMermaidBlocks(container) {
+    const blocks = container.querySelectorAll("pre > code.language-mermaid");
+    for (const block of blocks) {
+      const pre = block.parentElement;
+      if (!pre) continue;
+      try {
+        if (!window.mermaid || !window.DOMPurify) {
+          throw new Error("El renderizador de diagramas no está disponible.");
+        }
+        const id = `kasiu-chat-diagram-${Date.now()}-${++_mermaidRenderCount}`;
+        const { svg } = await window.mermaid.render(id, block.textContent || "");
+        const safeSvg = window.DOMPurify.sanitize(svg, {
+          USE_PROFILES: { svg: true, svgFilters: true },
+        });
+        const wrapper = document.createElement("div");
+        wrapper.className = "chat-mermaid";
+        wrapper.innerHTML = safeSvg;
+        pre.replaceWith(wrapper);
+      } catch (error) {
+        console.error("No se pudo renderizar el diagrama Mermaid:", error);
+        const notice = document.createElement("p");
+        notice.className = "chat-mermaid-error";
+        const reason = error instanceof Error ? error.message : String(error);
+        notice.textContent = `No se pudo renderizar el diagrama; queda disponible su fuente textual. ${reason}`;
+        pre.after(notice);
+      }
+    }
   }
 
   /** Typewriter effect: progressively reveal already-audited plain text.
@@ -145,6 +175,9 @@ const Chat = (() => {
     bubble.innerHTML = `${headerHtml}${body}${followupHtml}${telemHtml}`;
     history.appendChild(bubble);
     history.scrollTop = history.scrollHeight;
+    if (role === "tutor") {
+      _renderMermaidBlocks(bubble);
+    }
 
     // Fast (quick) plain-text responses render with a safe typewriter effect.
     // Markdown / citation responses already rendered statically above.
