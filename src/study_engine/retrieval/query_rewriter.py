@@ -9,9 +9,64 @@ from __future__ import annotations
 
 import logging
 import re
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class ReferenceResolution:
+    """Deterministic resolution result for a contextual reference."""
+
+    status: str
+    candidates: Tuple[str, ...] = ()
+
+
+def resolve_contextual_reference(
+    query: str,
+    recent_turns: Optional[List[Dict[str, str]]] = None,
+) -> ReferenceResolution:
+    """Resolve only references with an unambiguous local antecedent."""
+    clean = (query or "").strip()
+    turns = [t for t in (recent_turns or []) if isinstance(t, dict) and t.get("content")]
+    ordinal = re.search(
+        r"\b(?:el|la)\s+(primero|segundo|tercero|anterior|siguiente)\b",
+        clean,
+        re.IGNORECASE,
+    )
+    if not turns and ordinal is None and not has_deictic_markers(clean):
+        return ReferenceResolution("not_applicable")
+    if not turns:
+        return ReferenceResolution("missing")
+
+    if ordinal:
+        index = {"primero": 0, "segundo": 1, "tercero": 2}.get(ordinal.group(1).lower())
+        for turn in reversed(turns):
+            if turn.get("role") != "assistant":
+                continue
+            items = re.findall(r"(?m)^\s*(?:[-*]|\d+[.)])\s+(.+?)\s*$", turn["content"])
+            if index is not None and len(items) > index:
+                return ReferenceResolution("unique", (items[index][:180],))
+        return ReferenceResolution("missing")
+
+    substantive = [
+        t["content"].strip()
+        for t in reversed(turns)
+        if len(t["content"].split()) >= 4
+    ]
+    if not substantive:
+        return ReferenceResolution("missing")
+    if len(substantive) == 1:
+        return ReferenceResolution("unique", (substantive[0][:180],))
+    if not re.search(r"\b(?:eso|esto|aquello|lo\s+anterior)\b", clean, re.IGNORECASE):
+        return ReferenceResolution("unique", (substantive[0][:180],))
+    first_words = set(re.findall(r"\w+", substantive[0].lower()))
+    second_words = set(re.findall(r"\w+", substantive[1].lower()))
+    overlap = len(first_words & second_words) / max(1, len(first_words | second_words))
+    if overlap >= 0.35:
+        return ReferenceResolution("unique", (substantive[0][:180],))
+    return ReferenceResolution("ambiguous", tuple(item[:180] for item in substantive[:2]))
 
 # Common student spelling errors & typos in computer systems / programming
 _TYPO_CORRECTIONS: Dict[re.Pattern, str] = {
@@ -298,4 +353,3 @@ def should_rewrite_contextual(query: str, recent_turns: Optional[List[Dict[str, 
     if len(words) < 12 and (has_deictic_markers(query) or len(words) <= 7):
         return True
     return False
-

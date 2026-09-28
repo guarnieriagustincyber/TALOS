@@ -5,6 +5,7 @@ from study_engine.web.routes.chat import (
     _LAST_EPISTEMIC_PACK,
     _epistemic_cache_key,
     _conversation_context_metadata,
+    _detect_evidence_discrepancies,
     _prepare_chat_context,
     _resolve_conversation_turns,
     _sanitize_recent_turns,
@@ -107,6 +108,29 @@ def test_conversation_context_metadata_reports_missing_history():
         "missing": True,
         "truncated": False,
     }
+
+
+def test_evidence_discrepancies_preserve_conflicting_source_locators():
+    findings = _detect_evidence_discrepancies(
+        [
+            {
+                "id": "E1",
+                "source_id": "source-a",
+                "page_start": 10,
+                "chunk_text": "La función permite liberar memoria dinámica.",
+            },
+            {
+                "id": "E2",
+                "source_id": "source-b",
+                "page_start": 22,
+                "chunk_text": "La función no permite liberar memoria dinámica.",
+            },
+        ]
+    )
+
+    assert len(findings) == 1
+    assert findings[0]["type"] == "polarity"
+    assert [source["citation_id"] for source in findings[0]["sources"]] == ["E1", "E2"]
 
 
 def test_epistemic_cache_is_partitioned_by_scope_and_source_filter():
@@ -224,3 +248,44 @@ def test_evidence_fallback_does_not_cross_notebook_scope(monkeypatch):
     assert getattr(context_pack, "abstained", False) is True
     assert raw_chunks == []
     assert "notebook A" not in getattr(context_pack, "formatted_context", "")
+
+
+def test_ambiguous_context_reference_fails_closed_with_clarification(monkeypatch):
+    from unittest.mock import MagicMock
+
+    from study_engine.pedagogy.fase0_seed import FASE0_CONTRACT
+
+    store = MagicMock()
+    store.get_notebook.return_value = MagicMock(folder_id="folder-a")
+    container = MagicMock()
+    container.knowledge_store = store
+    container.pedagogical_orchestrator = MagicMock(_kc_catalog={})
+    container.bkt_tracker = None
+    container.struggle_tracker = None
+    container.student_storage = None
+    container.mem0_manager = None
+    store.get_pedagogical_contract.return_value = FASE0_CONTRACT
+    request = ChatQueryRequest(
+        prompt="¿Por qué eso es importante?",
+        notebook_id="notebook-a",
+        recent_turns=[
+            {"role": "user", "content": "¿Qué es un proceso en un sistema operativo?"},
+            {"role": "assistant", "content": "Un proceso tiene estado y memoria."},
+            {"role": "user", "content": "¿Qué es un archivo ejecutable en disco?"},
+        ],
+    )
+
+    result = _prepare_chat_context(
+        store=store,
+        resolver=ScopeResolver(store),
+        container=container,
+        prompt_text=request.prompt,
+        request=request,
+        target_scope_type="notebook",
+        target_scope_id="notebook-a",
+    )
+
+    context_pack = result[2]
+    assert context_pack.abstained is True
+    assert context_pack.abstention_reason == "CONTEXT_REFERENCE_REQUIRES_CLARIFICATION"
+    assert "único antecedente" in context_pack.clarification_message

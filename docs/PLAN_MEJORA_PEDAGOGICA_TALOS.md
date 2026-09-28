@@ -209,6 +209,10 @@ Identificador en esta hoja de ruta: **F4-formato** (no confundir con las fases
   ausencia y truncamiento) y `evidence_provenance` (fuente, autor, páginas,
   documento, hash y rol epistémico) para que la continuidad y la procedencia
   sean observables sin exponer el contenido interno del historial.
+- Las referencias deícticas u ordinales sin antecedente único generan una
+  aclaración fail-closed; las evidencias recuperadas con polaridad o versión
+  incompatible se marcan como `evidence_discrepancies` y se muestran en la UI
+  sin fusionarlas silenciosamente.
 - Tratar perfil y estimaciones de conocimiento como evidencia provisional.
 - No inferir dominio por haber recibido una explicación o acertado una sola
   respuesta.

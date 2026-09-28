@@ -2,7 +2,37 @@
 
 import pytest
 
-from study_engine.retrieval.query_rewriter import QueryRewriter
+from study_engine.retrieval.query_rewriter import QueryRewriter, resolve_contextual_reference
+
+
+def test_contextual_reference_resolves_single_antecedent():
+    result = resolve_contextual_reference(
+        "¿Por qué eso es importante?",
+        [{"role": "user", "content": "¿Qué es un proceso en un sistema operativo?"}],
+    )
+
+    assert result.status == "unique"
+    assert result.candidates == ("¿Qué es un proceso en un sistema operativo?",)
+
+
+def test_contextual_reference_requires_clarification_for_competing_antecedents():
+    result = resolve_contextual_reference(
+        "¿Por qué eso es importante?",
+        [
+            {"role": "user", "content": "¿Qué es un proceso en un sistema operativo?"},
+            {"role": "assistant", "content": "Un proceso tiene estado y memoria."},
+            {"role": "user", "content": "¿Qué es un archivo ejecutable en disco?"},
+        ],
+    )
+
+    assert result.status == "ambiguous"
+    assert len(result.candidates) == 2
+
+
+def test_contextual_reference_reports_missing_history():
+    result = resolve_contextual_reference("¿Y el segundo punto?", [])
+
+    assert result.status == "missing"
 
 
 @pytest.fixture
@@ -120,4 +150,3 @@ def test_retrieval_service_is_authoritative_rewriter_chokepoint(tmp_path):
     assert mock_retriever.retrieve.called
     req = mock_retriever.retrieve.call_args[0][0]
     assert req.query == "¿qué es una pilas?"
-

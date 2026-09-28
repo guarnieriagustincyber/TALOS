@@ -146,6 +146,61 @@ def _conversation_context_metadata(
     }
 
 
+def _detect_evidence_discrepancies(chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Flag explicit polarity/version conflicts among retrieved evidence."""
+    polarity = re.compile(
+        r"\b(?:no|nunca|jam[aá]s|imposible|proh[ií]be|prohibido|"
+        r"siempre|permite|permitido|obligatorio|requiere)\b",
+        re.IGNORECASE,
+    )
+    version = re.compile(r"\b(?:v(?:ersi[oó]n)?\s*)?\d+(?:\.\d+){1,2}\b", re.IGNORECASE)
+    findings: List[Dict[str, Any]] = []
+    for index, left in enumerate(chunks):
+        left_text = str(left.get("chunk_text") or "")
+        left_terms = set(re.findall(r"[a-záéíóúñ]{5,}", left_text.lower()))
+        for right in chunks[index + 1 :]:
+            if left.get("source_id") == right.get("source_id"):
+                continue
+            right_text = str(right.get("chunk_text") or "")
+            right_terms = set(re.findall(r"[a-záéíóúñ]{5,}", right_text.lower()))
+            if len(left_terms & right_terms) < 2:
+                continue
+            left_polarity = set(item.lower() for item in polarity.findall(left_text))
+            right_polarity = set(item.lower() for item in polarity.findall(right_text))
+            version_conflict = bool(version.findall(left_text)) and bool(version.findall(right_text)) and (
+                version.findall(left_text) != version.findall(right_text)
+            )
+            polarity_conflict = (
+                ("no" in left_polarity and "permite" in right_polarity)
+                or ("permite" in left_polarity and "no" in right_polarity)
+                or ("nunca" in left_polarity and "siempre" in right_polarity)
+                or ("siempre" in left_polarity and "nunca" in right_polarity)
+                or ("prohibido" in left_polarity and "permitido" in right_polarity)
+                or ("permitido" in left_polarity and "prohibido" in right_polarity)
+            )
+            if not (version_conflict or polarity_conflict):
+                continue
+            findings.append(
+                {
+                    "type": "version" if version_conflict else "polarity",
+                    "scope": sorted(left_terms & right_terms)[:8],
+                    "sources": [
+                        {
+                            "citation_id": left.get("citation_id") or left.get("id"),
+                            "source_id": left.get("source_id"),
+                            "page_start": left.get("page_start"),
+                        },
+                        {
+                            "citation_id": right.get("citation_id") or right.get("id"),
+                            "source_id": right.get("source_id"),
+                            "page_start": right.get("page_start"),
+                        },
+                    ],
+                }
+            )
+    return findings
+
+
 def _epistemic_cache_key(
     *,
     session_id: Optional[str],
@@ -313,6 +368,7 @@ class EpistemicContextPack:
         abstention_reason: Optional[str] = None,
         reference_disclaimer: Optional[str] = None,
         resolved_item: Optional[Any] = None,
+        clarification_message: Optional[str] = None,
     ):
         self.formatted_context = formatted_context
         self.citations = citations
@@ -321,6 +377,7 @@ class EpistemicContextPack:
         self.abstention_reason = abstention_reason
         self.reference_disclaimer = reference_disclaimer
         self.resolved_item = resolved_item
+        self.clarification_message = clarification_message
 
 
 class OfflineKnowledgeBackend:
@@ -1469,7 +1526,12 @@ def _prepare_chat_context(
         client_turns=request.recent_turns,
         current_prompt=prompt_text,
     )
-    from study_engine.retrieval.query_rewriter import QueryRewriter, has_deictic_markers, should_rewrite_contextual
+    from study_engine.retrieval.query_rewriter import (
+        QueryRewriter,
+        has_deictic_markers,
+        resolve_contextual_reference,
+        should_rewrite_contextual,
+    )
     from study_engine.pedagogy.conversation_state import ConversationState, classify_conversation_state, should_abstain
 
     rewriter = QueryRewriter()
@@ -1477,6 +1539,7 @@ def _prepare_chat_context(
     is_explicit_reference = bool(re.search(r"\b(?:ejercicio|gu[ií]a|problema|tp)\s+\d+\b", clean_p, re.IGNORECASE))
     is_deictic = has_deictic_markers(clean_p)
     should_rew = should_rewrite_contextual(clean_p, conv_turns)
+    reference_resolution = resolve_contextual_reference(clean_p, conv_turns)
 
     re_followup = re.compile(
         r"\b(?:pod[eé]s\s+(?:detallarme|explicarme|profundizar|ampliar|darme\s+m[aá]s|explicar)|"
@@ -1527,7 +1590,24 @@ def _prepare_chat_context(
     else:
         retrieval_query = rewriter.rewrite(clean_p)
 
-    if _is_non_curricular_intent(retrieval_query, kcs_list):
+    if reference_resolution.status in {"ambiguous", "missing"}:
+        detail = (
+            "No pude identificar un único antecedente en el historial disponible."
+            if reference_resolution.status == "ambiguous"
+            else "No tengo el turno anterior necesario para resolver esa referencia."
+        )
+        context_pack = EpistemicContextPack(
+            formatted_context="",
+            citations=[],
+            chunks=[],
+            abstained=True,
+            abstention_reason="CONTEXT_REFERENCE_REQUIRES_CLARIFICATION",
+            clarification_message=(
+                f"{detail} Indicame el tema o pegá el fragmento al que te referís."
+            ),
+        )
+        raw_chunks = []
+    elif _is_non_curricular_intent(retrieval_query, kcs_list):
         context_pack = EpistemicContextPack(
             formatted_context="",
             citations=[],
@@ -1916,6 +1996,7 @@ async def chat_query(
                 )
 
                 reason = getattr(context_pack, "abstention_reason", "QUERY_OUT_OF_SCOPE")
+                clarification_message = getattr(context_pack, "clarification_message", None)
                 abstention_decision = getattr(pipeline, "_last_abstention_decision", None)
                 if abstention_decision and getattr(abstention_decision, "abstention_reason", None):
                     reason = getattr(abstention_decision, "abstention_reason")
@@ -1932,11 +2013,11 @@ async def chat_query(
                 yield f"data: {json.dumps(manifest_payload)}\n\n"
 
                 abstention_payload = {
-                    "event_type": "abstention",
+                    "event_type": "clarification" if clarification_message else "abstention",
                     "payload": {
                         "phase": request.requested_phase or "conceptual",
                         "abstained": True,
-                        "reason": (
+                        "reason": clarification_message or (
                             reason if reason and reason != "QUERY_OUT_OF_SCOPE" else
                             "TALOS se abstiene de responder: No se hallaron evidencias curriculares "
                             "verificables en las fuentes canónicas del cuaderno para fundamentar esta consulta."
@@ -2108,6 +2189,7 @@ async def chat_query(
                             }
                             for chunk in raw_chunks
                         ]
+                        payload["payload"]["evidence_discrepancies"] = _detect_evidence_discrepancies(raw_chunks)
                         if ref_disclaimer:
                             payload["payload"]["reference_disclaimer"] = ref_disclaimer
 

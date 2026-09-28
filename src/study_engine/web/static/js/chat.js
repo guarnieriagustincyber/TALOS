@@ -39,7 +39,7 @@ const Chat = (() => {
         // Clear default welcome bubble and re-render saved messages
         history.innerHTML = "";
         _messages.forEach((m) =>
-          _renderBubble(m.role, m.text, m.followup, m.audit, m.telemetry, m.qtype, m.provenance)
+          _renderBubble(m.role, m.text, m.followup, m.audit, m.telemetry, m.qtype, m.provenance, m.discrepancies)
         );
       }
     } catch (_) { /* corrupted – start fresh */ }
@@ -128,7 +128,7 @@ const Chat = (() => {
 
   // ── Bubble rendering ──────────────────────────────────────────────
 
-  function _renderBubble(role, text, followup, audit, telemetry, qtype, provenance) {
+  function _renderBubble(role, text, followup, audit, telemetry, qtype, provenance, discrepancies) {
     const history = _getHistory();
     if (!history) return;
 
@@ -190,6 +190,12 @@ const Chat = (() => {
         })
         .join(" · ")}`;
       bubble.appendChild(provenanceEl);
+    }
+    if (role === "tutor" && Array.isArray(discrepancies) && discrepancies.length > 0) {
+      const discrepancyEl = document.createElement("div");
+      discrepancyEl.className = "evidence-discrepancy";
+      discrepancyEl.textContent = "⚠️ Las fuentes recuperadas presentan una discrepancia; revisá cada cita antes de combinar sus conclusiones.";
+      bubble.appendChild(discrepancyEl);
     }
     history.appendChild(bubble);
     history.scrollTop = history.scrollHeight;
@@ -338,7 +344,7 @@ const Chat = (() => {
     }
     if (pending.trim()) consumeFrame(pending);
 
-    const result = { text: "", audit: null, telemetry: null, provenance: [] };
+    const result = { text: "", audit: null, telemetry: null, provenance: [], discrepancies: [] };
     for (const event of events) {
       const payload = event.payload || {};
       if (event.event_type === "phase_token") {
@@ -351,7 +357,10 @@ const Chat = (() => {
         result.provenance = Array.isArray(payload.evidence_provenance)
           ? payload.evidence_provenance
           : [];
-      } else if (event.event_type === "abstention") {
+        result.discrepancies = Array.isArray(payload.evidence_discrepancies)
+          ? payload.evidence_discrepancies
+          : [];
+      } else if (event.event_type === "abstention" || event.event_type === "clarification") {
         result.text = [payload.reason, payload.suggested_action]
           .filter(Boolean)
           .join("\n\n");
@@ -422,10 +431,11 @@ const Chat = (() => {
         audit: data.audit,
         telemetry: data.telemetry,
         provenance: data.provenance,
+        discrepancies: data.discrepancies,
         ts: Date.now(),
       };
       _messages.push(tutorMsg);
-      _renderBubble("tutor", data.text, null, data.audit, data.telemetry, null, data.provenance);
+      _renderBubble("tutor", data.text, null, data.audit, data.telemetry, null, data.provenance, data.discrepancies);
       save();
     } catch (err) {
       _removeTyping();

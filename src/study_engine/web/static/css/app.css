@@ -614,6 +614,15 @@ body {
   line-height: 1.4;
 }
 
+.evidence-discrepancy {
+  margin-top: 0.45rem;
+  padding: 0.45rem 0.6rem;
+  border-left: 3px solid #f59e0b;
+  color: #fcd34d;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
 /* Deterministic Pedagogical Follow-up Panel (M1) */
 .followup-panel {
   margin-top: 0.85rem;
