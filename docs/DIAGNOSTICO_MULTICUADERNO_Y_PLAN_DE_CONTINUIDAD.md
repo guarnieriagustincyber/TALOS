@@ -197,21 +197,30 @@ configuración, usar un perfil neutral sin supuestos de dominio, o emitir un
 error de configuración visible en la creación del contrato; no seleccionar el
 primer parecido.
 
-### H4 — Política de soluciones completas contradictoria entre especificaciones
+### H4 — Política de soluciones completas alineada en Gate 1
 
-**Prioridad: P1 — resolver antes de conectar TutorPolicy/Study Loop.**
+**Estado de Gate 1: resuelto en política y aplicado inicialmente en la ruta de
+chat; la integración runtime en TutorPolicy/Study Loop sigue pendiente.**
 
-La especificación
+La inspección inicial encontró que la especificación
 [`08-S7-TUTOR-POLICY-SPEC-V1.0.md`](./08-S7-TUTOR-POLICY-SPEC-V1.0.md)
-declara en `TUT-03` que nunca se debe entregar la solución completa. En cambio,
-las fases F1/F2 del plan rector y sus pruebas recientes preservan una solicitud
-explícita y segura de solución completa.
+declaraba en `TUT-03` que nunca se debía entregar la solución completa, en
+conflicto con F1/F2 del plan rector y las pruebas de solicitudes explícitas.
 
-La política correcta debe distinguir, como mínimo, entre práctica de estudio
-libre y una tarea certificada/evaluada cuyo solucionario está protegido. La
-regla de anti-leakage de una evaluación no debe convertirse en una prohibición
-global paternalista, ni el pedido de solución debe permitir acceso al
-solucionario canónico de un ítem protegido.
+Gate 1 resolvió la contradicción: las prácticas de estudio no protegidas pueden
+recibir una solución completa si se solicita explícitamente; una evaluación
+activa/protegida mantiene oculto su solucionario canónico y ofrece alternativas
+pedagógicas. La protección depende del estado/metadato de la actividad, no de
+una prohibición general sobre ejercicios o código. La especificación S7 define
+ahora esta distinción y la precedencia general; los prompts pedagógicos de
+programación ya no contradicen la solicitud segura explícita. El chat protege
+referencias exactas con metadatos confiables de evaluación activa, conserva el
+ítem por contexto de sesión y cuaderno, rechaza la solución explícita antes del
+LLM y retiene toda la salida antes de comparar coincidencias textuales
+normalizadas con el solucionario. Esta comprobación no detecta respuestas
+parafraseadas semánticamente y no es por sí sola una garantía de integridad
+académica. La integración con TutorPolicy/Study Loop y sus estados evaluativos
+propios todavía requiere un contrato común.
 
 ### H5 — F6 tiene un hueco confirmado entre terminación del pipeline y UI
 
@@ -330,16 +339,19 @@ curricular de fallback y validar su selección. Orden propuesto:
 
 ### Gate A — Alinear política y gobernanza (antes de nuevas integraciones)
 
-1. Resolver la contradicción `TUT-03` entre solución completa solicitada y
-   evaluación protegida.
-2. Adoptar nombres inequívocos para las líneas de trabajo; por ejemplo,
-   `PED-F5-continuidad`, `PED-F6-fiabilidad`, `PED-F7-evaluación`,
-   `RETR-late-chunking` y `STUDY-F5-ejercicios`.
+1. **Completado en Gate 1:** resolver la contradicción `TUT-03` entre solución
+   completa solicitada y evaluación protegida.
+2. **Completado en Gate 1:** identificar las fases pedagógicas como
+   `PED-F0`…`PED-F7`; usar `PED-F5-continuidad`, `PED-F6-fiabilidad` y
+   `PED-F7-evaluación`. Reservar `Fase 4-eval`, `Fase 4-sec`,
+   `RETR-late-chunking` y `STUDY-F5-ejercicios` para sus líneas de trabajo.
 3. Marcar reportes previos como snapshots fechados y actualizar el handoff
    rector para que describa los commits actuales, el transcript añadido como
    evidencia de dinámica y los límites de aceptación.
 
-**Salida:** una precedencia de políticas única y estados de fase no ambiguos.
+**Salida:** precedencia y nomenclatura definidas; el chat tiene protección
+runtime para referencias exactas con estado activo. La integración de la misma
+política en TutorPolicy/Study Loop sigue pendiente.
 
 ### Gate B — Reparar el aislamiento de perfiles por cuaderno (bloqueante)
 

@@ -180,7 +180,7 @@ def test_l5_1_sequential_replay_race_converges_to_single_persisted_evidence():
 
 
 @pytest.mark.parametrize("thread_count", [10, 50, 100])
-def test_l5_1_concurrency_replay_race_disaggregation(thread_count: int):
+def test_l5_1_concurrency_replay_race_disaggregation(thread_count: int, tmp_path: Path):
     """High-concurrency replay race submitting the IDENTICAL assessment concurrently.
 
     Must disaggregate:
@@ -259,8 +259,8 @@ def test_l5_1_concurrency_replay_race_disaggregation(thread_count: int):
         print(f"  COMMIT_REJECTED: {metrics['COMMIT_REJECTED']}")
         print(f"  LEDGER TOTAL ENTRIES: {ledger.total_entries} (PERSISTED_ONCE={persisted_once})")
 
-        # Save telemetry to repo
-        telemetry_dir = Path(__file__).resolve().parent.parent.parent / "data" / "experiments" / "survival"
+        # Keep per-run telemetry in pytest's temporary directory, not versioned data.
+        telemetry_dir = tmp_path / "survival"
         telemetry_dir.mkdir(parents=True, exist_ok=True)
         import json
         telemetry_file = telemetry_dir / f"l5_concurrency_race_{thread_count}.json"
@@ -279,6 +279,9 @@ def test_l5_1_concurrency_replay_race_disaggregation(thread_count: int):
             ),
             encoding="utf-8",
         )
+        telemetry = json.loads(telemetry_file.read_text(encoding="utf-8"))
+        assert telemetry["thread_count"] == thread_count
+        assert telemetry["persisted_once"] is True
 
         # CRITICAL CONVERGENCE INVARIANT: Exactly 1 record persisted in the ledger!
         assert ledger.total_entries == 1, (

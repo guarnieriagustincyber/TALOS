@@ -1,7 +1,7 @@
 # Suite de fixes y estabilización previa a Fase 7
 
 **Fecha:** 2026-09-28
-**Estado:** punto 0 completado; gates de corrección pendientes
+**Estado:** punto 0, Gate 1 y protección runtime inicial completados; Gate 2 pendiente
 **Alcance:** armonizar políticas, contratos multi-cuaderno y fiabilidad antes de
 continuar con evaluación pedagógica multi-currículo.
 
@@ -68,17 +68,76 @@ versionados.
 
 ## Gate 1 — Alinear políticas y nomenclatura
 
-- Resolver la contradicción entre la prohibición global de soluciones completas
-  y la atención a una solicitud explícita segura. Distinguir práctica libre de
-  evaluaciones con solucionario protegido.
-- Fijar precedencia: seguridad y exactitud; fuentes y alcance curricular;
-  solicitud explícita del turno; objetivo pedagógico; preferencias duraderas
-  solo cuando no contradicen el pedido actual.
-- Distinguir los nombres de Fases 0–7 del plan pedagógico de las fases de
-  producto, evaluación, seguridad y retrieval.
+**Completado:** se resolvió la contradicción TUT-03. En práctica no protegida
+se atiende una solicitud explícita segura de solución completa; para
+evaluaciones activas/protegidas no se expone el solucionario canónico. Se fijó
+la precedencia normativa y se alinearon los prompts de programación. Además, el
+chat aplica protección runtime a referencias exactas con metadatos confiables
+del `ContentRegistry`, conserva el ítem por contexto de sesión/cuaderno,
+rechaza la solicitud explícita antes del LLM y retiene toda la respuesta para
+una comprobación textual del solucionario. La integración equivalente en
+TutorPolicy/Study Loop sigue pendiente. Las fases del plan pedagógico se
+identifican `PED-F0`…`PED-F7`; se reservan `Fase 4-eval`,
+`Fase 4-sec`, `RETR-late-chunking` y `STUDY-F5-ejercicios` para sus respectivas
+líneas de trabajo.
 
-**Salida:** reglas coherentes y no ambiguas antes de modificar el ensamblado
-de prompts.
+**Salida:** reglas de solución, precedencia y nomenclatura coherentes antes de
+continuar con cambios de perfiles o nuevas integraciones.
+
+**Criterio runtime incorporado:** metadatos `assessment.protected=true` y
+`assessment.status` igual a `active` o `in_progress`, guardados por la
+configuración confiable del servidor. Sin solucionario canónico disponible, la
+ruta protegida responde fail-closed. Las respuestas generadas para la referencia
+activa se retienen hasta la comprobación para impedir fugas parciales por SSE.
+La comprobación detecta coincidencias completas normalizadas o fragmentos
+textuales sustanciales; no reconoce respuestas parafraseadas semánticamente y
+no constituye por sí sola una garantía de integridad académica.
+
+### Verificación de aislamiento y Gate 1 — 2026-09-28
+
+- Se cambió la prueba del benchmark para escribir los reportes bajo `tmp_path`
+  y verificar que solo genere los tres archivos esperados allí.
+- La prueba de concurrencia L5 persiste telemetría bajo `tmp_path` en vez de
+  modificar `data/experiments/survival/`.
+- La especificación TUT-03, la jerarquía del plan rector y los prompts de
+  programación distinguen práctica no protegida (solución completa explícita
+  permitida) de evaluación activa/protegida (solucionario canónico no
+  divulgable).
+- Se estableció `PED-F0`…`PED-F7` para el programa pedagógico, con nombres
+  explícitos para las líneas de Fase 4-eval, Fase 4-sec, retrieval y Study
+  Loop.
+- Validación focalizada de aislamiento y política: **86 passed, 9 warnings**.
+- Suite global: `.venv/bin/pytest -q` — **2696 passed, 7 skipped, 0 failed**,
+-  138 warnings, 334.16 s en la ejecución final.
+- Una ejecución completa intermedia falló solo en el test de rendimiento
+  `test_sqlite_query_latency_p95_under_50ms` (51.95 ms frente al límite
+  estricto de 50 ms). El test aislado pasó en 2.27 s y la suite completa
+  secuencial posterior pasó; se conserva como señal de variabilidad del test,
+  no se ajustó el umbral.
+- Tras la suite global, los cuatro artefactos versionados enumerados en la
+  baseline permanecieron sin cambios. `git diff --check` y validación de
+  enlaces Markdown relativos pasaron.
+
+**Estado:** punto 0 y Gate 1 completados para coherencia normativa,
+nomenclatura y protección runtime inicial del chat; Gate 2 pendiente. La
+integración en TutorPolicy/Study Loop y la detección semántica de respuestas
+equivalentes siguen fuera de alcance.
+
+### Verificación runtime de evaluación protegida — 2026-09-28
+
+- La ruta confía en metadatos del registro `assessment.protected=true` y
+  estado `active` o `in_progress`; la solicitud del cliente no activa ni
+  desactiva la guarda.
+- Rechaza solicitudes explícitas de solución antes de invocar al LLM, conserva
+  el ítem para seguimientos del mismo contexto, falla cerrada si falta el
+  solucionario y retiene tokens hasta completar la comprobación de salida.
+- Pruebas focalizadas de protección, endpoint de chat, prompts y regresión de
+  soluciones explícitas no protegidas: **83 passed** (17 warnings).
+- Suite global posterior a los cambios: `.venv/bin/pytest -q` —
+  **2703 passed, 7 skipped, 0 failed**, 144 warnings, 351.57 s.
+- La comparación normalizada detecta coincidencias completas o fragmentos
+  textuales; no detecta paráfrasis semánticas y no reemplaza controles de
+  evaluación ni revisión humana.
 
 ## Gate 2 — Aislar el perfil pedagógico por cuaderno
 

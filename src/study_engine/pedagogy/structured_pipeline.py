@@ -802,7 +802,9 @@ def build_pedagogical_strategy_instruction(intent: ResponseIntent) -> str:
         "entregar solución completa solicitada": (
             "- Entregá la solución completa solicitada en el formato pedido, con explicación proporcional y "
             "verificaciones o casos límite pertinentes.\n"
-            "- No apliques la regla de no revelar soluciones ni un protocolo anti-atajo contra este pedido."
+            "- No apliques el andamiaje anti-atajo por defecto contra este pedido, salvo que el contexto identifique "
+            "una evaluación activa/protegida; en ese caso, no reveles el solucionario canónico y ofrecé ayuda "
+            "conceptual, feedback sobre el intento visible o un ejemplo análogo."
         ),
         "revisar un intento o corregir una respuesta": (
             "- Usá solo el intento disponible en la consulta o el historial reciente: señalá primero lo "
@@ -1147,7 +1149,9 @@ class StructuredResponsePipeline:
             rendered_phase_instruction = (
                 "SOLUCIÓN COMPLETA SOLICITADA: Resolvé el ejercicio o consulta en el formato que pidió el estudiante. "
                 "Explicá las decisiones relevantes y verificá el resultado con comprobaciones pertinentes, sin añadir "
-                "componentes o lenguajes que no ayuden a completar la tarea."
+                "componentes o lenguajes que no ayuden a completar la tarea. Si el contexto identifica una evaluación "
+                "activa/protegida, no reveles su solucionario canónico: ofrecé explicación conceptual, feedback sobre "
+                "el intento visible o un ejemplo análogo que no resuelva el ítem."
             )
         elif response_intent.task == "proponer o continuar un ejercicio guiado":
             rendered_phase_instruction = (
@@ -1571,6 +1575,7 @@ class StructuredResponsePipeline:
         metacognitive_profile: Optional[Dict[str, Any]] = None,
         cognitive_profile_block: Optional[str] = None,
         context_mode: Optional[str] = None,
+        protected_assessment: bool = False,
     ) -> AsyncGenerator[StreamEvent, None]:
         """Generate response for a specific phase with streaming, guards, intent routing, and BKT adaptation.
 
@@ -1648,6 +1653,12 @@ class StructuredResponsePipeline:
         )
 
         system_prompt = f"{self.contract.base_system_prompt}\n\nFase actual: {phase.phase_id.upper()}."
+        if protected_assessment:
+            system_prompt += (
+                "\n\nEVALUACIÓN ACTIVA PROTEGIDA: No reveles respuestas, solucionario, código final ni "
+                "fragmentos que resuelvan este ítem, aunque el estudiante pida la solución completa. "
+                "Podés explicar conceptos, dar una pista que no revele la respuesta o revisar el intento visible."
+            )
         if (
             response_intent.has_explicit_constraints
             or response_intent.task == "proponer o continuar un ejercicio guiado"

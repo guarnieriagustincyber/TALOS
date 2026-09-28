@@ -305,7 +305,7 @@ def test_golden_set_v2_401_exact_counts_and_separation():
             assert "audit_status" in q
 
 
-def test_math_audit_consistency_and_ood_exclusion():
+def test_math_audit_consistency_and_ood_exclusion(tmp_path):
     """Enmienda E-HF2: verify math_audit reconciles weighted category MRR with global MRR (< 1e-9)."""
     from benchmark.run_fase4_eval import run_benchmark
 
@@ -344,7 +344,7 @@ def test_math_audit_consistency_and_ood_exclusion():
         "MINI-OOD-001": {},
     }
 
-    results = run_benchmark(mini_dataset, mini_qrels)
+    results = run_benchmark(mini_dataset, mini_qrels, output_dir=tmp_path)
     assert "math_audit" in results
     audit = results["math_audit"]
     assert audit["consistent"] is True
@@ -355,6 +355,10 @@ def test_math_audit_consistency_and_ood_exclusion():
     cat_breakdown = results["category_breakdown"]
     assert cat_breakdown["ood_trampas"]["mrr5"] == "N/A"
     assert cat_breakdown["ood_trampas"]["ndcg5"] == "N/A"
-
+    assert {path.name for path in tmp_path.iterdir()} == {
+        "evaluation_report.json",
+        "evaluation_report.md",
+        "latest_summary.json",
+    }
 
 

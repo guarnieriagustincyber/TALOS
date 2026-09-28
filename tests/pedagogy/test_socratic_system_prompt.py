@@ -7,6 +7,7 @@ from study_engine.pedagogy.fase0_seed import (
 )
 from study_engine.pedagogy.structured_pipeline import StructuredResponsePipeline, PhaseHistory
 from study_engine.pedagogy.response_phase import ResponsePhase
+from study_engine.pedagogy.persona_narrator import RIOPLATENSE_SYSTEM_PROMPT
 
 
 def test_base_system_prompt_invariants():
@@ -29,6 +30,17 @@ def test_base_system_prompt_invariants():
     # Extensión variable
     assert 'máximo 200 palabras' in TALOS_BASE_SYSTEM_PROMPT
     assert 'hasta 500 palabras' in TALOS_BASE_SYSTEM_PROMPT
+
+
+def test_solution_policy_distinguishes_guided_practice_from_protected_assessment():
+    prompts = (TALOS_BASE_SYSTEM_PROMPT, RIOPLATENSE_SYSTEM_PROMPT)
+
+    for prompt in prompts:
+        assert "solución completa" in prompt.lower()
+        assert "por defecto" in prompt.lower()
+        assert "explícitamente" in prompt.lower()
+        assert "evaluación protegida" in prompt.lower()
+        assert "jamás" not in prompt.lower()
 
 
 def test_notebook_specializations_all_five():

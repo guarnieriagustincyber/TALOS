@@ -58,8 +58,28 @@ Toda implementación y prueba de S7 debe satisfacer de forma estricta los siguie
   - `UNASSESSED_EVIDENCE` / `NO_EVIDENCE`: La consulta escapa al material curricular autorizado para el nodo. Acción: Abstención fail-closed inmediata (`ABSTAIN`).
 
 ### `TUT-03`: Cognitive Non-Substitution
-* **Definición:** El tutor jamás debe realizar el trabajo cognitivo que le corresponde al estudiante.
-* **Regla Operativa:** Bajo ninguna circunstancia el tutor debe escribir la solución completa de un ejercicio de programación, proveer el código final que resuelve la tarea práctica o responder a sus propias preguntas de sondeo antes de que el estudiante lo intente. Puede proveer sintaxis canónica de referencia o contraejemplos abstractos, pero nunca el artefacto sujeto a evaluación.
+* **Definición:** El tutor guía el razonamiento del estudiante sin sustituirlo por defecto, y respeta los límites de integridad académica de los ejercicios y evaluaciones protegidos.
+* **Regla Operativa:**
+  - En una práctica guiada, proponer un paso abordable y esperar el intento antes de dar una solución completa, salvo que el estudiante la solicite explícitamente.
+  - En práctica de estudio no protegida, atender una solicitud explícita y segura de solución completa en el formato pedido, con explicación proporcional.
+  - No revelar el solucionario canónico, respuestas ocultas ni el artefacto evaluado de una evaluación activa/protegida, aunque se solicite. Ofrecer en su lugar explicación conceptual, pistas, feedback sobre el intento visible o un ejemplo análogo que no resuelva el ítem.
+  - No contestar preguntas de sondeo propias como si fueran respuestas del estudiante ni afirmar dominio sin evidencia.
+  - La protección se determina por el estado y los metadatos de la actividad, no por asumir que todo ejercicio o código pedido está evaluado.
+  - En el `ContentRegistry`, marcar explícitamente el ítem mediante `metadata.assessment = {"protected": true, "status": "active"}`. `status` puede ser `active` o `in_progress`; borradores, ítems sin marca o prácticas ordinarias no activan esta protección.
+  - La marca debe provenir del registro/configuración confiable del servidor, nunca de un campo de solicitud del estudiante. El servidor conserva el ítem activo en el contexto de sesión, cuaderno, alcance y fuentes con TTL de una hora.
+  - En chat, el solucionario se carga exclusivamente por el accessor de soluciones, nunca al contexto visible. Una solicitud explícita de solución se rechaza antes de invocar al modelo; las demás salidas del ítem protegido se retienen hasta comparar la respuesta completa con el solucionario canónico. Si falta la solución registrada, la ruta falla cerrada.
+  - Esta comparación detecta coincidencias completas y fragmentos textuales sustanciales normalizados, no equivalencia semántica ni paráfrasis. Es una defensa de salida adicional, no una garantía autónoma de integridad académica.
+
+### Precedencia de instrucciones pedagógicas
+
+Resolver conflictos con esta precedencia: (1) seguridad, privacidad e integridad
+de evaluaciones protegidas; (2) exactitud y honestidad sobre evidencia y fuentes
+autorizadas; (3) alcance curricular del cuaderno; (4) pedido explícito del turno
+(tarea, formato, longitud y profundidad) dentro de los límites anteriores; (5)
+objetivo pedagógico y estado del estudiante respaldado por evidencia; (6)
+preferencias duraderas cuando no contradicen el pedido actual; (7) estilo y
+formatos por defecto. Un estilo socrático no puede convertir una preferencia
+pedagógica en una negativa global a solicitudes seguras.
 
 ### `TUT-04`: Curriculum & State Alignment
 * **Definición:** Toda acción pedagógica seleccionada por `TutorPolicy` debe estar estrictamente alineada con el estado del estudiante en el DAG de prerrequisitos.

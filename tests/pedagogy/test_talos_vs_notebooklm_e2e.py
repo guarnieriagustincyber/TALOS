@@ -44,6 +44,7 @@ def test_explicit_complete_code_request_preserves_requested_c_solution():
 
     assert "SOLUCIÓN COMPLETA SOLICITADA" in prompt
     assert "PROTOCOLO ANTI-ATAJO ACTIVADO" not in prompt
+    assert "Si el contexto identifica una evaluación activa/protegida" in prompt
 
 
 def test_fail_closed_abi_no_forced_heavy_pseudocode():
@@ -543,5 +544,4 @@ def test_turn_4_deictic_ampersand_followup():
     assert getattr(context_pack, "abstained", False) is False
     assert len(raw_chunks) > 0
     assert raw_chunks[0]["id"] == "E775"
-
 

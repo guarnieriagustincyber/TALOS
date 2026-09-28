@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import json
 import logging
 import re
+import sqlite3
 from types import SimpleNamespace
 from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Tuple
 from uuid import uuid4
@@ -201,6 +202,25 @@ def _detect_evidence_discrepancies(chunks: List[Dict[str, Any]]) -> List[Dict[st
     return findings
 
 
+def _protected_solutions_for_item(store: Any, item: Any) -> Optional[List[str]]:
+    """Load protected answers through the explicit solution-only registry accessor."""
+    registry = getattr(store, "content_registry", None)
+    chunk_repository = getattr(store, "chunks", None)
+    if registry is None or chunk_repository is None or not getattr(item, "solution_chunk_ids", None):
+        return None
+    try:
+        chunks = registry.get_solution_chunks(item.content_id, chunk_repository)
+    except sqlite3.Error:
+        logger.exception("No se pudieron cargar las soluciones del ítem protegido %s", item.content_id)
+        return None
+    solutions = [
+        content
+        for chunk in chunks
+        if isinstance((content := getattr(chunk, "content", None)), str) and content.strip()
+    ]
+    return solutions or None
+
+
 def _epistemic_cache_key(
     *,
     session_id: Optional[str],
@@ -337,6 +357,7 @@ class ChatQueryRequest(BaseModel):
 
 # In-memory turn accumulator map with TTL eviction: (session_id or scope_id) -> PhaseHistory
 _ACTIVE_TURN_HISTORIES: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
+_ACTIVE_PROTECTED_ASSESSMENTS: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
 # Buffer conversacional efímero, particionado por sesión y alcance.
 # Conserva hasta 20 mensajes validados por clave de contexto.
@@ -1929,6 +1950,28 @@ async def chat_query(
         target_notebook_id,
     )
 
+    from study_engine.pedagogy.solution_protection import is_protected_assessment
+
+    resolved_item = getattr(context_pack, "resolved_item", None) if context_pack is not None else None
+    if resolved_item is not None:
+        if is_protected_assessment(resolved_item):
+            _ACTIVE_PROTECTED_ASSESSMENTS[context_cache_key] = resolved_item.content_id
+        else:
+            _ACTIVE_PROTECTED_ASSESSMENTS.pop(context_cache_key, None)
+    elif context_cache_key in _ACTIVE_PROTECTED_ASSESSMENTS:
+        active_content_id = _ACTIVE_PROTECTED_ASSESSMENTS.get(context_cache_key)
+        registry = getattr(store, "content_registry", None)
+        resolved_item = registry.get(active_content_id) if registry and active_content_id else None
+        if not is_protected_assessment(resolved_item):
+            _ACTIVE_PROTECTED_ASSESSMENTS.pop(context_cache_key, None)
+
+    protected_assessment = is_protected_assessment(resolved_item)
+    protected_solutions = (
+        _protected_solutions_for_item(store, resolved_item)
+        if protected_assessment and resolved_item is not None
+        else []
+    )
+
     bkt_directive = maybe_inject_session_digest(container, history_key, bkt_directive)
     if request.requested_phase == "conceptual" and history_key in _ACTIVE_TURN_HISTORIES:
         _ACTIVE_TURN_HISTORIES[history_key].clear()
@@ -2034,8 +2077,58 @@ async def chat_query(
                 return
 
             style_dir = style_result.instruction_directive if style_result else None
-            from study_engine.pedagogy.structured_pipeline import classify_pedagogical_intent
+            from study_engine.pedagogy.structured_pipeline import (
+                classify_pedagogical_intent,
+                resolve_response_intent,
+            )
             conv_intent = classify_pedagogical_intent(prompt_text)
+            response_intent = resolve_response_intent(prompt_text, conv_intent)
+
+            if protected_assessment and (
+                protected_solutions is None
+                or response_intent.task == "entregar solución completa solicitada"
+            ):
+                from study_engine.pedagogy.solution_protection import (
+                    PROTECTED_ASSESSMENT_REFUSAL,
+                    PROTECTED_ASSESSMENT_UNAVAILABLE,
+                )
+
+                refusal = (
+                    PROTECTED_ASSESSMENT_UNAVAILABLE
+                    if protected_solutions is None
+                    else PROTECTED_ASSESSMENT_REFUSAL
+                )
+                phase_id = request.requested_phase or "conceptual"
+                start_event = {
+                    "event_type": "phase_start",
+                    "payload": {
+                        "phase": phase_id,
+                        "code_allowed": False,
+                        "protected_assessment": True,
+                    },
+                }
+                token_event = {
+                    "event_type": "phase_token",
+                    "payload": {"phase": phase_id, "token": refusal},
+                }
+                complete_event = {
+                    "event_type": "phase_complete",
+                    "payload": {
+                        "completed_phase": phase_id,
+                        "status": (
+                            "PROTECTED_ASSESSMENT_UNAVAILABLE"
+                            if protected_solutions is None
+                            else "PROTECTED_ASSESSMENT_BLOCKED"
+                        ),
+                        "protected_assessment": True,
+                    },
+                }
+                for event in (start_event, token_event):
+                    yield f"data: {json.dumps(event)}\n\n"
+                conv_turns.append({"role": "assistant", "content": refusal})
+                _CONV_TURN_BUFFER[context_cache_key] = conv_turns[-_MAX_RECENT_MESSAGES:]
+                yield f"data: {json.dumps(complete_event)}\n\n"
+                return
 
             # Mantener el presupuesto introductorio de basic acotado y el techo completo para los demás modos.
             if not request.requested_phase or request.requested_phase == "conceptual":
@@ -2062,6 +2155,7 @@ async def chat_query(
             prof_injector = getattr(container, "profile_injector", None)
             cognitive_block = _build_cognitive_profile_block(prof_injector, matched_kc_id)
 
+            protected_solution_blocked = False
             async for event in pipeline.generate_phased_response(
                 user_query=prompt_text,
                 context_pack=context_pack,
@@ -2072,6 +2166,7 @@ async def chat_query(
                 recent_turns=conv_turns,
                 cognitive_profile_block=cognitive_block,
                 context_mode=context_mode,
+                protected_assessment=protected_assessment,
             ):
                 payload = {
                     "event_type": event.event_type,
@@ -2087,7 +2182,8 @@ async def chat_query(
                             "event_type": "phase_token",
                             "payload": {**event.payload, "token": ref_prefix},
                         }
-                        yield f"data: {json.dumps(tok_payload)}\n\n"
+                        if not protected_assessment:
+                            yield f"data: {json.dumps(tok_payload)}\n\n"
 
                     emitted_tokens = stream_citation_buf.process_token(token_str)
                     for em_tok in emitted_tokens:
@@ -2096,7 +2192,8 @@ async def chat_query(
                             "event_type": "phase_token",
                             "payload": {**event.payload, "token": em_tok},
                         }
-                        yield f"data: {json.dumps(tok_payload)}\n\n"
+                        if not protected_assessment:
+                            yield f"data: {json.dumps(tok_payload)}\n\n"
                     continue
 
                 if event.event_type == "phase_complete":
@@ -2107,7 +2204,8 @@ async def chat_query(
                             "event_type": "phase_token",
                             "payload": {"phase": request.requested_phase or "conceptual", "token": ref_prefix},
                         }
-                        yield f"data: {json.dumps(tok_payload)}\n\n"
+                        if not protected_assessment:
+                            yield f"data: {json.dumps(tok_payload)}\n\n"
 
                     # 1. Flushear cualquier fragmento retenido en el lookahead buffer
                     for fl_tok in stream_citation_buf.flush():
@@ -2116,13 +2214,41 @@ async def chat_query(
                             "event_type": "phase_token",
                             "payload": {"phase": request.requested_phase or "conceptual", "token": fl_tok},
                         }
-                        yield f"data: {json.dumps(tok_payload)}\n\n"
+                        if not protected_assessment:
+                            yield f"data: {json.dumps(tok_payload)}\n\n"
 
                     # 2. Reescritura canónica determinista de citas (Commit 1)
                     accumulated_response_text, invalid_citations = citation_validator.validate_and_rewrite(
                         text=accumulated_response_text,
                         chunks=raw_chunks,
                     )
+                    if protected_assessment:
+                        from study_engine.pedagogy.solution_protection import (
+                            PROTECTED_ASSESSMENT_REFUSAL,
+                            contains_protected_solution,
+                        )
+
+                        if contains_protected_solution(accumulated_response_text, protected_solutions or []):
+                            protected_solution_blocked = True
+                            logger.warning(
+                                "Respuesta bloqueada por coincidencia con solucionario protegido (content_id=%s)",
+                                getattr(resolved_item, "content_id", "unknown"),
+                            )
+                            accumulated_response_text = PROTECTED_ASSESSMENT_REFUSAL
+                        if isinstance(payload.get("payload"), dict):
+                            payload["payload"]["protected_assessment"] = True
+                            if protected_solution_blocked:
+                                payload["payload"]["status"] = "PROTECTED_ASSESSMENT_BLOCKED"
+                        if accumulated_response_text:
+                            protected_token = {
+                                "event_type": "phase_token",
+                                "payload": {
+                                    "phase": request.requested_phase or "conceptual",
+                                    "token": accumulated_response_text,
+                                },
+                            }
+                            yield f"data: {json.dumps(protected_token)}\n\n"
+
                     valid_citations, _ = citation_validator.audit_only(
                         text=accumulated_response_text,
                         chunks=raw_chunks,

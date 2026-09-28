@@ -19,6 +19,13 @@ debe llamarse `F4-formato` en issues, reportes y handoffs; no es `Fase 4-eval`
 (Golden Set/evaluación) ni `Fase 4-sec` (red team/seguridad). Verificar y
 mantener esta distinción si el roadmap global cambia.
 
+Para eliminar la ambigüedad en reportes y tareas, identificar las fases de este
+programa como `PED-F0`…`PED-F7` (por ejemplo, `PED-F5-continuidad` y
+`PED-F6-fiabilidad`). Reservar `Fase 4-eval` y `Fase 4-sec` para sus líneas de
+producto respectivas, `RETR-late-chunking` para retrieval y `STUDY-F5-ejercicios`
+para el Study Loop. Los encabezados históricos “Fase N” de este documento
+siguen describiendo el programa pedagógico.
+
 ## Contexto y evidencia disponible
 
 - El usuario realizó una comparación de 20 preguntas entre TALOS y NotebookLM.
@@ -137,12 +144,21 @@ contexto, seguridad ni valor pedagógico.
 
 Resolver conflictos antes de formar el prompt final, usando este orden:
 
-1. Seguridad y límites de operación.
-2. Exactitud, alcance y honestidad sobre fuentes.
-3. Pedido explícito del turno: tarea, formato, longitud y profundidad.
-4. Modo pedagógico adecuado a esa tarea.
-5. Objetivos, preferencias y contexto del estudiante disponibles.
-6. Estilo general y hábitos por defecto de TALOS.
+1. Seguridad, privacidad e integridad de evaluaciones protegidas.
+2. Exactitud y honestidad sobre la evidencia y fuentes autorizadas.
+3. Alcance curricular del cuaderno.
+4. Pedido explícito del turno: tarea, formato, longitud y profundidad, dentro
+   de los límites anteriores.
+5. Modo pedagógico y estado del estudiante respaldado por evidencia.
+6. Preferencias duraderas cuando no contradicen el pedido actual.
+7. Estilo general y formatos por defecto de TALOS.
+
+En una práctica no protegida, una solicitud explícita segura de solución
+completa prevalece sobre el andamiaje socrático por defecto. El solucionario
+canónico de una evaluación activa/protegida no se revela; el tutor ofrece
+explicación, pistas o ejemplos análogos que no resuelvan el ítem. Ver la
+definición normativa de TUT-03 en
+[08-S7-TUTOR-POLICY-SPEC-V1.0.md](./08-S7-TUTOR-POLICY-SPEC-V1.0.md).
 
 No confiar en añadir un bloque de texto al final como única solución de
 prioridad. Consolidar la intención en un contrato de respuesta estructurado y

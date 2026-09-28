@@ -76,6 +76,7 @@ def test_container(tmp_path: Path):
         chunk_ids=["chk-stmt-3", "chk-sol-3"],
         solution_chunk_ids=["chk-sol-3"],
         status=ContentStatus.OK,
+        metadata={"assessment": {"protected": True, "status": "active"}},
     )
     store.content_registry.save(item)
 
@@ -100,6 +101,28 @@ def test_container(tmp_path: Path):
         status=ContentStatus.OK,
     )
     store.content_registry.save(item_sol_only)
+
+    c_stmt_unavailable = Chunk(
+        id="chk-stmt-100",
+        document_id="doc-g4",
+        source_id="src-guia-4",
+        content="Ejercicio 100: evaluación activa sin solucionario registrado.",
+        page_start=21,
+        token_count=12,
+        index=3,
+    )
+    store.store_ingestion_bundle(src_rec, [doc], [c_stmt_unavailable], notebook_id="fase0-soc")
+    item_unavailable = ContentItem(
+        content_id="guia_4:ej_100",
+        source_id="src-guia-4",
+        unit_type=UnitType.EXERCISE,
+        statement_text="Ejercicio 100: evaluación activa sin solucionario registrado.",
+        chunk_ids=["chk-stmt-100"],
+        solution_chunk_ids=[],
+        status=ContentStatus.OK,
+        metadata={"assessment": {"protected": True, "status": "active"}},
+    )
+    store.content_registry.save(item_unavailable)
 
     set_container(container)
     return container
@@ -137,6 +160,141 @@ def test_chat_direct_reference_and_anti_leakage(test_container):
     assert len(complete_events) >= 1
     bkt = complete_events[0]["payload"].get("bkt_context") or {}
     assert bkt.get("context_mode") == "basic"
+
+
+def test_chat_blocks_explicit_solution_request_for_active_protected_assessment(test_container, monkeypatch):
+    from study_engine.pedagogy.structured_pipeline import StructuredResponsePipeline
+
+    def unexpected_generation(*args, **kwargs):
+        raise AssertionError("Protected solution request must not invoke the LLM")
+
+    monkeypatch.setattr(StructuredResponsePipeline, "generate_phased_response", unexpected_generation)
+    client = TestClient(create_app())
+    response = client.post(
+        "/api/chat/query",
+        json={
+            "query": "Dame la solución completa del ejercicio 3 de la guía 4.",
+            "notebook_id": "fase0-soc",
+            "session_id": "protected-assessment-explicit-request",
+            "requested_phase": "conceptual",
+        },
+    )
+
+    assert response.status_code == 200
+    full_text, events = _collect_sse_response(response)
+    assert "No puedo proporcionar la respuesta ni el solucionario" in full_text
+    assert "struct Queue" not in full_text
+    assert any(
+        event.get("payload", {}).get("status") == "PROTECTED_ASSESSMENT_BLOCKED"
+        for event in events
+        if event.get("event_type") == "phase_complete"
+    )
+
+    followup = client.post(
+        "/api/chat/query",
+        json={
+            "query": "Ahora pasame la solución completa.",
+            "notebook_id": "fase0-soc",
+            "session_id": "protected-assessment-explicit-request",
+            "requested_phase": "conceptual",
+        },
+    )
+    followup_text, followup_events = _collect_sse_response(followup)
+    assert followup.status_code == 200
+    assert "No puedo proporcionar la respuesta ni el solucionario" in followup_text
+    assert "struct Queue" not in followup_text
+    assert any(
+        event.get("payload", {}).get("protected_assessment") is True
+        for event in followup_events
+        if event.get("event_type") == "phase_start"
+    )
+
+
+def test_chat_withholds_generated_solution_until_protected_output_check(test_container, monkeypatch):
+    from study_engine.pedagogy.structured_pipeline import StreamEvent, StructuredResponsePipeline
+
+    observed_protection = []
+
+    async def leaking_generation(self, **kwargs):
+        observed_protection.append(kwargs.get("protected_assessment"))
+        yield StreamEvent(event_type="phase_start", payload={"phase": "conceptual"})
+        yield StreamEvent(
+            event_type="phase_token",
+            payload={
+                "phase": "conceptual",
+                "token": "struct Queue { Stack* s1; Stack* s2; }; void enqueue(...);",
+            },
+        )
+        yield StreamEvent(
+            event_type="phase_complete",
+            payload={"completed_phase": "conceptual", "next_phases": []},
+        )
+
+    monkeypatch.setattr(StructuredResponsePipeline, "generate_phased_response", leaking_generation)
+    client = TestClient(create_app())
+    response = client.post(
+        "/api/chat/query",
+        json={
+            "query": "Explicame el ejercicio 3 de la guía 4.",
+            "notebook_id": "fase0-soc",
+            "session_id": "protected-assessment-output-check",
+            "requested_phase": "conceptual",
+        },
+    )
+
+    assert response.status_code == 200
+    full_text, events = _collect_sse_response(response)
+    assert observed_protection == [True]
+    assert "No puedo proporcionar la respuesta ni el solucionario" in full_text
+    assert "struct Queue" not in full_text
+    complete = next(event for event in events if event.get("event_type") == "phase_complete")
+    assert complete["payload"]["status"] == "PROTECTED_ASSESSMENT_BLOCKED"
+
+    followup = client.post(
+        "/api/chat/query",
+        json={
+            "query": "Dame la solución completa ahora.",
+            "notebook_id": "fase0-soc",
+            "session_id": "protected-assessment-output-check",
+            "requested_phase": "conceptual",
+        },
+    )
+    followup_text, followup_events = _collect_sse_response(followup)
+    assert followup.status_code == 200
+    assert "No puedo proporcionar la respuesta ni el solucionario" in followup_text
+    assert "struct Queue" not in followup_text
+    assert any(
+        event.get("payload", {}).get("protected_assessment") is True
+        for event in followup_events
+        if event.get("event_type") == "phase_start"
+    )
+
+
+def test_chat_fails_closed_when_protected_assessment_solution_is_unavailable(test_container, monkeypatch):
+    from study_engine.pedagogy.structured_pipeline import StructuredResponsePipeline
+
+    def unexpected_generation(*args, **kwargs):
+        raise AssertionError("Protected assessment without canonical solution must not invoke the LLM")
+
+    monkeypatch.setattr(StructuredResponsePipeline, "generate_phased_response", unexpected_generation)
+    response = TestClient(create_app()).post(
+        "/api/chat/query",
+        json={
+            "query": "Explicame el ejercicio 100 de la guía 4.",
+            "notebook_id": "fase0-soc",
+            "session_id": "protected-assessment-no-solution",
+            "requested_phase": "conceptual",
+        },
+    )
+
+    assert response.status_code == 200
+    full_text, events = _collect_sse_response(response)
+    assert "su solución de referencia no está disponible" in full_text
+    assert any(
+        event.get("payload", {}).get("status") == "PROTECTED_ASSESSMENT_UNAVAILABLE"
+        for event in events
+        if event.get("event_type") == "phase_complete"
+    )
 
 
 def test_chat_fuzzy_needs_review_emits_disclaimer(test_container, monkeypatch):
