@@ -231,6 +231,13 @@ el currículo de ciberseguridad.
 
 ## Plan detallado para la Fase 0
 
+La Fase 0 quedó completada como línea de base y protocolo de evaluación. La
+evidencia, hashes, discrepancias de enunciado, matriz de integridad, taxonomía y
+protocolo están documentados en
+[FASE0_LINEA_BASE_TALOS_NOTEBOOKLM.md](./FASE0_LINEA_BASE_TALOS_NOTEBOOKLM.md).
+No se asignaron puntajes retrospectivos: el protocolo se definió después de la
+prueba y los transcripts no documentan todas las condiciones.
+
 ### Objetivo
 
 Crear una línea de base reproducible y protegida para medir las fases
@@ -405,8 +412,10 @@ La fase estará completa cuando:
 
 ## Estado de ejecución
 
-Este archivo documenta un plan, no acredita que la Fase 0 ya se haya
-completado. Próximo paso: ejecutar F0.1–F0.6 con la evidencia local existente,
-respetando el alcance y los criterios anteriores. Antes de hacerlo, comprobar
-el estado actual de Git y del repositorio; no asumir que las ramas o cambios
-descritos en handoffs anteriores siguen vigentes.
+El plan está guardado en un checkpoint local. La Fase 0 está completada como
+línea de base; consultar
+[FASE0_LINEA_BASE_TALOS_NOTEBOOKLM.md](./FASE0_LINEA_BASE_TALOS_NOTEBOOKLM.md)
+para los hallazgos, límites y protocolo. No repetir setup ni lanzar otra
+ejecución del benchmark sin solicitud explícita. Antes de continuar, comprobar
+el estado actual de Git; no asumir que ramas o cambios descritos en handoffs
+anteriores siguen vigentes.
