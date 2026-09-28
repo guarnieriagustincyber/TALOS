@@ -1535,6 +1535,7 @@ def _prepare_chat_context(
     from study_engine.pedagogy.conversation_state import ConversationState, classify_conversation_state, should_abstain
 
     rewriter = QueryRewriter()
+    conv_state = ConversationState.COLD_START
     clean_p = (prompt_text or "").strip()
     is_explicit_reference = bool(re.search(r"\b(?:ejercicio|gu[ií]a|problema|tp)\s+\d+\b", clean_p, re.IGNORECASE))
     is_deictic = has_deictic_markers(clean_p)

@@ -30,12 +30,17 @@ def resolve_contextual_reference(
     """Resolve only references with an unambiguous local antecedent."""
     clean = (query or "").strip()
     turns = [t for t in (recent_turns or []) if isinstance(t, dict) and t.get("content")]
+    explicit_deictic = re.search(
+        r"\b(?:eso|esto|aquello|lo\s+anterior|lo\s+que\s+dijiste)\b",
+        clean,
+        re.IGNORECASE,
+    )
     ordinal = re.search(
         r"\b(?:el|la)\s+(primero|segundo|tercero|anterior|siguiente)\b",
         clean,
         re.IGNORECASE,
     )
-    if not turns and ordinal is None and not has_deictic_markers(clean):
+    if not turns and ordinal is None and explicit_deictic is None:
         return ReferenceResolution("not_applicable")
     if not turns:
         return ReferenceResolution("missing")
@@ -59,7 +64,7 @@ def resolve_contextual_reference(
         return ReferenceResolution("missing")
     if len(substantive) == 1:
         return ReferenceResolution("unique", (substantive[0][:180],))
-    if not re.search(r"\b(?:eso|esto|aquello|lo\s+anterior)\b", clean, re.IGNORECASE):
+    if explicit_deictic is None:
         return ReferenceResolution("unique", (substantive[0][:180],))
     first_words = set(re.findall(r"\w+", substantive[0].lower()))
     second_words = set(re.findall(r"\w+", substantive[1].lower()))

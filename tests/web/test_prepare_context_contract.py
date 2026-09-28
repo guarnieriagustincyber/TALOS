@@ -183,7 +183,7 @@ def test_trigger_background_memory_uses_real_notebook_id(tmp_path):
     _trigger_background_memory_extraction(
         container=container,
         student_id="agustin",
-        prompt_text="Mostrame un diagrama mermaid del bucle y que no tenga off-by-one",
+        prompt_text="Prefiero que me muestres un diagrama Mermaid del bucle y que no tenga off-by-one",
         response_text="Acá va el diagrama...",
         active_kc="kc_while",
         pedagogical_mode="conceptual",
