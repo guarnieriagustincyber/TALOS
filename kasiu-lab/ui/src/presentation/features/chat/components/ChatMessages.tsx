@@ -571,6 +571,9 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             />
           )}
           {messages.map((msg) => {
+            const displayEvidences = msg.evidences?.filter(
+              (citation) => Boolean(citation.sourceTitle?.trim() || citation.source_title?.trim())
+            );
             if (msg.sender === "user") {
               const isEditingThis = editingMessageId === msg.id;
               return (
@@ -838,11 +841,27 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                         <>
                           <ClaimText
                             text={cleanBody}
-                            evidences={msg.evidences}
+                            evidences={displayEvidences}
                             onOpenEvidence={onOpenEvidence}
                             onOpenCitation={onOpenCitation}
                           />
 
+                          {msg.bktContext && (
+                            <div
+                              title="Probabilidad de dominio estimada por BKT (Bayesian Knowledge Tracing)"
+                              className="mt-2 inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-violet-500/20 bg-violet-500/5 px-2.5 py-1.5 font-mono text-[10px] text-zinc-300"
+                            >
+                              <span className="text-violet-300">🧠 {msg.bktContext.context_mode || "BKT"}</span>
+                              {msg.bktContext.kc_id && <span>KC: {msg.bktContext.kc_id}</span>}
+                              {typeof msg.bktContext.p_L === "number" && (
+                                <span>p_L: {Math.round(msg.bktContext.p_L * 100)}%</span>
+                              )}
+                              {!!msg.bktContext.unmet_prerequisites?.length && (
+                                <span className="text-amber-300">⚠ prerequisitos pendientes</span>
+                              )}
+                              {msg.bktContext.fallback && <span className="text-zinc-400">↩ fallback</span>}
+                            </div>
+                          )}
                           {msg.abstained && <AbstentionBanner reason={msg.abstentionReason} />}
                           {msg.facetCoverage && <FacetCoverageBar coverage={msg.facetCoverage} />}
                           {msg.claims && msg.claims.length > 0 && (
