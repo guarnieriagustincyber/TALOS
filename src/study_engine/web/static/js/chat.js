@@ -39,7 +39,7 @@ const Chat = (() => {
         // Clear default welcome bubble and re-render saved messages
         history.innerHTML = "";
         _messages.forEach((m) =>
-          _renderBubble(m.role, m.text, m.followup, m.audit, m.telemetry, m.qtype)
+          _renderBubble(m.role, m.text, m.followup, m.audit, m.telemetry, m.qtype, m.provenance)
         );
       }
     } catch (_) { /* corrupted – start fresh */ }
@@ -128,7 +128,7 @@ const Chat = (() => {
 
   // ── Bubble rendering ──────────────────────────────────────────────
 
-  function _renderBubble(role, text, followup, audit, telemetry, qtype) {
+  function _renderBubble(role, text, followup, audit, telemetry, qtype, provenance) {
     const history = _getHistory();
     if (!history) return;
 
@@ -179,6 +179,18 @@ const Chat = (() => {
     }
 
     bubble.innerHTML = `${headerHtml}${body}${followupHtml}${telemHtml}`;
+    if (role === "tutor" && Array.isArray(provenance) && provenance.length > 0) {
+      const provenanceEl = document.createElement("div");
+      provenanceEl.className = "evidence-provenance";
+      provenanceEl.textContent = `Procedencia: ${provenance
+        .map((item) => {
+          const source = item.source_title || item.source_id || "fuente no identificada";
+          const page = item.page_start ? `, pág. ${item.page_start}` : "";
+          return `${item.citation_id || "E?"} — ${source}${page}`;
+        })
+        .join(" · ")}`;
+      bubble.appendChild(provenanceEl);
+    }
     history.appendChild(bubble);
     history.scrollTop = history.scrollHeight;
     if (role === "tutor") {
@@ -326,7 +338,7 @@ const Chat = (() => {
     }
     if (pending.trim()) consumeFrame(pending);
 
-    const result = { text: "", audit: null, telemetry: null };
+    const result = { text: "", audit: null, telemetry: null, provenance: [] };
     for (const event of events) {
       const payload = event.payload || {};
       if (event.event_type === "phase_token") {
@@ -336,6 +348,9 @@ const Chat = (() => {
       } else if (event.event_type === "phase_complete") {
         result.audit = payload.audit_verdict || payload.verdict || result.audit;
         result.telemetry = payload.telemetry || null;
+        result.provenance = Array.isArray(payload.evidence_provenance)
+          ? payload.evidence_provenance
+          : [];
       } else if (event.event_type === "abstention") {
         result.text = [payload.reason, payload.suggested_action]
           .filter(Boolean)
@@ -406,10 +421,11 @@ const Chat = (() => {
         followup: null,
         audit: data.audit,
         telemetry: data.telemetry,
+        provenance: data.provenance,
         ts: Date.now(),
       };
       _messages.push(tutorMsg);
-      _renderBubble("tutor", data.text, null, data.audit, data.telemetry);
+      _renderBubble("tutor", data.text, null, data.audit, data.telemetry, null, data.provenance);
       save();
     } catch (err) {
       _removeTyping();

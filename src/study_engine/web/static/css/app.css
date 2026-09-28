@@ -607,6 +607,13 @@ body {
   align-items: center;
 }
 
+.evidence-provenance {
+  margin-top: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
 /* Deterministic Pedagogical Follow-up Panel (M1) */
 .followup-panel {
   margin-top: 0.85rem;
