@@ -1,0 +1,278 @@
+{
+  "fixture_version": "gate2-evidence-relations-adversarial-v0.1",
+  "purpose": "Behavioral checks for text similarity and provenance signals; not corpus-wide threshold calibration or semantic adjudication.",
+  "qrel_mutation_expected": false,
+  "cases": [
+    {
+      "case_id": "near_exact_duplicate",
+      "split": "development",
+      "semantic_relation_expected": "same_passage_near_exact",
+      "expected_relation_signal": "REVIEW_POSSIBLE_DUPLICATE",
+      "text_similarity_signal_expected": true,
+      "page_overlap_expected": true,
+      "same_source_expected": true,
+      "left": {
+        "evidence_id": "exact-a",
+        "text": "A process creates a pipe using two file descriptors and reads bytes from it.",
+        "source_id": "source-a",
+        "document_id": "document-a",
+        "author": "Author A",
+        "page_start": 1,
+        "page_end": 1
+      },
+      "right": {
+        "evidence_id": "exact-b",
+        "text": "A process creates a pipe using two file descriptors and reads bytes from it.",
+        "source_id": "source-a",
+        "document_id": "document-a",
+        "author": "Author A",
+        "page_start": 1,
+        "page_end": 1
+      }
+    },
+    {
+      "case_id": "ocr_variation",
+      "split": "development",
+      "semantic_relation_expected": "same_passage_ocr_variant",
+      "expected_relation_signal": "REVIEW_POSSIBLE_DUPLICATE",
+      "text_similarity_signal_expected": true,
+      "page_overlap_expected": true,
+      "same_source_expected": true,
+      "left": {
+        "evidence_id": "ocr-a",
+        "text": "The process creates a pipe and receives two file descriptors for communication.",
+        "source_id": "source-b",
+        "document_id": "document-b",
+        "author": "Author B",
+        "page_start": 4,
+        "page_end": 4
+      },
+      "right": {
+        "evidence_id": "ocr-b",
+        "text": "The process creates a p1pe and recieves two file descriptors for communicatlon.",
+        "source_id": "source-b",
+        "document_id": "document-b",
+        "author": "Author B",
+        "page_start": 4,
+        "page_end": 4
+      }
+    },
+    {
+      "case_id": "fragment_inside_parent",
+      "split": "development",
+      "semantic_relation_expected": "overlapping_fragment_same_passage",
+      "expected_relation_signal": "REVIEW_SHARED_PROVENANCE",
+      "text_similarity_signal_expected": false,
+      "token_set_similarity_expected_at_least": 0.99,
+      "page_overlap_expected": true,
+      "same_source_expected": true,
+      "left": {
+        "evidence_id": "fragment-parent",
+        "text": "A pipe is a circular buffer that allows two processes to communicate using a producer consumer model and blocks when full.",
+        "source_id": "source-c",
+        "document_id": "document-c",
+        "author": "Author C",
+        "page_start": 9,
+        "page_end": 9
+      },
+      "right": {
+        "evidence_id": "fragment-child",
+        "text": "A pipe is a circular buffer that allows two processes to communicate.",
+        "source_id": "source-c",
+        "document_id": "document-c",
+        "author": "Author C",
+        "page_start": 9,
+        "page_end": 9
+      }
+    },
+    {
+      "case_id": "same_page_different_content_different_document_id",
+      "split": "development",
+      "semantic_relation_expected": "same_page_distinct_content",
+      "expected_relation_signal": "REVIEW_SHARED_PROVENANCE",
+      "text_similarity_signal_expected": false,
+      "page_overlap_expected": true,
+      "same_source_expected": true,
+      "left": {
+        "evidence_id": "same-page-a",
+        "text": "A pipe transfers bytes between processes.",
+        "source_id": "source-d",
+        "document_id": "document-d1",
+        "author": "Author D",
+        "page_start": 50,
+        "page_end": 50
+      },
+      "right": {
+        "evidence_id": "same-page-b",
+        "text": "A scheduler selects a runnable process.",
+        "source_id": "source-d",
+        "document_id": "document-d2",
+        "author": "Author D",
+        "page_start": 50,
+        "page_end": 50
+      }
+    },
+    {
+      "case_id": "same_source_different_pages",
+      "split": "development",
+      "semantic_relation_expected": "same_source_distinct_passages",
+      "expected_relation_signal": "REVIEW_SHARED_PROVENANCE",
+      "text_similarity_signal_expected": false,
+      "page_overlap_expected": false,
+      "same_source_expected": true,
+      "left": {
+        "evidence_id": "distant-a",
+        "text": "A pipe transfers bytes between processes.",
+        "source_id": "source-e",
+        "document_id": "document-e",
+        "author": "Author E",
+        "page_start": 2,
+        "page_end": 2
+      },
+      "right": {
+        "evidence_id": "distant-b",
+        "text": "A process scheduler selects runnable work.",
+        "source_id": "source-e",
+        "document_id": "document-e",
+        "author": "Author E",
+        "page_start": 40,
+        "page_end": 40
+      }
+    },
+    {
+      "case_id": "different_sources_same_claim",
+      "split": "development",
+      "semantic_relation_expected": "same_claim_different_provenance",
+      "expected_relation_signal": "NO_STRONG_TEXT_DUPLICATE_SIGNAL",
+      "text_similarity_signal_expected": false,
+      "page_overlap_expected": false,
+      "same_source_expected": false,
+      "left": {
+        "evidence_id": "claim-a",
+        "text": "A pipe is a FIFO channel that transfers bytes between related processes.",
+        "source_id": "source-f1",
+        "document_id": "document-f1",
+        "author": "Author F",
+        "page_start": 3,
+        "page_end": 3
+      },
+      "right": {
+        "evidence_id": "claim-b",
+        "text": "A FIFO byte stream carries data between processes through a unidirectional channel.",
+        "source_id": "source-f2",
+        "document_id": "document-f2",
+        "author": "Author G",
+        "page_start": 7,
+        "page_end": 7
+      }
+    },
+    {
+      "case_id": "complementary_evidence",
+      "split": "development",
+      "semantic_relation_expected": "different_complementary_facets",
+      "expected_relation_signal": "NO_STRONG_TEXT_DUPLICATE_SIGNAL",
+      "text_similarity_signal_expected": false,
+      "page_overlap_expected": false,
+      "same_source_expected": false,
+      "left": {
+        "evidence_id": "complement-a",
+        "text": "A pipe is a FIFO byte stream between processes.",
+        "source_id": "source-g1",
+        "document_id": "document-g1",
+        "author": "Author H",
+        "page_start": 10,
+        "page_end": 10
+      },
+      "right": {
+        "evidence_id": "complement-b",
+        "text": "A pipe blocks a writer when its fixed-size buffer has no free space.",
+        "source_id": "source-g2",
+        "document_id": "document-g2",
+        "author": "Author I",
+        "page_start": 15,
+        "page_end": 15
+      }
+    },
+    {
+      "case_id": "short_text_identical",
+      "split": "development",
+      "semantic_relation_expected": "short_lexical_match_not_semantic_adjudication",
+      "expected_relation_signal": "REVIEW_POSSIBLE_DUPLICATE",
+      "text_similarity_signal_expected": true,
+      "page_overlap_expected": false,
+      "same_source_expected": false,
+      "left": {
+        "evidence_id": "short-a",
+        "text": "fork",
+        "source_id": "source-h1",
+        "document_id": "document-h1",
+        "author": "Author J",
+        "page_start": 1,
+        "page_end": 1
+      },
+      "right": {
+        "evidence_id": "short-b",
+        "text": "fork",
+        "source_id": "source-h2",
+        "document_id": "document-h2",
+        "author": "Author K",
+        "page_start": 2,
+        "page_end": 2
+      }
+    },
+    {
+      "case_id": "lexical_collision_fork_pipe_dup2",
+      "split": "holdout",
+      "semantic_relation_expected": "lexical_collision_different_concepts",
+      "expected_relation_signal": "NO_STRONG_TEXT_DUPLICATE_SIGNAL",
+      "text_similarity_signal_expected": false,
+      "page_overlap_expected": false,
+      "same_source_expected": false,
+      "left": {
+        "evidence_id": "collision-syscall",
+        "text": "fork creates a child process, pipe connects processes, and dup2 duplicates a file descriptor.",
+        "source_id": "source-i1",
+        "document_id": "document-i1",
+        "author": "Author L",
+        "page_start": 1,
+        "page_end": 1
+      },
+      "right": {
+        "evidence_id": "collision-ordinary",
+        "text": "The dining philosophers pick up each fork while network pipes carry data through a full link.",
+        "source_id": "source-i2",
+        "document_id": "document-i2",
+        "author": "Author M",
+        "page_start": 2,
+        "page_end": 2
+      }
+    },
+    {
+      "case_id": "unrelated_holdout",
+      "split": "holdout",
+      "semantic_relation_expected": "unrelated",
+      "expected_relation_signal": "NO_STRONG_TEXT_DUPLICATE_SIGNAL",
+      "text_similarity_signal_expected": false,
+      "page_overlap_expected": false,
+      "same_source_expected": false,
+      "left": {
+        "evidence_id": "unrelated-a",
+        "text": "An operating-system pipe connects processes through a byte stream.",
+        "source_id": "source-j1",
+        "document_id": "document-j1",
+        "author": "Author N",
+        "page_start": 3,
+        "page_end": 3
+      },
+      "right": {
+        "evidence_id": "unrelated-b",
+        "text": "Photosynthesis converts light energy into chemical energy in plants.",
+        "source_id": "source-j2",
+        "document_id": "document-j2",
+        "author": "Author O",
+        "page_start": 5,
+        "page_end": 5
+      }
+    }
+  ]
+}

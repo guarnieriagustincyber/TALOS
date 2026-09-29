@@ -1,0 +1,77 @@
+{
+  "version": "v2.402-pilot1",
+  "query_id": "GS2-VULN-004",
+  "status": "approved_by_user",
+  "provenance": "single_reviewer_provisional_adjudication",
+  "scope": "NB-CYBERSECURITY-V1",
+  "oracle_type": "positive_in_scope",
+  "historical_qrels_modified": false,
+  "acl_modified": false,
+  "proposed_grade_rubric": {
+    "status": "approved_by_user",
+    "grades": {
+      "3": "Directly answers the query and supports its essential concept or mechanism.",
+      "2": "Substantially relevant evidence, but misses an important query-specific aspect.",
+      "1": "Marginal context that contributes little and cannot support the answer alone.",
+      "0": "Irrelevant; omit from positive qrels."
+    },
+    "distinction_from_historical_generation": "Unlike the legacy generator's 3/2/1-by-retrieval-rank rule, these grades represent semantic relevance."
+  },
+  "membership_decisions": [
+    {
+      "chunk_id": "chk_07e0f6d0fb24_58_1",
+      "source_id": "src_spraul_think_like_a_programmer",
+      "decision": "exclude",
+      "relevance_label": "irrelevant",
+      "proposed_grade": null,
+      "reason": "The passage is about a digit checksum, not race conditions or TOCTOU."
+    },
+    {
+      "chunk_id": "Computer_Security_Stallings_3rd_Ed.pdf:p427:c0000",
+      "source_id": "src_stallings_computer_security",
+      "decision": "include",
+      "relevance_label": "partial",
+      "proposed_grade": 2,
+      "reason": "The lockfile check/create interleaving illustrates a race condition but does not explicitly identify TOCTOU or POSIX."
+    },
+    {
+      "chunk_id": "chk_0aa9aa4cc0b2_428_1",
+      "source_id": "src_stallings_computer_security",
+      "decision": "include",
+      "relevance_label": "direct",
+      "proposed_grade": 3,
+      "reason": "The temporary-file example explicitly describes an attacker acting between an existence check and creation and identifies the race condition and atomic mitigation."
+    }
+  ],
+  "proposed_qrels": {
+    "GS2-VULN-004": {
+      "Computer_Security_Stallings_3rd_Ed.pdf:p427:c0000": 2,
+      "chk_0aa9aa4cc0b2_428_1": 3
+    }
+  },
+  "grade_mapping": {
+    "status": "approved_by_user",
+    "reason": "User explicitly accepted the three membership decisions and semantic grade mapping on 2026-09-28.",
+    "required_before_release": "Preserve this adjudication record and identify its provenance as user-approved."
+  },
+  "approval": {
+    "reviewer": "user",
+    "accepted_at": "2026-09-28",
+    "accepted_decisions": [
+      "Exclude chk_07e0f6d0fb24_58_1 with grade 0.",
+      "Include Computer_Security_Stallings_3rd_Ed.pdf:p427:c0000 with grade 2.",
+      "Include chk_0aa9aa4cc0b2_428_1 with grade 3.",
+      "Approve the semantic relevance rubric."
+    ]
+  },
+  "integrity": {
+    "knowledge_db_sha256": "sha256:fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+    "historical_qrels_version": "v2.400",
+    "historical_qrels_sha256": "sha256:68af7033fcd4e607b830245901774d2daac610d909763cb0b999b024b1ed7abc"
+  },
+  "limitations": [
+    "The reviewer is an AI assistant and this is not an independent human adjudication.",
+    "Adjudication was performed by a single AI-assisted reviewer and accepted by the user; no second independent reviewer was involved.",
+    "No qrels, ACL, or active database has been changed."
+  ]
+}

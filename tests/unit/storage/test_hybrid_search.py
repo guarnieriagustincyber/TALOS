@@ -1,5 +1,9 @@
 """Unit and Integration Tests for Hybrid Search (RRF and Source Diversity)."""
 
+from study_engine.contracts.catalog import SourceRecord
+from study_engine.contracts.chunk import Chunk
+from study_engine.contracts.document import Document
+from study_engine.contracts.ingestion import SourceManifest
 from study_engine.contracts.notebook import Notebook
 from study_engine.contracts.search import SearchResult
 from study_engine.storage.knowledge_store import KnowledgeStore
@@ -58,3 +62,55 @@ def test_search_hybrid_finds_semantic_matches():
     # Calling search_hybrid on notebook returns empty or valid list without crash
     res = store.search_hybrid("¿Cómo evitar que dos procesos se pisen?", "nb_test_hybrid", limit=10)
     assert isinstance(res, list)
+
+
+def test_hybrid_search_enforces_explicit_source_allowlist():
+    store = KnowledgeStore(":memory:")
+    store.initialize()
+    store.create_notebook(Notebook(id="nb_source_filter", name="Filtered notebook"))
+
+    for source_id, content in (
+        ("src-authorized", "La memoria virtual usa tablas de páginas."),
+        ("src-unselected", "La memoria virtual usa tablas de páginas."),
+    ):
+        record = SourceRecord(
+            source_id=source_id,
+            manifest=SourceManifest(
+                source_id=source_id,
+                filename=f"{source_id}.pdf",
+                byte_size=1,
+                sha256=(source_id.encode().hex() * 32)[:64],
+            ),
+        )
+        store.store_ingestion_bundle(
+            record,
+            [Document(id=f"doc-{source_id}", source_id=source_id, title=source_id)],
+            [
+                Chunk(
+                    id=f"chunk-{source_id}",
+                    document_id=f"doc-{source_id}",
+                    source_id=source_id,
+                    content=content,
+                    index=0,
+                )
+            ],
+            notebook_id="nb_source_filter",
+        )
+
+    results = store.search_hybrid(
+        "memoria virtual tablas páginas",
+        "nb_source_filter",
+        limit=10,
+        min_sources=1,
+        source_ids=["src-authorized"],
+    )
+
+    assert results
+    assert {result.source_id for result in results} == {"src-authorized"}
+    assert store.search_hybrid(
+        "memoria virtual tablas páginas",
+        "nb_source_filter",
+        limit=10,
+        min_sources=1,
+        source_ids=[],
+    ) == []

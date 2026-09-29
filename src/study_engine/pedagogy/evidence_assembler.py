@@ -6,11 +6,14 @@ according to config/notebook_source_roles.json.
 
 import hashlib
 import json
+import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from study_engine.contracts.enums import SourceRole
 from study_engine.contracts.evidence_engine import CitationRecord
+
+logger = logging.getLogger(__name__)
 
 
 class MultiSourceEvidenceAssembler:
@@ -32,7 +35,10 @@ class MultiSourceEvidenceAssembler:
             try:
                 return json.loads(self.roles_config_path.read_text(encoding="utf-8"))
             except Exception:
-                pass
+                logger.exception(
+                    "Cannot load source-role configuration from %s; evidence assembly is disabled",
+                    self.roles_config_path,
+                )
         return {}
 
     def get_notebook_source_roles(self, notebook_id: str) -> Dict[str, Any]:
@@ -61,7 +67,19 @@ class MultiSourceEvidenceAssembler:
 
         # 1. Retrieval en fuentes prioritarias del notebook (según roles configurados)
         if self.knowledge_store is not None:
-            active_sources = list(nb_roles.keys())
+            try:
+                notebook = self.knowledge_store.get_notebook(notebook_id)
+            except Exception:
+                logger.exception(
+                    "Cannot resolve authorized sources for notebook %s; evidence assembly is closed",
+                    notebook_id,
+                )
+                return evidence_by_role, all_citations
+
+            authorized_sources = set(notebook.sources)
+            active_sources = [
+                source_id for source_id in nb_roles if source_id in authorized_sources
+            ]
             for src_id in active_sources:
                 src_conf = nb_roles.get(src_id, {})
                 assigned_roles = src_conf.get("roles", ["COMPLEMENTARY"])
@@ -70,6 +88,11 @@ class MultiSourceEvidenceAssembler:
                 try:
                     chunks = self.knowledge_store.get_chunks_for_source(src_id)
                 except Exception:
+                    logger.exception(
+                        "Cannot retrieve authorized source %s for notebook %s",
+                        src_id,
+                        notebook_id,
+                    )
                     chunks = []
 
                 for chunk in chunks[:2]:
@@ -92,40 +115,13 @@ class MultiSourceEvidenceAssembler:
                             evidence_by_role.setdefault(r, []).append(rec)
                         all_citations.append(rec)
 
-            # 2. Si la evidencia prioritaria es insuficiente (< MIN_EVIDENCE_THRESHOLD),
-            #    complementar con TODO el pool global de sources
             if len(all_citations) < MIN_EVIDENCE_THRESHOLD:
-                try:
-                    global_sources = self.knowledge_store.list_sources() if hasattr(self.knowledge_store, "list_sources") else []
-                    for src in global_sources:
-                        src_id = getattr(src, "source_id", None) or getattr(src, "id", "")
-                        if src_id in active_sources:
-                            continue  # Ya consultado en etapa prioritaria
-
-                        chunks = self.knowledge_store.get_chunks_for_source(src_id)
-                        for chunk in chunks[:1]:
-                            chunk_text = getattr(chunk, "content", "")
-                            if query.lower() in chunk_text.lower() or not query:
-                                cit_key = f"E{citation_counter}"
-                                citation_counter += 1
-                                rec = CitationRecord(
-                                    citation_id=cit_key,
-                                    chunk_id=getattr(chunk, "chunk_id", getattr(chunk, "id", f"{src_id}_chk")),
-                                    document_id=getattr(chunk, "document_id", f"{src_id}_doc"),
-                                    source_id=src_id,
-                                    source_title=f"[Global] {getattr(src, 'title', src_id)}",
-                                    page_start=getattr(chunk, "page_start", 1),
-                                    page_end=getattr(chunk, "page_end", 1),
-                                    source_role=SourceRole.COMPLEMENTARY,
-                                    content_hash=hashlib.sha256(chunk_text.encode("utf-8")).hexdigest(),
-                                )
-                                evidence_by_role.setdefault("COMPLEMENTARY", []).append(rec)
-                                all_citations.append(rec)
-                                if len(all_citations) >= MIN_EVIDENCE_THRESHOLD:
-                                    break
-                        if len(all_citations) >= MIN_EVIDENCE_THRESHOLD:
-                            break
-                except Exception:
-                    pass
+                logger.info(
+                    "Insufficient authorized evidence for notebook %s, KC %s: %d citations",
+                    notebook_id,
+                    kc_id,
+                    len(all_citations),
+                )
+                return {role: [] for role in evidence_by_role}, []
 
         return evidence_by_role, all_citations

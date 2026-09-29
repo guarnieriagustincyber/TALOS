@@ -1,0 +1,96 @@
+{
+  "fixture_version": "gate2-facet-coverage-v1",
+  "purpose": "Reference case for query-scoped set sufficiency by explicit expected-facet coverage.",
+  "derived_from": "reports/gate2_v2400_review_batch_syn_014_complementarity_2026-09-28.json",
+  "query": {
+    "query_id": "GS2-SYN-014",
+    "text": "Explicame en detalle la sintaxis y comportamiento de execve en programación de sistemas.",
+    "scope": "NB-SEC-01-C-PTR",
+    "oracle_type": "retrieval_citation",
+    "required_facets": [
+      {
+        "facet_id": "invocation_syntax",
+        "expected_chunks": [
+          "hacking-etico-carlos-tori.pdf:p258:c0000"
+        ],
+        "evidence_ids": [
+          "hacking-etico-carlos-tori.pdf:p258:c0000"
+        ]
+      },
+      {
+        "facet_id": "core_behavior",
+        "expected_chunks": [
+          "chk_0aa9aa4cc0b2_373_1",
+          "chk_0aa9aa4cc0b2_620_1"
+        ],
+        "evidence_ids": [
+          "chk_0aa9aa4cc0b2_373_1",
+          "chk_0aa9aa4cc0b2_620_1"
+        ]
+      }
+    ],
+    "minimum_relevance_grade_for_facet_coverage": 2
+  },
+  "evidence": [
+    {
+      "evidence_id": "hacking-etico-carlos-tori.pdf:p258:c0000",
+      "proposed_grade": 2,
+      "source_id": "src_tori_hacking_etico",
+      "author": "Carlos Tori",
+      "evidence_unit": "src_tori_hacking_etico:p258",
+      "contribution": "Invocation syntax with executable path, argv, and envp."
+    },
+    {
+      "evidence_id": "chk_0aa9aa4cc0b2_373_1",
+      "proposed_grade": 2,
+      "source_id": "src_stallings_computer_security",
+      "author": "William Stallings",
+      "evidence_unit": "src_stallings_computer_security:p373",
+      "contribution": "Replacement of the current program image and argument/environment preparation."
+    },
+    {
+      "evidence_id": "chk_0aa9aa4cc0b2_620_1",
+      "proposed_grade": 2,
+      "source_id": "src_stallings_computer_security",
+      "author": "William Stallings",
+      "evidence_unit": "src_stallings_computer_security:p620",
+      "contribution": "Loading the new executable into a process address space and starting it."
+    },
+    {
+      "evidence_id": "chk_0aa9aa4cc0b2_380_1",
+      "proposed_grade": 0,
+      "source_id": "src_stallings_computer_security",
+      "author": "William Stallings",
+      "evidence_unit": "src_stallings_computer_security:p380",
+      "contribution": "Passing mention without syntax or behavior detail."
+    },
+    {
+      "evidence_id": "Computer_Security_Stallings_3rd_Ed.pdf:p820:c0001",
+      "proposed_grade": 0,
+      "source_id": "src_stallings_computer_security",
+      "author": "William Stallings",
+      "evidence_unit": "src_stallings_computer_security:index:p820",
+      "contribution": "Index occurrence only."
+    }
+  ],
+  "set_assessment": {
+    "independence": {
+      "distinct_primary_source_ids": 2,
+      "distinct_primary_authors": 2,
+      "assessment": "Plausible documentary independence; intellectual independence is not proven. Both sources use security-oriented contexts."
+    },
+    "complementarity": {
+      "assessment": "Invocation syntax and core process behavior are distinct, explicitly mapped facets."
+    },
+    "facet_coverage_proposal": "SUFFICIENT_FOR_QUERY_STATED_CORE_FACETS",
+    "scope_limit": "Does not assert exhaustive POSIX API, parameter, or return-value coverage; those are outside this query's stated facets.",
+    "canonical_query_decision": null,
+    "canonical_qrel_decisions": null,
+    "user_acceptance": "PENDING"
+  },
+  "policy": {
+    "facet_coverage_is_not_independence": true,
+    "facet_coverage_is_not_canonical_adjudication": true,
+    "uncovered_required_facet_prevents_sufficiency_proposal": true
+  }
+}

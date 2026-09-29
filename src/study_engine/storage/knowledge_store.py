@@ -537,9 +537,14 @@ class KnowledgeStore:
         source_id: Optional[str] = None,
         document_id: Optional[str] = None,
         limit: int = 10,
+        source_ids: Optional[List[str]] = None,
     ) -> List[SearchResult]:
         """BM25 search with strict relational isolation by notebook."""
         if limit <= 0:
+            return []
+
+        clean_source_ids = sorted({source.strip() for source in source_ids or [] if source.strip()})
+        if source_ids is not None and not clean_source_ids:
             return []
 
         if notebook_id:
@@ -568,12 +573,17 @@ class KnowledgeStore:
               AND ns.notebook_id = ?
               AND (? IS NULL OR c.source_id = ?)
               AND (? IS NULL OR c.document_id = ?)
-            ORDER BY score DESC, c.document_id ASC, c.pos_index ASC
-            LIMIT ?;
             """
 
             clean_source_id = source_id.strip() if source_id and source_id.strip() else None
             clean_doc_id = document_id.strip() if document_id and document_id.strip() else None
+            source_filter_sql = ""
+            source_filter_params: Tuple[str, ...] = ()
+            if clean_source_ids:
+                placeholders = ", ".join("?" for _ in clean_source_ids)
+                source_filter_sql = f" AND c.source_id IN ({placeholders})"
+                source_filter_params = tuple(clean_source_ids)
+            sql += source_filter_sql + " ORDER BY score DESC, c.document_id ASC, c.pos_index ASC LIMIT ?;"
 
             params = (
                 sanitized,
@@ -582,6 +592,7 @@ class KnowledgeStore:
                 clean_source_id,
                 clean_doc_id,
                 clean_doc_id,
+                *source_filter_params,
                 limit,
             )
 
@@ -602,6 +613,7 @@ class KnowledgeStore:
                         clean_source_id,
                         clean_doc_id,
                         clean_doc_id,
+                        *source_filter_params,
                         fallback_limit,
                     )
                     with self.engine.transaction() as conn:
@@ -683,12 +695,16 @@ class KnowledgeStore:
                 for r in rows
             ]
 
-        return self.lexical_index.search(
+        results = self.lexical_index.search(
             query=query,
             limit=limit,
             source_id=source_id,
             document_id=document_id,
         )
+        if source_ids is not None:
+            source_allowlist = set(clean_source_ids)
+            results = [result for result in results if result.source_id in source_allowlist]
+        return results
 
     # ------------------------------------------------------------------
     # HYBRID SEARCH (SEMANTIC VECTOR + LEXICAL FTS5 WITH RRF & DIVERSITY)
@@ -700,6 +716,7 @@ class KnowledgeStore:
         source_id: Optional[str] = None,
         document_id: Optional[str] = None,
         limit: int = 100,
+        source_ids: Optional[List[str]] = None,
     ) -> List[SearchResult]:
         """Direct FTS5 lexical BM25 search."""
         return self.search(
@@ -708,6 +725,7 @@ class KnowledgeStore:
             source_id=source_id,
             document_id=document_id,
             limit=limit,
+            source_ids=source_ids,
         )
 
     def vector_search(
@@ -717,9 +735,13 @@ class KnowledgeStore:
         limit: int = 100,
         vector_store: Optional[Any] = None,
         embedder: Optional[Any] = None,
+        source_ids: Optional[List[str]] = None,
     ) -> List[SearchResult]:
         """Dense semantic search across chunk embeddings with cosine similarity."""
         if not notebook_id:
+            return []
+        clean_source_ids = sorted({source.strip() for source in source_ids or [] if source.strip()})
+        if source_ids is not None and not clean_source_ids:
             return []
 
         # Resolve vector store
@@ -822,12 +844,36 @@ class KnowledgeStore:
             if matrix.size == 0 or matrix.shape[1] != len(q_vec):
                 return []
 
+            allowed_indices: Optional[List[int]] = None
+            if source_ids is not None:
+                placeholders = ", ".join("?" for _ in clean_source_ids)
+                with self.engine.transaction() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        "SELECT c.id FROM chunks c "
+                        "JOIN notebook_sources ns ON ns.source_id = c.source_id "
+                        f"WHERE ns.notebook_id = ? AND c.source_id IN ({placeholders});",
+                        (notebook_id, *clean_source_ids),
+                    )
+                    allowed_chunk_ids = {row[0] for row in cursor.fetchall()}
+                allowed_indices = [
+                    index for index, chunk_id in enumerate(chunk_ids)
+                    if chunk_id in allowed_chunk_ids
+                ]
+                if not allowed_indices:
+                    return []
+
             norms = np.linalg.norm(matrix, axis=1, keepdims=True)
             norms = np.clip(norms, a_min=1e-9, a_max=None)
             norm_matrix = matrix / norms
 
             sims = np.dot(norm_matrix, q_arr)
-            top_k_indices = np.argsort(sims)[::-1][:limit]
+            if allowed_indices is None:
+                top_k_indices = np.argsort(sims)[::-1][:limit]
+            else:
+                scoped_scores = sims[allowed_indices]
+                scoped_order = np.argsort(scoped_scores)[::-1][:limit]
+                top_k_indices = [allowed_indices[index] for index in scoped_order]
 
             results: List[SearchResult] = []
             for idx in top_k_indices:
@@ -931,6 +977,7 @@ class KnowledgeStore:
         vector_store: Optional[Any] = None,
         embedder: Optional[Any] = None,
         preferred_chapter_id: Optional[str] = None,
+        source_ids: Optional[List[str]] = None,
     ) -> List[SearchResult]:
         # Query passed from upstream retrieval chokepoint (C1)
         effective_query = query
@@ -941,6 +988,7 @@ class KnowledgeStore:
             limit=max(limit * 2, 50),
             vector_store=vector_store,
             embedder=embedder,
+            source_ids=source_ids,
         )
 
         # Enmienda E1: Limitar disyunciones a top-50 por BM25 para evitar ruido
@@ -948,6 +996,7 @@ class KnowledgeStore:
             query=effective_query,
             notebook_id=notebook_id,
             limit=50,
+            source_ids=source_ids,
         )
 
         # Gate anti-ruido calibrado: para evitar ruido puro en consultas OOD,
@@ -1420,7 +1469,14 @@ class KnowledgeStore:
 
         if row is None:
             from study_engine.pedagogy.fase0_seed import get_default_contract
-            return get_default_contract(clean_id)
+            try:
+                notebook = self.get_notebook(clean_id)
+            except NotebookNotFoundError:
+                return get_default_contract(clean_id)
+            return get_default_contract(
+                clean_id,
+                curriculum_id=notebook.curriculum_id,
+            )
 
         persona, base_prompt, forbidden_j, safe_j, phases_j, analogies_j, anti_j = row
         phases_data = json.loads(phases_j)
@@ -1685,5 +1741,3 @@ class KnowledgeStore:
     def close(self) -> None:
         """Close storage engine connections."""
         self.engine.close()
-
-

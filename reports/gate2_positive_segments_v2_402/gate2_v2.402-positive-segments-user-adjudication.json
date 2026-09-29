@@ -1,0 +1,49 @@
+{
+  "version": "v2.402-positive-segments-review",
+  "status": "user_approved_single_reviewer_adjudication",
+  "approved_at": "2026-09-28",
+  "reviewer": "user",
+  "rubric": {
+    "status": "user_approved",
+    "3": "direct",
+    "2": "substantial but partial",
+    "1": "marginal but useful",
+    "0": "irrelevant; excluded from positive qrels"
+  },
+  "decisions": [
+    {
+      "query_id": "GS2-VULN-018",
+      "scope": "NB-SEC-01-C-PTR",
+      "chunk_id": "chk_92876e0f2bc2_425_1",
+      "grade": 2,
+      "decision": "include",
+      "rationale": "Describes the deadlock mechanism with circular waiting between threads/resources but does not comprehensively cover all requested Coffman conditions."
+    },
+    {
+      "query_id": "GS2-VULN-018",
+      "scope": "NB-SEC-01-C-PTR",
+      "chunk_id": "Codigo limpio - Robert Cecil Martin.pdf:p425:c0000",
+      "grade": 0,
+      "decision": "exclude",
+      "rationale": "Inferior duplicate of the fuller deadlock passage; retain only the more complete chunk."
+    },
+    {
+      "query_id": "GS2-VULN-007",
+      "scope": "fadena-so2",
+      "chunk_id": "chk_0aa9aa4cc0b2_385_1",
+      "grade": 2,
+      "decision": "include",
+      "rationale": "Explicitly discusses non-executable memory protection for stack and heap and its relationship to buffer overflows, while not covering every dimension of the requested comparison."
+    },
+    {
+      "query_id": "GS2-VULN-007",
+      "scope": "fadena-so2",
+      "decision": "exclude_remaining_candidates",
+      "grade": 0,
+      "rationale": "The other four reviewed qrel candidates are learning objectives, review questions, bibliography, or stack-frame context without sufficient mitigation evidence."
+    }
+  ],
+  "historical_files_modified": false,
+  "acl_modified": false,
+  "retrieval_executed": false
+}

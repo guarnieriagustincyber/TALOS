@@ -1,0 +1,60 @@
+{
+  "decisions": {
+    "GS2-VULN-004": {
+      "scope": "NB-CYBERSECURITY-V1",
+      "oracle_type": "positive_in_scope",
+      "status": "approved",
+      "qrels_provenance": "human_verified",
+      "reviewer": "user-approved; single AI-assisted evidence review",
+      "scope_decision_id": "gate2-user-qrel-adjudication-v2.402-01",
+      "evidence": [
+        "User accepted the two positive qrels and approved semantic grades 2 and 3.",
+        "User accepted exclusion of unrelated checksum passage."
+      ]
+    },
+    "GS2-VULN-018": {
+      "scope": "NB-SEC-01-C-PTR",
+      "oracle_type": "positive_in_scope",
+      "status": "approved",
+      "qrels_provenance": "human_verified",
+      "reviewer": "user",
+      "scope_decision_id": "gate2-v2.402-positive-segment-sec01-user-approved",
+      "evidence": [
+        "User accepted chk_92876e0f2bc2_425_1 with grade 2 as substantial partial evidence for deadlock.",
+        "User excluded the duplicate inferior Codigo limpio chunk with grade 0."
+      ]
+    },
+    "G2-PILOT-NEG-001": {
+      "scope": "fadena-lenguajes",
+      "oracle_type": "negative_by_scope",
+      "status": "approved",
+      "reviewer": "local evidence review; selected under user authorization",
+      "scope_decision_id": "gate2-pilot-negative-v2.402-01",
+      "evidence": [
+        "Preserved approved scope-isolation control; qrels remain empty."
+      ]
+    },
+    "GS2-VULN-007": {
+      "scope": "fadena-so2",
+      "oracle_type": "positive_in_scope",
+      "status": "approved",
+      "qrels_provenance": "human_verified",
+      "reviewer": "user",
+      "scope_decision_id": "gate2-v2.402-positive-segment-so2-user-approved",
+      "evidence": [
+        "User accepted chk_0aa9aa4cc0b2_385_1 with grade 2 as substantial partial mitigation evidence.",
+        "User excluded the other four qrel candidates as lacking sufficient mitigation evidence."
+      ]
+    },
+    "GS2-OOD-001": {
+      "scope": "NB-SEC-01-C-PTR",
+      "oracle_type": "ood_global",
+      "status": "approved",
+      "reviewer": "local evidence review",
+      "scope_decision_id": "gate2-pilot-ood-v2.402-01",
+      "evidence": [
+        "Preserved approved global OOD control; qrels remain empty."
+      ]
+    }
+  }
+}

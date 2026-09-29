@@ -1,0 +1,122 @@
+{
+  "metadata": {
+    "counts": {
+      "by_oracle_type": {
+        "negative_by_scope": 1,
+        "ood_global": 1,
+        "positive_in_scope": 3
+      },
+      "by_scope": {
+        "NB-CYBERSECURITY-V1": 1,
+        "NB-SEC-01-C-PTR": 2,
+        "fadena-lenguajes": 1,
+        "fadena-so2": 1
+      },
+      "qrel_queries": 3,
+      "total_queries": 5
+    }
+  },
+  "queries": [
+    {
+      "kc_ids": [
+        "aritmetica_punteros",
+        "so2_gestion_memoria"
+      ],
+      "notes": null,
+      "oracle_type": "positive_in_scope",
+      "previous_scope": null,
+      "qrels_provenance": "human_verified",
+      "qrels_status": "approved",
+      "query": "¿Qué es una race condition del tipo Time-of-Check to Time-of-Use (TOCTOU) en sistemas POSIX?",
+      "query_id": "GS2-VULN-004",
+      "reviewer": "user-approved; single AI-assisted evidence review",
+      "scope": "NB-CYBERSECURITY-V1",
+      "scope_decision_id": "gate2-user-qrel-adjudication-v2.402-01",
+      "topic_anchors": [
+        "race condition",
+        "time-of-check",
+        "time-of-use",
+        "toctou"
+      ]
+    },
+    {
+      "kc_ids": [],
+      "notes": null,
+      "oracle_type": "positive_in_scope",
+      "previous_scope": null,
+      "qrels_provenance": "human_verified",
+      "qrels_status": "approved",
+      "query": "¿Qué es un Deadlock (abrazo mortal) y cuáles son las cuatro condiciones de Coffman?",
+      "query_id": "GS2-VULN-018",
+      "reviewer": "user",
+      "scope": "NB-SEC-01-C-PTR",
+      "scope_decision_id": "gate2-v2.402-positive-segment-sec01-user-approved",
+      "topic_anchors": [
+        "deadlock",
+        "abrazo mortal",
+        "condiciones de coffman",
+        "exclusión mutua",
+        "retener y esperar",
+        "no expropiación",
+        "espera circular"
+      ]
+    },
+    {
+      "kc_ids": [],
+      "notes": null,
+      "oracle_type": "negative_by_scope",
+      "previous_scope": null,
+      "qrels_provenance": "historical",
+      "qrels_status": "approved",
+      "query": "¿Cómo funciona Round Robin y cómo influye la duración del quantum en la planificación de procesos?",
+      "query_id": "G2-PILOT-NEG-001",
+      "reviewer": "local evidence review; selected under user authorization",
+      "scope": "fadena-lenguajes",
+      "scope_decision_id": "gate2-pilot-negative-v2.402-01",
+      "topic_anchors": [
+        "round robin",
+        "quantum"
+      ]
+    },
+    {
+      "kc_ids": [],
+      "notes": null,
+      "oracle_type": "positive_in_scope",
+      "previous_scope": null,
+      "qrels_provenance": "human_verified",
+      "qrels_status": "approved",
+      "query": "¿Qué diferencia hay entre un buffer overflow en el Stack y un heap overflow a nivel de mitigaciones?",
+      "query_id": "GS2-VULN-007",
+      "reviewer": "user",
+      "scope": "fadena-so2",
+      "scope_decision_id": "gate2-v2.402-positive-segment-so2-user-approved",
+      "topic_anchors": [
+        "buffer overflow",
+        "stack",
+        "heap",
+        "no-execute",
+        "nonexecutable"
+      ]
+    },
+    {
+      "kc_ids": [],
+      "notes": null,
+      "oracle_type": "ood_global",
+      "previous_scope": null,
+      "qrels_provenance": "historical",
+      "qrels_status": "approved",
+      "query": "¿Quién ganó la final del Mundial de México 1986 y con qué resultado?",
+      "query_id": "GS2-OOD-001",
+      "reviewer": "local evidence review",
+      "scope": "NB-SEC-01-C-PTR",
+      "scope_decision_id": "gate2-pilot-ood-v2.402-01",
+      "topic_anchors": [
+        "final del mundial",
+        "mundial de méxico 1986",
+        "argentina",
+        "alemania"
+      ]
+    }
+  ],
+  "version": "v2.402-positive-segments-adjudicated"
+}

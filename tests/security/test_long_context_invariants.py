@@ -89,3 +89,34 @@ def test_active_sources_filtering_restricts_retrieval_and_abtains_if_empty() -> 
 
     assert "abstention" in event_types
     assert mock_llm.complete.call_count == 0
+
+
+def test_empty_active_sources_is_an_explicit_empty_allowlist() -> None:
+    app = create_app()
+    container = get_container()
+
+    mock_llm = MagicMock()
+    container.llm_backend = mock_llm
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/chat/query",
+        json={
+            "prompt": "¿Qué es un puntero en lenguaje C?",
+            "scope_type": "notebook",
+            "scope_id": "fadena-lenguajes",
+            "active_sources": [],
+            "requested_phase": "conceptual",
+        },
+    )
+
+    assert response.status_code == 200
+    events = [
+        json.loads(line[6:])
+        for line in response.text.split("\n")
+        if line.startswith("data: ")
+    ]
+    event_types = [event["event_type"] for event in events]
+    assert "abstention" in event_types
+    assert "phase_token" not in event_types
+    assert mock_llm.complete.call_count == 0

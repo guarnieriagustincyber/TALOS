@@ -1,0 +1,36 @@
+{
+  "candidates": {
+    "negative_by_scope": {
+      "approved": false,
+      "blocker": "Confirm that the topic exists outside the declared ACL before assigning negative_by_scope",
+      "qrel_count": 0,
+      "query_id": "GS2-VULN-001",
+      "scope": "NB-CYBERSECURITY-V1",
+      "selection_basis": "candidate only; historical abstention is insufficient evidence for negative_by_scope"
+    },
+    "ood_global": {
+      "qrel_count": 0,
+      "query_id": "GS2-OOD-001",
+      "scope": "NB-SEC-01-C-PTR",
+      "selection_basis": "historical ood_trampas query with empty qrels"
+    },
+    "positive_in_scope": {
+      "qrel_count": 2,
+      "query_id": "GS2-VULN-004",
+      "scope": "NB-CYBERSECURITY-V1",
+      "selection_basis": "historical non-OOD query with non-empty qrels"
+    }
+  },
+  "pilot_authorized": false,
+  "required_before_retrieval": [
+    "Approve a curricular decision for the positive query.",
+    "Approve the OOD oracle explicitly.",
+    "Confirm the negative-by-scope topic outside the ACL.",
+    "Use --allow-retrieval --top-k 1 only after all three decisions."
+  ],
+  "source_hashes": {
+    "dataset": "sha256:7ac3c707a973aa7dbc2e79c48c14a6208ac6f72bcba3d184433c2f2bc6b337c1",
+    "qrels": "sha256:68af7033fcd4e607b830245901774d2daac610d909763cb0b999b024b1ed7abc"
+  },
+  "status": "blocked_pending_negative_scope_review"
+}

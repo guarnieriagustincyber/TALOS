@@ -1,0 +1,136 @@
+{
+  "version": "v2.402-pilot1",
+  "status": "user_approved_single_reviewer_adjudication",
+  "purpose": "Record a provisional single-reviewer relevance adjudication for GS2-VULN-004 without changing any dataset or historical qrels.",
+  "query": {
+    "query_id": "GS2-VULN-004",
+    "text": "¿Qué es una race condition del tipo Time-of-Check to Time-of-Use (TOCTOU) en sistemas POSIX?",
+    "scope": "NB-CYBERSECURITY-V1",
+    "oracle_type": "positive_in_scope",
+    "topic_anchors": [
+      "race condition",
+      "time-of-check",
+      "time-of-use",
+      "toctou"
+    ]
+  },
+  "integrity": {
+    "knowledge_db_sha256": "sha256:fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+    "historical_qrels_version": "v2.400",
+    "historical_qrels_path": "data/eval/qrels/golden_set_v2_400.qrels.json",
+    "historical_qrels_sha256": "sha256:68af7033fcd4e607b830245901774d2daac610d909763cb0b999b024b1ed7abc",
+    "historical_qrels_modified": false,
+    "acl_modified": false
+  },
+  "review_protocol": {
+    "reviewers_required": 1,
+    "independent_first_pass": false,
+    "blind_to_historical_grade_and_prior_recommendation_during_first_pass": false,
+    "reviewer_type": "AI-assisted evidence review; not an independent human judgment",
+    "relevance_labels": [
+      "direct",
+      "partial",
+      "related_only",
+      "irrelevant",
+      "uncertain"
+    ],
+    "assessment_fields": [
+      "relevance_label",
+      "rationale",
+      "evidence_locator",
+      "reviewer_id"
+    ],
+    "stop_conditions": [
+      "If the passage boundary removes context needed to judge relevance, mark uncertain and inspect adjacent chunks in the same local corpus.",
+      "If reviewers disagree, keep the qrel decision pending and request a third review.",
+      "Do not infer a numeric qrel grade from retrieval score or from the categorical label until the benchmark grade rubric is explicitly confirmed."
+    ],
+    "release_gate": "The user accepted all three membership decisions and the semantic grade rubric; retain the single-reviewer limitation in provenance."
+  },
+  "review_cards": [
+    {
+      "card_id": "CARD-1",
+      "chunk_id": "chk_07e0f6d0fb24_58_1",
+      "source_id": "src_spraul_think_like_a_programmer",
+      "source_title": "Think Like a Programmer",
+      "chunk_sha256": "sha256:fe04d4509ba5fe2e9876857e00ede2dd3853206103db2960da3a1467bb59b5a1",
+      "content_summary": "Explains a C++ loop that reads digits, calculates an alternating checksum, and checks divisibility by ten.",
+      "exists_in_knowledge_store": true,
+      "authorized_by_query_scope": true,
+      "reviewer_1": {
+        "reviewer_id": "AI-assisted single evidence review",
+        "relevance_label": "irrelevant",
+        "rationale": "The passage is about calculating a digit checksum and divisibility by ten; it contains no race condition, check-then-use sequence, or POSIX security concept.",
+        "evidence_locator": "Opening and closing lines describe the checksum loop and its even/odd digit handling."
+      },
+      "reviewer_2": {
+        "reviewer_id": null,
+        "relevance_label": null,
+        "rationale": null,
+        "evidence_locator": null
+      }
+    },
+    {
+      "card_id": "CARD-2",
+      "chunk_id": "Computer_Security_Stallings_3rd_Ed.pdf:p427:c0000",
+      "source_id": "src_stallings_computer_security",
+      "source_title": "Computer Security: Principles and Practice (3rd Ed)",
+      "chunk_sha256": "sha256:60a5f414e0b03ff4a0d55c311313b3bac3b8ee0e30660dd4c297cd62fdff3ef8",
+      "content_summary": "Describes two processes checking for and creating a lockfile in an interleaved sequence, both accessing a shared resource, and identifies the resulting corruption risk as a race condition.",
+      "exists_in_knowledge_store": true,
+      "authorized_by_query_scope": true,
+      "reviewer_1": {
+        "reviewer_id": "AI-assisted single evidence review",
+        "relevance_label": "partial",
+        "rationale": "The lockfile existence check and later creation can interleave between processes and corrupt a shared resource, which illustrates the race-condition mechanism. The fragment does not explicitly name TOCTOU or POSIX and is less specific than the temporary-file security example.",
+        "evidence_locator": "The passage describes one process checking/creating a lockfile, suspension, a second process creating it, concurrent access, and identifies the outcome as a classic race condition."
+      },
+      "reviewer_2": {
+        "reviewer_id": null,
+        "relevance_label": null,
+        "rationale": null,
+        "evidence_locator": null
+      }
+    },
+    {
+      "card_id": "CARD-3",
+      "chunk_id": "chk_0aa9aa4cc0b2_428_1",
+      "source_id": "src_stallings_computer_security",
+      "source_title": "Computer Security: Principles and Practice (3rd Ed)",
+      "chunk_sha256": "sha256:f94c9b241422ca4abfbe20e8bcaa77b42ff507044d173a7f2a34df0d5d334800",
+      "content_summary": "Explains a temporary-file attack in which an attacker creates a file between a program's existence check and file creation, describes the resulting race condition, and discusses secure atomic creation.",
+      "exists_in_knowledge_store": true,
+      "authorized_by_query_scope": true,
+      "reviewer_1": {
+        "reviewer_id": "AI-assisted single evidence review",
+        "relevance_label": "direct",
+        "rationale": "The passage explicitly describes an attacker creating a temporary-file path between the program's existence check and subsequent creation, names this a race condition, and explains atomic creation as a mitigation. This directly supports the check-to-use security concept.",
+        "evidence_locator": "The paragraphs beginning 'The program generally checks to ensure that the file does not already exist' and 'The attacker then attempts to create a file with that name in the interval...'; mitigation paragraph recommends atomic creation."
+      },
+      "reviewer_2": {
+        "reviewer_id": null,
+        "relevance_label": null,
+        "rationale": null,
+        "evidence_locator": null
+      }
+    }
+  ],
+  "final_adjudication": {
+    "status": "approved_by_user",
+    "approved_qrels": {
+      "GS2-VULN-004": {
+        "Computer_Security_Stallings_3rd_Ed.pdf:p427:c0000": 2,
+        "chk_0aa9aa4cc0b2_428_1": 3
+      }
+    },
+    "decision_rationale": "The user accepted excluding CARD-1 with grade 0, including CARD-2 with grade 2 and CARD-3 with grade 3, and approved the semantic rubric.",
+    "reviewer_signoff": [
+      {
+        "reviewer_id": "AI-assisted single evidence review",
+        "review_type": "evidence-based recommendation",
+        "human_approval": true,
+        "approval_source": "Explicit user acceptance in conversation on 2026-09-28"
+      }
+    ]
+  }
+}

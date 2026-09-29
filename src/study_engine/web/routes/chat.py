@@ -725,6 +725,115 @@ def _resolve_retrieval_depth(prompt_text: str) -> Tuple[int, int]:
     return 15, 3
 
 
+def _notebook_ids_for_folder(store: Any, folder_id: str) -> List[str]:
+    """Return notebooks explicitly placed in a folder or one of its descendants."""
+    with store.engine.transaction() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            WITH RECURSIVE scope_folders(id) AS (
+                SELECT id FROM folders WHERE id = ?
+                UNION
+                SELECT child.id
+                FROM folders child
+                JOIN scope_folders parent ON child.parent_folder_id = parent.id
+            )
+            SELECT DISTINCT notebooks.id
+            FROM notebooks
+            JOIN scope_folders ON notebooks.folder_id = scope_folders.id
+            JOIN notebook_sources ON notebook_sources.notebook_id = notebooks.id
+            ORDER BY notebooks.id;
+            """,
+            (folder_id,),
+        )
+        return [row[0] for row in cursor.fetchall()]
+
+
+def _source_ids_for_notebook(store: Any, notebook_id: str) -> set[str]:
+    with store.engine.transaction() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT source_id FROM notebook_sources WHERE notebook_id = ? ORDER BY source_id;",
+            (notebook_id,),
+        )
+        return {row[0] for row in cursor.fetchall()}
+
+
+def _search_chapter_summaries_for_scope(
+    store: Any,
+    query: str,
+    target_notebook_id: str,
+    global_folder_id: Optional[str],
+    authorized_source_ids: set[str],
+    limit: int,
+) -> List[Any]:
+    """Search chapter summaries only in notebooks reachable from this scope."""
+    notebook_ids = (
+        _notebook_ids_for_folder(store, global_folder_id)
+        if target_notebook_id == GLOBAL_SCOPE_ID and global_folder_id
+        else [target_notebook_id]
+    )
+    summaries: List[Any] = []
+    for notebook_id in notebook_ids:
+        notebook_sources = _source_ids_for_notebook(store, notebook_id)
+        if not notebook_sources.intersection(authorized_source_ids):
+            continue
+        summaries.extend(
+            summary
+            for summary in store.search_chapter_summaries(
+                query=query,
+                notebook_id=notebook_id,
+                limit=limit,
+            )
+            if summary.source_id in authorized_source_ids
+        )
+    summaries.sort(key=lambda summary: summary.score or 0.0, reverse=True)
+    return summaries[:limit]
+
+
+def _authorized_sources_for_scope(
+    store: Any,
+    target_notebook_id: str,
+    global_folder_id: Optional[str],
+) -> set[str]:
+    """Resolve the source allowlist only from explicit notebook-source links."""
+    if target_notebook_id == GLOBAL_SCOPE_ID:
+        if not global_folder_id:
+            raise ValueError("Global retrieval requires its resolved folder scope")
+        notebook_ids = _notebook_ids_for_folder(store, global_folder_id)
+    else:
+        notebook_ids = [target_notebook_id]
+    if not notebook_ids:
+        return set()
+
+    placeholders = ", ".join("?" for _ in notebook_ids)
+    with store.engine.transaction() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT DISTINCT source_id FROM notebook_sources "
+            f"WHERE notebook_id IN ({placeholders}) ORDER BY source_id;",
+            tuple(notebook_ids),
+        )
+        return {row[0] for row in cursor.fetchall()}
+
+
+def _filter_requested_sources(
+    authorized_source_ids: set[str],
+    requested_sources: Optional[List[str]],
+    source_metadata: Dict[str, Dict[str, str]],
+) -> set[str]:
+    """Resolve optional source IDs or hashes only inside a server-owned allowlist."""
+    if requested_sources is None:
+        return set(authorized_source_ids)
+    requested = set(requested_sources)
+    return {
+        source_id
+        for source_id in authorized_source_ids
+        if source_id in requested
+        or source_metadata.get(source_id, {}).get("sha256") in requested
+    }
+
+
 def _assemble_epistemic_context(
     store: Any,
     container: AppContainer,
@@ -732,6 +841,7 @@ def _assemble_epistemic_context(
     target_notebook_id: str,
     active_sources: Optional[List[str]] = None,
     granularity_decision: Optional[Any] = None,
+    global_folder_id: Optional[str] = None,
 ) -> Tuple[Optional[EpistemicContextPack], list]:
     """Search knowledge store and build formatted citations and chunks with SectionExpander (Ola 5)."""
     try:
@@ -784,6 +894,44 @@ def _assemble_epistemic_context(
         except Exception as meta_err:
             logger.warning("Fallo al consultar metadatos de fuentes: %s", meta_err)
 
+        try:
+            scope_source_ids = _authorized_sources_for_scope(
+                store,
+                target_notebook_id,
+                global_folder_id,
+            )
+        except Exception:
+            logger.exception(
+                "Cannot resolve source allowlist for scope %s; retrieval is closed",
+                target_notebook_id,
+            )
+            return EpistemicContextPack(
+                formatted_context="",
+                citations=[],
+                chunks=[],
+                abstained=True,
+                abstention_reason="SCOPE_AUTHORIZATION_UNAVAILABLE",
+            ), []
+
+        retrieval_source_ids = _filter_requested_sources(
+            scope_source_ids,
+            active_sources,
+            src_meta_cache,
+        )
+
+        if not retrieval_source_ids:
+            return EpistemicContextPack(
+                formatted_context="",
+                citations=[],
+                chunks=[],
+                abstained=True,
+                abstention_reason=(
+                    "NO_AUTHORIZED_ACTIVE_SOURCES"
+                    if active_sources is not None
+                    else "NO_AUTHORIZED_SOURCES_IN_SCOPE"
+                ),
+            ), []
+
         search_results = []
         if resolved_item is not None:
             chunk_repo = getattr(store, "chunks", None) or getattr(getattr(store, "repositories", None), "chunks", None)
@@ -822,10 +970,13 @@ def _assemble_epistemic_context(
             if gran_mode == RetrievalGranularity.MACRO and hasattr(store, "search_chapter_summaries"):
                 max_parents = getattr(granularity_decision, "max_parent_nodes", 2)
                 try:
-                    ch_summaries = store.search_chapter_summaries(
-                        query=search_query,
-                        notebook_id=target_notebook_id if target_notebook_id != GLOBAL_SCOPE_ID else None,
-                        limit=max_parents,
+                    ch_summaries = _search_chapter_summaries_for_scope(
+                        store,
+                        search_query,
+                        target_notebook_id,
+                        global_folder_id,
+                        retrieval_source_ids,
+                        max_parents,
                     )
                     for rank, cs in enumerate(ch_summaries):
                         sr = SearchResult(
@@ -849,10 +1000,13 @@ def _assemble_epistemic_context(
                 top_parent = None
                 preferred_cid = None
                 try:
-                    ch_summaries = store.search_chapter_summaries(
-                        query=search_query,
-                        notebook_id=target_notebook_id if target_notebook_id != GLOBAL_SCOPE_ID else None,
-                        limit=max_parents,
+                    ch_summaries = _search_chapter_summaries_for_scope(
+                        store,
+                        search_query,
+                        target_notebook_id,
+                        global_folder_id,
+                        retrieval_source_ids,
+                        max_parents,
                     )
                     if ch_summaries:
                         top_parent = ch_summaries[0]
@@ -863,16 +1017,41 @@ def _assemble_epistemic_context(
                 retrieval_limit, min_sources = _resolve_retrieval_depth(search_query)
                 leaf_candidates = []
                 if hasattr(store, "search_hybrid"):
-                    try:
-                        leaf_candidates = store.search_hybrid(
-                            query=search_query,
-                            notebook_id=target_notebook_id,
-                            limit=max_leaves * 2,
-                            min_sources=min_sources,
-                            preferred_chapter_id=preferred_cid,
+                    notebook_ids = (
+                        _notebook_ids_for_folder(store, global_folder_id)
+                        if target_notebook_id == GLOBAL_SCOPE_ID and global_folder_id
+                        else [target_notebook_id]
+                    )
+                    for notebook_id in notebook_ids:
+                        notebook_source_filter = sorted(
+                            _source_ids_for_notebook(store, notebook_id).intersection(
+                                retrieval_source_ids
+                            )
                         )
-                    except Exception as hy_leaf_err:
-                        logger.debug("Error in search_hybrid during HYBRID mode: %s", hy_leaf_err)
+                        if not notebook_source_filter:
+                            continue
+                        try:
+                            leaf_candidates.extend(
+                                store.search_hybrid(
+                                    query=search_query,
+                                    notebook_id=notebook_id,
+                                    limit=max_leaves * 2,
+                                    min_sources=min_sources,
+                                    preferred_chapter_id=preferred_cid,
+                                    source_ids=notebook_source_filter,
+                                )
+                            )
+                        except Exception as hy_leaf_err:
+                            logger.warning(
+                                "Error in scoped search_hybrid for notebook %s: %s",
+                                notebook_id,
+                                hy_leaf_err,
+                            )
+                    leaf_candidates.sort(
+                        key=lambda candidate: getattr(candidate, "score", 0.0),
+                        reverse=True,
+                    )
+                    leaf_candidates = leaf_candidates[: max_leaves * 2]
 
                 deduped = GranularityRouter.deduplicate_hybrid_chunks(
                     candidate_chunks=leaf_candidates,
@@ -902,31 +1081,43 @@ def _assemble_epistemic_context(
             if gran_mode == RetrievalGranularity.MICRO and getattr(granularity_decision, "max_leaf_chunks", None):
                 retrieval_limit = min(retrieval_limit, granularity_decision.max_leaf_chunks)
             if target_notebook_id == GLOBAL_SCOPE_ID:
-                # Scope global (COMMIT 2): correr retrieval híbrido por cuaderno y
-                # fundir por chunk_id preservando el mejor rank de cada uno. La
-                # caché de matrices por cuaderno hace esto viable en CPU.
+                # Scope global: fundir por chunk_id el retrieval de notebooks
+                # asociados al folder seleccionado.
                 try:
-                    with store.engine.transaction() as conn:
-                        cur = conn.cursor()
-                        cur.execute(
-                            "SELECT DISTINCT notebook_id FROM notebook_sources ORDER BY notebook_id;"
-                        )
-                        all_notebooks = [r[0] for r in cur.fetchall()]
+                    all_notebooks = (
+                        _notebook_ids_for_folder(store, global_folder_id)
+                        if global_folder_id
+                        else []
+                    )
                 except Exception as nb_err:
-                    logger.warning("No se pudo listar cuadernos para scope global: %s", nb_err)
+                    logger.exception(
+                        "No se pudo resolver notebooks autorizados para scope global: %s",
+                        nb_err,
+                    )
                     all_notebooks = []
 
                 from concurrent.futures import ThreadPoolExecutor, as_completed
 
                 def _search_single_nb(nb_id: str) -> List[Any]:
                     try:
+                        notebook_source_filter = sorted(
+                            _source_ids_for_notebook(store, nb_id).intersection(
+                                retrieval_source_ids
+                            )
+                        )
+                        if not notebook_source_filter:
+                            return []
                         return store.search_hybrid(
                             query=search_query,
                             notebook_id=nb_id,
                             limit=retrieval_limit,
                             min_sources=min_sources,
+                            source_ids=notebook_source_filter,
                         ) if hasattr(store, "search_hybrid") else store.search(
-                            query=search_query, notebook_id=nb_id, limit=retrieval_limit
+                            query=search_query,
+                            notebook_id=nb_id,
+                            limit=retrieval_limit,
+                            source_ids=notebook_source_filter,
                         )
                     except Exception as nb_search_err:
                         logger.debug("Scope global: fallo retrieval en %s: %s", nb_id, nb_search_err)
@@ -951,6 +1142,7 @@ def _assemble_epistemic_context(
                         notebook_id=target_notebook_id,
                         limit=retrieval_limit,
                         min_sources=min_sources,
+                        source_ids=sorted(retrieval_source_ids),
                     )
                 except Exception as hybrid_err:
                     logger.debug("Fallo en search_hybrid, fallback a search(): %s", hybrid_err)
@@ -962,6 +1154,7 @@ def _assemble_epistemic_context(
                         query=search_query,
                         notebook_id=target_notebook_id,
                         limit=retrieval_limit,
+                        source_ids=sorted(retrieval_source_ids),
                     )
                 except Exception as search_err:
                     logger.warning("Fallo en búsqueda de cuaderno %s: %s", target_notebook_id, search_err)
@@ -974,16 +1167,11 @@ def _assemble_epistemic_context(
                     logger.warning("Fallo en búsqueda global fallback: %s", fallback_err)
                     search_results = []
 
-        # Filtrar por active_sources si fue especificado (E25 / INV-W5-4)
-        if active_sources:
-            active_set = set(active_sources)
-            search_results = [
-                res for res in search_results
-                if (
-                    res.source_id in active_set
-                    or (src_meta_cache.get(res.source_id, {}).get("sha256") in active_set)
-                )
-            ]
+        search_results = [
+            result
+            for result in search_results
+            if getattr(result, "source_id", None) in retrieval_source_ids
+        ]
 
         # Filtrado de presentación mandatorio (Slice 6.0.5 - Anti-leakage universal)
         if search_results and hasattr(store, "content_registry") and store.content_registry:
@@ -1490,6 +1678,7 @@ def _prepare_chat_context(
     )
 
     global_scope = False
+    target_folder_id: Optional[str] = None
     if resolved_scope.scope_type == ScopeType.FOLDER:
         from study_engine.hierarchy.folder_orchestrator import FolderOrchestrator
         target_folder_id = resolved_scope.folder_id or target_scope_id
@@ -1654,6 +1843,7 @@ def _prepare_chat_context(
             target_notebook_id=target_notebook_id,
             active_sources=request.active_sources,
             granularity_decision=granularity_decision,
+            global_folder_id=target_folder_id if global_scope else None,
         )
 
         # Máquina de estados conversacional con inercia epistémica (CAL §3.2 Multi-Turn)

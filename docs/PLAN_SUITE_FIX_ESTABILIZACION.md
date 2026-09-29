@@ -1,8 +1,8 @@
 # Suite de fixes y estabilización previa a Fase 7
 
 **Fecha:** 2026-09-28
-**Estado:** punto 0, Gate 1 y protección runtime inicial completados; inventario y
-análisis de preparación G2.0 documentados; implementación de Gate 2 pendiente
+**Estado:** punto 0, Gate 1 y protección runtime inicial completados; Gate 2
+con piloto acotado, fixtures adjudicadas e inventario histórico read-only
 **Alcance:** armonizar políticas, contratos multi-cuaderno y fiabilidad antes de
 continuar con evaluación pedagógica multi-currículo.
 
@@ -437,10 +437,169 @@ decidir cuál registro es autoridad para cada entorno y si esos notebooks locale
 son estado versionado/provisionado o instalaciones históricas. No se deben
 sincronizar ni migrar automáticamente.
 
-**Cambios de Gate 2 todavía no iniciados:** no se alteró el código de runtime,
-los catálogos ni las filas SQLite; esta entrega cierra solo la fase de
-inventario/caracterización. El procedimiento G2.1–G2.3 sigue vigente, con el
-bloqueo de reconciliación de identidad/currículum añadido como prerrequisito.
+**Estado al cierre de G2.0:** no se había alterado código de runtime,
+catálogos ni filas SQLite; esa entrega cerró únicamente la fase de
+inventario/caracterización. Las implementaciones y mediciones posteriores se
+registran en las secciones G2.1 y siguientes.
+
+#### Resultado ejecutado — paso 1: identidad y alta — 2026-09-28
+
+Se contrastaron de solo lectura `DEFAULT_NOTEBOOKS`,
+`config/notebook_kc_catalog.json`, `config/notebook_source_roles.json` y
+`data/web_state/knowledge_store.db`. La reconciliación operativa queda así:
+
+| IDs | Identidad aceptada para Gate 2 | `curriculum_id` de catálogo | Estado SQLite local |
+|---|---|---|---|
+| `fase0-soc` | Scope Roadmap/Fase 0; identidad canónica exacta | `roadmap_kasiu_v4_fase0` | `fadena_v1` (discordante) |
+| `fadena-lenguajes` | Materia FADENA de Lenguajes | `fadena_lenguajes_2026` | `fadena_v1` (discordante) |
+| `fadena-so2` | Materia FADENA de Sistemas Operativos II | `fadena_so2_2026` | `fadena_v1` (discordante) |
+| `fadena-std` | Materia FADENA de Tratamiento de Datos | `fadena_std_2026` | `fadena_v1` (discordante) |
+| `fadena-teleco` | Materia FADENA de Telecomunicaciones | `fadena_teleco_2025` | `fadena_v1` (discordante) |
+| `fadena-sye` | Entrada curricular separada; no habilitada como perfil operativo todavía | `fadena_sye_2026` | Hay placeholder local con `curriculum_id` y `subject` nulos, sin asociaciones |
+| `fadena-prog`, `fadena-so` | IDs legacy preservados como scopes distintos; no se redirigen ni migran | Sin mapeo confirmado | `fadena_v1` |
+| `NB-CYBERSECURITY-V1` | Notebook de Seguridad independiente, no alias FADENA | Sin mapeo confirmado | `fadena_v1` |
+| `NB-SEC-01-C-PTR` | Scope del nodo `SEC-01-C-PTR` en `ROADMAP-CYBERSECURITY-V1`; independiente del notebook general de Seguridad | Sin `curriculum_id` de curso declarado en el roadmap | Fila local con subject `Cybersecurity`, currículo nulo, 42 asociaciones (una huérfana) |
+| `nb_prog_1`, `nb_prog_basica` | Instalaciones locales/custom sin identidad curricular confirmada | Sin mapeo confirmado | Currículo nulo, sin asociaciones |
+
+El catálogo KC versionado es la fuente de los IDs curriculares de aplicación
+para las seis entradas que contiene; eso no certifica por sí mismo que cada
+programa o título tenga autoridad académica oficial. La columna persistida en
+SQLite representa estado de instalación y no prevalece sobre ese mapeo de
+configuración. No se actualizaron `fadena_v1` ni ningún otro dato local. Los
+aliases legacy tampoco se colapsan: los bridges versionados los nombran como
+scopes distintos y no declaran una identidad curricular canónica equivalente.
+
+La configuración de roles de fuentes cubre únicamente los cinco perfiles
+centrales y no constituye autorización de acceso. La allowlist efectiva de
+retrieval es la relación `notebook_sources` de SQLite. El bootstrap versionado
+puede poblar esa relación a partir de `DEFAULT_NOTEBOOKS.sources`; esa
+asociación declarada es distinta del rol (`PRIMARY`, `COMPLEMENTARY`, etc.).
+La lista duplicada `Notebook.sources` no coincide en todos los casos con los
+roles configurados ni con las asociaciones locales. Por eso, la configuración
+de roles por sí sola no autoriza fuentes, no se usa para ampliar el scope y sus
+diferencias restantes deben reconciliarse antes de habilitar más currículos.
+
+Se encontró que `POST /api/notebook/{notebook_id}/upload-source` creaba
+silenciosamente una fila de notebook si el ID no existía, deduciendo carpeta
+por subcadena y dejando `subject`/`curriculum_id` sin validar. El flujo ahora
+exige que el notebook esté previamente registrado y responde 404 antes de
+guardar o indexar el archivo si falta. Esto conserva carga en notebooks
+persistidos, incluidos scopes custom, pero no inventa una identidad curricular.
+`sync-sources-folder` aplica la misma condición y tampoco crea filas por
+subcadena. El provisionamiento inicial asigna a los IDs presentes en el
+catálogo KC su `curriculum_id` por clave exacta; los aliases/custom sin mapeo
+quedan sin currículo declarado. Fallos al leer el catálogo, registrar notebooks
+o vincular fuentes ya no se silencian durante ese provisionamiento. Las filas
+existentes no se reescriben ni migran. Pruebas focalizadas cubren ambas rutas
+desconocidas y la resolución exacta de IDs curriculares.
+
+**Ciclo de alta acordado para esta fase:** registrar explícitamente el notebook
+y su identidad; asociar solo fuentes autorizadas mediante `notebook_sources`;
+definir el rol de cada fuente en el scope; validar que notebook/catálogo/rol y
+fuentes existen; luego habilitar la carga. La creación automática desde una
+carga queda prohibida. La interfaz administrativa completa para ese ciclo no
+existe todavía y es trabajo separado; hasta definirla, un nuevo cuaderno debe
+provisionarse explícitamente y no se considera habilitado solo por aparecer en
+el catálogo KC.
+
+**Pendientes explícitos de reconciliación:** decidir si `fadena-sye` se habilita
+como scope activo y qué fuentes autorizadas tendrá; decidir la asignación
+curricular de las instalaciones custom que no tienen `curriculum_id`; reemplazar
+o reparar el `fadena_v1` genérico de las cinco filas principales solo después de
+un proceso de migración con copia y respaldo; y alinear la lista de fuentes del
+registro federado, la configuración de roles y las asociaciones locales sin
+otorgar permisos implícitos. No se migró SQLite ni se declaró cerrada la
+autoridad oficial de programas/bibliografía.
+
+#### Resultado ejecutado — paso 2: allowlist, fallbacks y scopes — 2026-09-28
+
+Se implementó y probó el primer contrato fail-closed de scope:
+
+- `TwoStageRetriever._fts5_prefilter()` ahora aplica `source_filter` en el SQL
+  junto con el join de `notebook_sources`. Si falla el query, registra el error
+  y retorna cero candidatos; ya no reintenta leyendo `chunks` sin join de ACL.
+  Un allowlist vacío también retorna cero resultados sin consultar el store.
+- `MultiSourceEvidenceAssembler` intersecta las fuentes con roles contra las
+  asociaciones reales del notebook. Se eliminó el recorrido de `list_sources()`
+  global cuando faltan citas. Menos de dos citas autorizadas termina en
+  evidencia insuficiente/abstención, en vez de rellenar desde otro cuaderno.
+- El chat deriva las fuentes permitidas desde `notebook_sources`; para un scope
+  de carpeta enumera solo notebooks de esa carpeta y descendientes. La búsqueda
+  híbrida y de resúmenes de capítulo se ejecuta por esos notebooks, no contra
+  el corpus global sin filtro. Una fuente curricular compartida con Roadmap
+  solo aparece allí cuando hay una asociación explícita al notebook Roadmap.
+- `active_sources` se interpreta como restricción, nunca como autorización:
+  IDs o hashes solicitados se intersectan con la allowlist de servidor. Una
+  lista vacía o que solo contiene IDs/hashes ajenos abstiene antes de invocar
+  al backend. La allowlist efectiva se pasa a búsqueda FTS/densa/híbrida y se
+  vuelve a aplicar antes de construir citas.
+- `KnowledgeStore.search()`, `fts_search()`, `vector_search()` y
+  `search_hybrid()` admiten `source_ids`. El vector search restringe los
+  candidatos por chunk asociado a notebook y source antes de escoger top-k,
+  aunque la carga/cálculo de la matriz completa del notebook sigue pendiente
+  del trabajo de capacidad G2.3.
+
+La prueba de frontera entre carpetas se actualizó: una consulta técnica desde
+FADENA ya no recibe material de un notebook Roadmap ubicado fuera de esa
+carpeta. Una segunda prueba demuestra que el mismo material FADENA sí puede
+recuperarse desde Roadmap después de agregar explícitamente el vínculo
+`notebook_sources` correspondiente. Esto reemplaza la expectativa anterior de
+“acceso global a todos los notebooks” para una consulta desde cualquier
+carpeta.
+
+**Verificación focalizada:** el conjunto Gate 2 de scopes, recuperación,
+fallbacks, upload/sync y chat terminó con **40 passed, 11 warnings, 0 failed**
+en 35.12 s. Una ejecución separada de fallback/context flood/capítulos también
+terminó con **23 passed, 2 warnings, 0 failed** en 19.37 s. Los warnings
+observados son deprecaciones FastAPI/Starlette. `compileall`,
+`git diff --check` y flake8 de errores de sintaxis/nombres (`E9,F63,F7,F82`)
+pasaron. El black check integral de módulos preexistentes señala formato
+previo fuera de Black; los tests nuevos quedaron formateados. La suite global
+se ejecutó después de los cambios de aislamiento y terminó con **2717 passed,
+7 skipped, 146 warnings, 0 failed** en 381.40 s. Un test de seguimiento
+conversacional requirió completar su fixture con el vínculo explícito de fuente
+autorizada; el test corregido pasó y la suite global completa pasó al repetirse.
+No se migraron filas locales ni se escribieron embeddings de forma intencional.
+Una prueba focalizada de aplicación pudo abrir el vector store local: su
+`mtime` avanzó el 2026-09-28 a las 18:24:39 (-0300), manteniendo el tamaño
+303.194.112 bytes para knowledge store y 1.369.837.568 bytes para vector store.
+Una lectura posterior estrictamente `mode=ro` mostró WAL, 287.075 embeddings y
+los mismos conteos por notebook inspeccionados previamente; no había sidecars
+WAL/SHM ni procesos de prueba activos. No existe checksum previo para probar
+identidad byte a byte, por lo que la base vectorial queda marcada como no
+certificada byte a byte desde esa ejecución. Las siguientes pruebas de
+aplicación deben usar snapshots temporales.
+
+Comandos focalizados usados:
+
+```bash
+.venv/bin/python -m pytest -q \
+  tests/unit/web/test_global_scope.py \
+  tests/unit/web/test_retrieval_scope_allowlist.py \
+  tests/unit/retrieval/test_two_stage_scope.py \
+  tests/pedagogy/test_evidence_assembler_isolation.py \
+  tests/unit/storage/test_hybrid_search.py \
+  tests/security/test_long_context_invariants.py \
+  tests/unit/retrieval/test_context_flood.py \
+  tests/retrieval/test_hierarchical_rag.py \
+  tests/web/test_notebook_upload_identity.py \
+  tests/pedagogy/test_chat_sse_endpoint.py
+
+.venv/bin/python -m pytest -q \
+  tests/unit/retrieval/test_two_stage_scope.py \
+  tests/pedagogy/test_evidence_assembler_isolation.py \
+  tests/unit/storage/test_hybrid_search.py \
+  tests/unit/web/test_retrieval_scope_allowlist.py \
+  tests/unit/retrieval/test_context_flood.py \
+  tests/retrieval/test_hierarchical_rag.py
+```
+
+**Pendiente dentro de G2.2:** las funciones de importación inicial pueden
+seguir poblando associations desde la lista versionada `DEFAULT_NOTEBOOKS`;
+debe cerrarse la matriz exacta de fuentes permitidas por curso/Roadmap antes de
+dar por reconciliadas todas las asociaciones heredadas. La lógica de permisos
+de folder se verificó con fixtures deterministas; falta probar el mismo caso
+contra una copia aislada del corpus real, sin modificar `data/web_state`.
 
 #### G2.0b — Currículos recibidos y modelo FADENA ↔ Roadmap SOC
 
@@ -615,9 +774,9 @@ Hay dos perfiles de retrieval y no deben confundirse:
   crea otra matriz normalizada de tamaño comparable; al cargar en frío, la
   lista de BLOBs y la concatenación temporal elevan el pico aún más. La caché
   LRU permite ocho claves por instancia/proceso, de modo que el uso puede
-  multiplicarse con scopes grandes y con workers/procesos concurrentes. No se
-  midió RSS pico: los tamaños de matriz son estimaciones aritméticas, no una
-  medición de RAM del proceso.
+  multiplicarse con scopes grandes y con workers/procesos concurrentes. El
+  baseline inicial de abajo ya midió RSS pico para dos scopes principales, pero
+  no incluye todavía el mayor scope custom de 105.179 vectores.
 
 **Dictamen:** el sistema puede seguir siendo manejable para el uso local si el
 crecimiento se gobierna, pero el código actual no garantiza rendimiento
@@ -662,6 +821,116 @@ La secuencia segura de capacidad para G2/Gate de retrieval es:
    concurrencia de escritura o tamaño de base lo incumplen tras limitar
    candidatos y deduplicar, evaluar un índice ANN/vector store dedicado; no
    migrar ahora por moda ni asumir que SQLite es infinitamente escalable.
+
+#### Resultado ejecutado — baseline de retrieval en hardware destino — 2026-09-28
+
+Se congeló un runner repetible en
+[`scripts/benchmark_gate2_retrieval.py`](../scripts/benchmark_gate2_retrieval.py).
+El runner crea snapshots SQLite mediante la API de backup en un directorio
+temporal, ejecuta los workers contra esas copias y elimina el temporal al salir.
+El constructor del vector store nunca abre directamente la base original.
+Comandos ejecutados (12 iteraciones calientes por operación; 10 y 20 requests
+en cada nivel de concurrencia):
+
+```bash
+.venv/bin/python scripts/benchmark_gate2_retrieval.py \
+  --notebooks fadena-std --iterations 12 --concurrency 5 10 \
+  --allow-concurrent-load
+.venv/bin/python scripts/benchmark_gate2_retrieval.py \
+  --notebooks fase0-soc --iterations 12 --concurrency 5 10 \
+  --allow-concurrent-load
+```
+
+Hardware: AMD Ryzen 5 5600GT, 12 CPUs lógicas, 13 GiB RAM, Linux x86_64.
+Los dos scopes medidos usan vectores consistentes de 1.024 dimensiones;
+`NB-SEC-01-C-PTR`, con dimensiones mezcladas, se excluyó. La búsqueda densa
+calcula sobre todas las filas del notebook antes de devolver el top-k. RSS es
+peak RSS del proceso worker; incluye Python/NumPy y buffers temporales.
+
+| Scope | Vectores escaneados | Matriz float32 estimada | FTS frío / caliente p50-p95 ms | Denso frío / caliente p50-p95 ms | Híbrido frío / caliente p50-p95 ms | RSS peak FTS / denso / híbrido |
+|---|---:|---:|---:|---:|---:|---:|
+| `fadena-std` | 46.530 | 190.586.880 B | 5,35 / 4,37-5,43 | 864,85 / 147,12-161,16 | 865,59 / 151,74-164,15 | 60,4 / 621,5 / 622,4 MiB |
+| `fase0-soc` | 43.214 | 177.004.544 B | 2,37 / 1,08-1,64 | 805,86 / 134,77-143,79 | 800,02 / 136,95-149,33 | 59,5 / 581,2 / 580,7 MiB |
+
+“Frío” significa caché de matriz SQLite vacía al comenzar el proceso, no
+almacenamiento físico frío: el page cache del SO no se vació y puede estar
+caliente. La consulta densa usa `DeterministicHashEmbedder(1024)` para aislar
+la ruta de puntuación; no mide inferencia del modelo de producción ni calidad
+semántica. En estos dos scopes la ruta densa escanea 43-46 mil vectores aunque
+el límite final sea 30; por eso el tiempo caliente es ~135-165 ms y el peak RSS
+~581-622 MiB por proceso.
+
+En híbrido, carga representativa medida:
+
+| Scope | Workers | QPS | Errores | p50 / p95 ms | Peak RSS del proceso |
+|---|---:|---:|---:|---:|---:|
+| `fadena-std` | 5 | 8,86 | 0/10 | 222,63 / 1.087,68 | 776,7 MiB |
+| `fadena-std` | 10 | 8,70 | 0/20 | 634,69 / 2.141,11 | 1.125,1 MiB |
+| `fase0-soc` | 5 | 10,89 | 0/10 | 385,75 / 844,20 | 1.209,6 MiB |
+| `fase0-soc` | 10 | 11,22 | 0/20 | 394,97 / 1.715,15 | 1.211,3 MiB |
+
+Es una línea base de **retrieval**, no del endpoint completo: no incluye
+resolución de prompt/perfil, compilación de contexto, backend LLM ni inferencia
+de embeddings. Las dos consultas son representativas pero no bastan para medir
+calidad curricular; los conteos de retorno no equivalen a Recall/MRR. No se
+fijaron umbrales de aceptación porque aún falta acordar el presupuesto de RAM
+y SLA. El resultado confirma que candidate retrieval acotado es prioritario;
+no autoriza aún una migración a ANN ni cambios de ranking. La ruta
+multi-materia, el cambio de scope y el baseline de endpoint quedan pendientes.
+
+El runner pasó `compileall`, flake8 selectivo (`E9,F63,F7,F82`), Black para
+Python 3.12 y una ejecución smoke sobre un snapshot temporal. La salida
+completa se emite a stdout; no deja bases ni resultados generados en el árbol
+del repositorio.
+
+La curva sintética 1×/2×/5× se midió con
+[`scripts/benchmark_gate2_growth.py`](../scripts/benchmark_gate2_growth.py),
+replicando en snapshots descartables los chunks autorizados y sus vectores
+1024d. Se ejecutó:
+
+```bash
+.venv/bin/python scripts/benchmark_gate2_growth.py \
+  --notebooks fadena-std fase0-soc --factors 1 2 5 --iterations 12 \
+  --allow-high-load
+```
+
+Cada factor vuelve a crear snapshots desde la base original; la duplicación
+activa triggers FTS y mantiene las búsquedas/citas conectadas a chunks. Es una
+curva de capacidad con contenido repetido: el tiempo SQL de duplicación no
+equivale a ingesta real (parseo, embedding y validación), y los resultados no
+sirven para evaluar calidad ni diversidad semántica.
+
+| Scope | Factor | Chunks/vectores | Bytes de matriz | DB conocimiento / vector | Tiempo SQL de duplicación | Híbrido caliente p50/p95 | Híbrido primer query | RSS peak híbrido |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `fadena-std` | 1× | 46.530 | 190.586.880 | 303.194.112 / 1.369.837.568 | 0 s | 152,21 / 164,98 ms | 899,30 ms | 621,9 MiB |
+| `fadena-std` | 2× | 93.060 | 381.173.760 | 329.932.800 / 1.592.197.120 | 6,626 s | 288,47 / 321,27 ms | 1.680,28 ms | 1.184,5 MiB |
+| `fadena-std` | 5× | 232.650 | 952.934.400 | 594.296.832 / 2.259.300.352 | 21,288 s | 729,05 / 764,86 ms | 5.254,17 ms | 2.867,4 MiB |
+| `fase0-soc` | 1× | 43.214 | 177.004.544 | 303.194.112 / 1.369.837.568 | 0 s | 133,48 / 143,99 ms | 759,70 ms | 580,8 MiB |
+| `fase0-soc` | 2× | 86.428 | 354.009.088 | 319.959.040 / 1.575.890.944 | 5,115 s | 277,17 / 304,37 ms | 1.535,36 ms | 1.103,2 MiB |
+| `fase0-soc` | 5× | 216.070 | 885.022.720 | 556.089.344 / 2.194.055.168 | 21,658 s | 672,57 / 714,75 ms | 4.542,22 ms | 2.665,8 MiB |
+
+Los tiempos del primer query mantienen la misma limitación de caché del SO
+explicada arriba. El aumento de RAM observado es congruente con escaneo denso
+lineal y buffers de carga/normalización; a 5× el proceso ronda 2,6–2,9 GiB.
+No correr 5× con concurrencia alta hasta fijar presupuesto de memoria. El FTS
+caliente también creció al duplicar chunks (para `fadena-std`, p95 4,97 /
+9,30 / 18,43 ms en 1×/2×/5×), pero esta métrica conserva contenido repetido
+y no modela con exactitud la distribución de términos de un corpus nuevo.
+
+El runner de crecimiento pasó `compileall`, flake8 selectivo
+(`E9,F63,F7,F82`), Black para Python 3.12, un smoke 1×/2× y la corrida completa
+1×/2×/5×. Ambos runners emiten la salida a stdout y limpian los snapshots
+temporales al salir; no dejan bases ni resultados generados en el repositorio.
+Después de la alerta térmica, los defaults se endurecieron: retrieval ahora
+ejecuta concurrencia 1 por defecto y requiere `--allow-concurrent-load` para
+concurrencia mayor; la curva deja 1×/2× y 4 iteraciones por defecto y requiere
+`--allow-high-load` para factor mayor que 2×. No se repitieron mediciones con
+esas opciones.
+
+La actualización del `mtime` de la base vectorial se observó después de una
+prueba de aplicación focalizada, no durante estos runners. Estos últimos solo
+usan snapshots temporales, pero no hay checksum capturado antes de la otra
+prueba y no se puede certificar integridad byte a byte retroactivamente.
 
 **Calidad como restricción de diseño, no como optimización posterior.** El
 objetivo no es que TALOS responda más rápido usando menos contexto a cualquier
@@ -863,26 +1132,446 @@ Telecomunicaciones y fallback neutral probados desde contrato hasta prompt
 final; evidencia que demuestra tanto lo que sí se añade como lo que no se
 filtra desde otros cuadernos.
 
+**Estado al 2026-09-28:** se implementó la primera versión tipada de
+`NOTEBOOK_PROFILES` y el default consulta `notebooks.curriculum_id` para ligar
+perfil y scope por igualdad exacta. `curriculum_id` es la autoridad; no se
+requiere igualdad textual del campo `subject`, porque el registro federado y la
+etiqueta curricular publicada difieren en `fadena-so2`, `fadena-std` y
+`fadena-teleco`. El perfil emite la etiqueta canónica versionada y sugerencias
+opcionales. Sin ID curricular o ante un ID/currículum no reconocido, el
+contrato queda neutral. No se migraron los registros locales `fadena_v1`, por
+lo que esos cuadernos no reciben perfil hasta completar la migración aprobada.
+
+La política base ya no impone x86-64/System V, C, hardware ni representaciones
+de Fase 0. Las fases default no obligan a pseudocódigo, Python, analogías o
+diagramas; `required_analogies` está vacío. Se mantienen la política de
+solución de Gate 1 y la precedencia de contratos pedagógicos custom.
+
+Pruebas: el comando focalizado de resolución, identidad persistida, contrato
+custom y captura del prompt SSE terminó con **23 passed, 5 warnings** antes del
+ajuste final para que la autoridad sea exclusivamente `curriculum_id`. Tras
+ese ajuste y el formato, la suite liviana
+`tests/pedagogy/test_socratic_system_prompt.py` +
+`tests/pedagogy/test_pedagogical_contract_persistence.py` terminó con
+**16 passed, 3 warnings** en 3.98 s; el caso de captura HTTP/SSE no se volvió a
+ejecutar para no repetir carga de inicialización. `compileall`, flake8
+selectivo y `git diff --check` pasaron. Falta la matriz final de prompts por
+cada currículum desde backend HTTP, especialmente con migraciones canónicas
+aplicadas y contratos custom.
+
+Verificación adicional de bajo costo posterior al cambio de autoridad:
+selección exacta de perfil, IDs desconocidos/parecidos, identidad persistida y
+dos casos de prompt pedagógico terminaron con **7 passed** en 0.13 s; no
+inicializaron la aplicación ni abrieron bases de corpus. Black, `git diff
+--check`, `compileall` y flake8 selectivo siguen pasando.
+La igualdad de los cinco `curriculum_id` de `NOTEBOOK_PROFILES` contra
+`config/notebook_kc_catalog.json`, incluidos mismatch neutral y perfiles
+exactos, añadió **3 passed** en 0.06 s. `fadena-sye` permanece explícitamente
+fuera de perfiles activos hasta validar su habilitación operativa.
+
 ### Punto exacto para retomar
 
-El análisis curricular y de crecimiento quedó documentado en G2.0b/G2.0c. No
-se modificó código ni la base local. El siguiente trabajo es continuar Gate 2,
-en este orden:
+Identidad/alta, aislamiento de retrieval y baseline de capacidad están
+parcialmente cerrados y documentados arriba. No se modificó ni migró la base
+local. Sigue Gate 2; no iniciar Gates 3-5 hasta completar estos pendientes, en
+este orden:
 
-1. Reconciliar IDs canónicos/aliases, autoridad de `curriculum_id`, roles de
-   fuentes y ciclo de alta para cuadernos nuevos; no migrar filas SQLite por
-   suposición.
-2. Fijar el contrato de scope y allowlist: FADENA aislado por materia y Roadmap
-   transversal únicamente con asociaciones explícitas. Corregir los fallbacks
-   que pierden aislamiento y probar el caso de fuentes insuficientes.
-3. Congelar benchmark curricular y calidad end-to-end, y capturar baseline de
-   rendimiento/RAM con el hardware de destino antes de refactorizar vector
-   search.
-4. Implementar perfiles/prompts exactos, resolver y validar el prompt final por
-   cuaderno; luego abordar candidate retrieval acotado y deduplicación vectorial
-   con pruebas comparativas de calidad, aislamiento y capacidad.
-5. Cerrar Gate 2 y recién entonces continuar Gate 3 (F5), Gate 4 (F6) y Gate 5
-   (regresión global/habilitación PED-F7) según sus criterios de salida.
+1. Reconciliar IDs canónicos/aliases, autoridad de `curriculum_id`,
+   roles/fuentes y ciclo explícito de alta. No ampliar autorizaciones por
+   inferencia ni migrar la base local durante la reconciliación.
+2. Congelar el benchmark curricular/end-to-end con oráculo de calidad: corpus,
+   consultas, fuentes esperadas, negativas, casos sin evidencia y rúbrica.
+   Las mediciones sintéticas de capacidad 1×/2×/5× no sustituyen esta salida.
+3. Completar el recorrido de perfiles hasta el prompt HTTP/SSE final por
+   currículo, incluyendo fallback neutral, precedencia de contratos custom,
+   pedidos explícitos y pruebas de ausencia de contaminación curricular.
+4. Completar el baseline real de capacidad: calidad/Recall-MRR por materia e
+   intención, latencia p50/p95, memoria, candidatos, caché, cambio de scope,
+   ingesta y concurrencia. Las cargas que puedan reproducir el evento térmico
+   se reservarán para un entorno con límites y monitoreo adecuados.
+5. Implementar candidate retrieval denso acotado por scope y ACL, y comparar
+   calidad, aislamiento, latencia y memoria contra el benchmark congelado.
+   Evaluar deduplicación vectorial solo con autorización explícita demostrable;
+   no correr 5× concurrente en el hardware local sin presupuesto aprobado.
+6. Cerrar Gate 2 con decisiones y evidencia reproducible. Recién después
+   continuar Gate 3 (F5), Gate 4 (SSE/UI F6) y Gate 5 (regresión global y
+   habilitación PED-F7), respetando esas dependencias.
+
+### Diseño de implementación — paso 1: reconciliar identidad y fuentes
+
+**Objetivo:** producir una matriz revisada de identidad, currículo y fuentes
+por notebook que distinga configuración declarativa de autorización efectiva.
+Este paso es de inventario y decisión; no modifica filas, embeddings ni
+asociaciones de la base local y no habilita automáticamente notebooks nuevos.
+
+#### Entradas y autoridad de cada dato
+
+| Dato | Fuente que se inspecciona | Cómo se usa; qué no debe inferirse |
+|---|---|---|
+| `notebook_id`, nombre, materia descriptiva y fuentes declaradas | `DEFAULT_NOTEBOOKS` en `src/study_engine/federation/notebook_registry.py` | Define identidades y asociaciones declaradas para bootstrap. La lista de `sources` no es por sí sola la ACL efectiva de runtime. |
+| `curriculum_id` y KCs asociados | Claves exactas de `config/notebook_kc_catalog.json` | Fuente del mapeo curricular configurado. No certifica autoridad académica ni permite mapear por similitud de nombres. |
+| Rol semántico de una fuente | `config/notebook_source_roles.json` | Describe `PRIMARY`, `COMPLEMENTARY`, etc.; un rol nunca concede acceso. Una fuente con rol pero sin asociación efectiva no se autoriza. |
+| Asociaciones efectivas notebook-fuente | Tabla `notebook_sources` de `knowledge_store.db` | Es el límite de autorización que debe preservarse en retrieval. No se amplía uniendo automáticamente esta tabla con las otras listas. |
+| Existencia e identidad de las fuentes | Tabla `sources` y manifiestos relacionados en `knowledge_store.db` | Permite detectar referencias inexistentes, hashes/manifiestos y diferencias de identidad. No se usa el contenido del vector store para resolver identidades. |
+| Alias o bridge explícito | Configuración versionada de federation/bridges | Solo se acepta una equivalencia declarada y revisada. Si falta evidencia, el ID permanece como scope separado/neutral. |
+
+#### Implementación propuesta
+
+1. **Registrar el punto de partida sin alterarlo.** Capturar `HEAD`, rama y
+   `git status` para que el trabajo local preexistente siga distinguible. No
+   crear commit, stash, reset ni migración como parte de este paso.
+2. **Construir un reconciliador de solo lectura** (preferentemente un comando
+   de diagnóstico bajo `scripts/`) que lea los catálogos versionados y haga
+   consultas explícitamente read-only a `knowledge_store.db`. No inicializar
+   `AppContainer`, no abrir `vector_store.db`, no llamar a métodos de escritura
+   ni ejecutar el bootstrap. El comando debe aceptar rutas de entrada para
+   poder correr contra fixtures/snapshots y no asumir la base por defecto.
+3. **Emitir una matriz determinista**, con una fila por notebook y campos para:
+   ID y alias explícito; estado/configuración activa; nombre y materia
+   descriptiva; `curriculum_id` configurado y persistido; fuentes declaradas,
+   fuentes con rol y fuentes efectivamente asociadas; fuentes faltantes o
+   desconocidas; asociaciones locales sin declaración; nivel de confianza/
+   evidencia y decisión pendiente. Ordenar IDs y fuentes para que el resultado
+   sea estable y revisable en diff.
+4. **Clasificar discrepancias sin repararlas.** Como mínimo: ID presente solo
+   en una autoridad; `curriculum_id` ausente o discordante; alias ambiguo;
+   fuente declarada pero inexistente; rol sin asociación; asociación sin rol;
+   asociación local no declarada; notebook activo sin fuentes; y fuente
+   compartida entre scopes. Las coincidencias entre `sources`, roles y ACL se
+   informan como conjuntos separados; no se toma su unión como permiso.
+5. **Resolver explícitamente los casos conocidos con evidencia**, aplicando
+   estos defaults seguros mientras no haya decisión documentada:
+   - `fase0-soc` mantiene su identidad Roadmap exacta; una fuente FADENA solo
+     se considera compartida si existe una asociación explícita.
+   - `fadena-sye` no se habilita como perfil/scope operativo hasta confirmar
+     fuentes y autoridad curricular.
+   - `fadena-prog`, `fadena-so` y `NB-CYBERSECURITY-V1` se conservan separados;
+     no se convierten en aliases por nombre o contenido.
+   - Notebooks custom sin mapeo siguen válidos como scopes registrados, pero
+     neutrales y sin `curriculum_id` inferido.
+   - El `fadena_v1` persistido se reporta como discrepancia heredada; el
+     catálogo exacto puede orientar el mapeo deseado, pero la reconciliación
+     no actualiza SQLite. Cualquier reparación de datos será una operación
+     posterior separada, respaldada, revisada y aprobada.
+6. **Revisar antes de aplicar.** La salida del diagnóstico será propuesta,
+   no una migración. Tras revisar la matriz, registrar decisiones explícitas
+   para aliases, estado activo, currículo y fuentes permitidas. Solo cambios
+   declarativos aprobados se incorporarán a configuración versionada. No
+   insertar ni borrar `notebook_sources` automáticamente desde el reconciliador.
+
+#### Pruebas y condición de salida del paso 1
+
+- Unit tests con fixtures pequeños para cada discrepancia, IDs parecidos,
+  aliases explícitos/ambiguos, catálogos incompletos, fuente inexistente,
+  fuente compartida y diferencias entre declaración, rol y ACL.
+- Verificar que el diagnóstico no escribe: comparar bytes/mtime de los
+  fixtures SQLite antes/después y probar conexiones read-only; si una ruta de
+  entrada no existe o un catálogo está mal formado, reportar error explícito
+  y terminar con estado no-cero, nunca generar un informe de éxito parcial.
+- Ejecutar primero sobre fixtures; después, solo sobre una copia/snapshot
+  aislado de la base de conocimiento. No arrancar la aplicación ni tocar el
+  vector store para producir esta matriz.
+- Cerrar el paso cuando cada notebook esté clasificado como canónico,
+  alias explícito, legacy independiente o custom; cada discrepancia tenga una
+  decisión/evidencia o quede visible como bloqueo; ninguna fuente haya ganado
+  autorización implícita; y el estado de las bases originales permanezca
+  intacto.
+
+**Fuera de este paso:** migrar `curriculum_id`, cambiar asociaciones en la
+base activa, deduplicar embeddings, habilitar `fadena-sye`, inventar mappings
+de alias, crear una UI administrativa o refactorizar federation/retrieval en
+general. Esas acciones requieren decisiones y pruebas propias; el resultado
+del paso 1 será el insumo controlado para las fases posteriores.
+
+#### Ejecución inicial del paso 1 — diagnóstico, 2026-09-28
+
+Se implementó el diagnóstico reproducible de solo lectura:
+[`scripts/reconcile_gate2_notebooks.py`](../scripts/reconcile_gate2_notebooks.py),
+con lógica testeable en
+[`notebook_reconciliation.py`](../src/study_engine/diagnostics/notebook_reconciliation.py).
+Las decisiones revisadas de identidad se guardan en
+[`notebook_identity_decisions.json`](../config/notebook_identity_decisions.json)
+como metadatos de auditoría; no participan en autorización, búsqueda ni
+bootstrap.
+El comando importa únicamente las declaraciones estáticas del registry; no
+arranca la aplicación ni el bootstrap. Abre SQLite con `mode=ro` y
+`query_only=ON`, y ofrece salida `summary` o JSON completo. Acepta rutas
+explícitas para catálogos y base:
+
+```bash
+.venv/bin/python scripts/reconcile_gate2_notebooks.py \
+  --knowledge-db /ruta/a/knowledge_store_snapshot.db --format json
+```
+
+La corrida se hizo contra un snapshot temporal creado con la API de backup
+SQLite desde una conexión de solo lectura. Se verificó que el tamaño y
+`mtime_ns` de `knowledge_store.db` original fueran iguales antes y después;
+el snapshot se eliminó al terminar. No se abrió `vector_store.db` ni se
+ejecutaron escrituras, migraciones o bootstrap.
+
+**Conteo observado:** registry 8 notebooks; catálogo curricular 6; catálogo
+de roles 5; base local 12 notebooks, 76 fuentes y 151 asociaciones
+notebook-fuente. El diagnóstico emitió 12 filas y encontró discrepancias en
+las 12; esto es un inventario para revisión, no significa que toda diferencia
+sea automáticamente un permiso incorrecto o que deba corregirse borrando
+asociaciones.
+
+#### Decisiones de identidad y tratamiento de discrepancias
+
+La comparación de las tres fuentes versionadas permite decidir identidades,
+pero no autoriza por sí sola a cambiar permisos ni a certificar programas
+académicos. Se adopta esta clasificación de trabajo:
+
+| ID | Decisión de identidad | Decisión operativa de Gate 2 |
+|---|---|---|
+| `fase0-soc` | Notebook canónico Roadmap/Fase 0; no alias FADENA. | Mantener `roadmap_kasiu_v4_fase0` como ID curricular deseado por catálogo exacto. No alterar SQLite ni sus fuentes; cada asociación cruzada Roadmap debe conservarse solo como ACL explícita y cotejarse contra la evidencia curricular. |
+| `fadena-lenguajes` | Notebook canónico Lenguajes FADENA 2026. | ID deseado `fadena_lenguajes_2026`. Cinco de las siete asociaciones locales sin declaración son archivos dentro del directorio del curso y ahora tienen rol explícito; quedan sin rol `src_fadena_prog_arboles` y `src_fadena_prog_archivos`, cuyo origen/carpeta no se confirmó. |
+| `fadena-so2` | Notebook canónico Sistemas Operativos II FADENA 2026, distinto del legacy `fadena-so`. | ID deseado `fadena_so2_2026`. Cinco de las seis asociaciones locales extra son unidades/actividades 2026 del curso y recibieron rol; Stallings 5.ª permanece sin rol por nota de reemplazo por 7.ª. Tres fuentes de roles marcadas faltantes no se autorizan por esa mención. |
+| `fadena-std` | Notebook canónico Tratamiento de Datos FADENA 2026. | ID deseado `fadena_std_2026`. Se asignó rol a 19 de las 21 asociaciones locales extra cuyos nombres/metadatos coinciden con materiales del directorio del curso. Rosen permanece pendiente de procedencia y el PDF de soluciones SQL queda sin rol hasta validar su tratamiento de evaluación. |
+| `fadena-teleco` | Notebook canónico Infraestructura de Telecomunicaciones FADENA 2025. | ID deseado `fadena_teleco_2025`. Las cuatro asociaciones extra (Unidades 2–5 2026) coinciden con los archivos del directorio del curso y recibieron rol PRIMARY. Tanenbaum de redes está marcado ausente y no tiene asociación. |
+| `fadena-sye` | Entrada de catálogo curricular, pero no notebook operativo en `DEFAULT_NOTEBOOKS` ni en roles. Hay una fila SQLite local vacía, con `subject`/`curriculum_id` nulos y cero asociaciones. | Mantener fuera del registry operativo; el placeholder local no lo habilita. El ID de catálogo `fadena_sye_2026` difiere del `NULL` persistido, pero no migrarlo ni asignarle fuentes hasta validar identidad académica y bibliografía primaria. |
+| `fadena-prog` | Scope legacy independiente, no alias demostrado de `fadena-lenguajes` ni de Fase 0. | Conservar el ID para compatibilidad, sin redirigirlo. Sus cuatro `source_id` declarados no existen localmente y no hay ACL; no aceptar nuevas asociaciones por inferencia. La etiqueta “Legacy Alias” es descriptiva heredada, no un mapping. |
+| `fadena-so` | Scope legacy independiente, no alias demostrado de `fadena-so2`. | Igual que `fadena-prog`: preservar ID, sin redirección; fuentes declaradas ausentes y cero asociaciones locales. |
+| `NB-CYBERSECURITY-V1` | Scope independiente de Seguridad, no alias FADENA. | Mantener currículo sin mapear. Sus 10 ACL locales se preservan sin ampliarlas; faltan catálogo de roles y cotejo de que las siete asociaciones no declaradas correspondan a su objetivo. |
+| `NB-SEC-01-C-PTR` | Scope canónico de tema dentro de `ROADMAP-CYBERSECURITY-V1`, node `SEC-01-C-PTR` (punteros, aritmética y modelo de memoria en C), confirmado por el roadmap versionado y el golden set. No equivale al notebook general `NB-CYBERSECURITY-V1`. | Mantener la identidad exacta y reconocerlo en el benchmark. No inferir un `curriculum_id` de curso: el roadmap no lo provee. Sus 42 asociaciones son demasiado amplias para el nodo descrito y una apunta a un `source_id` huérfano; queda bloqueado para certificar aislamiento hasta revisión de ACL, sin borrarlas en este paso. |
+| `nb_prog_1`, `nb_prog_basica` | Dos filas locales custom sin identidad curricular, fuentes o registry asociado. | Preservar sin borrado; tratarlas como scopes locales no habilitados para decisiones curriculares hasta encontrar procedencia. |
+
+Los cinco `curriculum_id` específicos del catálogo son la decisión de mapeo
+de configuración para los cinco notebooks canónicos. En SQLite, los cinco
+persistidos continúan con `fadena_v1`; eso es una **migración pendiente**, no
+una razón para cambiar la autoridad al valor genérico ni permiso para
+reescribir las filas. Además, `fadena-sye` tiene un placeholder local con
+`curriculum_id=NULL`, que también difiere del catálogo pero no es una
+identidad operativa aprobada.
+
+**Decisión de fuentes:** `notebook_sources` se mantiene como la única ACL
+efectiva. La lista de `DEFAULT_NOTEBOOKS.sources` describe las fuentes de
+bootstrap declaradas; `notebook_source_roles.json` describe función
+pedagógica, no permisos. La estructura del repo también ubica materiales bajo
+`fuentes/fadena-lenguajes`,
+`fuentes/fadena-so2`, `fuentes/fadena-std` y `fuentes/fadena-teleco`. Eso
+corrobora procedencia local de varios documentos de curso, pero no prueba por
+sí solo su rol académico ni autoriza una asociación nueva. Por tanto:
+
+- asociaciones que ya existen siguen siendo las únicas asociaciones
+  autorizantes; no se quitan ni agregan automáticamente;
+- para 33 asociaciones ya autorizadas con fuente/archivo de curso coincidente
+  (5 Lenguajes, 5 SO II, 19 Tratamiento de Datos, 4 Telecomunicaciones), se
+  añadieron roles basados en tipo de documento: clases/unidades `PRIMARY`,
+  ejercicios `IMPLEMENTATION`, manual de C `REFERENCE` y material
+  complementario identificado como tal. El informe confirmó que los 33 IDs ya
+  estaban asociados en `notebook_sources`; esto no añadió ACLs. Sí cambia qué
+  evidencia etiquetada por rol puede participar en el ensamblador pedagógico,
+  por lo que sus pruebas focalizadas se incluyen en la validación.
+- se dejó sin rol `src_fadena_prog_arboles`, `src_fadena_prog_archivos` y
+  `src_rosen_matematicas_discretas` para esos scopes donde no hay procedencia
+  de carpeta específica suficiente; `src_0bc5d20dcc91895f` (Stallings 5.ª)
+  sigue sin rol porque la configuración declara que fue reemplazado por la
+  7.ª edición; `src_f3352475bc0cd360` (soluciones SQL) queda sin rol a la
+  espera de confirmar su tratamiento respecto de evaluaciones; no se borraron
+  sus asociaciones existentes.
+- referencias de roles ausentes del almacén (incluidas las marcadas
+  `SOURCE_MISSING`) no conceden acceso;
+- los 18 vínculos cruzados observados en `fase0-soc` hacia materiales FADENA,
+  SO, redes y datos se preservan porque están explícitos en su ACL; su
+  pertinencia al Roadmap debe validarse en benchmark y no se replica a otros
+  scopes;
+- `fadena-prog`/`fadena-so` no reciben asociaciones de `fadena-lenguajes`/
+  `fadena-so2` por similitud de contenido.
+
+Se observó un defecto en los metadatos: 41 de 76 registros `sources` tienen
+`subject="Cybersecurity"` aunque los títulos/catálogos los asocian a Lenguajes,
+SO II, Tratamiento de Datos, Telecomunicaciones y bibliografía general; los 76
+registros tienen `course=NULL`. Por eso `sources.subject/course` no son
+autoridad suficiente para reconciliar fuentes. Esta inconsistencia ayuda a
+explicar por qué los campos del notebook `NB-SEC-01-C-PTR` no se deben usar
+para reclasificar automáticamente las fuentes globales. El roadmap exacto sí
+confirma la identidad del notebook de tema, pero la ACL amplia necesita una
+decisión de acceso separada.
+
+Se examinó localmente la portada/inicio de
+[`fuentes/fadena-std/UNIDAD1STD.pdf`](../fuentes/fadena-std/UNIDAD1STD.pdf):
+identifica “Licenciatura en Ciberdefensa”, “Sistemas de Tratamientos de
+Datos”, “Año 2026” y desarrolla la Unidad 1 sobre dato, información y
+conocimiento. Esto respalda la identidad/nombre del curso y la fuente primaria
+de Unidad 1; no es el programa completo, así que no certifica la cantidad de
+módulos ni la bibliografía oficial del ciclo. No se extrapola un plan de
+estudios a partir de este documento.
+
+#### Revisión de ACL de `NB-SEC-01-C-PTR` y plan de implementación
+
+La revisión se realizó sobre un snapshot temporal read-only de
+`knowledge_store.db`; no se consultó ni modificó `vector_store.db` y no se
+cambió ninguna asociación persistida.
+
+**Estado observado:**
+
+- `notebook_sources` contiene **42 asociaciones únicas** para
+  `NB-SEC-01-C-PTR`: **41** resuelven a una fila `sources` y **1**
+  (`src_Stallings.William.-.Sistemas.Operativos.5ed.pdf`) es huérfana: no tiene
+  registro en `sources` ni chunks en `chunks`.
+- Las 41 fuentes existentes representan **105.179 chunks** unidos al scope.
+  Esto coincide con el scope grande de la medición de capacidad; cualquier
+  narrowing puede modificar tanto relevancia/calidad como memoria y latencia.
+- Las 41 filas existentes tienen `sources.role=PRIMARY`,
+  `sources.subject=Cybersecurity` y `sources.course=NULL`. Ese `role` es el
+  metadato general de la fila fuente, no rol validado para el nodo; el
+  `subject` está contradicho por títulos y carpetas de materias. Ninguno de
+  esos campos justifica mantener una ACL.
+- La mezcla incluye materiales de redes/telecomunicaciones, bases de datos,
+  Lenguajes, FADENA SO II, estructuras de datos, seguridad y programación en C.
+  Ejemplos claramente ajenos al nodo de punteros/C: fuentes de bases de datos,
+  Telecomunicaciones, concurrencia/planificación de SO y el roadmap
+  `src_roadmap_nuevo_horizonte`.
+- La ACL amplia no coincide con el límite explícito del roadmap:
+  `SEC-01-C-PTR` se describe como “Punteros, Aritmética y Modelo de Memoria en
+  C”, con competencias `COMP-C-POINTERS` y `COMP-MEMORY-LAYOUT`. Los nodos
+  posteriores del mismo roadmap separan procesos, gestión de memoria/
+  vulnerabilidades, concurrencia y seguridad binaria.
+
+**Bloqueo de calidad que impide una poda inmediata:** los **420 de 420**
+registros de `data/eval/golden_set_v2_401.json` asignan su `notebook_scope`
+exclusivamente a `NB-SEC-01-C-PTR`, pese a que la rúbrica incluye otras
+materias/nodos. Entre los `kc_ids` aparecen `so2_gestion_memoria` (347
+apariciones), `so2_procesos` (160), `so2_concurrencia` (80) y
+`aritmetica_punteros` (77). Por tanto, ese golden set parece una evaluación
+del corpus de ciberseguridad/sistemas completo alojada bajo el scope del nodo
+SEC-01, no un oráculo limpio de su ACL. Podar fuentes de SO, bases de datos o
+seguridad antes de separar/corregir esa asignación causaría una regresión
+artificial en el benchmark; conservarlas solo por ese benchmark perpetuaría
+contaminación de scope. El golden set debe revisarse/versionarse antes del
+cambio ACL y ninguna métrica actual se interpreta como autorización.
+
+**Propuesta de alcance de referencia, no allowlist aprobada todavía:**
+
+| Tratamiento propuesto | Fuentes/criterio |
+|---|---|
+| Candidatas núcleo para una ACL estricta SEC-01 | `src_fadena_prog_punteros`, `src_fadena_leng_clase2`, `src_marzal_intro_programacion_c`, `src_urrutia_programacion_c_principiantes`, `src_stallman_gnu_c_manual` y `src_joyanes_fundamentos`. Sus identidades apuntan directamente a punteros, programación en C o fundamentos de programación; antes de retener cada una, verificar chunks esperados/reales para las competencias SEC-01. |
+| Candidatas secundarias que requieren decisión curricular | `src_fadena_prog_lineales`, `src_fadena_leng_clase1`, `src_bel_algoritmos_estructuras_python`, `src_goodrich_dsa_python` y `src_spraul_think_like_a_programmer`. Pueden aportar estructuras/algoritmos, pero no deben mantenerse automáticamente en el nodo por ser programación general. |
+| Fuentes que deberían salir de la ACL estricta SEC-01, salvo una justificación por contenido y objetivo | Fuentes de bases de datos; Telecomunicaciones/redes; SO II, planificación y concurrencia; archivos; Roadmap Nuevo Horizonte; y material general de seguridad/redes. Esos contenidos deben quedar en el scope curricular/nodo que corresponda, no copiarse aquí por similitud temática. |
+| Registro huérfano | `src_Stallings.William.-.Sistemas.Operativos.5ed.pdf`: no es recuperable como fuente hoy (sin fila ni chunks). Retirar solo su vínculo huérfano en una transacción posterior; no borrar ni actualizar otras fuentes y comprobar el vector store por separado antes de la operación. |
+
+La lista núcleo es una **propuesta para validar**, no una aprobación final:
+los títulos no sustituyen revisar los chunks específicos ni confirmar si el
+notebook pretende representar solo SEC-01 o agrupar varios nodos de
+ciberseguridad. Los capítulos de overflow/heap/seguridad pueden pertenecer a
+SEC-03/SEC-05 y necesitan mapping a esos nodos, no una expansión silenciosa de
+SEC-01.
+
+**Plan de implementación seguro:**
+
+1. **Resolver el contrato funcional antes de borrar ACL:** corregir o versionar
+   el golden set con scopes que correspondan a cada nodo/curso y fijar
+   explícitamente si `NB-SEC-01-C-PTR` es únicamente SEC-01 o un cuaderno
+   agregado. Conservar el archivo actual como histórico; no sobreescribirlo
+   sin registro de procedencia y nueva versión.
+2. **Congelar propuesta de fuentes por objetivo:** para cada fuente candidata,
+   mapear source ID → archivo/hash → fragmentos que sustentan punteros,
+   aritmética C o modelo de memoria → rol y nodo propietario. Cualquier fuente
+   sin correspondencia demostrable queda fuera de la propuesta núcleo y
+   visible como decisión pendiente.
+3. **Generar un diff ACL de solo lectura:** comparar los 42 links actuales con
+   la allowlist aprobada y producir listas exactas de conservar, retirar,
+   reubicar (solo con destino explícito) y huérfanas. No usar la unión de
+   `DEFAULT_NOTEBOOKS.sources`, roles o nombres de carpeta para crear
+   asociaciones.
+4. **Probar en fixtures y snapshot:** crear pruebas que impongan coincidencia
+   exacta de ACL; consultas positivas de punteros/C y modelo de memoria;
+   negativas de bases de datos, redes, Telecomunicaciones y temas SO no
+   autorizados; abstención con evidencia insuficiente; preservación de
+   asociaciones compartidas que otros notebooks todavía requieran; y
+   verificación de que el vector store no habilite chunks sin una asociación
+   válida en `notebook_sources`.
+5. **Medir antes/después en el benchmark corregido:** Recall/MRR/cobertura por
+   `kc_id` y scope, cero candidatos fuera de ACL, p50/p95, candidatos y RSS.
+   La evaluación debe incluir tanto el nodo SEC-01 como los scopes separados
+   que reciban material reubicado. Si los resultados no cumplen, detener el
+   cambio y revisar la allowlist, no ampliar el fallback.
+6. **Aplicar como migración separada y reversible:** crear y verificar backup
+   consistente; ejecutar primero el diff sobre una copia; validar integridad,
+   conteos, citas, FTS y retrieval; preparar transacción idempotente para
+   borrar únicamente links aprobados y la asociación huérfana; conservar filas
+   de `sources`, chunks y embeddings, especialmente cuando sean compartidos.
+   Aplicar a la base activa solo con aprobación explícita, ventana de
+   mantenimiento y procedimiento de rollback documentado.
+7. **Cerrar con evidencia:** registrar hash/backup, diff de links antes/
+   después, salida de integrity checks, pruebas, benchmark y confirmación de
+   que scopes hermanos no perdieron fuentes. La base activa actual no se
+   modifica durante esta revisión.
+
+**Dictamen:** se confirma la ACL como excesivamente amplia para el nodo SEC-01
+y con una asociación huérfana; no se ejecuta aún la poda. El mapeo erróneo de
+los 420 casos de golden set al mismo notebook bloquea una reducción segura.
+El siguiente trabajo es separar intención de benchmark por nodo y validar la
+allowlist propuesta; después se puede implementar y probar la migración sobre
+snapshot antes de decidir cualquier aplicación sobre la base activa.
+
+El diagnóstico no encontró un mapping explícito `alias → notebook_id`. Los
+bridges autorizan cruces temáticos, no identidad; aliases dentro de KCs son
+sinónimos de conceptos, no IDs de notebook. Se corrigió también la
+clasificación para que un notebook presente solo en el catálogo (como
+`catalog-only` en el fixture) no reporte falsamente
+`CURRICULUM_ID_MISMATCH`, y para que los dos IDs cuyo nombre contiene
+“Legacy Alias” se clasifiquen explícitamente como scopes legacy sin destino de
+alias. `fadena-sye` sí se reporta como mismatch entre catálogo y su placeholder
+SQLite nulo; esa diferencia no se interpreta como aprobación para activarlo.
+
+La nueva matriz auditable vive en
+[`config/notebook_identity_decisions.json`](../config/notebook_identity_decisions.json).
+Corrige dos conclusiones preliminares del primer informe: `NB-SEC-01-C-PTR`
+no es un custom desconocido sino un scope de tema referido por el roadmap
+versionado; y los únicos notebooks SQLite sin registry/catálogo curricular
+con procedencia aún indeterminada son `nb_prog_1` y `nb_prog_basica`. Sus
+carpetas antiguas (“Carrera Programación” y “Fase 0 - Ciberseguridad”) son
+indicios, no equivalencias canónicas, por lo que se preservan sin mapear.
+
+La configuración de roles se completó para 33 fuentes que ya estaban
+asociadas y cuyo `subject`/nombre de archivo coincide con el scope y la
+carpeta de materia. El script verificó sobre snapshot que las 33 entradas
+están dentro de su ACL existente. Se excluyeron deliberadamente las soluciones
+SQL, Stallings 5.ª edición reemplazada, fuentes de programación/Rosen sin
+carpeta de materia inequívoca y las fuentes faltantes declaradas. No cambió
+ninguna fila de `notebook_sources`.
+
+Se detectó además que el campo `sources.subject` no es consistente como
+identidad académica: tiene 41 filas con `Cybersecurity`, mientras otras filas
+usan slugs de materia; `course` es NULL en las 76. Varias fuentes con
+`subject=Cybersecurity` también están explícitamente asociadas a cuadernos
+FADENA. Se conservan los campos en el informe como contexto, no se usan para
+inferir permisos o alias.
+
+No se aplicaron cambios a `notebook_sources`. Se actualizaron únicamente
+metadatos de roles para 33 fuentes ya asociadas y cotejadas con sus
+carpetas/subject de curso. Los roles restantes no se ampliaron por falta de
+procedencia inequívoca o por riesgo (soluciones). Los mappings curriculares
+quedan resueltos como destino declarativo para los cinco cursos canónicos,
+pero su persistencia requiere una migración separada con copia, revisión y
+aprobación. La autoridad del programa de `fadena-std` aún debe cotejarse. La
+ACL de `NB-SEC-01-C-PTR` es el bloqueo principal de alcance; no se altera sin
+una lista de fuentes esperadas revisada.
+
+**Validación revisada:** reconciliación más aislamiento del ensamblador
+pedagógico — **11 passed**; la matriz más reciente reporta seis discrepancias de
+`curriculum_id` (cinco filas canónicas con `fadena_v1` y el placeholder
+`fadena-sye` con `NULL`); Black para Python 3.12 y flake8 selectivo
+(`E9,F63,F7,F82`) pasaron; `git diff --check` pasó. Las pruebas cubren
+desacuerdos de `curriculum_id`, catálogos incompletos, IDs ausentes, roles
+sin asociaciones, fuentes locales no declaradas, fuentes compartidas por ACL
+explícita, JSON inválido y ausencia de escrituras (hash y `mtime_ns` del
+fixture sin cambios).
+
+**Estado del paso 1: identidad decidida; autorización de fuentes y migración
+pendientes.** Se confirmó `NB-SEC-01-C-PTR` como scope de roadmap, se separó
+de `NB-CYBERSECURITY-V1`, y se identificaron solo dos scopes custom sin
+procedencia (`nb_prog_1`, `nb_prog_basica`); `fadena-sye` es un placeholder
+sin asociaciones. Los IDs legacy no son aliases. Los cinco mappings
+curriculares del catálogo son destinos declarativos, mientras las seis filas
+persistidas discordantes requieren migración separada. Para completar el
+cierre operativo falta acordar las fuentes autorizadas y roles de las
+asociaciones adicionales —especialmente el scope SEC-01— contra la
+bibliografía/programa; las asociaciones actuales permanecen intactas. No
+ejecutar reparación sobre la base activa sin snapshot, respaldo y procedimiento
+separado.
 
 ## Gate 3 — Cerrar criterios de aceptación de F5
 
@@ -954,3 +1643,312 @@ La suite queda cerrada cuando:
 
 - [Diagnóstico multi-cuaderno y plan de continuidad](./DIAGNOSTICO_MULTICUADERNO_Y_PLAN_DE_CONTINUIDAD.md)
 - [Plan rector de mejora pedagógica](./PLAN_MEJORA_PEDAGOGICA_TALOS.md)
+
+## Auditoría de scopes del benchmark v2.401 — 2026-09-28
+
+Se comparó `golden_set_v2_401.json` con su fuente anterior
+`golden_set_v2_400.json`, sus qrels y la ACL persistida. La comprobación fue
+read-only: no se ejecutó retrieval, no se abrió `vector_store.db` y no se
+modificó ninguna base.
+
+**Resultado:** v2.401 no se puede usar como benchmark de referencia para podar
+la ACL de SEC-01 ni basta con restaurar el campo `notebook_scope`.
+
+- v2.400 asignaba 70 de sus 400 casos a cinco scopes secundarios
+  (`NB-CYBERSECURITY-V1`, `fadena-so2`, `fadena-lenguajes`,
+  `fadena-teleco` y `fadena-std`). En v2.401, los 420 casos —incluidos los 20
+  casos nuevos de depuración— quedaron asignados a `NB-SEC-01-C-PTR`.
+- Para los 70 casos reasignados, los qrels actuales de v2.401 tienen 330
+  referencias a chunks. **224/330** apuntan a fuentes no autorizadas por el
+  scope secundario que esos casos tenían en v2.400. Por lo tanto, revertir solo
+  `notebook_scope` generaría un conjunto internamente inconsistente.
+- v2.400 conserva 352 expectativas de abstención, incluidas 292 consultas que
+  no pertenecen a la categoría `ood_trampas`. El runner actual rechaza esas
+  expectativas para categorías no-OOD. El generador v2.401 las normaliza
+  forzando `abstention=false` y recuperando evidencia bajo SEC-01; eso oculta
+  pruebas negativas de scope en vez de modelarlas en el contrato del runner.
+- El metadata v2.401 declara 320 consultas de notebooks primarios y 100 de
+  secundarios, pero el dataset asigna las 420 a SEC-01.
+
+La evidencia y el bloqueo estructurado también están registrados en
+`config/notebook_identity_decisions.json`, dentro de la decisión de
+`NB-SEC-01-C-PTR`.
+
+El procedimiento operativo y los criterios para ejecutar la reparación y el
+piloto de forma segura están en
+[GATE2_BENCHMARK_SCOPE_RUNBOOK.md](./GATE2_BENCHMARK_SCOPE_RUNBOOK.md).
+
+**Siguiente implementación segura:**
+
+1. ~~Definir una nueva versión del benchmark que preserve los scopes previstos
+   y distinga consultas positivas, OOD globales y negativas por scope
+   autorizado.~~ **Completado en contrato de fixtures — 2026-09-28.**
+2. ~~Ajustar la validación del runner para aceptar solo la forma explícita y
+   etiquetada de oráculos negativos por scope; mantener el rechazo de
+   abstenciones accidentales y de qrels vacíos para consultas positivas.~~
+   **Completado para validación y scoring livianos — 2026-09-28.**
+3. Regenerar qrels por scope en ejecución controlada sobre snapshots/copia,
+   nunca sobre la base activa; mantener límites de carga y no correr aquí un
+   benchmark pesado por el antecedente de temperatura/CPU.
+4. ~~Derivar los conteos del metadata desde los registros finales y probar:
+   unicidad/completitud de query IDs, correspondencia exacta con qrels,
+   pertenencia de todos los chunks qrel a la ACL declarada y separación entre
+   scopes antes de considerar cualquier poda.~~ **Completado con fixtures
+   pequeños — 2026-09-28.**
+
+### Implementación del contrato Gate 2 — 2026-09-28
+
+Se añadieron [gate2_oracle.py](../src/study_engine/contracts/gate2_oracle.py)
+y su validador/scorer
+[gate2_oracle.py](../src/study_engine/retrieval/gate2_oracle.py). El contrato
+solo acepta `positive_in_scope`, `ood_global` y `negative_by_scope`, exige
+qrels no vacíos para positivas, qrels vacíos para las dos clases negativas,
+verifica IDs completos, chunks existentes en el fixture y pertenencia a la
+ACL declarada. Los cambios de scope requieren una decisión explícita.
+
+La evaluación simulada trata una respuesta vacía como fallo para una positiva
+y separa los conteos por tipo de oráculo. Las pruebas en
+[test_gate2_oracle.py](../tests/unit/retrieval/test_gate2_oracle.py) cubren
+también metadata inconsistente, chunks fuera de ACL y citas/candidatos
+indebidos en oráculos negativos. Validación focalizada:
+`.venv/bin/pytest -q tests/unit/retrieval/test_gate2_oracle.py
+tests/unit/diagnostics/test_notebook_reconciliation.py` — **17 passed**.
+No se ejecutó retrieval, no se abrieron las bases reales y no se modificaron
+ACL activas ni golden sets históricos.
+
+Hasta completar y aprobar esa nueva versión, no cambiar la ACL de SEC-01 ni
+tratar las métricas v2.401 como baseline fiable para ella.
+
+### Auditoría offline posterior al piloto Gate 2 — 2026-09-28
+
+Se corrigió la pérdida de `topic_anchors` al normalizar el dataset: el contrato
+`Gate2Query` y el generador ahora conservan los anclajes, con una prueba que
+verifica el round-trip. Para la auditoría del piloto existente se usó el
+dataset versionado del propio piloto con anclajes específicos; no se repitió
+retrieval ni se abrieron las bases en escritura. La coincidencia es lexical y
+sirve solo para priorizar revisión humana.
+
+Resultados de `candidate-audit.json`:
+
+- `GS2-VULN-004`: el candidato nuevo de Stallings y el qrel histórico
+  `chk_0aa9aa4cc0b2_428_1` contienen el ancla `race condition`; ambos son
+  recomendaciones de conservar/incluir sujetas a revisión humana. El qrel
+  histórico `chk_07e0f6d0fb24_58_1` de Spraul no coincide con anclas temáticas;
+  se recomienda revisar su retiro. No se cambió ningún qrel histórico.
+- `GS2-OOD-001`: el pasaje de Joyanes sobre la comunidad informática mundial
+  no coincide con anclas específicas del Mundial de México 1986; permanece
+  como falso positivo lexical del retrieval y no como respuesta relevante.
+- `G2-PILOT-NEG-001`: el pasaje de Joyanes no contiene Round Robin ni quantum;
+  es falso positivo lexical. No se detectaron candidatos fuera de ACL.
+
+La auditoría registra el hash de la base de conocimiento y mantiene su
+conexión SQLite en solo lectura. El reporte del piloto confirma que los hashes
+pre/post de las bases activa de conocimiento y vectorial coinciden y que los
+snapshots temporales se limpiaron. Las anclas más específicas evitan contar
+la mención genérica de “mundial” como soporte OOD.
+
+Se completó una adjudicación técnica de un solo revisor, aceptada por el
+usuario, en
+[el formulario](../reports/gate2_pilot_v2_402_pilot1/gate2_v2.402-pilot1.qrel-adjudication.json):
+el pasaje de checksum se propone excluir; el ejemplo de lockfile se clasifica
+como evidencia parcial; el pasaje de archivo temporal se clasifica como
+evidencia directa. La
+[propuesta de pertenencia a qrels](../reports/gate2_pilot_v2_402_pilot1/gate2_v2.402-pilot1.qrel-membership-proposal.json)
+conserva ambos chunks pertinentes y excluye el no pertinente. Incluye una
+rúbrica semántica aprobada (3 directa, 2 sustancial pero parcial, 1 marginal,
+0 irrelevante omitido) y qrels aceptados 2/3.
+
+La inspección del generador histórico encontró que 3/2/1 se asignaban según
+posición de retrieval (primero/segundo/restantes), no según una rúbrica
+semántica documentada. La nueva rúbrica semántica fue aceptada explícitamente.
+La revisión fue asistida por un solo asistente de IA, no ciega ni doble. No se
+alteraron qrels históricos ni ACL activa.
+
+El usuario aceptó las tres decisiones y la rúbrica. Se generó el paquete
+[v2.402-pilot1-adjudicated](../reports/gate2_pilot_v2_402_adjudicated/) en
+modo fixture, sin retrieval, con qrels OOD/negativa vacíos y el qrel positivo
+adjudicado. La comprobación estructural y ACL en SQLite read-only pasó; v2.400,
+v2.401 y ACL activa no se modificaron. El benchmark completo y la evaluación
+end-to-end de abstención/citas continúan pendientes.
+
+Como gate antes de ampliar retrieval se implementó
+[`validate_gate2_segments.py`](../scripts/validate_gate2_segments.py). El
+[reporte segmentado](../reports/gate2_pilot_v2_402_adjudicated/gate2_v2.402-pilot1-adjudicated.segment-validation.json)
+pasó para tres segmentos por scope/oráculo: la positiva tiene dos qrels
+autorizados (grados 2 y 3), OOD y negativa tienen qrels vacíos. Consulta solo
+SQLite read-only para ACL y chunks referenciados; retrieval no ejecutado.
+Las 17 pruebas focalizadas de validador, contrato y generador pasaron.
+
+Se avanzó esa preparación en
+[v2.402-positive-segments-review](../reports/gate2_positive_segments_v2_402/):
+se seleccionó Deadlock (`GS2-VULN-018`) para SEC-01 y una consulta defensiva
+de mitigaciones (`GS2-VULN-007`) para `fadena-so2`. La inspección local
+read-only permite proponer un pasaje grado 2 por consulta; ambas decisiones
+siguen pendientes del usuario. El gate estructural/ACL pasó y reporta
+`release_eligible=false`. Se registraron bloqueos de `fadena-lenguajes`
+(qrels de atributo GNU C incompatibles), `fadena-teleco` (qrels de overflow
+para pregunta de heap/stack lifecycle) y `fadena-std` (sin positivos). No se
+ejecutó retrieval.
+
+Siguiente: el usuario acepta o corrige las dos propuestas y la exclusión del
+duplicado. Luego se genera un paquete aprobado y se reejecuta el gate; solo
+después se considera un piloto retrieval en snapshot por scope, sin saltar a
+los 420 casos.
+
+### Gate 2 — Publicación de los segmentos adjudicados — 2026-09-28
+
+El usuario aceptó las dos adjudicaciones: `GS2-VULN-018` conserva el chunk
+`chk_92876e0f2bc2_425_1` con grado 2 y excluye el duplicado; `GS2-VULN-007`
+conserva `chk_0aa9aa4cc0b2_385_1` con grado 2 y excluye los cuatro candidatos
+restantes. Se corrigió además una discrepancia en el ID de la decisión de la
+negativa (`G2-PILOT-NEG-001`) antes de generar el paquete.
+
+El paquete
+[v2.402-positive-segments-adjudicated](../reports/gate2_positive_segments_v2_402_adjudicated/)
+se generó en modo fixture, con retrieval desactivado. La
+[validación estructural y ACL](../reports/gate2_positive_segments_v2_402_adjudicated/gate2_v2.402-positive-segments-adjudicated.segment-validation.json)
+pasó con `release_eligible=true` y sin adjudicaciones pendientes: cinco
+consultas, tres positivas, una OOD global y una negativa por scope; cuatro
+qrels positivos grado 2/3. Se consultó la ACL y existencia de chunks en
+SQLite read-only; el hash de `data/web_state/knowledge_store.db` coincide con
+el del piloto previo. Los golden sets históricos y la ACL no se modificaron.
+
+Pruebas focalizadas de contrato, generador, CLI, snapshot y validador:
+**22 passed**. Este resultado acredita integridad estructural y pertenencia a
+ACL, no ranking, calidad de retrieval ni abstención generativa. Siguiente:
+revisar evidencia local para los scopes bloqueados (`fadena-lenguajes`,
+`fadena-teleco`, `fadena-std`) y elegir un segmento positivo justificable.
+No ejecutar retrieval adicional ni el benchmark de 420 consultas hasta ese
+gate.
+
+#### Auditoría local de scopes bloqueados — 2026-09-28
+
+Se inspeccionó la ACL persistida y evidencia local mediante consultas SQLite
+read-only, sin ejecutar el pipeline de retrieval, embeddings, reranking ni
+generación. El
+[reporte de auditoría](../reports/gate2_scope_evidence_audit_2026-09-28.md)
+documenta los chunks y las limitaciones:
+
+- `fadena-lenguajes`: los resultados para `clone()` corresponden al atributo
+  GNU C *function cloning*, no al syscall Linux; permanece bloqueado y sin
+  qrels propuestos.
+- `fadena-teleco`: aparecen pasajes marginales de Stack/Heap sobre frames,
+  disposición de memoria y asignación/liberación dinámica. Se proponen tres
+  candidatos grado 1, pero no cubren velocidad de asignación ni toda la
+  comparación; no se agregaron qrels.
+- `fadena-std`: aparecen pasajes de mutex y semáforo contador en *Fluent
+  Python*, propuestos grado 2. La propiedad del mutex no está explícita y el
+  semáforo se desarrolla con `asyncio`; ambos siguen pendientes de adjudicación
+  y no se agregaron qrels.
+
+La búsqueda no cambia `v2.402-positive-segments-adjudicated`, sus decisiones
+ni su elegibilidad. La puerta siguiente es adjudicar explícitamente los
+candidatos parciales de `fadena-teleco` y `fadena-std` o mantenerlos
+bloqueados; `fadena-lenguajes` requiere fuente autorizada pertinente o una
+decisión curricular separada. No ejecutar retrieval de benchmark ni ampliar a
+420 consultas en esta etapa.
+
+#### Adjudicación de cinco candidatos y fixture std — 2026-09-28
+
+El usuario adjudicó los cinco candidatos individualmente: los tres de
+`fadena-teleco` (chunks `chk_0aa9aa4cc0b2_365_1`,
+`chk_0aa9aa4cc0b2_366_1` y `chk_0aa9aa4cc0b2_416_1`) quedaron grado 1 y
+excluidos de qrels; `chk_db97c77518c6_729_1` quedó grado 1 y excluido porque
+no acredita ownership del mutex; `chk_db97c77518c6_821_1` quedó grado 2 y
+aceptado como evidencia parcial del semáforo. El registro formal está en
+[la adjudicación](../reports/gate2_scope_candidate_adjudication_2026-09-28.json).
+
+Se generó una fixture nueva, sin sobrescribir el paquete anterior:
+[v2.402-positive-segments-std-mutex-adjudicated](../reports/gate2_scope_candidate_adjudicated_v2_402/).
+Añade `GS2-CMP-011` en `fadena-std` con el único qrel nuevo
+`chk_db97c77518c6_821_1: 2`. El
+[validador segmentado](../reports/gate2_scope_candidate_adjudicated_v2_402/gate2_v2.402-positive-segments-std-mutex-adjudicated.segment-validation.json)
+pasó (`release_eligible=true`, seis consultas, cinco chunks qrel, cero
+pendientes). El manifiesto confirma generación fixture sin retrieval.
+
+Los otros cuatro candidatos no aparecen en qrels. El paquete
+`v2.402-positive-segments-adjudicated`, ACL activa y golden sets históricos
+permanecen intactos. `fadena-lenguajes` continúa bloqueado por mismatch
+semántico; esta fixture no autoriza retrieval ni benchmark completo.
+
+#### Inventario de readiness e impacto — 2026-09-28
+
+Se comparó la fixture actual de seis consultas contra las 400 consultas de
+v2.400, las 420 de v2.401 y la ACL persistida. El
+[reporte de impacto](../reports/gate2_scope_readiness_impact_v2_402.md)
+concluye que la fixture cubre cinco de los seis scopes v2.400, pero solo
+5/400 IDs históricos (el control de aislamiento es nuevo). `fadena-teleco` no
+está representado y `fadena-lenguajes` aparece solo con una negativa por scope,
+sin positivo para `clone()`.
+
+Ambos scopes siguen bloqueados para positivos: `fadena-lenguajes` por mismatch
+entre function-cloning GNU C y el syscall Linux; `fadena-teleco` porque los
+candidatos de Stack/Heap fueron adjudicados grado 1 y excluidos. Los otros
+cuatro scopes contienen slices positivos estructuralmente válidos, pero no
+cobertura aprobada de sus conjuntos históricos. Por tanto,
+`release_eligible=true` solo califica a la fixture de seis consultas; el Gate 2
+global y la reparación de v2.401 siguen bloqueados. No se ejecutó retrieval ni
+se modificaron ACL o golden sets.
+
+### Inventario de cobertura y validez de v2.400 — 2026-09-28
+
+Se implementó `scripts/build_gate2_v2400_coverage_inventory.py` y sus pruebas
+con fixtures SQLite/JSON pequeñas. El artefacto estructurado
+[JSON](../reports/gate2_v2400_coverage_inventory_2026-09-28.json) y su
+[vista auditable](../reports/gate2_v2400_coverage_inventory_2026-09-28.md)
+inventarían las 400 consultas y las 165 referencias qrel de v2.400. Los
+estados semánticos solo derivan del
+[registro explícito de decisiones](../reports/gate2_v2400_explicit_decision_register_2026-09-28.json);
+la membresía ACL se consultó en SQLite read-only y no se interpreta como
+validación semántica.
+
+Conteos derivados: 1 `APPROVED_OOD`, 3 `PARTIALLY_VALID`, 3
+`BLOCKED_SEMANTIC`, 111 `PENDING_ADJUDICATION` y 282 `NO_VALID_QREL`; no hay
+consultas `APPROVED_POSITIVE` o `APPROVED_NEGATIVE` bajo este registro
+conservador. Por referencia: 1 `VALID`, 2 `PARTIAL`, 13 `INVALID` y 149
+`PENDING`; 352 consultas carecen de referencias qrel históricas. El estado
+`ABSENT` es por consulta y no se cuenta como referencia. Los estados
+`INVALID` registran decisiones sobre referencias concretas, no una inferencia
+automática sobre todas las referencias de su consulta.
+
+La referencia de auditoría v2.401 sigue marcada `canonical_for_repair=false`,
+`historical_evidence=true`, `action=NONE`: la comparación reproduce 70
+cambios de scope, 330 referencias qrel asociadas y 224 fuera de la ACL del
+scope correspondiente de v2.400; cero IDs faltantes. En el resumen por scope,
+`NB-SEC-01-C-PTR` registra 70 consultas y 330 qrels importados por v2.401. Es
+un hallazgo de integridad, no una decisión curricular. La ACL actual no
+reconstruye la ACL histórica.
+
+Verificación: pruebas focalizadas **7 passed**; `py_compile` y
+`git diff --check` pasaron. No se ejecutaron retrieval, embeddings, reranking,
+generación ni benchmarks; golden sets históricos, ACL y bases activas no se
+modificaron.
+
+**Siguiente paso:** preparar lotes pequeños de adjudicación manual a partir del
+inventario, revisando primero la intención/oráculo de cada consulta y luego
+cada par query/qrel pendiente por separado. Mantener `v2.401` solo como
+referencia y no reparar los 224 casos ni ejecutar retrieval hasta contar con
+decisiones explícitas.
+
+#### Primer lote de adjudicación por consulta
+
+El conteo del inventario distingue 111 consultas con estado
+`PENDING_ADJUDICATION`; 42 tienen referencias qrel históricas y forman el
+primer lote basado en evidencia existente. Las otras 69 no tienen qrels y
+quedan para una etapa posterior de revisión de intención/oráculo; no se
+convierten en negativas. El lote de 42 contiene 150 referencias: 149 siguen
+pendientes individualmente y una ya tiene una decisión registrada, que se
+conserva como tal. Por eso “42 consultas con qrels pendientes” no significa
+que haya exactamente 42 consultas en el estado agregado `PENDING` ni 42 qrels.
+
+La [cola de revisión JSON](../reports/gate2_v2400_query_adjudication_queue_2026-09-28.json)
+y su [vista Markdown](../reports/gate2_v2400_query_adjudication_queue_2026-09-28.md)
+son paquetes no decisionales derivados del inventario. Incluyen consulta,
+scope, oráculo histórico e IDs de qrel, pero no copian texto de chunks. El
+[constructor](../scripts/build_gate2_v2400_query_adjudication_queue.py) valida
+el vínculo y conteo de referencias y rehúsa sobrescribir salidas existentes.
+La cola no reemplaza ni modifica el registro de decisiones explícitas.
+
+Verificación focalizada del inventario y la cola: **11 passed**;
+`py_compile` y `git diff --check` pasaron. No se adjudicó contenido, no se
+modificaron qrels/ACL/base SQLite y no se ejecutó retrieval.

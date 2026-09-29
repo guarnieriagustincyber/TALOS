@@ -7,6 +7,7 @@ Architecture:
 """
 
 import math
+import logging
 import re
 import time
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
@@ -26,6 +27,8 @@ from study_engine.retrieval.embedding import (
 )
 from study_engine.retrieval.lexical import filter_spanish_stopwords
 from study_engine.storage.knowledge_store import KnowledgeStore
+
+logger = logging.getLogger(__name__)
 
 
 def cosine_sim(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
@@ -232,15 +235,23 @@ class TwoStageRetriever(BaseRetriever):
         JOIN notebook_sources ns ON c.source_id = ns.source_id
         WHERE ns.notebook_id = ?
           AND chunks_fts MATCH ?
-        ORDER BY rank_score ASC
-        LIMIT ?;
         """
+        clean_source_filter = sorted(set(source_filter or []))
+        if source_filter is not None and not clean_source_filter:
+            return []
+        params: List[Any] = [notebook_id, fts_query]
+        if clean_source_filter:
+            placeholders = ", ".join("?" for _ in clean_source_filter)
+            sql += f" AND c.source_id IN ({placeholders})"
+            params.extend(clean_source_filter)
+        sql += " ORDER BY rank_score ASC LIMIT ?;"
+        params.append(limit)
 
         results: List[Dict[str, Any]] = []
         try:
             with self.store.engine.transaction() as conn:
                 cur = conn.cursor()
-                cur.execute(sql, (notebook_id, fts_query, limit))
+                cur.execute(sql, tuple(params))
                 rows = cur.fetchall()
 
                 for r in rows:
@@ -268,36 +279,10 @@ class TwoStageRetriever(BaseRetriever):
                         "fts_rank_score": norm_score,
                     })
         except Exception:
-            # Fallback if notebook_sources link is empty (scan chunks directly)
-            fallback_sql = """
-            SELECT c.id, c.document_id, c.source_id, c.content, c.page_start, c.page_end, c.pos_index,
-                   c.metadata, bm25(chunks_fts) as rank_score
-            FROM chunks c
-            JOIN chunks_fts f ON c.rowid = f.rowid
-            WHERE chunks_fts MATCH ?
-            ORDER BY rank_score ASC
-            LIMIT ?;
-            """
-            try:
-                with self.store.engine.transaction() as conn:
-                    cur = conn.cursor()
-                    cur.execute(fallback_sql, (fts_query, limit))
-                    for r in cur.fetchall():
-                        raw_score = float(r[8]) if r[8] is not None else 0.0
-                        pos_val = max(0.0, -raw_score)
-                        norm_score = pos_val / (1.0 + pos_val)
-                        results.append({
-                            "id": r[0],
-                            "document_id": r[1],
-                            "source_id": r[2],
-                            "content": r[3],
-                            "page_start": r[4],
-                            "page_end": r[5],
-                            "index": r[6],
-                            "source_slug": r[2],
-                            "fts_rank_score": norm_score,
-                        })
-            except Exception:
-                results = []
+            logger.exception(
+                "Scoped FTS prefilter failed for notebook %s; refusing unscoped fallback",
+                notebook_id,
+            )
+            return []
 
         return results

@@ -1,0 +1,371 @@
+{
+  "version": "gate2-v2400-review-batch-syn-026-028-adjudication-2026-09-28",
+  "generated_at": "2026-09-28",
+  "status": "TECHNICAL_PROPOSAL_PENDING_USER_ACCEPTANCE",
+  "reviewer": "technical_assistant",
+  "rubric": {
+    "3": "Direct; answers the question and covers its essential dimensions.",
+    "2": "Substantial evidence, but an important dimension is missing.",
+    "1": "Useful but marginal context; does not support the answer alone.",
+    "0": "Irrelevant or semantically out of scope."
+  },
+  "review_basis": {
+    "query_source": "data/eval/golden_set_v2_400.json",
+    "queue_source": "reports/gate2_v2400_query_adjudication_queue_2026-09-28.json",
+    "qrels_source": "data/eval/qrels/golden_set_v2_400.qrels.json",
+    "store_source": "data/web_state/knowledge_store.db",
+    "scope": "NB-SEC-01-C-PTR",
+    "oracle_type": "retrieval_citation",
+    "topic": "pthread_create POSIX thread creation",
+    "chunks_read_completely": true,
+    "store_read_only": true,
+    "retrieval_executed": false,
+    "evidence_relation_diagnostic_used": true,
+    "diagnostic_authority": "triage_only_no_grade_or_qrel_actions",
+    "historical_inputs_modified": false,
+    "explicit_user_decision_register_modified": false,
+    "active_acl_modified": false,
+    "replacement_evidence_searched": false
+  },
+  "evidence_assessment": {
+    "chk_76e248a62974_218_1": {
+      "source_id": "src_stallings_os_internals_7ed",
+      "source_title": "Operating Systems: Internals and Design Principles (7th Ed)",
+      "author": "William Stallings",
+      "page": 218,
+      "current_acl_status": "IN_SCOPE",
+      "content_summary": "Shows a pthread_create call using a pthread_t, NULL attributes, a thread function and NULL argument; explains that the call returns zero on success and nonzero on failure, that the third argument is the function executed by the new thread, and that the thread terminates when that function returns.",
+      "assessment_limit": "The example does not fully explain the meaning and constraints of every parameter or enumerate specific error values."
+    },
+    "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001": {
+      "source_id": "src_stallings_os_internals_7ed",
+      "source_title": "Operating Systems: Internals and Design Principles (7th Ed)",
+      "author": "William Stallings",
+      "page": 218,
+      "current_acl_status": "IN_SCOPE",
+      "content_summary": "Overlapping page extraction covering pthread_t, thread creation, zero/nonzero success status, and the third argument as the start routine.",
+      "assessment_limit": "Partial extraction from the same page and source as the fuller chunk; it is not independent corroboration and omits surrounding example detail."
+    },
+    "chk_76e248a62974_606_1": {
+      "source_id": "src_stallings_os_internals_7ed",
+      "source_title": "Operating Systems: Internals and Design Principles (7th Ed)",
+      "author": "William Stallings",
+      "page": 606,
+      "current_acl_status": "IN_SCOPE",
+      "content_summary": "Explains that eCos can use POSIX-thread compatibility packages, which expose standard functions such as pthread_create implemented through eCos kernel functions.",
+      "assessment_limit": "This is about an eCos compatibility layer, not pthread_create's parameters, return convention, or ordinary Linux implementation."
+    },
+    "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003": {
+      "source_id": "src_stallings_os_internals_7ed",
+      "source_title": "Operating Systems: Internals and Design Principles (7th Ed)",
+      "author": "William Stallings",
+      "page": 606,
+      "current_acl_status": "IN_SCOPE",
+      "content_summary": "Overlapping page extraction with the discussion of POSIX compatibility functions in eCos, including pthread_create.",
+      "assessment_limit": "Same source/page as the fuller page-606 chunk and does not explain the requested call."
+    },
+    "chk_76e248a62974_760_1": {
+      "source_id": "src_stallings_os_internals_7ed",
+      "source_title": "Operating Systems: Internals and Design Principles (7th Ed)",
+      "author": "William Stallings",
+      "page": 760,
+      "current_acl_status": "IN_SCOPE",
+      "content_summary": "Lists pthread_create as one instruction in a simulated concurrent-I/O program.",
+      "assessment_limit": "A passing list entry; no function signature, behavior, or return semantics."
+    }
+  },
+  "items": [
+    {
+      "query_id": "GS2-SYN-026",
+      "query": "Explicame en detalle la sintaxis y comportamiento de pthread_create en programación de sistemas.",
+      "query_intent_review": "Positive in-scope retrieval/citation query asking for detailed pthread_create syntax and behavior.",
+      "analytical_facets": [
+        {
+          "facet_id": "pthread_create_invocation",
+          "description": "Show the pthread_create call shape and how the new thread's start routine is supplied.",
+          "evidence_ids": [
+            "chk_76e248a62974_218_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001",
+            "chk_76e248a62974_606_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003",
+            "chk_76e248a62974_760_1"
+          ]
+        },
+        {
+          "facet_id": "pthread_create_thread_behavior",
+          "description": "Explain thread creation, success/failure status, and start-routine lifecycle.",
+          "evidence_ids": [
+            "chk_76e248a62974_218_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001",
+            "chk_76e248a62974_606_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003",
+            "chk_76e248a62974_760_1"
+          ]
+        }
+      ],
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_76e248a62974_606_1",
+          "historical_grade": 3,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Mentions pthread_create as a POSIX compatibility function in eCos, but does not explain its call syntax or ordinary thread-creation behavior."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_760_1",
+          "historical_grade": 2,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Lists pthread_create as a simulated instruction; the bare mention does not support a detailed syntax-and-behavior answer."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_218_1",
+          "historical_grade": 1,
+          "proposed_grade": 3,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Directly shows the call with a thread ID, attributes, start routine and argument; explains creation, zero/nonzero return status, start-routine execution, and thread termination."
+        },
+        {
+          "chunk_id": "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003",
+          "historical_grade": 1,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Overlapping extraction of the eCos compatibility discussion; it does not add API details and is not independent of the page-606 chunk."
+        },
+        {
+          "chunk_id": "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001",
+          "historical_grade": 1,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "The fragment explains the return convention and start-routine parameter, substantially supporting behavior but omitting context present in the fuller page-218 chunk."
+        }
+      ],
+      "facet_coverage_diagnostic": {
+        "minimum_grade": 2,
+        "covered_facets": [
+          "pthread_create_invocation",
+          "pthread_create_thread_behavior"
+        ],
+        "uncovered_facets": [],
+        "interpretation": "The page-218 full passage supports both facets. Its overlapping fragment is evaluated separately but does not constitute independent evidence."
+      },
+      "canonical_query_decision": null,
+      "canonical_qrel_decisions": null,
+      "remains_pending_user_acceptance": true
+    },
+    {
+      "query_id": "GS2-SYN-027",
+      "query": "Desde la perspectiva del estándar POSIX y Linux, ¿cómo opera pthread_create en programación de sistemas?",
+      "query_intent_review": "Positive in-scope retrieval/citation query about POSIX/Linux pthread_create operation. The strongest passage gives generic pthread behavior, while the eCos passage only discusses a compatibility implementation.",
+      "analytical_facets": [
+        {
+          "facet_id": "pthread_create_thread_creation",
+          "description": "Explain creation of the thread and execution of its start routine.",
+          "evidence_ids": [
+            "chk_76e248a62974_218_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001",
+            "chk_76e248a62974_606_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003",
+            "chk_76e248a62974_760_1"
+          ]
+        },
+        {
+          "facet_id": "pthread_create_return_status",
+          "description": "Explain the function's success/failure return convention.",
+          "evidence_ids": [
+            "chk_76e248a62974_218_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001",
+            "chk_76e248a62974_606_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003",
+            "chk_76e248a62974_760_1"
+          ]
+        }
+      ],
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_76e248a62974_606_1",
+          "historical_grade": 3,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Confirms pthread_create as a POSIX compatibility function within eCos, but does not describe its operation."
+        },
+        {
+          "chunk_id": "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003",
+          "historical_grade": 2,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "A fragment of the same eCos compatibility explanation; it does not provide Linux behavior or independent support."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_760_1",
+          "historical_grade": 1,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Names pthread_create in a simulation instruction list without describing operation."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_218_1",
+          "historical_grade": 1,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Substantially describes thread creation, start-routine execution and return status, but is a textbook example rather than a Linux-specific contract."
+        },
+        {
+          "chunk_id": "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001",
+          "historical_grade": 1,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Substantially supports the start-routine and return-status details, but overlaps the full passage on the same page."
+        }
+      ],
+      "facet_coverage_diagnostic": {
+        "minimum_grade": 2,
+        "covered_facets": [
+          "pthread_create_thread_creation",
+          "pthread_create_return_status"
+        ],
+        "uncovered_facets": [],
+        "interpretation": "The page-218 material supports the general POSIX operation asked about. This local coverage result does not establish Linux-specific implementation details or create an independent source."
+      },
+      "canonical_query_decision": null,
+      "canonical_qrel_decisions": null,
+      "remains_pending_user_acceptance": true
+    },
+    {
+      "query_id": "GS2-SYN-028",
+      "query": "¿Cuáles son los parámetros exactos y posibles valores de retorno de pthread_create en programación de sistemas?",
+      "query_intent_review": "Positive in-scope retrieval/citation query requiring parameter details and possible return outcomes.",
+      "analytical_facets": [
+        {
+          "facet_id": "pthread_create_parameter_list_and_roles",
+          "description": "Provide the four-parameter call form and explain the principal start-routine parameter.",
+          "evidence_ids": [
+            "chk_76e248a62974_218_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001",
+            "chk_76e248a62974_606_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003",
+            "chk_76e248a62974_760_1"
+          ]
+        },
+        {
+          "facet_id": "pthread_create_return_values",
+          "description": "State the possible success/failure return convention.",
+          "evidence_ids": [
+            "chk_76e248a62974_218_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001",
+            "chk_76e248a62974_606_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003",
+            "chk_76e248a62974_760_1"
+          ]
+        }
+      ],
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_76e248a62974_760_1",
+          "historical_grade": 3,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "A simulation list mentions pthread_create but supplies no parameters or return values."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_606_1",
+          "historical_grade": 2,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "The eCos compatibility discussion identifies the POSIX function but gives no signature or return contract."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_218_1",
+          "historical_grade": 1,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Shows all four call arguments through an example and states zero on success/nonzero on failure; it does not explain every argument's type/meaning or enumerate error values."
+        },
+        {
+          "chunk_id": "Operating Systems - Internals and Design Principles 7th.pdf:p606:c0003",
+          "historical_grade": 1,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Overlapping eCos compatibility fragment; it gives no parameter or return details."
+        },
+        {
+          "chunk_id": "Operating Systems - Internals and Design Principles 7th.pdf:p218:c0001",
+          "historical_grade": 1,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Gives the third argument's role and zero/nonzero return convention, but is an overlapping partial extraction and does not explain every parameter."
+        }
+      ],
+      "facet_coverage_diagnostic": {
+        "minimum_grade": 2,
+        "covered_facets": [
+          "pthread_create_parameter_list_and_roles",
+          "pthread_create_return_values"
+        ],
+        "uncovered_facets": [],
+        "interpretation": "Both facets have substantial partial support, but the exact meaning/type of every parameter and enumerated error values remain absent. Coverage here indicates evidence at grade >=2, not exhaustive API completeness."
+      },
+      "canonical_query_decision": null,
+      "canonical_qrel_decisions": null,
+      "remains_pending_user_acceptance": true
+    }
+  ],
+  "evidence_relation_diagnostic": {
+    "tool": "gate2_evidence_relations v0.1",
+    "thresholds_unchanged": {
+      "minimum_text_similarity": 0.88,
+      "maximum_simhash_distance": 16
+    },
+    "per_query_pair_counts": {
+      "GS2-SYN-026": 10,
+      "GS2-SYN-027": 10,
+      "GS2-SYN-028": 10
+    },
+    "review_shared_provenance_pairs_per_query": 10,
+    "same_source_overlapping_page_pairs_per_query": 2,
+    "near_duplicate_pairs": 0,
+    "interpretation": "Shared source provenance is a broad cue and includes all within-book pairs. The two known same-page extraction pairs per query are surfaced despite differing document IDs. No relation signal changed a grade proposal."
+  },
+  "independence_assessment": {
+    "distinct_source_ids": 1,
+    "interpretation": "All references belong to the same Stallings book. The page-218 fragment and full chunk overlap; neither counts as separate-source corroboration. Page 606, page 760, and page 218 are distinct locations but not independent authorship."
+  },
+  "limitations": [
+    "All proposed grades remain non-canonical pending explicit acceptance.",
+    "Analytical facets decompose the query wording and do not edit historical expected fields.",
+    "Coverage at minimum grade 2 is not proof of exhaustive API detail or query sufficiency.",
+    "Same-page and same-source analyzer signals are triage cues only, not duplicate or independence decisions.",
+    "No replacement evidence was searched; assessment is limited to historical qrels.",
+    "No benchmark generation, retrieval, embeddings, reranking, or ACL changes were performed."
+  ]
+}

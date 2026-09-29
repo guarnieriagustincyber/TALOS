@@ -1,0 +1,12 @@
+{
+  "inputs": {
+    "reports/gate2_positive_segments_v2_402/gate2_v2.402-positive-segments-adjudicated-decisions-input.json": "sha256:8975d8b8691cd5bd246e06fdf5c335c9b1600ad5c3fff1e19cd0f9f2821f9126",
+    "reports/gate2_positive_segments_v2_402/gate2_v2.402-positive-segments-adjudicated-qrels-input.json": "sha256:c9b1fd0057d2d46626e090ad4badb4ebadf4133db09715790a58745e5238268f",
+    "reports/gate2_positive_segments_v2_402/gate2_v2.402-positive-segments-review.dataset.json": "sha256:d3cbc7bea0c92ae1ce33e5d5181547c71bcc59651e86c258a638c35f97f0ad6d"
+  },
+  "mode": "fixture",
+  "retrieval": {
+    "executed": false
+  },
+  "version": "v2.402-positive-segments-adjudicated"
+}

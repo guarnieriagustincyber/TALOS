@@ -1,0 +1,68 @@
+{
+  "version": "gate2-scope-candidate-adjudication-2026-09-28",
+  "status": "user_adjudicated",
+  "reviewer": "user",
+  "rubric": {
+    "3": "direct; answers the question and covers the essential mechanism",
+    "2": "substantial evidence, but an important dimension is missing",
+    "1": "useful but marginal context; does not support the answer alone",
+    "0": "irrelevant or semantically out of scope"
+  },
+  "retrieval_executed": false,
+  "decisions": [
+    {
+      "scope": "fadena-teleco",
+      "query_id": "GS2-CMP-001",
+      "chunk_id": "chk_0aa9aa4cc0b2_365_1",
+      "grade": 1,
+      "decision": "exclude_from_qrels",
+      "rationale": "Provides context about allocation and removal of local stack frames, but does not cover heap lifetime or the requested comparison."
+    },
+    {
+      "scope": "fadena-teleco",
+      "query_id": "GS2-CMP-001",
+      "chunk_id": "chk_0aa9aa4cc0b2_366_1",
+      "grade": 1,
+      "decision": "exclude_from_qrels",
+      "rationale": "Describes address-space layout and opposing stack/heap growth, but does not resolve the full comparison, particularly allocation speed and contiguity."
+    },
+    {
+      "scope": "fadena-teleco",
+      "query_id": "GS2-CMP-001",
+      "chunk_id": "chk_0aa9aa4cc0b2_416_1",
+      "grade": 1,
+      "decision": "exclude_from_qrels",
+      "rationale": "Explains dynamic allocation, release, and memory leaks, but does not establish the requested stack-versus-heap comparison."
+    },
+    {
+      "scope": "fadena-std",
+      "query_id": "GS2-CMP-011",
+      "chunk_id": "chk_db97c77518c6_729_1",
+      "grade": 1,
+      "decision": "exclude_from_qrels",
+      "rationale": "Defines mutual exclusion and protection of shared state, but does not establish mutex ownership, a required dimension of the comparison."
+    },
+    {
+      "scope": "fadena-std",
+      "query_id": "GS2-CMP-011",
+      "chunk_id": "chk_db97c77518c6_821_1",
+      "grade": 2,
+      "decision": "include_in_qrels",
+      "rationale": "Substantially explains semaphore acquire/release, its counter, and waiting at zero. The asyncio context limits scope, and the passage does not alone provide the full mutex ownership comparison.",
+      "qrel_added": true
+    }
+  ],
+  "package_policy": {
+    "previous_package_unchanged": "v2.402-positive-segments-adjudicated",
+    "new_package_includes_query": "GS2-CMP-011",
+    "new_package_qrels": {
+      "GS2-CMP-011": {
+        "chk_db97c77518c6_821_1": 2
+      }
+    },
+    "teleco_candidates_added": false,
+    "historical_golden_sets_modified": false,
+    "acl_modified": false,
+    "retrieval_executed": false
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "candidate_proposals": {
+    "G2-PILOT-NEG-001": [
+      {
+        "chunk_id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p594:c0003",
+        "grade_status": "pending_human_review",
+        "proposed_grade": 1,
+        "rank": 1,
+        "retrieval_score": 13.019850820315344,
+        "source_id": "src_joyanes_fundamentos"
+      }
+    ],
+    "GS2-OOD-001": [
+      {
+        "chunk_id": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p19:c0003",
+        "grade_status": "pending_human_review",
+        "proposed_grade": 1,
+        "rank": 1,
+        "retrieval_score": 13.806040955485637,
+        "source_id": "src_joyanes_fundamentos"
+      }
+    ],
+    "GS2-VULN-004": [
+      {
+        "chunk_id": "Computer_Security_Stallings_3rd_Ed.pdf:p427:c0000",
+        "grade_status": "pending_human_review",
+        "proposed_grade": 1,
+        "rank": 1,
+        "retrieval_score": 20.61274626941074,
+        "source_id": "src_stallings_computer_security"
+      }
+    ]
+  },
+  "observations": {
+    "G2-PILOT-NEG-001": {
+      "candidate_absence_passed": false,
+      "candidate_count": 1,
+      "citation_ids": [],
+      "expected_no_candidates": true,
+      "oracle_type": "negative_by_scope",
+      "retrieval_ms": 27.81,
+      "retrieved_chunk_ids": [
+        "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p594:c0003"
+      ],
+      "status": "scope_isolation_check"
+    },
+    "GS2-OOD-001": {
+      "candidate_absence_passed": false,
+      "candidate_count": 1,
+      "citation_ids": [],
+      "expected_no_candidates": true,
+      "oracle_type": "ood_global",
+      "retrieval_ms": 32.94,
+      "retrieved_chunk_ids": [
+        "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf:p19:c0003"
+      ],
+      "status": "global_ood_check"
+    },
+    "GS2-VULN-004": {
+      "candidate_absence_passed": null,
+      "candidate_count": 1,
+      "citation_ids": [],
+      "expected_no_candidates": false,
+      "oracle_type": "positive_in_scope",
+      "retrieval_ms": 80.41,
+      "retrieved_chunk_ids": [
+        "Computer_Security_Stallings_3rd_Ed.pdf:p427:c0000"
+      ],
+      "status": "retrieval_proposal"
+    }
+  },
+  "version": "v2.402-pilot1"
+}

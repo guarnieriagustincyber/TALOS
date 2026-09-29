@@ -18,6 +18,7 @@ def client_with_setup(tmp_path_factory):
     existing_db = Path("data/web_state/knowledge_store.db")
     if existing_db.exists():
         import shutil
+
         shutil.copy2(existing_db, tmp_dir / "knowledge_store.db")
     app = create_app()
     container = AppContainer(working_dir=tmp_dir, use_mock=True)
@@ -73,7 +74,9 @@ def test_chat_query_sse_notebook_streaming(client_with_setup):
     assert "text/event-stream" in response.headers["content-type"]
 
     # Parse SSE lines
-    lines = [line.strip() for line in response.text.split("\n") if line.startswith("data: ")]
+    lines = [
+        line.strip() for line in response.text.split("\n") if line.startswith("data: ")
+    ]
     assert len(lines) > 0
 
     events = [json.loads(line[6:]) for line in lines]
@@ -93,7 +96,8 @@ def test_chat_query_sse_notebook_streaming(client_with_setup):
     provenance = complete_ev["payload"]["evidence_provenance"]
     assert provenance
     assert all(
-        {"citation_id", "source_id", "source_title", "page_start", "doc_hash"} <= set(item)
+        {"citation_id", "source_id", "source_title", "page_start", "doc_hash"}
+        <= set(item)
         for item in provenance
     )
 
@@ -139,7 +143,9 @@ def test_chat_query_sse_folder_organizational(client_with_setup):
     assert response.status_code == 200
     assert "text/event-stream" in response.headers["content-type"]
 
-    lines = [line.strip() for line in response.text.split("\n") if line.startswith("data: ")]
+    lines = [
+        line.strip() for line in response.text.split("\n") if line.startswith("data: ")
+    ]
     events = [json.loads(line[6:]) for line in lines]
     event_types = [e["event_type"] for e in events]
 
@@ -187,7 +193,11 @@ def test_chat_query_fv2_e2e_abstention(client_with_setup):
         assert response.status_code == 200
         assert "text/event-stream" in response.headers["content-type"]
 
-        lines = [line.strip() for line in response.text.split("\n") if line.startswith("data: ")]
+        lines = [
+            line.strip()
+            for line in response.text.split("\n")
+            if line.startswith("data: ")
+        ]
         assert len(lines) > 0
         events = [json.loads(line[6:]) for line in lines]
 
@@ -197,7 +207,10 @@ def test_chat_query_fv2_e2e_abstention(client_with_setup):
 
         payload = manifest_events[0]["payload"]
         assert payload["abstained"] is True, "El manifest debe reportar abstained: True"
-        assert payload["abstention_reason"] == "El corpus carece de respaldo verificable para responder sobre física cuántica."
+        assert (
+            payload["abstention_reason"]
+            == "El corpus carece de respaldo verificable para responder sobre física cuántica."
+        )
     finally:
         container.last_abstention_decision = None
 
@@ -220,7 +233,9 @@ def test_chat_query_root_global_greeting(client_with_setup):
     assert response.status_code == 200
     assert "text/event-stream" in response.headers["content-type"]
 
-    lines = [line.strip() for line in response.text.split("\n") if line.startswith("data: ")]
+    lines = [
+        line.strip() for line in response.text.split("\n") if line.startswith("data: ")
+    ]
     events = [json.loads(line[6:]) for line in lines]
     event_types = [e["event_type"] for e in events]
 
@@ -231,3 +246,106 @@ def test_chat_query_root_global_greeting(client_with_setup):
     complete_ev = [e for e in events if e["event_type"] == "phase_complete"][0]
     assert complete_ev["payload"]["completed_phase"] == "folder_organizational"
     assert "Entorno de estudio" in complete_ev["payload"]["decision"]["message"]
+
+
+def test_chat_sse_sends_validated_curriculum_profile_to_backend(
+    client_with_setup, monkeypatch
+):
+    client, container, _, _ = client_with_setup
+    store = container.knowledge_store
+    notebook_id = "fadena-std"
+    with store.engine.transaction() as conn:
+        row = conn.execute(
+            "SELECT subject, curriculum_id FROM notebooks WHERE id = ?",
+            (notebook_id,),
+        ).fetchone()
+    assert row is not None
+    previous_subject, previous_curriculum_id = row
+
+    class CapturingBackend:
+        def __init__(self):
+            self.calls = []
+
+        async def stream(
+            self,
+            system_prompt,
+            user_prompt,
+            phase_id=None,
+            context=None,
+            max_tokens=None,
+        ):
+            self.calls.append(
+                {
+                    "system_prompt": system_prompt,
+                    "user_prompt": user_prompt,
+                }
+            )
+            yield "El modelo relacional organiza los datos en relaciones [E1]."
+
+    backend = CapturingBackend()
+    with store.engine.transaction() as conn:
+        conn.execute(
+            "UPDATE notebooks SET subject = ?, curriculum_id = ? WHERE id = ?",
+            (
+                "Sistema de Tratamiento de Datos",
+                "fadena_std_2026",
+                notebook_id,
+            ),
+        )
+
+    from study_engine.web.routes import chat as chat_route
+
+    evidence = [
+        {
+            "id": "E1",
+            "chunk_text": "El modelo relacional organiza los datos en relaciones.",
+            "source_id": "src_std_test",
+            "source_title": "Material curricular de prueba",
+            "page_start": 1,
+            "score": 0.95,
+        }
+    ]
+    monkeypatch.setattr(
+        chat_route,
+        "_assemble_epistemic_context",
+        lambda **_: (
+            chat_route.EpistemicContextPack(
+                formatted_context="[E1] El modelo relacional organiza los datos en relaciones.",
+                citations=["[E1] Material curricular de prueba, pág. 1"],
+                chunks=evidence,
+            ),
+            evidence,
+        ),
+    )
+    monkeypatch.setattr(
+        chat_route,
+        "_resolve_chat_backend",
+        lambda *_args, **_kwargs: backend,
+    )
+
+    try:
+        response = client.post(
+            "/api/chat/query",
+            json={
+                "prompt": "¿Qué es el modelo relacional?",
+                "scope_type": "notebook",
+                "scope_id": notebook_id,
+                "requested_phase": "conceptual",
+                "session_id": "validated-curriculum-profile",
+            },
+        )
+    finally:
+        with store.engine.transaction() as conn:
+            conn.execute(
+                "UPDATE notebooks SET subject = ?, curriculum_id = ? WHERE id = ?",
+                (previous_subject, previous_curriculum_id, notebook_id),
+            )
+
+    assert response.status_code == 200
+    assert backend.calls
+    system_prompt = backend.calls[0]["system_prompt"]
+    assert "Materia: Sistema de Tratamiento de Datos" in system_prompt
+    assert "curriculum_id: fadena_std_2026" in system_prompt
+    assert "no conviertas toda explicación en SQL" in system_prompt
+    assert "Lenguajes de Programación" not in system_prompt
+    assert "x86-64" not in system_prompt

@@ -1,0 +1,219 @@
+{
+  "version": "gate2-v2400-review-batch-syn-011-012-adjudication-2026-09-28",
+  "generated_at": "2026-09-28",
+  "status": "TECHNICAL_PROPOSAL_PENDING_USER_ACCEPTANCE",
+  "reviewer": "technical_assistant",
+  "rubric": {
+    "3": "Direct; answers the question and covers its essential dimensions.",
+    "2": "Substantial evidence, but an important dimension is missing.",
+    "1": "Useful but marginal context; does not support the answer alone.",
+    "0": "Irrelevant or semantically out of scope."
+  },
+  "review_basis": {
+    "query_source": "data/eval/golden_set_v2_400.json",
+    "queue_source": "reports/gate2_v2400_query_adjudication_queue_2026-09-28.json",
+    "qrels_source": "data/eval/qrels/golden_set_v2_400.qrels.json",
+    "store_source": "data/web_state/knowledge_store.db",
+    "scope": "NB-SEC-01-C-PTR",
+    "oracle_type": "retrieval_citation",
+    "topic": "fork system call",
+    "chunks_read_completely": true,
+    "store_read_only": true,
+    "retrieval_executed": false,
+    "historical_inputs_modified": false,
+    "explicit_user_decision_register_modified": false,
+    "active_acl_modified": false
+  },
+  "items": [
+    {
+      "query_id": "GS2-SYN-011",
+      "query": "Desde la perspectiva del estándar POSIX y Linux, ¿cómo opera fork en programación de sistemas?",
+      "query_intent_review": "In-scope positive retrieval/citation query about the POSIX/Linux fork system call. The expected_chunks include material where the English word fork denotes dining utensils; that lexical collision does not change the query intent.",
+      "analytical_facets": [
+        {
+          "facet_id": "posix_linux_fork_identification",
+          "description": "Identify fork as a POSIX/Linux process-creation API or system call.",
+          "evidence_ids": [
+            "luciano-ramalho-fluent-python_-clear-concise-and-effective-programming-oreilly-media-2022.pdf:p534:c0000",
+            "Computer_Security_Stallings_3rd_Ed.pdf:p301:c0000"
+          ]
+        },
+        {
+          "facet_id": "fork_operational_behavior",
+          "description": "Explain operational behavior beyond merely naming fork.",
+          "evidence_ids": [
+            "chk_76e248a62974_325_1",
+            "luciano-ramalho-fluent-python_-clear-concise-and-effective-programming-oreilly-media-2022.pdf:p534:c0000",
+            "Computer_Security_Stallings_3rd_Ed.pdf:p301:c0000",
+            "chk_76e248a62974_304_1",
+            "chk_76e248a62974_302_1"
+          ]
+        }
+      ],
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_76e248a62974_325_1",
+          "historical_grade": 3,
+          "proposed_grade": 0,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Discusses deadlock review questions and dining-philosopher forks; it does not describe the fork system call."
+        },
+        {
+          "chunk_id": "luciano-ramalho-fluent-python_-clear-concise-and-effective-programming-oreilly-media-2022.pdf:p534:c0000",
+          "historical_grade": 2,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_ramalho_fluent_python",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Identifies os.fork() as a POSIX Unix-like API for launching a child process, but gives no details of process-state inheritance, return values, or the operation requested."
+        },
+        {
+          "chunk_id": "Computer_Security_Stallings_3rd_Ed.pdf:p301:c0000",
+          "historical_grade": 1,
+          "proposed_grade": 1,
+          "proposed_decision": "KEEP_AS_MARGINAL_PROPOSAL",
+          "source_id": "src_stallings_computer_security",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Lists fork among monitored Ubuntu Linux system calls, establishing only a lexical/system-call identification and not its behavior."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_304_1",
+          "historical_grade": 1,
+          "proposed_grade": 0,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Describes a dining-philosophers monitor that grants physical forks; the occurrence of fork is not the process system call."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_302_1",
+          "historical_grade": 1,
+          "proposed_grade": 0,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Describes semaphore synchronization using dining-philosopher forks, not process creation."
+        }
+      ],
+      "facet_coverage_diagnostic": {
+        "minimum_grade": 2,
+        "covered_facets": [],
+        "uncovered_facets": [
+          "posix_linux_fork_identification",
+          "fork_operational_behavior"
+        ],
+        "interpretation": "Neither analytical facet has evidence at the substantive threshold. Marginal identification is not sufficient evidence of operational behavior."
+      },
+      "canonical_query_decision": null,
+      "canonical_qrel_decisions": null,
+      "remains_pending_user_acceptance": true
+    },
+    {
+      "query_id": "GS2-SYN-012",
+      "query": "¿Cuáles son los parámetros exactos y posibles valores de retorno de fork en programación de sistemas?",
+      "query_intent_review": "In-scope positive retrieval/citation query explicitly requiring the fork API parameters and return values. All five expected chunks are from passages about dining-philosopher forks, not the process system call.",
+      "analytical_facets": [
+        {
+          "facet_id": "fork_parameters",
+          "description": "Provide the parameters or function signature of the fork system call.",
+          "evidence_ids": [
+            "chk_76e248a62974_304_1",
+            "chk_76e248a62974_302_1",
+            "chk_76e248a62974_303_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p303:c0002",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p304:c0000"
+          ]
+        },
+        {
+          "facet_id": "fork_return_values",
+          "description": "State the possible return values of the fork system call.",
+          "evidence_ids": [
+            "chk_76e248a62974_304_1",
+            "chk_76e248a62974_302_1",
+            "chk_76e248a62974_303_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p303:c0002",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p304:c0000"
+          ]
+        }
+      ],
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_76e248a62974_304_1",
+          "historical_grade": 3,
+          "proposed_grade": 0,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Contains monitor pseudocode for philosophers acquiring and releasing dining forks; no system-call signature or return values."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_302_1",
+          "historical_grade": 2,
+          "proposed_grade": 0,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Explains semaphore synchronization and deadlock around dining-philosopher forks, unrelated to fork parameters or return values."
+        },
+        {
+          "chunk_id": "chk_76e248a62974_303_1",
+          "historical_grade": 1,
+          "proposed_grade": 0,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Continues the dining-philosopher monitor/semaphore example; it does not describe the process system call."
+        },
+        {
+          "chunk_id": "Operating Systems - Internals and Design Principles 7th.pdf:p303:c0002",
+          "historical_grade": 1,
+          "proposed_grade": 0,
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "The text explicitly concerns a philosopher's physical left/right forks and semaphore pseudocode, not fork(2)."
+        },
+        {
+          "chunk_id": "Operating Systems - Internals and Design Principles 7th.pdf:p304:c0000",
+          "historical_grade": 1,
+          "proposed_grade": 0,
+          "source_id": "src_stallings_os_internals_7ed",
+          "current_acl_status": "IN_SCOPE",
+          "rationale": "Contains a dining-philosophers monitor and fork-availability vector, with no API parameters or return contract."
+        }
+      ],
+      "facet_coverage_diagnostic": {
+        "minimum_grade": 2,
+        "covered_facets": [],
+        "uncovered_facets": [
+          "fork_parameters",
+          "fork_return_values"
+        ],
+        "interpretation": "Neither explicit query facet has eligible evidence. This coverage summary does not by itself decide query validity or canonical qrel state."
+      },
+      "canonical_query_decision": null,
+      "canonical_qrel_decisions": null,
+      "remains_pending_user_acceptance": true
+    }
+  ],
+  "independence_assessment": {
+    "GS2-SYN-011": {
+      "distinct_source_ids": 3,
+      "substantive_sources_at_grade_gte_2": 0,
+      "interpretation": "Three source IDs do not imply three relevant or independent evidence sources; two sources only identify fork marginally, while the OS chunks are lexical false matches."
+    },
+    "GS2-SYN-012": {
+      "distinct_source_ids": 1,
+      "substantive_sources_at_grade_gte_2": 0,
+      "interpretation": "All five references are from the same book and the same topic cluster about dining philosophers; they do not provide independent evidence for either requested API facet."
+    }
+  },
+  "limitations": [
+    "Proposed grades and exclusions remain non-canonical pending explicit acceptance.",
+    "Facet lists are analytical decompositions of the query wording for diagnosis, not edits to the historical expected fields.",
+    "Different source IDs do not by themselves prove independent authorship or corroboration.",
+    "No replacement corpus passages were searched; the assessment is limited to the listed historical qrels.",
+    "No benchmark generation, retrieval, embeddings, reranking, or ACL changes were performed."
+  ]
+}

@@ -26,6 +26,9 @@ dependencies = [
 talos = "study_engine.cli:main"
 
 [project.optional-dependencies]
+gate2-diagnostics = [
+    "rapidfuzz>=3.0",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -45,4 +48,3 @@ markers = [
     "network: marks tests that require live network access to an external LLM provider",
     "live: marks tests requiring live external LLM API access and KASIU_LIVE_TESTS=1",
 ]
-

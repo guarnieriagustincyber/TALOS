@@ -1,0 +1,105 @@
+{
+  "active_database_hashes": {
+    "knowledge_db": {
+      "actual": "sha256:fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+      "expected": "sha256:fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+      "unchanged": true
+    },
+    "vector_db": {
+      "actual": "sha256:e348eeede63c33f46dc257232ff14be3f423140abc4fa5a560a85efbda149d0b",
+      "expected": "sha256:e348eeede63c33f46dc257232ff14be3f423140abc4fa5a560a85efbda149d0b",
+      "unchanged": true
+    }
+  },
+  "candidate_acl_validation": "passed_by_proposal_runner",
+  "illegal_candidates": [],
+  "latency_by_oracle_type": {
+    "negative_by_scope": {
+      "count": 1,
+      "mean_ms": 27.81,
+      "total_ms": 27.81
+    },
+    "ood_global": {
+      "count": 1,
+      "mean_ms": 32.94,
+      "total_ms": 32.94
+    },
+    "positive_in_scope": {
+      "count": 1,
+      "mean_ms": 80.41,
+      "total_ms": 80.41
+    }
+  },
+  "limitations": [
+    "Retrieval diagnostics only; no answer generation or citation evaluation.",
+    "Candidate absence is a strict retrieval-level check, not proof of semantic abstention."
+  ],
+  "limits": {
+    "candidate_absence_required_for_negative_oracles": true,
+    "retrieval_concurrency": 1,
+    "top_k": 1
+  },
+  "negative_candidate_absence": {
+    "passed": 0,
+    "total": 2
+  },
+  "oracle_types": {
+    "negative_by_scope": {
+      "candidate_absence_checks": 1,
+      "candidate_absence_passes": 0,
+      "candidates": 1,
+      "total": 1
+    },
+    "ood_global": {
+      "candidate_absence_checks": 1,
+      "candidate_absence_passes": 0,
+      "candidates": 1,
+      "total": 1
+    },
+    "positive_in_scope": {
+      "candidate_absence_checks": 0,
+      "candidate_absence_passes": 0,
+      "candidates": 1,
+      "total": 1
+    }
+  },
+  "qrels_approved": false,
+  "qrels_provenance": "retrieval_proposal",
+  "query_count": 3,
+  "scopes": {
+    "NB-CYBERSECURITY-V1": {
+      "candidate_absence_checks": 0,
+      "candidate_absence_passes": 0,
+      "candidates": 1,
+      "total": 1
+    },
+    "NB-SEC-01-C-PTR": {
+      "candidate_absence_checks": 1,
+      "candidate_absence_passes": 0,
+      "candidates": 1,
+      "total": 1
+    },
+    "fadena-lenguajes": {
+      "candidate_absence_checks": 1,
+      "candidate_absence_passes": 0,
+      "candidates": 1,
+      "total": 1
+    }
+  },
+  "snapshots_cleaned": true,
+  "status": "INCONCLUSIVE",
+  "thermal_monitor": {
+    "baseline": {
+      "cpu_tctl_c": 72.875,
+      "gpu_edge_c": 54.0,
+      "load_1m": 2.98
+    },
+    "max_cpu_tctl_c": 72.875,
+    "max_gpu_edge_c": 54.0,
+    "max_load_1m": 3.65,
+    "runner_return_code": 0,
+    "runtime_seconds": 20.26,
+    "stop_reason": null
+  },
+  "version": "v2.402-pilot1"
+}

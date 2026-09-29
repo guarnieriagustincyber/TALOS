@@ -130,6 +130,16 @@ async def upload_source_to_notebook(
             detail="Solo se admiten documentos en formato .pdf",
         )
 
+    store = container.knowledge_store
+    if not store.contains_notebook(clean_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                f"Notebook '{clean_id}' is not registered. "
+                "Register the notebook before uploading sources."
+            ),
+        )
+
     # Directorio de almacenamiento
     base_storage = Path(__file__).resolve().parents[4] / "kasiu-lab" / "storage"
     sources_dir = base_storage / "sources"
@@ -146,22 +156,8 @@ async def upload_source_to_notebook(
         source_id = f"src_{doc_hash[:16]}"
         display_title = title.strip() if title and title.strip() else filename.replace(".pdf", "")
 
-        store = container.knowledge_store
         with store.engine.transaction() as conn:
             cursor = conn.cursor()
-
-            # 0. Asegurar que el notebook existe en la tabla notebooks (jo FK de notebook_sources)
-            cursor.execute("SELECT id FROM notebooks WHERE id = ?;", (clean_id,))
-            if cursor.fetchone() is None:
-                folder_id = "folder_root"
-                if "fase0" in clean_id:
-                    folder_id = "roadmap_fase0"
-                elif "fadena" in clean_id:
-                    folder_id = "fadena_1ano_2cuat"
-                cursor.execute(
-                    "INSERT OR IGNORE INTO notebooks (id, name, description, folder_id) VALUES (?, ?, ?, ?);",
-                    (clean_id, clean_id, "Cuaderno soberano TALOS", folder_id),
-                )
 
             # 1. Registrar o actualizar en sources con SourceManifest y Source válidos
             file_stat = final_pdf.stat()
@@ -315,6 +311,16 @@ def sync_sources_folder_to_notebook(
 ) -> Dict[str, Any]:
     """Escanea data/benchmark/sources e indexa/vincula automáticamente los PDFs de la carpeta al cuaderno."""
     clean_id = notebook_id.strip()
+    store = container.knowledge_store
+    if not store.contains_notebook(clean_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                f"Notebook '{clean_id}' is not registered. "
+                "Register the notebook before syncing sources."
+            ),
+        )
+
     root_dir = Path(__file__).resolve().parents[4]
     nb_sources_dir = root_dir / "data" / "sources" / clean_id
     general_dir = root_dir / "data" / "sources" / "general"
@@ -351,23 +357,11 @@ def sync_sources_folder_to_notebook(
             "total_files": 0,
         }
 
-    store = container.knowledge_store
     linked_count = 0
     new_indexed_count = 0
 
     with store.engine.transaction() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT id FROM notebooks WHERE id = ?;", (clean_id,))
-        if cursor.fetchone() is None:
-            folder_id = "folder_root"
-            if "fase0" in clean_id:
-                folder_id = "roadmap_fase0"
-            elif "fadena" in clean_id:
-                folder_id = "fadena_1ano_2cuat"
-            cursor.execute(
-                "INSERT OR IGNORE INTO notebooks (id, name, description, folder_id) VALUES (?, ?, ?, ?);",
-                (clean_id, clean_id, "Cuaderno soberano TALOS", folder_id),
-            )
 
         for pdf_path in pdf_files:
             try:

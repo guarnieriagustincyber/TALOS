@@ -1,5 +1,6 @@
-"""Canonical pedagogical contract seed for TALOS Socratic System Prompt (Fase 0 y cuadernos FADENA)."""
+"""Canonical pedagogical contracts and curriculum-bound prompt profiles."""
 
+from dataclasses import dataclass
 from typing import Dict, List
 from study_engine.pedagogy.command_parser import UNIVERSAL_SAFE_COMMANDS
 from study_engine.pedagogy.contract import PedagogicalContract
@@ -7,7 +8,7 @@ from study_engine.pedagogy.response_phase import ResponsePhase
 
 TALOS_BASE_SYSTEM_PROMPT = """IDENTIDAD Y ROL
 
-Sos un tutor socrático de ingeniería, programación y ciberdefensa en TALOS.
+Sos un tutor socrático de ciencias de la computación e ingeniería en TALOS.
 Estilo: claro, paciente, práctico, español rioplatense.
 No excesivamente académico. Priorizá que el estudiante entienda el razonamiento, no que memorice.
 
@@ -26,6 +27,7 @@ PRINCIPIOS EPISÉMICOS (inviolables)
 3. NO inventes contenido, ejemplos, páginas, definiciones ni citas.
 4. Si necesitás un fragmento exacto del libro y no lo tenés en el corpus, pedíselo al estudiante.
 5. La conexión con ciberseguridad se menciona SOLO cuando es orgánica y natural. No la fuerces.
+6. No muestres etiquetas internas del motor de búsqueda o confianza como "[E# missing]" o "[ref. no verificada]".
 
 METODOLOGÍA PEDAGÓGICA
 
@@ -62,76 +64,100 @@ ANDAMIAJE DE EJERCICIOS:
 Si el estudiante pide un ejercicio guiado, no reveles la solución completa antes de que la solicite. Si pide explícitamente la solución completa, respetá ese pedido seguro y entrega los componentes pertinentes en el formato y lenguaje solicitados. No confundas una pregunta conceptual o una mención de un lenguaje con una solicitud de implementación.
 </anti_shortcut_socratic>
 
-<architecture_accuracy>
-PRECISIÓN DE ARQUITECTURA Y SILICIO (x86-64 System V ABI):
-1. Al discutir C, Sistemas Operativos, punteros y paso de parámetros en arquitecturas modernas, asumí por defecto x86-64 y la ABI System V (Linux/POSIX).
-2. Para paso de argumentos usá los registros de 64 bits: %rdi (1º), %rsi (2º), %rdx (3º), %rcx (4º), %r8, %r9. NO uses %eax/%ebx/%ecx para paso de parámetros a menos que el contexto sea explícitamente x86 de 32 bits o ensamblador heredado.
-3. SANITIZACIÓN DE SALIDA: Está estrictamente prohibido mostrar al usuario etiquetas internas del motor de búsqueda o de confianza. NUNCA imprimas texto como "[ref. no verificada]", "[E# missing]", o tags de probabilidad. Si no tenés evidencia del corpus, aplicá el protocolo de abstención formal o respondé con base conceptual general de forma limpia, sin ensuciar el texto con metadatos.
-</architecture_accuracy>
-
-<density_and_c_semantics>
-CALIBRACIÓN DE DENSIDAD Y SEMÁNTICA C ESTRICTA:
-1. ESCALADO DE DENSIDAD (Adaptación al Contexto):
-   - Pregunta de Depuración / Conceptual ("¿por qué crashea?", "¿qué es X?"): Priorizá la explicación mínima suficiente. No agregues diagramas, código, pruebas ni contratos salvo que se soliciten o hagan falta para entender el mecanismo.
-   - Pregunta de Ingeniería / Diseño ("¿cómo implemento X de forma segura?"): Incluí contratos, pseudocódigo, código o tests solo en la medida en que se soliciten o hagan falta para cumplir la tarea.
-2. SEMÁNTICA C (Stack vs Heap):
-   - Memoria en Stack (arrays locales `char buf[16];`): NUNCA valides `if (buf == NULL)`. El stack siempre es válido. Validá tamaños y límites (ej. `sizeof`).
-   - Memoria en Heap (`malloc`/`calloc`): SIEMPRE validá `if (ptr == NULL)` inmediatamente después de la asignación.
-</density_and_c_semantics>"""
+<technical_context>
+No asumas arquitectura, sistema operativo, lenguaje, compilador, herramienta ni configuración que no aparezca en el pedido o en evidencia autorizada. Cuando falte ese dato, explicá el principio general y delimitá qué depende del entorno.
+Diferenciá hechos, hipótesis, ejemplos y analogías; no presentes una analogía como mecanismo literal.
+</technical_context>"""
 
 # Alias retrocompatible
 FASE0_BASE_SYSTEM_PROMPT = TALOS_BASE_SYSTEM_PROMPT
 
 
-NOTEBOOK_ADAPTATIONS: Dict[str, str] = {
-    "fase0-soc": """ADAPTACIÓN PARA CUADERNO: fase0-soc (Programación y Pensamiento Algorítmico)
-- Respetá el enfoque de Joyanes: Análisis → Diseño → Codificación → Prueba → Documentación.
-- Reforzá el enfoque de Spraul: Tener un plan → Replantear → Dividir → Empezar con lo que sé → Reducir → Buscar analogías → No frustrarse.
-- Usá "Book of Proof" de Richard Hammack solo cuando haga falta matemática discreta o lógica.
-- Si el estudiante pregunta algo de matemática discreta y no hay evidencia de Hammack en el corpus, abstenete honestamente: "No tengo evidencia de Hammack en el corpus actual para responder eso.""",
+@dataclass(frozen=True)
+class NotebookPromptProfile:
+    """Curriculum identity and optional representation guidance for one exact scope."""
 
-    "fadena-lenguajes": """ADAPTACIÓN PARA CUADERNO: fadena-lenguajes (Lenguajes de Programación - FADENA)
-- Seguí el programa analítico de la cátedra (10 unidades).
-- Respetá el enfoque de la cátedra: pseudocódigo → C → POO → Web/PHP.
-- Usá las fuentes autorizadas: material de cátedra, Urrutia Landa, Marzal Varó, Stallman GNU C, clases semanales.""",
+    subject: str
+    curriculum_id: str
+    representation_guidance: str
 
-    "fadena-so2": """ADAPTACIÓN PARA CUADERNO: fadena-so2 (Sistemas Operativos II - FADENA)
-- Seguí el programa de Drapañoti (6 unidades).
-- Usá Stallings 7ed, Tanenbaum SO Modernos, apuntes de cátedra.""",
 
-    "fadena-std": """ADAPTACIÓN PARA CUADERNO: fadena-std (Sistemas de Transmisión de Datos - FADENA)
-- Seguí el programa de Pereira/Chamudis/Maidana (7 módulos).
-- Usá Coronel & Morris, Silberschatz BD, Date, Elmasri.""",
-
-    "fadena-teleco": """ADAPTACIÓN PARA CUADERNO: fadena-teleco (Telecomunicaciones - FADENA)
-- Seguí el programa de Fusario (12 unidades).
-- Usá Stallings Redes 7ed, Castro-Fusario, Comer TCP/IP.""",
+NOTEBOOK_PROFILES: Dict[str, NotebookPromptProfile] = {
+    "fase0-soc": NotebookPromptProfile(
+        subject="Programación y Pensamiento Algorítmico",
+        curriculum_id="roadmap_kasiu_v4_fase0",
+        representation_guidance=(
+            "Cuando la consulta sea algorítmica, una traza o pseudocódigo pueden "
+            "ayudar; elegilos solo si el pedido o el problema lo justifica."
+        ),
+    ),
+    "fadena-lenguajes": NotebookPromptProfile(
+        subject="Lenguajes de Programación",
+        curriculum_id="fadena_lenguajes_2026",
+        representation_guidance=(
+            "El programa puede avanzar entre pseudocódigo, C, programación "
+            "orientada a objetos y desarrollo web; respetá la unidad y el "
+            "lenguaje que indiquen el pedido y las fuentes autorizadas."
+        ),
+    ),
+    "fadena-so2": NotebookPromptProfile(
+        subject="Sistemas Operativos II",
+        curriculum_id="fadena_so2_2026",
+        representation_guidance=(
+            "Para temas de sistemas, estados, intercalaciones, políticas y "
+            "diagramas pueden ser útiles cuando ayuden a explicar el concepto; "
+            "no presupongas arquitectura ni sistema operativo."
+        ),
+    ),
+    "fadena-std": NotebookPromptProfile(
+        subject="Sistema de Tratamiento de Datos",
+        curriculum_id="fadena_std_2026",
+        representation_guidance=(
+            "Modelos, transformaciones y consultas de datos pueden ser "
+            "representaciones útiles cuando correspondan al tema y al pedido; "
+            "no conviertas toda explicación en SQL."
+        ),
+    ),
+    "fadena-teleco": NotebookPromptProfile(
+        subject="Infraestructura de Telecomunicaciones",
+        curriculum_id="fadena_teleco_2025",
+        representation_guidance=(
+            "Señales, capas, protocolos y temporización pueden ayudar cuando "
+            "la consulta y la evidencia autorizada los requieran."
+        ),
+    ),
 }
 
 
-def get_system_prompt_for_notebook(notebook_id: str) -> str:
-    """Constructs the full system prompt specialized for a specific notebook."""
-    base = TALOS_BASE_SYSTEM_PROMPT
-    adaptation = NOTEBOOK_ADAPTATIONS.get(notebook_id)
-    if not adaptation:
-        # Fallback por coincidencia parcial de prefijo
-        for k, v in NOTEBOOK_ADAPTATIONS.items():
-            if k in notebook_id or notebook_id in k:
-                adaptation = v
-                break
-    if adaptation:
-        return base + "\n\n" + adaptation
-    return base
+def get_system_prompt_for_notebook(
+    notebook_id: str,
+    *,
+    curriculum_id: str | None = None,
+) -> str:
+    """Build a profile prompt only when the exact notebook identity is validated."""
+    profile = NOTEBOOK_PROFILES.get(notebook_id)
+    if profile is None or curriculum_id != profile.curriculum_id:
+        return TALOS_BASE_SYSTEM_PROMPT
+
+    return (
+        f"{TALOS_BASE_SYSTEM_PROMPT}\n\n"
+        "=== PERFIL CURRICULAR VALIDADO ===\n"
+        f"Materia: {profile.subject}\n"
+        f"curriculum_id: {profile.curriculum_id}\n"
+        f"Sugerencias de representación (opcionales): "
+        f"{profile.representation_guidance}\n"
+        "Este perfil orienta el alcance, pero no reemplaza la evidencia "
+        "documental ni impone un formato."
+    )
 
 
 FASE0_RESPONSE_PHASES = [
     ResponsePhase(
         phase_id="conceptual",
         phase_prompt_template=(
-            "Generá la explicación conceptual profunda y rigurosa sobre: '{user_query}'. "
-            "Explayate en los fundamentos, transistores/hardware, funcionamiento en memoria y utilizá analogías físicas. "
-            "Incluí el diagrama ASCII y el bloque de pseudocódigo defensivo estructurado (en bloque ```text o ```pseudocode). "
-            "NO incluyas código fuente ejecutable en Python o C."
+            "Explicá con claridad el tema solicitado: '{user_query}'. "
+            "Ajustá profundidad y representación al pedido; no agregues por "
+            "rutina analogías, diagramas, pseudocódigo ni código."
         ),
         max_tokens=3500,
         requires_user_approval=False,
@@ -140,8 +166,9 @@ FASE0_RESPONSE_PHASES = [
     ResponsePhase(
         phase_id="pseudocode",
         phase_prompt_template=(
-            "Diseñá el algoritmo en pseudocódigo estructurado en español claro para resolver o modelar: '{user_query}'. "
-            "Basate en la explicación conceptual previa. Prohibido usar sintaxis de lenguajes como Python o C."
+            "Si el pedido requiere un algoritmo o procedimiento, expresalo en "
+            "pseudocódigo claro para: '{user_query}'. No mezcles sintaxis de "
+            "implementación de un lenguaje."
         ),
         max_tokens=600,
         requires_user_approval=True,
@@ -150,8 +177,9 @@ FASE0_RESPONSE_PHASES = [
     ResponsePhase(
         phase_id="python_code",
         phase_prompt_template=(
-            "Traducí el pseudocódigo previo a una implementación limpia, tipada y documentada en Python para: '{user_query}'. "
-            "Mostrá cómo ejecutarlo y qué casos de prueba verifican su comportamiento."
+            "Implementá lo solicitado para: '{user_query}', respetando el "
+            "lenguaje y entorno pedidos. Si el lenguaje necesario no está "
+            "indicado ni se desprende del contexto, pedí que lo precisen."
         ),
         max_tokens=800,
         requires_user_approval=True,
@@ -177,16 +205,27 @@ FASE0_CONTRACT = PedagogicalContract(
     forbidden_patterns=["```python", "import ", "def "],
     safe_words=list(UNIVERSAL_SAFE_COMMANDS),
     response_phases=FASE0_RESPONSE_PHASES,
-    required_analogies=["stack_frame_as_office", "bouncer_guard_clause", "physical_ram"],
-    anti_errors=["no digas 'esto es fácil'", "no asumas conocimiento previo", "no uses jerga sin explicar"],
+    required_analogies=[],
+    anti_errors=[
+        "no digas 'esto es fácil'",
+        "no asumas conocimiento previo",
+        "no uses jerga sin explicar",
+    ],
 )
 
 
-def get_default_contract(notebook_id: str) -> PedagogicalContract:
-    """Return a contract scoped and specialized to the specified notebook_id with universal safe commands."""
-    prompt = get_system_prompt_for_notebook(notebook_id)
+def get_default_contract(
+    notebook_id: str,
+    *,
+    curriculum_id: str | None = None,
+) -> PedagogicalContract:
+    """Return a contract with a profile only for a validated exact curriculum identity."""
+    prompt = get_system_prompt_for_notebook(
+        notebook_id,
+        curriculum_id=curriculum_id,
+    )
     forbidden = list(FASE0_CONTRACT.forbidden_patterns)
-    if "lenguajes" in notebook_id:
+    if notebook_id == "fadena-lenguajes" and prompt != TALOS_BASE_SYSTEM_PROMPT:
         forbidden = ["#include <stdio.h>", "int main("]
 
     return PedagogicalContract(

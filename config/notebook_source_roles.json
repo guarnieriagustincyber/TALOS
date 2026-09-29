@@ -97,6 +97,31 @@
       "roles": ["COMPLEMENTARY"],
       "authority": 1.0,
       "title": "Python para todos / Programación Básica"
+    },
+    "src_115f0bc876b44be8": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA Lenguajes - Clase 3"
+    },
+    "src_8ac0eed0a6121c6a": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA Lenguajes - Clase 4"
+    },
+    "src_1149ca3399b6dd85": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA Lenguajes - Semana 06, Clase 01"
+    },
+    "src_fdc4df20e0f9f99e": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA Lenguajes - Guía Práctica 6"
+    },
+    "src_7ba98d836c32fe4b": {
+      "roles": ["REFERENCE"],
+      "authority": 1.4,
+      "title": "Manual de referencia de C v1.1"
     }
   },
   "fadena-so2": {
@@ -158,6 +183,31 @@
       "authority": 1.3,
       "title": "Linux for System Administrators - Rudareanu",
       "status": "SOURCE_MISSING"
+    },
+    "src_a9a056742dcf69ae": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA SO II - Unidad 2, Semana 4 (2026)"
+    },
+    "src_d253687930308e41": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA SO II - Unidad 2, Semana 5 (2026)"
+    },
+    "src_0fc90b2695369475": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA SO II - Unidad 3, Semana 6 (2026)"
+    },
+    "src_e9682dece40b58ab": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA SO II - Actividad S5-A1 (2026)"
+    },
+    "src_f009c4e75f5ca3f2": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA SO II - Actividad obligatoria S6-A1 (2026)"
     }
   },
   "fadena-std": {
@@ -211,6 +261,101 @@
       "authority": 1.5,
       "title": "Estructuras de Datos - Cairo & Guardati",
       "status": "SOURCE_MISSING"
+    },
+    "src_7822bc3cef85c783": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - Diseño de Bases de Datos Relacionales"
+    },
+    "src_cf46d8f0e018b09e": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - Presentación: Diseño de Bases de Datos Relacionales"
+    },
+    "src_a01b9809f37fb47b": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA STD - Ejercicios: Diseño de Bases de Datos Relacionales"
+    },
+    "src_d7ff8399759d387a": {
+      "roles": ["COMPLEMENTARY"],
+      "authority": 1.3,
+      "title": "FADENA STD - Estructuras de Datos"
+    },
+    "src_3e2e8abda5f55c17": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - Fundamentos del Modelo Relacional"
+    },
+    "src_9e866bf082e52dd7": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA STD - Ejercicios: Fundamentos del Modelo Relacional"
+    },
+    "src_d946d1a5a3c32144": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - Presentación: Fundamentos del Modelo Relacional"
+    },
+    "src_755be6c147ddc5dd": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - Presentación: SQL Básico"
+    },
+    "src_53ef2a7243ae3f63": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - Álgebra Relacional y Cálculo Relacional"
+    },
+    "src_52ff5ff3e07c1da5": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA STD - Ejercicios: Álgebra Relacional y Cálculo Relacional"
+    },
+    "src_0960283d5cef8dee": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - Presentación: Álgebra Relacional y Cálculo Relacional"
+    },
+    "src_9946be0e7d11161a": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - Normalización de Bases de Datos"
+    },
+    "src_6dbdc8e943261fa7": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA STD - Ejercicios: Normalización de Bases de Datos"
+    },
+    "src_de275591245abbd3": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - Presentación: Normalización de Bases de Datos"
+    },
+    "src_f93b8a264e20359c": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA STD - SQL Básico"
+    },
+    "src_7ec00a3365f208e6": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA STD - Ejercicios: SQL Básico"
+    },
+    "src_3102eb1e89e2229e": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA STD - Ejercicios de Estructuras de Datos"
+    },
+    "src_032c52bff94a0743": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA STD - Ejercicios de Recursividad"
+    },
+    "src_56cfdbe35123c49e": {
+      "roles": ["IMPLEMENTATION"],
+      "authority": 1.5,
+      "title": "FADENA STD - SQL Básico, entorno interactivo"
     }
   },
   "fadena-teleco": {
@@ -259,6 +404,26 @@
       "authority": 1.3,
       "title": "Computer Networks - Tanenbaum",
       "status": "SOURCE_MISSING"
+    },
+    "src_2f1a5843cd1693ba": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA Telecomunicaciones - Unidad 2 (2026)"
+    },
+    "src_da10b53f20f2a647": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA Telecomunicaciones - Unidad 3 (2026)"
+    },
+    "src_001b27137cf6680c": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA Telecomunicaciones - Unidad 4 (2026)"
+    },
+    "src_11195af8e0f2ef40": {
+      "roles": ["PRIMARY"],
+      "authority": 1.8,
+      "title": "FADENA Telecomunicaciones - Unidad 5 (2026)"
     }
   }
 }

@@ -1,0 +1,149 @@
+{
+  "version": "v2.402-positive-segments-review",
+  "status": "structural_review_pending_user_adjudication",
+  "historical_inputs_read_only": {
+    "dataset": "data/eval/golden_set_v2_400.json",
+    "qrels": "data/eval/qrels/golden_set_v2_400.qrels.json",
+    "dataset_sha256": "sha256:7ac3c707a973aa7dbc2e79c48c14a6208ac6f72bcba3d184433c2f2bc6b337c1",
+    "qrels_sha256": "sha256:68af7033fcd4e607b830245901774d2daac610d909763cb0b999b024b1ed7abc",
+    "retrieval_executed": false,
+    "external_models_used": false,
+    "full_corpus_scanned": false
+  },
+  "rubric": {
+    "status": "user_approved",
+    "3": "direct",
+    "2": "substantial but partial",
+    "1": "marginal but useful",
+    "0": "irrelevant; exclude from positive qrels"
+  },
+  "selected_segments": [
+    {
+      "scope": "NB-SEC-01-C-PTR",
+      "query_id": "GS2-VULN-018",
+      "decision_status": "pending_user_adjudication",
+      "historical_qrel_findings": [
+        {
+          "chunk_id": "chk_92876e0f2bc2_425_1",
+          "historical_grade": 3,
+          "source_id": "src_martin_clean_code",
+          "acl_authorized": true,
+          "proposed_grade": 2,
+          "proposed_decision": "include",
+          "reason": "Explains deadlock through two threads holding and waiting for each other's resources and says all four conditions must hold, but the excerpt does not name all four conditions."
+        },
+        {
+          "chunk_id": "Codigo limpio - Robert Cecil Martin.pdf:p425:c0000",
+          "historical_grade": 2,
+          "source_id": "src_martin_clean_code",
+          "acl_authorized": true,
+          "proposed_grade": 0,
+          "proposed_decision": "exclude",
+          "reason": "Duplicate passage of the same example, but it ends before adding further support; retain only the fuller chunk to avoid duplicate evidence."
+        }
+      ],
+      "proposed_qrels": {
+        "chk_92876e0f2bc2_425_1": 2
+      }
+    },
+    {
+      "scope": "fadena-so2",
+      "query_id": "GS2-VULN-007",
+      "decision_status": "pending_user_adjudication",
+      "historical_qrel_findings": [
+        {
+          "chunk_id": "chk_0aa9aa4cc0b2_385_1",
+          "historical_grade": 3,
+          "source_id": "src_stallings_computer_security",
+          "acl_authorized": true,
+          "proposed_grade": 2,
+          "proposed_decision": "include",
+          "reason": "Describes non-executable memory protections, explicitly says they can cover both stack and heap, and explains the protection against buffer-overflow attacks. It is relevant but does not cover all mitigation differences."
+        },
+        {
+          "chunk_id": "chk_0aa9aa4cc0b2_358_1",
+          "historical_grade": 2,
+          "source_id": "src_stallings_computer_security",
+          "acl_authorized": true,
+          "proposed_grade": 0,
+          "proposed_decision": "exclude",
+          "reason": "Chapter learning objectives mention defenses and heap overflow but provide no mitigation evidence."
+        },
+        {
+          "chunk_id": "chk_0aa9aa4cc0b2_394_1",
+          "historical_grade": 1,
+          "source_id": "src_stallings_computer_security",
+          "acl_authorized": true,
+          "proposed_grade": 0,
+          "proposed_decision": "exclude",
+          "reason": "Review-question list identifies topics but does not provide answers or mitigation detail."
+        },
+        {
+          "chunk_id": "chk_0aa9aa4cc0b2_393_1",
+          "historical_grade": 1,
+          "source_id": "src_stallings_computer_security",
+          "acl_authorized": true,
+          "proposed_grade": 0,
+          "proposed_decision": "exclude",
+          "reason": "Recommended-reading bibliography does not answer the mitigation comparison."
+        },
+        {
+          "chunk_id": "chk_0aa9aa4cc0b2_365_1",
+          "historical_grade": 1,
+          "source_id": "src_stallings_computer_security",
+          "acl_authorized": true,
+          "proposed_grade": 0,
+          "proposed_decision": "exclude",
+          "reason": "Explains stack-frame setup/teardown, not buffer-overflow mitigations."
+        }
+      ],
+      "proposed_qrels": {
+        "chk_0aa9aa4cc0b2_385_1": 2
+      }
+    }
+  ],
+  "scope_blockers": [
+    {
+      "scope": "NB-CYBERSECURITY-V1",
+      "status": "no_additional_safe_candidate_selected",
+      "existing_positive": "GS2-VULN-004",
+      "excluded_candidate": {
+        "query_id": "GS2-VULN-005",
+        "reason": "Requests complete executable shellcode; excluded from expansion to avoid an operational exploit-oriented query."
+      }
+    },
+    {
+      "scope": "fadena-lenguajes",
+      "status": "blocked_historical_qrels_do_not_support_positive_query",
+      "candidate_queries": [
+        "GS2-SYN-002",
+        "GS2-SYN-003",
+        "GS2-SYN-004"
+      ],
+      "reason": "The query wording suggests the Linux clone system call, while historical qrels point to GNU C function-cloning attributes and do not establish the syscall behavior. Do not promote those qrels."
+    },
+    {
+      "scope": "fadena-teleco",
+      "status": "blocked_historical_qrels_do_not_support_positive_query",
+      "candidate_queries": [
+        "GS2-CMP-001",
+        "GS2-CMP-002",
+        "GS2-CMP-004",
+        "GS2-CMP-005"
+      ],
+      "reason": "The query asks about stack/heap lifetime, contiguity, and allocation speed, while the sampled historical qrels point to buffer-overflow defenses and stack-frame details. No topical positive was established."
+    },
+    {
+      "scope": "fadena-std",
+      "status": "blocked_no_historical_positive_qrels",
+      "candidate_queries": [],
+      "reason": "No non-empty positive qrels exist for this scope in the v2.400 input."
+    }
+  ],
+  "limits": [
+    "The new qrel grades and exclusions are AI-assisted proposals based on manually inspected historical qrel chunks, not user-approved adjudications.",
+    "No retrieval, embedding, reranking, answer generation, or full corpus search was performed.",
+    "Only the two selected scope segments are structurally validated; blocked scopes require new, properly supported qrels."
+  ],
+  "next_gate": "User adjudication of the two proposed positive segments; then rerun the segment validator. Do not start retrieval while any intended scope lacks adjudicated positives."
+}

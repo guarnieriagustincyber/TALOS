@@ -1,0 +1,81 @@
+{
+  "queries": [
+    {
+      "kc_ids": [
+        "aritmetica_punteros",
+        "so2_gestion_memoria"
+      ],
+      "query": "¿Qué es una race condition del tipo Time-of-Check to Time-of-Use (TOCTOU) en sistemas POSIX?",
+      "query_id": "GS2-VULN-004",
+      "topic_anchors": [
+        "race condition",
+        "time-of-check",
+        "time-of-use",
+        "toctou"
+      ]
+    },
+    {
+      "kc_ids": [],
+      "query": "¿Qué es un Deadlock (abrazo mortal) y cuáles son las cuatro condiciones de Coffman?",
+      "query_id": "GS2-VULN-018",
+      "topic_anchors": [
+        "deadlock",
+        "abrazo mortal",
+        "condiciones de coffman",
+        "exclusión mutua",
+        "retener y esperar",
+        "no expropiación",
+        "espera circular"
+      ]
+    },
+    {
+      "kc_ids": [],
+      "query": "¿Cómo funciona Round Robin y cómo influye la duración del quantum en la planificación de procesos?",
+      "query_id": "G2-PILOT-NEG-001",
+      "topic_anchors": [
+        "round robin",
+        "quantum"
+      ]
+    },
+    {
+      "kc_ids": [],
+      "query": "¿Qué diferencia hay entre un buffer overflow en el Stack y un heap overflow a nivel de mitigaciones?",
+      "query_id": "GS2-VULN-007",
+      "topic_anchors": [
+        "buffer overflow",
+        "stack",
+        "heap",
+        "no-execute",
+        "nonexecutable"
+      ]
+    },
+    {
+      "kc_ids": [],
+      "query": "¿Quién ganó la final del Mundial de México 1986 y con qué resultado?",
+      "query_id": "GS2-OOD-001",
+      "topic_anchors": [
+        "final del mundial",
+        "mundial de méxico 1986",
+        "argentina",
+        "alemania"
+      ]
+    },
+    {
+      "kc_ids": [
+        "so2_gestion_memoria",
+        "so2_procesos",
+        "so2_concurrencia"
+      ],
+      "query": "¿Cuál es la distinción fundamental entre un Mutex (con propiedad de hilo) y un Semáforo contador de Dijkstra?",
+      "query_id": "GS2-CMP-011",
+      "topic_anchors": [
+        "mutex",
+        "propiedad de hilo",
+        "semáforo contador",
+        "Dijkstra",
+        "acquire",
+        "release"
+      ]
+    }
+  ]
+}

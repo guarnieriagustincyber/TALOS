@@ -1,0 +1,60 @@
+{
+  "fixture_version": "gate2-facet-coverage-v1",
+  "purpose": "Cross-case diagnostic for an explicit two-facet mutex/semaphore comparison where only the semaphore facet reaches the minimum relevance threshold.",
+  "derived_from": "reports/gate2_scope_candidate_adjudication_2026-09-28.json",
+  "query": {
+    "query_id": "GS2-CMP-011",
+    "text": "¿Cuál es la distinción fundamental entre un Mutex (con propiedad de hilo) y un Semáforo contador de Dijkstra?",
+    "scope": "fadena-std",
+    "oracle_type": "retrieval_citation",
+    "historical_expected_abstention": true,
+    "required_facets": [
+      {
+        "facet_id": "mutex_thread_ownership",
+        "evidence_ids": [
+          "chk_db97c77518c6_729_1"
+        ]
+      },
+      {
+        "facet_id": "counting_semaphore_operations",
+        "evidence_ids": [
+          "chk_db97c77518c6_821_1"
+        ]
+      }
+    ],
+    "minimum_relevance_grade_for_facet_coverage": 2
+  },
+  "evidence": [
+    {
+      "evidence_id": "chk_db97c77518c6_729_1",
+      "adjudicated_grade": 1,
+      "qrel_decision": "EXCLUDE",
+      "source_id": "src_ramalho_fluent_python",
+      "evidence_unit": "src_ramalho_fluent_python:chunk:729",
+      "contribution": "Defines a mutex as mutual exclusion and use of a lock to protect shared state, but does not establish thread ownership."
+    },
+    {
+      "evidence_id": "chk_db97c77518c6_821_1",
+      "adjudicated_grade": 2,
+      "qrel_decision": "KEEP",
+      "source_id": "src_ramalho_fluent_python",
+      "evidence_unit": "src_ramalho_fluent_python:chunk:821",
+      "contribution": "Substantially explains a semaphore counter, acquire/release, and waiting at zero, in an asyncio context."
+    }
+  ],
+  "set_assessment": {
+    "distinct_source_ids": 1,
+    "independence": "The two evidence chunks are from the same source; they are not independent source corroboration.",
+    "complementarity": "The candidates map to different requested concepts: mutex ownership and counting-semaphore operations.",
+    "facet_coverage_proposal": "INCOMPLETE_MUTEX_OWNERSHIP_FACET",
+    "sufficient_for_full_query": false,
+    "source_decisions_are_user_adjudicated": true,
+    "fixture_creates_new_decisions": false,
+    "historical_v2400_dataset_or_qrels_modified": false
+  },
+  "policy": {
+    "facet_coverage_is_not_independence": true,
+    "facet_coverage_is_not_canonical_adjudication": true,
+    "uncovered_required_facet_prevents_sufficiency_proposal": true
+  }
+}

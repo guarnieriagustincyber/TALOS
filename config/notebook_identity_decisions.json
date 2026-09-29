@@ -1,0 +1,161 @@
+{
+  "purpose": "Audit-only identity decisions for Gate 2 reconciliation; this file grants no source access and is not read by runtime authorization.",
+  "version": 1,
+  "decisions": {
+    "fase0-soc": {
+      "classification": "canonical_roadmap_notebook",
+      "decision": "Keep as the exact Roadmap/Fase 0 notebook identity; it is not a FADENA alias.",
+      "alias_target": null,
+      "evidence": [
+        "DEFAULT_NOTEBOOKS exact ID",
+        "notebook_kc_catalog.json exact key and curriculum_id roadmap_kasiu_v4_fase0"
+      ]
+    },
+    "fadena-lenguajes": {
+      "classification": "canonical_course_notebook",
+      "decision": "Keep as the exact FADENA Lenguajes 2026 notebook identity.",
+      "alias_target": null,
+      "evidence": [
+        "DEFAULT_NOTEBOOKS exact ID",
+        "notebook_kc_catalog.json exact key and curriculum_id fadena_lenguajes_2026"
+      ]
+    },
+    "fadena-so2": {
+      "classification": "canonical_course_notebook",
+      "decision": "Keep as the exact FADENA Sistemas Operativos II 2026 notebook identity; distinct from fadena-so.",
+      "alias_target": null,
+      "evidence": [
+        "DEFAULT_NOTEBOOKS exact ID",
+        "notebook_kc_catalog.json exact key and curriculum_id fadena_so2_2026",
+        "FADENA SO2 course PDFs are present under fuentes/fadena-so2"
+      ]
+    },
+    "fadena-std": {
+      "classification": "canonical_course_notebook",
+      "decision": "Keep as the exact FADENA Sistema de Tratamiento de Datos 2026 notebook identity.",
+      "alias_target": null,
+      "evidence": [
+        "DEFAULT_NOTEBOOKS exact ID",
+        "notebook_kc_catalog.json exact key and curriculum_id fadena_std_2026",
+        "Course materials are present under fuentes/fadena-std",
+        "UNIDAD1STD.pdf identifies Licenciatura en Ciberdefensa, Sistemas de Tratamientos de Datos, Año 2026",
+        "Explicit course-file roles are reconciled; academic program and missing-source references still need validation"
+      ]
+    },
+    "fadena-teleco": {
+      "classification": "canonical_course_notebook",
+      "decision": "Keep as the exact FADENA Telecomunicaciones 2025 notebook identity.",
+      "alias_target": null,
+      "evidence": [
+        "DEFAULT_NOTEBOOKS exact ID",
+        "notebook_kc_catalog.json exact key and curriculum_id fadena_teleco_2025",
+        "Course-unit PDFs are present under fuentes/fadena-teleco"
+      ]
+    },
+    "fadena-sye": {
+      "classification": "catalogued_not_operational",
+      "decision": "Do not register or activate until the academic identity, primary sources, roles, and ACL are reviewed.",
+      "alias_target": null,
+      "evidence": [
+        "notebook_kc_catalog.json exact key and curriculum_id fadena_sye_2026",
+        "No DEFAULT_NOTEBOOKS entry or source-role catalog entry",
+        "Local SQLite row is an empty placeholder with null subject and curriculum_id"
+      ]
+    },
+    "fadena-prog": {
+      "classification": "legacy_distinct_scope",
+      "decision": "Preserve this registered compatibility scope; do not redirect it to another notebook.",
+      "alias_target": null,
+      "evidence": [
+        "DEFAULT_NOTEBOOKS exact ID and legacy label",
+        "No declared alias target, curriculum-catalog entry, or persisted source associations",
+        "Legacy source IDs are absent from the local sources table"
+      ]
+    },
+    "fadena-so": {
+      "classification": "legacy_distinct_scope",
+      "decision": "Preserve this registered compatibility scope; do not redirect it to fadena-so2.",
+      "alias_target": null,
+      "evidence": [
+        "DEFAULT_NOTEBOOKS exact ID and legacy label",
+        "Federation bridges reference this ID as an independent endpoint",
+        "No declared alias target, curriculum-catalog entry, or persisted source associations"
+      ]
+    },
+    "NB-CYBERSECURITY-V1": {
+      "classification": "independent_security_notebook",
+      "decision": "Keep as an independent Security notebook; do not map its generic local fadena_v1 value to a FADENA course.",
+      "alias_target": null,
+      "evidence": [
+        "DEFAULT_NOTEBOOKS exact ID, security name, and subject",
+        "Local notebook row has 10 explicit source associations",
+        "No matching curriculum-catalog or source-role entry"
+      ]
+    },
+    "NB-SEC-01-C-PTR": {
+      "classification": "independent_roadmap_topic_scope",
+      "decision": "Recognize as the SEC-01-C-PTR pointer/memory topic scope in ROADMAP-CYBERSECURITY-V1; do not classify as an unidentified custom notebook.",
+      "alias_target": null,
+      "evidence": [
+        "data/curriculum/roadmaps/cybersecurity_v1.yaml maps node SEC-01-C-PTR to this exact notebook_id",
+        "Golden retrieval set contains queries scoped to this exact notebook_id",
+        "Local row has 42 associations, including one orphan source ID; ACL scope requires separate review"
+      ],
+      "acl_review": {
+        "status": "overbroad_reviewed_change_blocked_pending_benchmark_scope",
+        "current_associations": 42,
+        "associations_with_source_records": 41,
+        "orphan_source_ids": [
+          "src_Stallings.William.-.Sistemas.Operativos.5ed.pdf"
+        ],
+        "associated_chunk_rows": 105179,
+        "core_source_candidates_for_validation": [
+          "src_fadena_prog_punteros",
+          "src_fadena_leng_clase2",
+          "src_marzal_intro_programacion_c",
+          "src_urrutia_programacion_c_principiantes",
+          "src_stallman_gnu_c_manual",
+          "src_joyanes_fundamentos"
+        ],
+        "blocker": "All 420 golden_set_v2_401 queries scope only to this SEC-01 notebook, including SO2 process/concurrency/memory knowledge components. Split or clarify benchmark scopes before changing active ACL.",
+        "benchmark_scope_audit": {
+          "status": "v2_401_scope_and_qrels_inconsistent",
+          "evidence": [
+            "The v2.400 source set assigns 70 of its 400 queries to five secondary scopes; v2.401 rewrites all 420 scopes to NB-SEC-01-C-PTR.",
+            "Of 330 qrel chunk references attached to those 70 queries in v2.401, 224 resolve to sources not authorized by the corresponding v2.400 scope.",
+            "v2.400 contains 352 abstention assertions, while the evaluator rejects abstention assertions outside category ood_trampas; v2.401 resets non-OOD-category assertions and regenerates qrels against SEC-01.",
+            "v2.401 metadata reports primary_notebooks=320 and secondary_notebooks=100 although all 420 records target SEC-01."
+          ],
+          "changed_scope_queries": 70,
+          "changed_scope_qrel_items": 330,
+          "qrel_items_outside_previous_scope": 224,
+          "required_before_acl_change": [
+            "Define scope and negative-oracle semantics for a new benchmark version.",
+            "Regenerate and validate qrels separately under every declared scope.",
+            "Derive benchmark metadata from the actual versioned records and add integrity tests."
+          ]
+        }
+      }
+    },
+    "nb_prog_1": {
+      "classification": "local_custom_scope_unresolved",
+      "decision": "Preserve the local row; do not infer a curriculum mapping or provision sources without provenance.",
+      "alias_target": null,
+      "evidence": [
+        "Local SQLite row only; subject and curriculum_id are null",
+        "Folder f_prog is named Carrera Programación, but does not prove an identity alias",
+        "No source associations, registry entry, or curriculum-catalog entry"
+      ]
+    },
+    "nb_prog_basica": {
+      "classification": "local_custom_scope_unresolved",
+      "decision": "Preserve the local row; do not infer a curriculum mapping or provision sources without provenance.",
+      "alias_target": null,
+      "evidence": [
+        "Local SQLite row only; subject and curriculum_id are null",
+        "Folder folder_fase0 is named Fase 0 - Ciberseguridad, but does not prove an identity alias",
+        "No source associations, registry entry, or curriculum-catalog entry"
+      ]
+    }
+  }
+}

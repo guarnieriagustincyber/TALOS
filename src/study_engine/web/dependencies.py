@@ -10,6 +10,7 @@ Manages singleton lifecycle for:
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 from pathlib import Path
@@ -36,6 +37,27 @@ from study_engine.session.orchestrator import SessionOrchestrator
 from study_engine.state.ledger import EvidenceLedger
 from study_engine.state.state_contracts import StudentState
 from scripts.experiments.run_study_loop_v1 import StudyLoopExperimentRunner
+
+
+def _load_notebook_curriculum_ids(catalog_path: Path) -> Dict[str, str]:
+    """Load the exact notebook-to-curriculum mapping from the KC catalog."""
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    if not isinstance(catalog, dict):
+        raise ValueError(f"Notebook KC catalog must be a JSON object: {catalog_path}")
+
+    curriculum_ids: Dict[str, str] = {}
+    for notebook_id, entry in catalog.items():
+        if not isinstance(notebook_id, str) or not isinstance(entry, dict):
+            raise ValueError(f"Invalid notebook entry in KC catalog: {notebook_id!r}")
+        curriculum_id = entry.get("curriculum_id")
+        if curriculum_id is None:
+            continue
+        if not isinstance(curriculum_id, str) or not curriculum_id.strip():
+            raise ValueError(
+                f"Invalid curriculum_id for notebook '{notebook_id}' in {catalog_path}"
+            )
+        curriculum_ids[notebook_id] = curriculum_id
+    return curriculum_ids
 
 
 def generate_mermaid_roadmap(
@@ -544,14 +566,14 @@ class AppContainer:
         from study_engine.hierarchy.folder import Folder
         from study_engine.contracts.notebook import Notebook
 
+        curriculum_ids = _load_notebook_curriculum_ids(
+            self.repo_root / "config" / "notebook_kc_catalog.json"
+        )
         now = datetime.now(timezone.utc)
         if hasattr(store, "contains_folder") and not store.contains_folder("folder_root"):
-            try:
-                store.create_folder(
-                    Folder(id="folder_root", name="Root Workspace", parent_folder_id=None, created_at=now, updated_at=now)
-                )
-            except Exception:
-                pass
+            store.create_folder(
+                Folder(id="folder_root", name="Root Workspace", parent_folder_id=None, created_at=now, updated_at=now)
+            )
 
         canonical_folders = [
             ("fadena", "FADENA", "folder_root"),
@@ -562,12 +584,9 @@ class AppContainer:
         ]
         for fid, fname, pid in canonical_folders:
             if hasattr(store, "contains_folder") and not store.contains_folder(fid):
-                try:
-                    store.create_folder(
-                        Folder(id=fid, name=fname, parent_folder_id=pid, created_at=now, updated_at=now)
-                    )
-                except Exception:
-                    pass
+                store.create_folder(
+                    Folder(id=fid, name=fname, parent_folder_id=pid, created_at=now, updated_at=now)
+                )
 
         nb_folder_map = {
             "fase0-soc": "roadmap_fase0",
@@ -577,14 +596,10 @@ class AppContainer:
             "fadena-teleco": "fadena_1ano_2cuat",
         }
 
-        existing_sources = set()
-        try:
-            with store.engine.transaction() as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT source_id FROM sources;")
-                existing_sources = {r[0] for r in cursor.fetchall()}
-        except Exception:
-            pass
+        with store.engine.transaction() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT source_id FROM sources;")
+            existing_sources = {r[0] for r in cursor.fetchall()}
 
         if hasattr(reg, "list_notebooks") and hasattr(store, "contains_notebook"):
             bridge_params = []
@@ -592,36 +607,30 @@ class AppContainer:
                 folder_id = nb_folder_map.get(nb.notebook_id, "folder_root")
                 valid_sources = [s for s in nb.sources if s in existing_sources]
                 if not store.contains_notebook(nb.notebook_id):
-                    try:
-                        nb_obj = Notebook(
-                            id=nb.notebook_id,
-                            name=nb.name,
-                            description=nb.subject,
-                            subject=nb.subject,
-                            curriculum_id="fadena_v1",
-                            folder_id=folder_id,
-                            sources=valid_sources,
-                            created_at=now,
-                            updated_at=now,
-                            metadata={},
-                        )
-                        store.create_notebook(nb_obj)
-                    except Exception:
-                        pass
+                    nb_obj = Notebook(
+                        id=nb.notebook_id,
+                        name=nb.name,
+                        description=nb.subject,
+                        subject=nb.subject,
+                        curriculum_id=curriculum_ids.get(nb.notebook_id),
+                        folder_id=folder_id,
+                        sources=valid_sources,
+                        created_at=now,
+                        updated_at=now,
+                        metadata={},
+                    )
+                    store.create_notebook(nb_obj)
                 else:
                     for src_id in valid_sources:
                         bridge_params.append((nb.notebook_id, src_id))
 
             if bridge_params:
-                try:
-                    with store.engine.transaction() as conn:
-                        cur = conn.cursor()
-                        cur.executemany(
-                            "INSERT OR IGNORE INTO notebook_sources (notebook_id, source_id) VALUES (?, ?);",
-                            bridge_params,
-                        )
-                except Exception:
-                    pass
+                with store.engine.transaction() as conn:
+                    cur = conn.cursor()
+                    cur.executemany(
+                        "INSERT OR IGNORE INTO notebook_sources (notebook_id, source_id) VALUES (?, ?);",
+                        bridge_params,
+                    )
 
     def get_roadmap(self) -> CurricularRoadmap:
         """Access the authoritative active curricular roadmap."""
@@ -654,4 +663,3 @@ def set_container(container: AppContainer) -> None:
     global _container
     with _container_lock:
         _container = container
-

@@ -147,6 +147,13 @@ def test_conversational_followup_contextual_retrieval():
     mock_store.search_hybrid.return_value = [mock_sr]
     mock_store.get_pedagogical_contract.return_value = FASE0_CONTRACT
     mock_store.get_notebook.return_value = MagicMock(folder_id="roadmap_fase0")
+    scope_conn = MagicMock()
+    scope_cursor = scope_conn.cursor.return_value
+    scope_cursor.fetchall.side_effect = [
+        [("src_kr_c", "Kernighan & Ritchie C", "sha256", "author")],
+        [("src_kr_c",)],
+    ]
+    mock_store.engine.transaction.return_value.__enter__.return_value = scope_conn
 
     session_id = "test_followup_session"
     context_cache_key = _epistemic_cache_key(
@@ -544,4 +551,3 @@ def test_turn_4_deictic_ampersand_followup():
     assert getattr(context_pack, "abstained", False) is False
     assert len(raw_chunks) > 0
     assert raw_chunks[0]["id"] == "E775"
-

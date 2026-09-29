@@ -102,6 +102,34 @@ def test_knowledge_store_pedagogical_contract_crud(tmp_path):
     assert fallback.persona == "socratic_rioplatense"
 
 
+def test_default_curriculum_profile_requires_exact_persisted_identity(tmp_path):
+    store = KnowledgeStore(tmp_path / "profile_identity.db")
+    store.initialize()
+    store.create_notebook(
+        Notebook(
+            id="fadena-std",
+            name="Sistema de Tratamiento de Datos",
+            subject="Tratamiento de Datos y Bases de Datos",
+            curriculum_id="fadena_std_2026",
+        )
+    )
+
+    profiled = store.get_pedagogical_contract("fadena-std")
+    assert "curriculum_id: fadena_std_2026" in profiled.base_system_prompt
+    assert "no conviertas toda explicación en SQL" in profiled.base_system_prompt
+    assert profiled.required_analogies == []
+
+    with store.engine.transaction() as conn:
+        conn.execute(
+            "UPDATE notebooks SET curriculum_id = ? WHERE id = ?",
+            ("fadena_v1", "fadena-std"),
+        )
+
+    neutral = store.get_pedagogical_contract("fadena-std")
+    assert "PERFIL CURRICULAR VALIDADO" not in neutral.base_system_prompt
+    assert neutral.base_system_prompt.startswith("IDENTIDAD Y ROL")
+
+
 def test_save_contract_for_nonexistent_notebook_fails_closed():
     """Attempting to bind a contract to a nonexistent notebook raises NotebookNotFoundError."""
     store = KnowledgeStore(":memory:")

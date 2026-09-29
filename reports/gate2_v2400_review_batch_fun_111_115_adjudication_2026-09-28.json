@@ -1,0 +1,220 @@
+{
+  "version": "gate2-v2400-review-batch-fun-111-115-adjudication-2026-09-28",
+  "generated_at": "2026-09-28",
+  "status": "TECHNICAL_PROPOSAL_PENDING_USER_ACCEPTANCE",
+  "reviewer": "technical_assistant",
+  "rubric": {
+    "3": "Direct; answers the question and covers its essential dimensions.",
+    "2": "Substantial evidence, but an important dimension is missing.",
+    "1": "Useful but marginal context; does not support the answer alone.",
+    "0": "Irrelevant or semantically out of scope."
+  },
+  "review_basis": {
+    "query_source": "data/eval/golden_set_v2_400.json",
+    "queue_source": "reports/gate2_v2400_query_adjudication_queue_2026-09-28.json",
+    "scope": "NB-SEC-01-C-PTR",
+    "oracle_type": "retrieval_citation",
+    "tag": "aritmetica_punteros",
+    "chunk_ids": [
+      "chk_dc44a8665f2b_243_1",
+      "chk_dc44a8665f2b_102_1",
+      "Introduccion-a-la-programacion-en-C.pdf:p243:c0003"
+    ],
+    "chunks_read_completely": true,
+    "store_read_only": true,
+    "retrieval_executed": false,
+    "historical_inputs_modified": false,
+    "explicit_user_decision_register_modified": false,
+    "active_acl_modified": false
+  },
+  "evidence_assessment": {
+    "chk_dc44a8665f2b_243_1": {
+      "source_id": "src_marzal_intro_programacion_c",
+      "source_title": "Introducción a la Programación con C",
+      "page": 243,
+      "current_acl_status": "IN_SCOPE",
+      "content_summary": "Explains that integer pointer addition/subtraction uses offsets in units of the base-type size, gives int/4-byte context, and identifies incorrect memory access as a risk of misuse.",
+      "assessment_limit": "The rule is expressed in prose rather than an explicit general k*sizeof(T) formula."
+    },
+    "chk_dc44a8665f2b_102_1": {
+      "source_id": "src_marzal_intro_programacion_c",
+      "source_title": "Introducción a la Programación con C",
+      "page": 102,
+      "current_acl_status": "IN_SCOPE",
+      "content_summary": "Explains address calculation as vector-start pointer plus index times element size, with a concrete int example of 2 x 4 bytes.",
+      "assessment_limit": "The direct calculation is presented through integer-vector indexing rather than a symbolic general T* expression."
+    },
+    "Introduccion-a-la-programacion-en-C.pdf:p243:c0003": {
+      "source_id": "src_marzal_intro_programacion_c",
+      "source_title": "Introducción a la Programación con C",
+      "page": 243,
+      "current_acl_status": "IN_SCOPE",
+      "content_summary": "A short OCR-rendered duplicate excerpt of the page-243 pointer-arithmetic explanation.",
+      "assessment_limit": "The extraction is truncated and has damaged tokens/notation; it repeats the same source passage and is not independent corroborating evidence."
+    }
+  },
+  "items": [
+    {
+      "query_id": "GS2-FUN-111",
+      "query_intent_review": "Ask how pointer addition p+k is translated into a byte displacement for T*.",
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_dc44a8665f2b_243_1",
+          "historical_grade": 3,
+          "proposed_grade": 3,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "rationale": "Directly states that integer pointer offsets are measured in base-type-size units and gives the four-byte int context, answering the core scaling rule."
+        },
+        {
+          "chunk_id": "chk_dc44a8665f2b_102_1",
+          "historical_grade": 2,
+          "proposed_grade": 3,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "rationale": "Directly explains address calculation as base address plus index times element size and demonstrates the byte displacement for an int vector."
+        },
+        {
+          "chunk_id": "Introduccion-a-la-programacion-en-C.pdf:p243:c0003",
+          "historical_grade": 1,
+          "proposed_grade": 1,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "rationale": "The OCR fragment concerns the same rule but is truncated and damaged; it adds no reliable detail beyond the complete same-page chunk."
+        }
+      ],
+      "canonical_query_decision": null,
+      "remains_pending_user_acceptance": true
+    },
+    {
+      "query_id": "GS2-FUN-112",
+      "query_intent_review": "Requests a formal explanation of the same generic pointer-arithmetic mechanism.",
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_dc44a8665f2b_243_1",
+          "historical_grade": 3,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "rationale": "Substantially gives the correct base-type-size rule, but presents it descriptively and does not state a fully symbolic general formula as the formal wording requests."
+        },
+        {
+          "chunk_id": "chk_dc44a8665f2b_102_1",
+          "historical_grade": 2,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "rationale": "Substantially explains the multiplication by element size with a byte-level example, but only for integer-vector indexing rather than as a formal general T* rule."
+        },
+        {
+          "chunk_id": "Introduccion-a-la-programacion-en-C.pdf:p243:c0003",
+          "historical_grade": 1,
+          "proposed_grade": 1,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "rationale": "The damaged and truncated duplicate is not sufficiently legible to provide the requested formal account."
+        }
+      ],
+      "canonical_query_decision": null,
+      "remains_pending_user_acceptance": true
+    },
+    {
+      "query_id": "GS2-FUN-113",
+      "query_intent_review": "Asks for the pointer-arithmetic definition, framed as a definition from canonical Operating Systems bibliography.",
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_dc44a8665f2b_243_1",
+          "historical_grade": 3,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "rationale": "The passage directly explains pointer arithmetic, but its identified source is an Introduction to C programming text and does not itself establish that it is canonical Operating Systems bibliography."
+        },
+        {
+          "chunk_id": "chk_dc44a8665f2b_102_1",
+          "historical_grade": 2,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "rationale": "The address calculation is relevant to the requested concept, but the passage has the same unverified bibliography-source mismatch and uses an int-array example."
+        },
+        {
+          "chunk_id": "Introduccion-a-la-programacion-en-C.pdf:p243:c0003",
+          "historical_grade": 1,
+          "proposed_grade": 1,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "rationale": "The OCR fragment is damaged and duplicated, and does not resolve the requested bibliography-source constraint."
+        }
+      ],
+      "canonical_query_decision": null,
+      "remains_pending_user_acceptance": true
+    },
+    {
+      "query_id": "GS2-FUN-114",
+      "query_intent_review": "Requests detail on the mechanism and foundations of byte displacement for pointer addition.",
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_dc44a8665f2b_243_1",
+          "historical_grade": 3,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "rationale": "Substantially explains the unit-size mechanism and its int example, but does not provide a fully worked general T* calculation or broader foundations."
+        },
+        {
+          "chunk_id": "chk_dc44a8665f2b_102_1",
+          "historical_grade": 2,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "rationale": "Substantially details address calculation by index times element size, but the example is limited to int arrays rather than the requested general mechanism."
+        },
+        {
+          "chunk_id": "Introduccion-a-la-programacion-en-C.pdf:p243:c0003",
+          "historical_grade": 1,
+          "proposed_grade": 1,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "rationale": "The truncated OCR duplicate is too damaged to add dependable detail about the mechanism."
+        }
+      ],
+      "canonical_query_decision": null,
+      "remains_pending_user_acceptance": true
+    },
+    {
+      "query_id": "GS2-FUN-115",
+      "query_intent_review": "Asks about wider implications of the pointer-arithmetic rule in computer-system design.",
+      "qrel_proposals": [
+        {
+          "chunk_id": "chk_dc44a8665f2b_243_1",
+          "historical_grade": 3,
+          "proposed_grade": 2,
+          "proposed_decision": "KEEP_AS_RELEVANT_PROPOSAL",
+          "rationale": "Explains the scaling rule and notes that misuse can cause invalid memory accesses, but does not develop broader system-design implications."
+        },
+        {
+          "chunk_id": "chk_dc44a8665f2b_102_1",
+          "historical_grade": 2,
+          "proposed_grade": 1,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "rationale": "Provides a useful address-calculation example but does not address the wider implications requested."
+        },
+        {
+          "chunk_id": "Introduccion-a-la-programacion-en-C.pdf:p243:c0003",
+          "historical_grade": 1,
+          "proposed_grade": 1,
+          "proposed_decision": "EXCLUDE_FROM_POSITIVE_QRELS",
+          "rationale": "The damaged duplicate gives only marginal context and does not establish the requested system-design implications."
+        }
+      ],
+      "canonical_query_decision": null,
+      "remains_pending_user_acceptance": true
+    }
+  ],
+  "duplication_and_coverage": {
+    "unique_sources": 1,
+    "unique_pages": 2,
+    "distinct_concepts": 1,
+    "duplicate_page_243_extractions": [
+      "chk_dc44a8665f2b_243_1",
+      "Introduccion-a-la-programacion-en-C.pdf:p243:c0003"
+    ],
+    "interpretation": "The two page-243 IDs point to duplicate representations of the same source passage. They are assessed separately for qrel relevance but do not constitute independent source/page coverage.",
+    "top_k_diversity_note": "The generic one-canonical-citation expectation is distinct from the qrel grades; no claim about satisfying other ranking diversity criteria is made."
+  },
+  "limitations": [
+    "All proposed decisions and grades remain pending user acceptance and are not canonical.",
+    "Source membership in the current ACL does not itself prove relevance.",
+    "No external sources, retrieval, reranking, embeddings, or generation were used.",
+    "The bibliography-source wording in GS2-FUN-113 was assessed only from the identified source metadata; no curriculum decision was inferred."
+  ]
+}

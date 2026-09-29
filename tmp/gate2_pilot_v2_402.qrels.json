@@ -1,0 +1,11 @@
+{
+  "version": "historical-input-only",
+  "qrels": {
+    "GS2-VULN-004": {
+      "chk_0aa9aa4cc0b2_428_1": 3,
+      "chk_07e0f6d0fb24_58_1": 2
+    },
+    "GS2-OOD-001": {},
+    "G2-PILOT-NEG-001": {}
+  }
+}

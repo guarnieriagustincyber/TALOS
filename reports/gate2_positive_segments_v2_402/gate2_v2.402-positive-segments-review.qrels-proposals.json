@@ -1,0 +1,18 @@
+{
+  "version": "v2.402-positive-segments-review",
+  "total_queries": 5,
+  "qrels": {
+    "GS2-VULN-004": {
+      "Computer_Security_Stallings_3rd_Ed.pdf:p427:c0000": 2,
+      "chk_0aa9aa4cc0b2_428_1": 3
+    },
+    "GS2-VULN-018": {
+      "chk_92876e0f2bc2_425_1": 2
+    },
+    "G2-PILOT-NEG-001": {},
+    "GS2-VULN-007": {
+      "chk_0aa9aa4cc0b2_385_1": 2
+    },
+    "GS2-OOD-001": {}
+  }
+}

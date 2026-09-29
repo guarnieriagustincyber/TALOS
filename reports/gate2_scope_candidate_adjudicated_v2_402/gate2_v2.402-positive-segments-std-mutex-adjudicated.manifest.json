@@ -1,0 +1,12 @@
+{
+  "inputs": {
+    "reports/gate2_scope_candidate_adjudication_v2_402_inputs/gate2_v2.402-scope-candidate-adjudication.dataset-input.json": "sha256:1f00d7d79ab348da3e7efb1bcfbb909b0e68f261161e5e4c531c9debd13e9a6a",
+    "reports/gate2_scope_candidate_adjudication_v2_402_inputs/gate2_v2.402-scope-candidate-adjudication.decisions-input.json": "sha256:ff6c48865f74fe1fc1909ff608aa863fa328e1e81516aedc7e1958377abba2e9",
+    "reports/gate2_scope_candidate_adjudication_v2_402_inputs/gate2_v2.402-scope-candidate-adjudication.qrels-input.json": "sha256:71a89059f717a068ff8e61216d5f070778b0527029275600df69ae6385f02a51"
+  },
+  "mode": "fixture",
+  "retrieval": {
+    "executed": false
+  },
+  "version": "v2.402-positive-segments-std-mutex-adjudicated"
+}

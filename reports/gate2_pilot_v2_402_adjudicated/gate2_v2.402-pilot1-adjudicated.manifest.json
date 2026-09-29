@@ -1,0 +1,12 @@
+{
+  "inputs": {
+    "reports/gate2_pilot_v2_402_pilot1/adjudicated-decisions-input.json": "sha256:ab6ef3067225b6168ffd48eeffa4d48f9e3e9e875999769589d9be07ef73c2dd",
+    "reports/gate2_pilot_v2_402_pilot1/gate2_v2.402-pilot1.adjudicated-qrels-input.json": "sha256:cff634c5a60b16cfe347fbc64a41a47e358f49aaa4770bafb9370193c2600423",
+    "reports/gate2_pilot_v2_402_pilot1/gate2_v2.402-pilot1.dataset.json": "sha256:f32d5e9d975a1dc4c0bb4ecb52d7e732cdbb7ede7e4485233ed180a6d2ba57bf"
+  },
+  "mode": "fixture",
+  "retrieval": {
+    "executed": false
+  },
+  "version": "v2.402-pilot1-adjudicated"
+}

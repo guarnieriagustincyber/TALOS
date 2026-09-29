@@ -1,0 +1,178 @@
+{
+  "version": "gate2-evidence-relation-tool-validation-v0.1-2026-09-28",
+  "status": "DIAGNOSTIC_VALIDATION_ONLY",
+  "validated_at": "2026-09-28",
+  "implementation": "src/study_engine/diagnostics/gate2_evidence_relations.py",
+  "method": {
+    "input": "Explicit chunk IDs from previously adjudicated Gate 2 micro-lots.",
+    "database_access": "SQLite mode=ro",
+    "minimum_text_similarity": 0.88,
+    "maximum_simhash_distance": 16,
+    "maximum_evidence_records_per_batch": 100,
+    "pair_counts_are_per_query": true,
+    "qrel_decisions_produced": false,
+    "retrieval_executed": false
+  },
+  "totals": {
+    "query_level_pair_comparisons": 78,
+    "review_shared_provenance": 30,
+    "no_strong_text_duplicate_signal": 48,
+    "review_possible_duplicate": 0,
+    "same_source_overlapping_page_pair_comparisons": 9
+  },
+  "batches": [
+    {
+      "batch": "SYN-014",
+      "query_ids": [
+        "GS2-SYN-014"
+      ],
+      "unique_evidence_ids_per_query": 5,
+      "pair_comparisons": 10,
+      "relation_counts": {
+        "REVIEW_SHARED_PROVENANCE": 6,
+        "NO_STRONG_TEXT_DUPLICATE_SIGNAL": 4,
+        "REVIEW_POSSIBLE_DUPLICATE": 0
+      },
+      "observed_signal": "Tori and Stallings evidence have distinct source IDs, documents, and authors, so their pair receives no shared-provenance or near-duplicate signal. Pairwise comparisons among Stallings items report shared source provenance; this is a broad review cue, not a duplicate judgment.",
+      "representative_pair": {
+        "evidence_ids": [
+          "hacking-etico-carlos-tori.pdf:p258:c0000",
+          "chk_0aa9aa4cc0b2_373_1"
+        ],
+        "relation": "NO_STRONG_TEXT_DUPLICATE_SIGNAL",
+        "same_source_id": false,
+        "same_author": false,
+        "text_similarity_ratio": 0.1872,
+        "simhash_distance": 27
+      }
+    },
+    {
+      "batch": "SYN-015/016",
+      "query_ids": [
+        "GS2-SYN-015",
+        "GS2-SYN-016"
+      ],
+      "unique_evidence_ids_per_query": 5,
+      "pair_comparisons": 20,
+      "relation_counts": {
+        "REVIEW_SHARED_PROVENANCE": 9,
+        "NO_STRONG_TEXT_DUPLICATE_SIGNAL": 11,
+        "REVIEW_POSSIBLE_DUPLICATE": 0
+      },
+      "same_source_overlapping_page_pair_comparisons": 3,
+      "observed_signal": "For SYN-015, the complete page-373 passage and its two fragment extractions produce three shared-source, overlapping-page review pairs. Text ratios are 0.2201, 0.2376, and 0.4585, below the near-duplicate threshold; provenance, rather than text similarity, surfaces the known overlap. SYN-016 has no p373 fragments in its qrels and no overlapping-page pair.",
+      "representative_pairs": [
+        {
+          "evidence_ids": [
+            "chk_0aa9aa4cc0b2_373_1",
+            "Computer_Security_Stallings_3rd_Ed.pdf:p373:c0006"
+          ],
+          "relation": "REVIEW_SHARED_PROVENANCE",
+          "same_source_id": true,
+          "overlapping_page_range": true,
+          "text_similarity_ratio": 0.2201,
+          "simhash_distance": 26
+        },
+        {
+          "evidence_ids": [
+            "Computer_Security_Stallings_3rd_Ed.pdf:p373:c0006",
+            "Computer_Security_Stallings_3rd_Ed.pdf:p373:c0007"
+          ],
+          "relation": "REVIEW_SHARED_PROVENANCE",
+          "same_source_id": true,
+          "overlapping_page_range": true,
+          "text_similarity_ratio": 0.4585,
+          "simhash_distance": 31
+        }
+      ]
+    },
+    {
+      "batch": "SYN-022/024",
+      "query_ids": [
+        "GS2-SYN-022",
+        "GS2-SYN-023",
+        "GS2-SYN-024"
+      ],
+      "unique_evidence_ids_per_query": 4,
+      "pair_comparisons": 18,
+      "relation_counts": {
+        "REVIEW_SHARED_PROVENANCE": 6,
+        "NO_STRONG_TEXT_DUPLICATE_SIGNAL": 12,
+        "REVIEW_POSSIBLE_DUPLICATE": 0
+      },
+      "same_source_overlapping_page_pair_comparisons": 6,
+      "observed_signal": "Each query has the two same-source, same-page pairs corresponding to full chunks and alternate page-fragment IDs. In both pairs the document IDs differ, but source ID and page overlap identify the provenance review cue.",
+      "representative_pairs": [
+        {
+          "evidence_ids": [
+            "chk_0aa9aa4cc0b2_301_1",
+            "Computer_Security_Stallings_3rd_Ed.pdf:p301:c0000"
+          ],
+          "relation": "REVIEW_SHARED_PROVENANCE",
+          "same_source_id": true,
+          "same_document": false,
+          "overlapping_page_range": true,
+          "text_similarity_ratio": 0.2271,
+          "simhash_distance": 27
+        },
+        {
+          "evidence_ids": [
+            "chk_76e248a62974_760_1",
+            "Operating Systems - Internals and Design Principles 7th.pdf:p760:c0000"
+          ],
+          "relation": "REVIEW_SHARED_PROVENANCE",
+          "same_source_id": true,
+          "same_document": false,
+          "overlapping_page_range": true,
+          "text_similarity_ratio": 0.3568,
+          "simhash_distance": 26
+        }
+      ]
+    },
+    {
+      "batch": "SYN-018/020",
+      "query_ids": [
+        "GS2-SYN-018",
+        "GS2-SYN-019",
+        "GS2-SYN-020"
+      ],
+      "unique_evidence_ids_per_query": 5,
+      "pair_comparisons": 30,
+      "relation_counts": {
+        "REVIEW_SHARED_PROVENANCE": 9,
+        "NO_STRONG_TEXT_DUPLICATE_SIGNAL": 21,
+        "REVIEW_POSSIBLE_DUPLICATE": 0
+      },
+      "observed_signal": "Each query reports shared source/document provenance among the three Seguridad en Redes passages. The shared origin prompts review but does not imply they are duplicate passages or semantically equivalent. Kurose's distinct-source networking metaphor receives no duplicate-like signal.",
+      "representative_pair": {
+        "evidence_ids": [
+          "seguridad-en-redes.pdf:p198:c0002",
+          "seguridad-en-redes.pdf:p197:c0004"
+        ],
+        "relation": "REVIEW_SHARED_PROVENANCE",
+        "same_source_id": true,
+        "same_document": true,
+        "overlapping_page_range": false,
+        "text_similarity_ratio": 0.3846,
+        "simhash_distance": 26
+      }
+    }
+  ],
+  "interpretation": {
+    "usefulness": "Provenance signals surfaced same-source clusters, including known same-page extraction overlap even when internal document IDs differ. Different-source complementary SYN-014 passages were not conflated.",
+    "near_duplicate_detection": "No real micro-lot pair crossed both configured text-similarity and SimHash thresholds. The known page-373 and dup2 extraction overlaps were still surfaced through provenance, not classified as text near-duplicates.",
+    "false_discard_check": "No signal changes relevance grades, source independence, complementarity, sufficiency, or qrel inclusion/exclusion. The diagnostic output produces no qrel actions and keeps human adjudication explicit.",
+    "limitations": [
+      "REVIEW_SHARED_PROVENANCE is intentionally broad: same source alone can trigger it across distant pages.",
+      "These four selected micro-lots do not establish corpus-wide precision or recall for duplicate detection.",
+      "Text-similarity thresholds are review defaults, not validated decision cutoffs.",
+      "The pair counts repeat evidence comparisons across related query variants."
+    ]
+  },
+  "protected_inputs": {
+    "golden_set_v2_400_sha256": "7ac3c707a973aa7dbc2e79c48c14a6208ac6f72bcba3d184433c2f2bc6b337c1",
+    "qrels_v2_400_sha256": "68af7033fcd4e607b830245901774d2daac610d909763cb0b999b024b1ed7abc",
+    "knowledge_store_sha256": "fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+    "changed": false
+  }
+}
