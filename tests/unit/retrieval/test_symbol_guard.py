@@ -8,21 +8,17 @@ Verifies the 3 Golden Rules from Dirección Técnica:
 5. Performance gate: < 1ms per query.
 """
 
-from pathlib import Path
 import time
 import pytest
 
 from study_engine.retrieval.symbol_guard import SymbolGuard, SymbolGuardDecision
 from study_engine.storage.knowledge_store import KnowledgeStore
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-KSTORE_PATH = REPO_ROOT / "data/web_state/knowledge_store.db"
-
 
 @pytest.fixture(scope="module")
-def store():
-    if KSTORE_PATH.exists():
-        return KnowledgeStore(KSTORE_PATH)
+def store(knowledge_store_test_copy):
+    if knowledge_store_test_copy is not None:
+        return KnowledgeStore(knowledge_store_test_copy)
     return None
 
 

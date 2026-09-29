@@ -47,13 +47,112 @@ from study_engine.state.policy_contracts import (
 
 repo_root = Path(__file__).resolve().parent.parent.parent
 src_root = repo_root / "src" / "study_engine"
+PROTECTED_EVIDENCE_RECORD = (
+    "study_engine.state.policy_contracts.EvidenceRecord"
+)
+
+
+def _dotted_name(node: ast.expr) -> str | None:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        parent = _dotted_name(node.value)
+        return f"{parent}.{node.attr}" if parent else None
+    return None
+
+
+def _protected_evidence_record_calls(
+    source: str, source_path: Path
+) -> List[int]:
+    """Find calls resolving to the S5.2.A EvidenceRecord model."""
+    tree = ast.parse(source, filename=str(source_path))
+    module_aliases: dict[str, str] = {}
+    symbol_aliases: dict[str, str] = {}
+
+    source_module = source_path.resolve().relative_to(src_root.resolve())
+    module_parts = ["study_engine", *source_module.with_suffix("").parts]
+    package_parts = module_parts[:-1]
+
+    def resolve_import_module(level: int, module: str | None) -> str:
+        if level == 0:
+            return module or ""
+        base = package_parts[:len(package_parts) - level + 1]
+        suffix = module.split(".") if module else []
+        return ".".join([*base, *suffix])
+
+    def resolve_expression(node: ast.expr) -> str | None:
+        dotted = _dotted_name(node)
+        if dotted is None:
+            return None
+        first, *suffix = dotted.split(".")
+        if first in symbol_aliases:
+            return ".".join([symbol_aliases[first], *suffix])
+        if first in module_aliases:
+            return ".".join([module_aliases[first], *suffix])
+        return None
+
+    for statement in tree.body:
+        if isinstance(statement, ast.Import):
+            for imported in statement.names:
+                if imported.asname:
+                    module_aliases[imported.asname] = imported.name
+                else:
+                    root = imported.name.split(".", maxsplit=1)[0]
+                    module_aliases[root] = root
+        elif isinstance(statement, ast.ImportFrom):
+            imported_module = resolve_import_module(
+                statement.level, statement.module
+            )
+            for imported in statement.names:
+                local_name = imported.asname or imported.name
+                qualified_name = f"{imported_module}.{imported.name}"
+                if qualified_name == PROTECTED_EVIDENCE_RECORD:
+                    symbol_aliases[local_name] = qualified_name
+                elif (
+                    qualified_name
+                    == PROTECTED_EVIDENCE_RECORD.rpartition(".")[0]
+                ):
+                    module_aliases[local_name] = qualified_name
+                else:
+                    symbol_aliases.pop(local_name, None)
+                    module_aliases.pop(local_name, None)
+        elif isinstance(statement, (ast.Assign, ast.AnnAssign)):
+            value = statement.value
+            resolved_value = (
+                resolve_expression(value) if value is not None else None
+            )
+            targets = (
+                statement.targets
+                if isinstance(statement, ast.Assign)
+                else [statement.target]
+            )
+            for target in targets:
+                if isinstance(target, ast.Name):
+                    if resolved_value == PROTECTED_EVIDENCE_RECORD:
+                        symbol_aliases[target.id] = resolved_value
+                    else:
+                        symbol_aliases.pop(target.id, None)
+                        module_aliases.pop(target.id, None)
+        elif isinstance(
+            statement,
+            (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef),
+        ):
+            symbol_aliases.pop(statement.name, None)
+            module_aliases.pop(statement.name, None)
+
+    return [
+        node.lineno
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and resolve_expression(node.func) == PROTECTED_EVIDENCE_RECORD
+    ]
 
 
 # =============================================================================
 # L1.1: AST Authority Audit (Static Code Inspection)
 # =============================================================================
 def test_l1_1_ast_evidence_record_instantiation_sovereignty():
-    """Verify that NO module outside S5.2.A instantiates EvidenceRecord."""
+    """Verify that only S5.2.A instantiates its protected EvidenceRecord."""
     unauthorized_instantiations: List[Tuple[str, int]] = []
 
     # Whitelisted modules permitted to instantiate EvidenceRecord in source
@@ -65,35 +164,75 @@ def test_l1_1_ast_evidence_record_instantiation_sovereignty():
         if py_file.resolve() in [f.resolve() for f in allowed_source_files]:
             continue
 
-        try:
-            tree = ast.parse(
-                py_file.read_text(encoding="utf-8"), filename=str(py_file)
-            )
-        except Exception:
-            continue
-
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call):
-                func = node.func
-                is_evidence_instantiation = False
-                if isinstance(func, ast.Name) and func.id == "EvidenceRecord":
-                    is_evidence_instantiation = True
-                elif (
-                    isinstance(func, ast.Attribute)
-                    and func.attr == "EvidenceRecord"
-                ):
-                    is_evidence_instantiation = True
-
-                if is_evidence_instantiation:
-                    rel_path = py_file.relative_to(repo_root)
-                    unauthorized_instantiations.append(
-                        (str(rel_path), node.lineno)
-                    )
+        for line in _protected_evidence_record_calls(
+            py_file.read_text(encoding="utf-8"), py_file
+        ):
+            rel_path = py_file.relative_to(repo_root)
+            unauthorized_instantiations.append((str(rel_path), line))
 
     assert len(unauthorized_instantiations) == 0, (
         f"CRITICAL AUTHORITY LEAK: EvidenceRecord is directly instantiated "
         f"outside S5.2.A ingestion_engine in: {unauthorized_instantiations}"
     )
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "from study_engine.state.policy_contracts import EvidenceRecord\n"
+        "record = EvidenceRecord()\n",
+        "from study_engine.state.policy_contracts import EvidenceRecord as "
+        "ProtectedRecord\nrecord = ProtectedRecord()\n",
+        "import study_engine.state.policy_contracts as policy\n"
+        "record = policy.EvidenceRecord()\n",
+        "import study_engine.state.policy_contracts\n"
+        "record = study_engine.state.policy_contracts.EvidenceRecord()\n",
+        "from study_engine.state import policy_contracts as policy\n"
+        "record = policy.EvidenceRecord()\n",
+        "from study_engine.state.policy_contracts import EvidenceRecord\n"
+        "RecordAlias = EvidenceRecord\nrecord = RecordAlias()\n",
+    ],
+)
+def test_l1_1_guard_rejects_protected_imports_and_aliases(source: str):
+    assert _protected_evidence_record_calls(
+        source, src_root / "untrusted_module.py"
+    )
+
+
+def test_l1_1_guard_allows_local_evidence_record_dataclass():
+    source = (
+        "from dataclasses import dataclass\n"
+        "@dataclass\n"
+        "class EvidenceRecord:\n"
+        "    evidence_id: str\n"
+        "record = EvidenceRecord('chunk-1')\n"
+    )
+
+    assert _protected_evidence_record_calls(
+        source, src_root / "diagnostics" / "local_model.py"
+    ) == []
+
+
+def test_l1_1_guard_resolves_relative_protected_imports():
+    source = (
+        "from .policy_contracts import EvidenceRecord as ProtectedRecord\n"
+        "record = ProtectedRecord()\n"
+    )
+
+    assert _protected_evidence_record_calls(
+        source, src_root / "state" / "local_module.py"
+    )
+
+
+def test_l1_1_guard_allows_gate2_diagnostic_evidence_record():
+    diagnostic_module = (
+        src_root / "diagnostics" / "gate2_evidence_relations.py"
+    )
+    lines = _protected_evidence_record_calls(
+        diagnostic_module.read_text(encoding="utf-8"), diagnostic_module
+    )
+
+    assert lines == []
 
 
 # =============================================================================

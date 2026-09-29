@@ -461,14 +461,12 @@ def test_router_deterministic():
         assert decision.target_token_budget == reference.target_token_budget
 
 
-def test_fadena_so2_pilot_retrieval():
+def test_fadena_so2_pilot_retrieval(knowledge_store_test_copy):
     """Validates that fadena-so2 chapters are indexed in web_state db and retrievable."""
-    from pathlib import Path
-    db_p = Path("data/web_state/knowledge_store.db")
-    if not db_p.exists():
+    if knowledge_store_test_copy is None:
         pytest.skip("data/web_state/knowledge_store.db not present")
 
-    store = KnowledgeStore(str(db_p))
+    store = KnowledgeStore(knowledge_store_test_copy)
     summaries = store.get_chapter_summaries_by_notebook("fadena-so2")
     assert len(summaries) >= 10, f"Expected >= 10 chapters for fadena-so2, got {len(summaries)}"
 

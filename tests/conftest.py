@@ -1,7 +1,49 @@
+import hashlib
+import shutil
+from pathlib import Path
+from typing import Optional
+
 import pytest
 from study_engine.contracts.catalog import SourceRecord
 from study_engine.contracts.ingestion import SourceManifest
 from study_engine.contracts.source import Source, SourceRole
+
+
+@pytest.fixture(scope="session")
+def knowledge_store_test_copy(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Optional[Path]:
+    """Provide a verified temporary copy of the versioned knowledge store."""
+    source = Path(__file__).resolve().parents[1] / "data/web_state/knowledge_store.db"
+    if not source.is_file():
+        return None
+
+    wal_path = Path(f"{source}-wal")
+    if wal_path.exists() and wal_path.stat().st_size:
+        raise RuntimeError(
+            f"Cannot snapshot knowledge store with a non-empty WAL: {wal_path}"
+        )
+
+    def sha256(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
+        return digest.hexdigest()
+
+    source_hash = sha256(source)
+    snapshot = tmp_path_factory.mktemp("knowledge_store_test_copy") / source.name
+    shutil.copyfile(source, snapshot)
+
+    if wal_path.exists() and wal_path.stat().st_size:
+        raise RuntimeError(
+            f"Knowledge store WAL became non-empty during snapshot: {wal_path}"
+        )
+    if sha256(source) != source_hash or sha256(snapshot) != source_hash:
+        raise RuntimeError(
+            "Knowledge store changed while creating its test snapshot"
+        )
+    return snapshot
 
 
 @pytest.fixture(scope="module", autouse=True)
