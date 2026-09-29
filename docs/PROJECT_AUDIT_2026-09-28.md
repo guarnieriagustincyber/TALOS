@@ -474,11 +474,29 @@ mantener su fecha y perímetro.
 ## Decisiones de alcance
 
 - No se cambiaron dependencias ni se regeneró el lock.
-- No se ejecutaron la suite global, collection ni benchmarks. Sí se ejecutaron
-  los dos tests focalizados de SQLite después de aislarlos; pasaron (9 tests,
-  2 warnings).
+- Los dos tests focalizados de SQLite pasaron tras aislarlos (9 passed,
+  2 warnings); la validación de segundo nivel pasó (87 passed).
+- La suite global exploratoria falló inicialmente por el falso positivo AST y
+  pasó después de corregir el guard: 2814 passed, 7 skipped, 146 warnings.
+  Ninguna de estas corridas se declara PRE formal y no se ejecutó benchmark.
 - Se cambió únicamente el harness/test para que esos tests utilicen una copia
   temporal del knowledge store; no se cambió runtime ni datos históricos.
 - No se editaron golden sets, qrels, decisiones, ACL ni bases de conocimiento.
 - Los hallazgos son oportunidades priorizadas; requieren confirmación antes de
   implementar cambios de comportamiento.
+
+## Punto de reanudación
+
+El código y este informe del endurecimiento del harness/guard están guardados
+en Git. El commit de este checkpoint es `08c1dae` (rama `main`). El commit
+incluye este informe, el aislamiento SQLite test-only y la regresión/fix del
+guard AST; no incluye el resto de cambios locales preexistentes del checkout.
+Esos cambios permanecen deliberadamente en el árbol de trabajo y no deben
+limpiarse ni descartarse como parte de la reanudación.
+
+**Estado para continuar:** BENCH-G2 sigue pausado; los datos históricos siguen
+protegidos; la exploratoria global pasó, pero no es PRE formal. El siguiente
+trabajo es cerrar el punto base reproducible y formalizar el perímetro A-1
+(clasificación `required` / `optional` / `qualification-required`); A-2 y el
+patch A-1/A-2 esperan esas precondiciones. Antes de cualquier patch, revisar el
+estado completo del árbol y conservar todas las modificaciones locales.
