@@ -8,8 +8,8 @@ from study_engine.web.dependencies import AppContainer, set_container, get_conta
 
 
 @pytest.fixture
-def client_and_container():
-    container = AppContainer(use_mock=True)
+def client_and_container(web_state_test_copy):
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     set_container(container)
     app = create_app()
     with TestClient(app) as client:

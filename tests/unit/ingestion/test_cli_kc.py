@@ -10,7 +10,9 @@ Contrato:
 import json
 import sqlite3
 
-from study_engine.cli import main
+import pytest
+
+from study_engine.cli import BKTStatusReadError, _kc_bkt_status, main
 from study_engine.contracts.notebook import Notebook
 from study_engine.storage.knowledge_store import KnowledgeStore
 
@@ -89,6 +91,100 @@ def test_kc_add_dificultad_invalida(tmp_path, capsys):
     rc = _run(tmp_path, ["kc", "add", "nb_test", "--title", "Algo válido", "--diff", "easy"])
     assert rc == 2
     assert "inválida" in capsys.readouterr().out
+
+
+def test_kc_bkt_status_missing_database_means_no_saved_progress(tmp_path):
+    assert _kc_bkt_status(tmp_path / "not-created.db") == {}
+
+
+def test_kc_bkt_status_invalid_schema_is_not_reported_as_absent(tmp_path):
+    student_db = tmp_path / "student-invalid-schema.db"
+    con = sqlite3.connect(student_db)
+    con.execute("CREATE TABLE unrelated_state (id TEXT PRIMARY KEY)")
+    con.close()
+
+    with pytest.raises(BKTStatusReadError, match="estado BKT"):
+        _kc_bkt_status(student_db)
+
+
+def test_kc_bkt_status_corrupt_database_is_not_reported_as_absent(tmp_path):
+    student_db = tmp_path / "student-corrupt.db"
+    student_db.write_text("not a SQLite database", encoding="utf-8")
+
+    with pytest.raises(BKTStatusReadError, match="estado BKT"):
+        _kc_bkt_status(student_db)
+
+
+def test_kc_list_marks_missing_student_database_as_not_started(tmp_path, capsys):
+    _env(tmp_path)
+    _run(
+        tmp_path,
+        [
+            "kc",
+            "add",
+            "nb_test",
+            "--title",
+            "KC sin progreso",
+            "--kc-id",
+            "kc_without_progress",
+        ],
+    )
+    capsys.readouterr()
+
+    rc = _run(
+        tmp_path,
+        [
+            "kc",
+            "--student-db",
+            str(tmp_path / "not-created.db"),
+            "list",
+            "nb_test",
+        ],
+    )
+
+    captured = capsys.readouterr()
+    assert rc == 0
+    assert "kc_without_progress" in captured.out
+    assert "not_started" in captured.out
+    assert not captured.err
+
+
+def test_kc_list_reports_bkt_read_error_instead_of_not_started(tmp_path, capsys):
+    _env(tmp_path)
+    _run(
+        tmp_path,
+        [
+            "kc",
+            "add",
+            "nb_test",
+            "--title",
+            "KC para estado",
+            "--kc-id",
+            "kc_for_status",
+        ],
+    )
+    capsys.readouterr()
+
+    invalid_student_db = tmp_path / "student-invalid-schema.db"
+    con = sqlite3.connect(invalid_student_db)
+    con.execute("CREATE TABLE unrelated_state (id TEXT PRIMARY KEY)")
+    con.close()
+
+    rc = _run(
+        tmp_path,
+        [
+            "kc",
+            "--student-db",
+            str(invalid_student_db),
+            "list",
+            "nb_test",
+        ],
+    )
+
+    captured = capsys.readouterr()
+    assert rc == 1
+    assert "Error: No se pudo leer el estado BKT" in captured.err
+    assert "not_started" not in captured.out
 
 
 def test_kc_delete_solo_manuales(tmp_path, capsys):

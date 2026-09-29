@@ -57,6 +57,27 @@ def _peak_rss_mb() -> float:
     return round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)
 
 
+def _concurrency_metrics(
+    request_count: int, errors: int, duration: float
+) -> Dict[str, int | float]:
+    if request_count < 1:
+        raise ValueError("request_count must be positive")
+    if errors < 0 or errors > request_count:
+        raise ValueError("errors must be between zero and request_count")
+    if duration <= 0:
+        raise ValueError("duration must be positive")
+
+    successful_requests = request_count - errors
+    return {
+        "requests": request_count,
+        "successful_requests": successful_requests,
+        "errors": errors,
+        "error_rate_pct": round(errors / request_count * 100, 2),
+        "attempt_qps": round(request_count / duration, 2),
+        "successful_qps": round(successful_requests / duration, 2),
+    }
+
+
 def _run_worker(args: List[str]) -> None:
     import numpy as np
 
@@ -158,9 +179,7 @@ def _run_worker(args: List[str]) -> None:
                         latencies.append(elapsed)
             duration = time.perf_counter() - started
             result["concurrency"][str(workers)] = {
-                "requests": request_count,
-                "errors": errors,
-                "qps": round(request_count / duration, 2),
+                **_concurrency_metrics(request_count, errors, duration),
                 "latency": _percentiles(latencies) if latencies else None,
                 "process_peak_rss_mb": _peak_rss_mb(),
             }

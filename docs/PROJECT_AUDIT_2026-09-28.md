@@ -500,3 +500,50 @@ trabajo es cerrar el punto base reproducible y formalizar el perímetro A-1
 (clasificación `required` / `optional` / `qualification-required`); A-2 y el
 patch A-1/A-2 esperan esas precondiciones. Antes de cualquier patch, revisar el
 estado completo del árbol y conservar todas las modificaciones locales.
+
+## Seguimiento A-3 — semántica de QPS — 2026-09-29
+
+En `scripts/benchmark_gate2_retrieval.py`, el reporte de concurrencia ahora
+separa `attempt_qps` (todos los intentos por segundo) de `successful_qps`
+(operaciones sin excepción por segundo), además de conservar `requests` y
+`errors` y exponer `error_rate_pct`. Se elimina la clave ambigua `qps`. Una
+función de métricas pura valida los contadores y la duración; las pruebas
+cubren cero, errores parciales y entradas inválidas.
+
+Los QPS de la tabla histórica del plan de estabilización se calcularon con
+cero errores observados, de modo que intento y éxito coinciden para esas filas.
+La tabla es evidencia histórica y no fue reescrita con una nueva corrida. La
+corrección reporta semánticas separadas para ejecuciones futuras; no modifica
+retrieval, bases, qrels ni artefactos BENCH-G2.
+
+**Estado:** A-3 implementada; validación focalizada registrada en el cambio.
+La evidencia histórica BENCH-G2 conserva su autoridad y límites previos.
+
+## Seguimiento A-4 — lectura del estado BKT en CLI — 2026-09-29
+
+`talos kc list` mantiene el archivo de estudiante inexistente como caso
+opcional y muestra `not_started` si no hay un estado BKT persistido. Si el
+archivo existe pero SQLite no puede leer la tabla/consulta, `_kc_bkt_status`
+ahora eleva `BKTStatusReadError`; el comando presenta un error en stderr y
+termina con código 1, en lugar de dibujar progreso no iniciado. Errores SQLite
+se encadenan como causa. No se cambiaron los umbrales de estado ni el modelo
+BKT.
+
+Las pruebas distinguen archivo ausente (incluida su etiqueta CLI), esquema
+incompatible, archivo corrupto y salida CLI ante fallo de lectura. La suite
+focalizada `tests/unit/ingestion/test_cli_kc.py` pasó con **12 tests**;
+py_compile, Flake8 selectivo y `git diff --check` también pasaron. A-4 queda
+implementada sin cambios de datos ni de BENCH-G2.
+
+## Seguimiento A-5 — mapa del repositorio en README — 2026-09-29
+
+Se reemplazó el árbol obsoleto por una vista breve de las rutas principales y
+se enumeraron los paquetes reales de primer nivel bajo `src/study_engine/` y
+las 24 suites de `tests/`. La clasificación se remite al manifiesto
+`config/test_perimeter.json`, sin replicar sus motivos ni crear una segunda
+fuente normativa. El mapa excluye explícitamente cachés/build y datos internos;
+no se cambió ninguna ruta de implementación ni el inventario del manifiesto.
+
+Se verificaron los nombres listados contra los directorios actuales y los
+enlaces relativos del README. A-5 queda implementada como actualización
+documental; A-6 continúa informativa y separada.

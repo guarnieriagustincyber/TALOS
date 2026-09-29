@@ -1,5 +1,11 @@
 # Auditoría Diagnóstica — TALOS (4 lentes)
 
+> **Nota de vigencia:** las declaraciones de gate y conteos de esta auditoría
+> son evidencia histórica del snapshot auditado. No definen el perímetro actual
+> ni autorizan release; la fuente normativa vigente es
+> [`TEST_CERTIFICATION_PERIMETER.md`](TEST_CERTIFICATION_PERIMETER.md) junto
+> con `config/test_perimeter.json` y `scripts/quality_gate.py`.
+
 - **Base:** código en `main@480ce17` (post-Fase 6), suites `tests/unit` (818+ tests), golden set v1.
 - **Vocabulario por celda:** `ok` (verificado con archivo:línea o test citable) · `needs_review` (pregunta explícita adjunta) · `violation` (clase: fail-closed | leakage | autoridad) · `na`.
 - **Regla de evidencia:** "ok" solo con cita verificada en el código actual o test existente. Lo no verificable con esa precisión es `needs_review`.
@@ -366,6 +372,5 @@ Se extendió la suite de integración en `tests/integration/test_relevance_gate_
 5. **Perímetro Congelado:** Se certifica `git diff origin/main -- src/study_engine/{state,execution,assessment,audit}/` = 0 líneas de diferencia.
 6. **Gate Consolidado de Release:** Ejecución única de `pytest tests/` resultando en:
    **2.403 tests recolectados**, **2.395 PASSED**, **8 SKIPPED**, **0 FAILED** (exit code 0, 292s).
-
 
 

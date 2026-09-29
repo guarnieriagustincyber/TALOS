@@ -407,13 +407,12 @@ Licenciatura en Ciberdefensa, “Sistemas de Tratamientos de Datos”, año 2026
 materia y 64 horas. Los PDFs versionados/materiales locales también incluyen
 fundamentos del modelo relacional, álgebra relacional, diseño de bases de
 datos, normalización y SQL; apoyan que la etiqueta “Sistemas de Transmisión de
-Datos” del prompt es incorrecta. No se encontró un programa analítico completo
-que permita confirmar de forma independiente la cantidad exacta de unidades,
-los siete módulos ni toda la nómina de autores que afirma la adaptación previa.
-El catálogo lista siete KCs numeradas como unidades, pero eso no sustituye el
-documento del programa. Por tanto, queda confirmado el nombre/área de la
-materia; programa oficial, conteo total y bibliografía por unidad quedan
-**pendientes de fuente**.
+Datos” del prompt es incorrecta. Al revisar el programa analítico 2026
+compartido posteriormente por el usuario, se confirmó que contiene siete
+módulos y bibliografía, pero señala 60 horas, en discrepancia con las 64 horas
+del plan de estudios público de la carrera y de otro material local. La
+identidad y el área quedan corroboradas; la carga horaria requiere
+reconciliación documental, no inferencia.
 
 **Caracterización de pruebas:** el primer comando focalizado intentó ejecutar
 `tests/pedagogy/test_adaptive_pipeline.py`, ruta inexistente; no llegó a
@@ -868,6 +867,12 @@ En híbrido, carga representativa medida:
 | `fadena-std` | 10 | 8,70 | 0/20 | 634,69 / 2.141,11 | 1.125,1 MiB |
 | `fase0-soc` | 5 | 10,89 | 0/10 | 385,75 / 844,20 | 1.209,6 MiB |
 | `fase0-soc` | 10 | 11,22 | 0/20 | 394,97 / 1.715,15 | 1.211,3 MiB |
+
+La tabla conserva resultados del runner anterior, que reportaba intentos por
+segundo como `QPS`. Todos los casos de esta tabla tuvieron cero errores, por lo
+que esos valores también equivalen a éxitos por segundo. El runner actual
+expone `attempt_qps`, `successful_qps` y `error_rate_pct` por separado; no se
+volvió a ejecutar el benchmark ni se reescribió esta evidencia histórica.
 
 Es una línea base de **retrieval**, no del endpoint completo: no incluye
 resolución de prompt/perfil, compilación de contexto, backend LLM ni inferencia
@@ -1397,6 +1402,432 @@ conocimiento. Esto respalda la identidad/nombre del curso y la fuente primaria
 de Unidad 1; no es el programa completo, así que no certifica la cantidad de
 módulos ni la bibliografía oficial del ciclo. No se extrapola un plan de
 estudios a partir de este documento.
+
+#### Revalidación de inventario local — 2026-09-29, solo lectura
+
+Se volvió a inspeccionar `data/web_state/knowledge_store.db` mediante SQLite
+`mode=ro` y `PRAGMA query_only=ON`, comparando identidades persistidas con
+`notebook_kc_catalog.json` y `notebook_source_roles.json`. La consulta no abrió
+`vector_store.db` ni ejecutó bootstrap, migraciones o escrituras.
+
+La CLI `scripts/reconcile_gate2_notebooks.py` no pudo ejecutarse en el entorno
+actual porque el `.venv` no tiene `pydantic`. Para no instalar dependencias ni
+cambiar el entorno, se hizo un resumen acotado con la biblioteca estándar de
+Python y se cotejó el registry estático. Por eso esta comprobación confirma los
+conteos y discrepancias de base/catálogo/roles que se listan aquí, pero no
+sustituye una nueva salida completa del reconciliador oficial.
+
+| ID persistido | Hecho observado: `curriculum_id` DB / catálogo | Hecho observado: asociaciones / sin rol | Decisión requerida | Propuesta preliminar no autorizada |
+|---|---|---:|---|---|
+| `NB-CYBERSECURITY-V1` | `fadena_v1` / — | 10 / 10 | Determinar si requiere identidad curricular y roles propios. | Tratarlo como scope independiente; no derivar una migración del valor genérico. |
+| `NB-SEC-01-C-PTR` | `NULL` / — | 42 / 42 | Resolver el alcance funcional y el bloqueo de BENCH-G2 antes de decidir cualquier ACL. | Mantener sin cambios mientras se resuelve el bloqueo; no es aprobación de las 42 ACL. |
+| `fadena-lenguajes` | `fadena_v1` / `fadena_lenguajes_2026` | 17 / 2 | Aprobar si el ID del catálogo debe migrarse a los registros locales. | Considerar el ID específico del catálogo como candidato; migración no aprobada. |
+| `fadena-prog` | `fadena_v1` / — | 0 / 0 | Confirmar el tratamiento del scope legacy y el valor genérico persistido. | No inferir alias ni asociaciones por similitud. |
+| `fadena-so` | `fadena_v1` / — | 0 / 0 | Confirmar el tratamiento del scope legacy y el valor genérico persistido. | No inferir alias a `fadena-so2` ni asociaciones. |
+| `fadena-so2` | `fadena_v1` / `fadena_so2_2026` | 14 / 1 | Aprobar si el ID del catálogo debe migrarse y resolver la fuente sin rol. | Considerar el ID específico del catálogo como candidato; migración no aprobada. |
+| `fadena-std` | `fadena_v1` / `fadena_std_2026` | 30 / 2 | Aprobar si el ID del catálogo debe migrarse y resolver las dos fuentes sin rol. | Considerar el ID específico del catálogo como candidato; migración no aprobada. |
+| `fadena-sye` | `NULL` / `fadena_sye_2026` | 0 / 0 | Validar identidad/programa y decidir si corresponde habilitarlo. | Mantener la clasificación de placeholder no operativo; no activarlo en esta etapa. |
+| `fadena-teleco` | `fadena_v1` / `fadena_teleco_2025` | 12 / 0 | Aprobar si el ID del catálogo debe migrarse a los registros locales. | Considerar el ID específico del catálogo como candidato; migración no aprobada. |
+| `fase0-soc` | `fadena_v1` / `roadmap_kasiu_v4_fase0` | 26 / 18 | Decidir qué evidencia justifica cada asociación sin rol y si el ID local debe migrarse. | Mantener el ID de Roadmap como candidato; revisar ACL individualmente, sin autorizar poda. |
+| `nb_prog_1` | `NULL` / — | 0 / 0 | Buscar procedencia y decidir si tiene una identidad curricular válida. | Mantener sin mapeo ni fuentes; no inferirlo desde el nombre de carpeta. |
+| `nb_prog_basica` | `NULL` / — | 0 / 0 | Buscar procedencia y decidir si tiene una identidad curricular válida. | Mantener sin mapeo ni fuentes; no inferirlo desde el nombre de carpeta. |
+
+Las columnas de “hecho observado” son resultados de lectura; “decisión
+requerida” enumera preguntas aún no resueltas; la última columna solo registra
+una propuesta preliminar para orientar esa revisión. **Ninguna propuesta de
+esta tabla está aprobada**, constituye autoridad curricular, autoriza ACL ni
+ordena una migración o modificación de datos.
+
+Conteos revalidados: **12 notebooks**, **76 sources** y **151 asociaciones**
+persistidas; **45 source IDs** están asociados a más de un notebook. Los cinco
+IDs curriculares específicos de cursos/Roadmap difieren de `fadena_v1` en DB;
+`fadena-sye` difiere entre `NULL` y su catálogo, y `NB-CYBERSECURITY-V1`
+conserva `fadena_v1` sin una entrada curricular coincidente. Hay **un
+source_id huérfano**, dentro de las 42 asociaciones de `NB-SEC-01-C-PTR`.
+Los 18 vínculos de `fase0-soc` sin rol y las asociaciones sin rol de otros
+scopes siguen siendo asociaciones ya persistidas: la falta de rol no autoriza
+a borrarlas ni la presencia de un rol autoriza a crear ACL.
+
+Para `fadena-lenguajes`, las dos asociaciones sin rol son
+`src_fadena_prog_arboles` y `src_fadena_prog_archivos`; para `fadena-so2` es
+`src_0bc5d20dcc91895f`; para `fadena-std` son `src_f3352475bc0cd360` y
+`src_rosen_matematicas_discretas`. Se mantienen pendientes de procedencia,
+vigencia o tratamiento curricular según la revisión anterior. Los catálogos de
+roles también contienen referencias sin fila de fuente local: **3** para
+`fadena-so2`, **1** para `fadena-std` y **1** para `fadena-teleco`; esas
+referencias no crean autorización.
+
+**Dictamen de esta revalidación:** inventario local confirmado; no hay base
+para una reconciliación automática de `curriculum_id`, para ampliar o podar
+ACL, ni para activar scopes locales. El siguiente paso es aprobar por separado
+la identidad curricular deseada y el tratamiento de cada grupo de fuentes. En
+particular, el narrowing de `NB-SEC-01-C-PTR` sigue bloqueado por la
+inconsistencia de scope/qrels de BENCH-G2 descrita abajo. Gate 2 continúa
+**PARCIAL** y esta inspección no certifica corpus, programa oficial ni
+aislamiento productivo de ningún scope.
+
+#### Matriz de decisiones de identidad — 2026-09-29, solo lectura
+
+Esta matriz separa la identidad del scope de la decisión de modificar
+`curriculum_id` persistido. Los estados son un **dictamen técnico para revisión
+del usuario**, no una aprobación del usuario ni una autorización operativa:
+`APPROVED` indica evidencia explícita suficiente para describir la identidad
+del scope; `PENDING` indica que falta evidencia/decisión de autoridad;
+`BLOCKED` indica que una operación concreta no debe avanzar mientras subsista
+el bloqueo indicado. Una identidad aprobada no implica que deba tener un
+`curriculum_id`, ni que un valor persistido deba migrarse.
+
+| Scope | Autoridad y evidencia explícita | Persistido → identidad curricular declarada | Identidad (dictamen técnico) | Decisión de persistencia/mapeo |
+|---|---|---|---|---|
+| `fase0-soc` | Registry exacto + clave e ID de `notebook_kc_catalog.json`; catálogo define `roadmap_kasiu_v4_fase0`. | `fadena_v1` → `roadmap_kasiu_v4_fase0` | **APPROVED** como notebook exacto de Roadmap/Fase 0; no alias FADENA. | **PENDING**: decidir una migración local del valor genérico; no modificarlo en este paso. |
+| `fadena-lenguajes` | Registry exacto + catálogo curricular con ID `fadena_lenguajes_2026`. | `fadena_v1` → `fadena_lenguajes_2026` | **APPROVED** como curso FADENA Lenguajes 2026. | **PENDING**: el ID del catálogo es la identidad declarada; migrar SQLite requiere autorización y plan aparte. |
+| `fadena-so2` | Registry exacto + catálogo curricular con ID `fadena_so2_2026`; documentación distingue `fadena-so` legacy. | `fadena_v1` → `fadena_so2_2026` | **APPROVED** como curso FADENA SO II 2026, distinto de `fadena-so`. | **PENDING**: el ID del catálogo es la identidad declarada; migrar SQLite requiere autorización y plan aparte. |
+| `fadena-std` | Registry exacto + catálogo curricular con ID `fadena_std_2026`; PDF local identifica curso/año, pero no acredita programa completo. | `fadena_v1` → `fadena_std_2026` | **APPROVED** como curso FADENA Sistema de Tratamiento de Datos 2026; el programa oficial completo sigue sin validar. | **PENDING**: no migrar hasta decisión y plan explícitos. |
+| `fadena-teleco` | Registry exacto + catálogo curricular con ID `fadena_teleco_2025`. | `fadena_v1` → `fadena_teleco_2025` | **APPROVED** como curso FADENA Telecomunicaciones 2025. | **PENDING**: el ID del catálogo es la identidad declarada; migrar SQLite requiere autorización y plan aparte. |
+| `fadena-prog` | Registry exacto con etiqueta heredada “Legacy Alias”; no hay entrada curricular ni `alias_target`, y decisiones audit-only lo conservan como scope de compatibilidad independiente. | `fadena_v1` → sin ID curricular declarado | **APPROVED** como identidad legacy distinta; no está aprobada equivalencia con `fadena-lenguajes` o Fase 0. | **PENDING**: `fadena_v1` no tiene respaldo como mapping curricular para este scope; no inferir sustituto ni migrar a otro ID. |
+| `fadena-so` | Registry exacto con etiqueta heredada “Legacy Alias”; no hay entrada curricular ni `alias_target`; decisiones audit-only y referencias de federation lo mantienen distinto de `fadena-so2`. | `fadena_v1` → sin ID curricular declarado | **APPROVED** como identidad legacy distinta; no es alias de `fadena-so2`. | **PENDING**: `fadena_v1` no tiene respaldo como mapping curricular para este scope; no inferir sustituto ni migrar a otro ID. |
+| `NB-CYBERSECURITY-V1` | Registry exacto, nombre/subject de Seguridad y decisión audit-only; no hay clave curricular correspondiente. | `fadena_v1` → sin ID curricular declarado | **APPROVED** como notebook independiente de Seguridad, no FADENA. | **PENDING**: decidir si necesita un curriculum formal; no asignarlo por inferencia desde `fadena_v1`. |
+| `NB-SEC-01-C-PTR` | Roadmap `ROADMAP-CYBERSECURITY-V1` asigna este ID exacto al nodo `SEC-01-C-PTR`; identidad corroborada en decisiones audit-only. | `NULL` → scope de nodo sin `curriculum_id` en catálogo KC | **APPROVED** como scope exacto del nodo punteros/memoria; no es el notebook general de Seguridad. | **PENDING** para cualquier mapping curricular de DB. **BLOCKED** solo el cambio de alcance/ACL hasta resolver BENCH-G2; la identidad del nodo no aprueba las 42 asociaciones. |
+| `fadena-sye` | Entrada exacta de catálogo KC con ID `fadena_sye_2026`; falta en registry operativo y catálogo de roles; la fila DB es placeholder vacío. | `NULL` → `fadena_sye_2026` | **PENDING**: la entrada del catálogo no demuestra identidad académica operativa ni programa validado. | **BLOCKED** activar el scope; mapping/migración también pendientes hasta validar identidad, fuentes y autoridad académica. |
+| `nb_prog_1` | Solo fila local y nombre de carpeta `f_prog`; no hay registry, catálogo curricular ni evidencia que demuestre equivalencia. | `NULL` → sin mapping declarado | **PENDING / UNRESOLVED**. | **PENDING**: no asignar `curriculum_id` ni inferir alias sin procedencia explícita. |
+| `nb_prog_basica` | Solo fila local y nombre de carpeta `folder_fase0`; no hay registry, catálogo curricular ni evidencia que demuestre equivalencia. | `NULL` → sin mapping declarado | **PENDING / UNRESOLVED**. | **PENDING**: no asignar `curriculum_id` ni inferir alias sin procedencia explícita. |
+
+**Resultado de clasificación técnica de identidad (12 scopes):** **9
+APPROVED**, **3 PENDING**, **0 BLOCKED como identidad semántica**. Los tres
+pendientes son `fadena-sye`, `nb_prog_1` y `nb_prog_basica`; la limitación de
+`fadena-sye` bloquea su activación, no permite concluir que su identidad
+académica ya esté establecida. Hay bloqueos operativos independientes:
+cambios ACL/alcance de `NB-SEC-01-C-PTR` por BENCH-G2 y activación de
+`fadena-sye` por falta de validación. Esta clasificación técnica queda para
+revisión/aprobación explícita del usuario; no equivale a que el usuario haya
+aprobado los nueve dictámenes.
+
+**Persistencia en `knowledge_store.db`:** **0 cambios autorizados, 12
+pendientes**. Esto incluye los cinco IDs de catálogo ya documentados, los
+scopes legacy con `fadena_v1`, `NB-CYBERSECURITY-V1` con `fadena_v1`,
+`NB-SEC-01-C-PTR` con `NULL`, el placeholder `fadena-sye` con `NULL` y los dos
+scopes custom con `NULL`. La matriz no prescribe una migración masiva ni
+asume que cada identidad necesita un `curriculum_id`.
+
+**Impacto runtime verificado en código:**
+
+- `config/notebook_kc_catalog.json` carga el mapping en
+  `web/dependencies.py::_load_notebook_curriculum_ids`. El seed
+  `_seed_curriculum_tree` aplica ese ID al crear una fila nueva; para filas
+  existentes **no actualiza** `curriculum_id` y solo intenta insertar fuentes
+  declaradas con `INSERT OR IGNORE`. Reiniciar o volver a ejecutar el seed no
+  reconcilia los valores persistidos.
+- Los perfiles de `pedagogy/fase0_seed.py` requieren coincidencia exacta entre
+  `notebook_id` y `curriculum_id`; si no coincide, producen el prompt base
+  neutral. Las rutas de roadmap y pedagogía y el orquestador de sesiones leen
+  el mapping desde el catálogo KC; las sesiones guardan ese valor (o
+  `curr_<notebook_id>` si no hay entrada).
+- **Hay un consumidor runtime directo del valor persistido:** cuando no existe
+  un contrato pedagógico custom, `web/routes/chat.py` llama
+  `KnowledgeStore.get_pedagogical_contract`; este lee el notebook persistido y
+  pasa su `curriculum_id` a `get_default_contract`. Por tanto, un valor local
+  genérico como `fadena_v1` no coincide con los perfiles exactos y produce el
+  contrato/prompt neutral en ese camino. Un contrato custom persistido evita
+  ese fallback. En la DB inspeccionada hay **0 filas en
+  `pedagogical_contracts`**, por lo que el camino de fallback está activo para
+  los notebooks consultados en este almacén local. Esta dependencia hace que
+  una eventual migración pueda cambiar comportamiento de prompts, aunque no
+  conceda ACL.
+- `KnowledgeStore.get_notebook` lee el campo persistido y
+  `create_notebook` lo compara al detectar conflictos e inserta el valor al
+  crear filas nuevas. En el código inspeccionado no se encontraron otros
+  consumidores de runtime que usen el `curriculum_id` leído de DB; los demás
+  perfiles, rutas y sesiones usan el catálogo KC. La búsqueda cubrió los usos
+  en `src/study_engine`, no constituye una afirmación sobre consumidores
+  externos al repositorio.
+- Modificar únicamente `notebooks.curriculum_id` no cambia
+  `notebook_sources`, fuentes, roles, chunks, Golden Sets ni qrels. Sí puede
+  cambiar el contrato pedagógico de fallback de chat. Por eso, antes de
+  cualquier futura escritura se debe comprobar qué notebooks tienen contrato
+  custom y validar explícitamente el comportamiento anterior/posterior del
+  fallback, además de snapshot/hash, rollback y prueba E2E.
+
+La conclusión de impacto corrige una simplificación importante del inventario
+anterior: la DB no es solo metadato sin efecto. El catálogo controla los
+perfiles/rutas/sesiones, mientras el valor persistido alimenta el contrato de
+fallback de chat. La necesidad y alcance de alinear ambos valores, la
+compatibilidad con contratos custom y el tratamiento de sesiones existentes
+requieren decisión explícita. No se prepara ni ejecuta aquí transformación,
+snapshot, rollback o prueba E2E de migración.
+
+**Impacto por grupo de identidad en el estado observado:**
+
+| Scope(s) | Fuente para perfil/ruta/sesión | Valor persistido observado | Efecto del fallback de chat |
+|---|---|---|---|
+| `fase0-soc`, `fadena-lenguajes`, `fadena-so2`, `fadena-std`, `fadena-teleco` | Entrada exacta en catálogo KC; perfiles requieren su ID exacto. | `fadena_v1` | No coincide con el perfil específico; con 0 contratos custom, `get_default_contract` devuelve prompt neutral. |
+| `fadena-prog`, `fadena-so`, `NB-CYBERSECURITY-V1` | Registry; sin entrada KC/perfil exacto para estos IDs. | `fadena_v1` | No hay perfil exacto que activar; fallback neutral. |
+| `NB-SEC-01-C-PTR` | Roadmap de tema; sin entrada KC ni perfil de notebook exacto. | `NULL` | No hay perfil exacto; fallback neutral. El bloqueo BENCH-G2 refiere a alcance/ACL, no a este resultado de identidad. |
+| `fadena-sye` | Entrada KC, pero no registry operativo. | `NULL` | No hay perfil registrado para este notebook en `NOTEBOOK_PROFILES`; el catálogo por sí solo no lo activa. |
+| `nb_prog_1`, `nb_prog_basica` | Solo filas locales; sin entrada KC ni perfil exacto. | `NULL` | No hay perfil exacto; cualquier ruta que obtenga contrato cae al neutral. |
+
+#### Matriz de impacto hipotético de persistencia — no autorizada
+
+La columna “valor hipotético” modela únicamente el efecto de cambiar el campo
+`notebooks.curriculum_id`; no es una instrucción ni una propuesta aprobada de
+`UPDATE`. Para filas sin identidad curricular respaldada, el valor correcto
+del análisis es “sin cambio decidido”, no inventar un ID. El riesgo describe
+el cambio observable en el fallback de contrato de chat; no evalúa aquí otras
+integraciones externas.
+
+| Scope | Actual → hipotético | Consumidor y evidencia | Comportamiento actual → hipotético | Riesgo del cambio aislado |
+|---|---|---|---|---|
+| `fase0-soc` | `fadena_v1` → `roadmap_kasiu_v4_fase0` | `chat.py` → `get_pedagogical_contract` → `get_default_contract`; perfil exacto en `fase0_seed.py`; catálogo KC y prueba de perfiles. | Prompt neutral → perfil Fase 0 validado, con orientación opcional de traza/pseudocódigo cuando corresponda. | **Medio**: habilita guía de perfil antes ausente; no cambia ACL. |
+| `fadena-lenguajes` | `fadena_v1` → `fadena_lenguajes_2026` | Mismo fallback; perfil exacto Lenguajes; `get_default_contract` también cambia `forbidden_patterns` a `#include <stdio.h>` y `int main(` cuando el perfil se activa. | Prompt neutral → perfil de Lenguajes; además cambia las restricciones de código del contrato default. | **Alto**: cambia perfil y restricciones del contrato; requiere prueba del comportamiento del chat, no solo comprobar el valor. |
+| `fadena-so2` | `fadena_v1` → `fadena_so2_2026` | Mismo fallback; perfil exacto SO II y test de correspondencia con catálogo. | Prompt neutral → orientación opcional de sistemas, estados e intercalaciones, sin presuponer plataforma. | **Medio**: cambia orientación pedagógica observable; no cambia fuentes/ACL por sí solo. |
+| `fadena-std` | `fadena_v1` → `fadena_std_2026` | Mismo fallback; perfil exacto Tratamiento de Datos y test de mismatch/exact match. | Prompt neutral → orientación opcional de modelos, transformaciones y consultas de datos; no fuerza SQL. | **Medio**: cambia perfil pedagógico observable; el programa oficial completo sigue sin validarse. |
+| `fadena-teleco` | `fadena_v1` → `fadena_teleco_2025` | Mismo fallback; perfil exacto Telecomunicaciones y test de catálogo. | Prompt neutral → orientación opcional sobre señales, capas, protocolos y temporización. | **Medio**: cambia perfil pedagógico observable; no cambia fuentes/ACL por sí solo. |
+| `fadena-prog` | `fadena_v1` → sin cambio decidido | Se consulta el valor persistido, pero no hay perfil exacto en `NOTEBOOK_PROFILES` ni ID curricular de catálogo. | Neutral → neutral para el fallback inspeccionado. | **Bajo para este consumidor**, pero no existe un valor alternativo autorizado; no inferir equivalencia por etiqueta legacy. |
+| `fadena-so` | `fadena_v1` → sin cambio decidido | Se consulta el valor persistido, pero no hay perfil exacto ni ID curricular de catálogo. | Neutral → neutral para el fallback inspeccionado. | **Bajo para este consumidor**, sin evidencia que autorice un mapping; no mapear a `fadena-so2`. |
+| `NB-CYBERSECURITY-V1` | `fadena_v1` → sin cambio decidido | Registry exacto; no hay perfil KC de notebook ni perfil exacto en `NOTEBOOK_PROFILES`. | Neutral → neutral para el fallback inspeccionado. | **Bajo para este consumidor**; inventar un ID podría habilitar otro comportamiento si se añade perfil en el futuro, pero no hay tal cambio contemplado. |
+| `NB-SEC-01-C-PTR` | `NULL` → sin cambio decidido | Identidad de nodo proviene del roadmap; no hay perfil KC exacto ni perfil en `NOTEBOOK_PROFILES`. | Neutral → neutral para este fallback. | **Bajo para el campo aislado**; el bloqueo BENCH-G2 sigue aplicando a ACL/alcance y no se resuelve con esta operación. |
+| `fadena-sye` | `NULL` → no migrar; ID catálogo `fadena_sye_2026` solo como dato declarativo | Está en catálogo KC pero no en registry operativo/profile map; los tests confirman que no está en `NOTEBOOK_PROFILES`. | Neutral → neutral mientras no se registre un perfil; asignar el ID por sí solo no activa el scope. | **Medio/indeterminado**: no activaría el perfil actual, pero podría crear una falsa apariencia de habilitación o afectar futuras integraciones; identidad/activación pendientes. |
+| `nb_prog_1` | `NULL` → sin cambio decidido | No hay entrada KC ni perfil exacto. | Neutral → neutral para el fallback inspeccionado. | **Bajo para este consumidor**; no hay mapping respaldado ni valor candidato. |
+| `nb_prog_basica` | `NULL` → sin cambio decidido | No hay entrada KC ni perfil exacto. | Neutral → neutral para el fallback inspeccionado. | **Bajo para este consumidor**; no hay mapping respaldado ni valor candidato. |
+
+La clasificación de riesgo no es una aprobación: incluso los casos “bajo”
+siguen sin permiso de escritura. Para los cinco scopes con perfil exacto, el
+cambio potencial relevante es habilitar una especialización actualmente
+neutral; en `fadena-lenguajes` también altera explícitamente las restricciones
+de código del contrato. La prueba unitaria de resolución del perfil acredita
+ese comportamiento determinista, pero no demuestra por sí sola la respuesta
+observable de Chat ni la calidad pedagógica tras el cambio. Si en el futuro se
+aprueba persistencia, validar antes/después el contrato obtenido y el prompt
+capturado por Chat para cada scope afectado, además de registrar snapshot/hash,
+precondiciones, rollback y postcondiciones. No realizar ese ensayo contra la
+DB productiva/local compartida en esta etapa.
+
+**Fuera de alcance de esta matriz:** fuentes/roles/ACL (requieren la matriz
+separada `source → notebook → evidencia → decisión`); cambios a Golden Sets o
+qrels; habilitación de `fadena-sye`; migraciones de `curriculum_id`; y
+certificación de aislamiento productivo. En particular, el bloqueo BENCH-G2
+aplica a cambios de alcance/ACL de `NB-SEC-01-C-PTR` y no revoca la evidencia
+que identifica su nodo Roadmap. Gate 2 continúa **PARCIAL**.
+
+#### Matriz piloto de fuentes y asociaciones de `fadena-std` — 2026-09-29, solo lectura
+
+Se cruzaron las **30 asociaciones existentes** de `fadena-std` en
+`knowledge_store.db` (SQLite `mode=ro`, `PRAGMA query_only=ON`) con las filas
+`sources`, sus documentos/chunks, el catálogo de roles y los archivos del
+directorio `fuentes/fadena-std`. La pertenencia física se comprobó comparando
+SHA-256 del metadata de documento con los PDFs del directorio. No se consultó
+ni modificó `vector_store.db`, y no se cambió ninguna ACL ni configuración.
+
+**Hechos agregados:** las 30 asociaciones resuelven a un registro de fuente;
+hay **40 documentos y 46.530 chunks** asociados, incluyendo documentos
+duplicados/reingestas para algunas fuentes. **27 source IDs** tienen al menos
+un documento cuyo SHA-256 coincide con un archivo de `fuentes/fadena-std`.
+De esos, 26 tienen rol declarado y uno (`src_f3352475bc0cd360`) no. Dos
+asociaciones más sí tienen rol declarado pero no se halló archivo con hash
+coincidente en ese directorio (`src_fadena_prog_archivos`,
+`src_ramalho_fluent_python`). La segunda asociación sin rol,
+`src_rosen_matematicas_discretas`, tampoco coincide con ese directorio y hoy
+tiene **0 chunks**. Todos los 30 registros tienen `sources.course=NULL` y
+`sources.role=PRIMARY`; ese campo `role` es global a la fuente y **no** el rol
+pedagógico por notebook. Diez filas tienen además `sources.subject=Cybersecurity`,
+aunque los títulos/archivos corresponden a materias de datos. Esos metadatos
+globales no se trataron como prueba de autoridad ni de pertenencia.
+
+| Source ID asociado | Fuente (título corto) | Rol declarado para `fadena-std` | Evidencia local observada | Chunks | Estado de evidencia (no decisión ACL) |
+|---|---|---|---|---:|---|
+| `src_032c52bff94a0743` | Ejercicios de recursividad | `IMPLEMENTATION` | SHA exacto en `fuentes/fadena-std`; `subject=fadena-std` | 4 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_0960283d5cef8dee` | Álgebra relacional — presentación | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 19 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_3102eb1e89e2229e` | Ejercicios de estructuras de datos | `IMPLEMENTATION` | SHA exacto en el directorio; `subject=fadena-std` | 8 | **A — candidato respaldado**; confirmar relación con unidades/objetivos oficiales. |
+| `src_3e2e8abda5f55c17` | Fundamentos del modelo relacional | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 20 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_52ff5ff3e07c1da5` | Ejercicios de álgebra relacional | `IMPLEMENTATION` | SHA exacto en el directorio; `subject=fadena-std` | 6 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_53ef2a7243ae3f63` | Álgebra relacional y cálculo relacional | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 23 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_56cfdbe35123c49e` | SQL — alternativas para entorno interactivo | `IMPLEMENTATION` | SHA exacto en el directorio; `subject=fadena-std` | 11 | **A — candidato respaldado**; revisar que alternativas sean material de práctica vigente. |
+| `src_6dbdc8e943261fa7` | Ejercicios de normalización | `IMPLEMENTATION` | SHA exacto en el directorio; `subject=fadena-std` | 8 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_755be6c147ddc5dd` | SQL básico — presentación | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 27 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_7822bc3cef85c783` | Diseño de bases de datos relacionales | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 22 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_7ec00a3365f208e6` | Ejercicios de SQL básico | `IMPLEMENTATION` | SHA exacto en el directorio; `subject=fadena-std` | 7 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_9946be0e7d11161a` | Normalización de bases de datos | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 15 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_9e866bf082e52dd7` | Ejercicios de fundamentos relacionales | `IMPLEMENTATION` | SHA exacto en el directorio; `subject=fadena-std` | 8 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_a01b9809f37fb47b` | Ejercicios de diseño de bases de datos | `IMPLEMENTATION` | SHA exacto en el directorio; `subject=fadena-std` | 11 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_cf46d8f0e018b09e` | Diseño de bases de datos — presentación | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 19 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_coronel_database_systems_11ed` | Coronel & Morris, Database Systems | `PRIMARY` | SHA exacto de libro en el directorio; DB `subject=Cybersecurity`, no `fadena-std` | 5.462 | **A — candidato respaldado por presencia local**; confirmar que la bibliografía oficial lo autoriza como `PRIMARY`. |
+| `src_d7ff8399759d387a` | Estructuras de datos | `COMPLEMENTARY` | SHA exacto en el directorio; `subject=fadena-std` | 36 | **A — candidato respaldado**; rol complementario declarado. |
+| `src_d946d1a5a3c32144` | Fundamentos del modelo relacional — presentación | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 16 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_date_intro_sistemas_bd_7ed` | Date, Introducción a sistemas de BD | `FORMAL` | SHA exacto de libro en el directorio; DB `subject=Cybersecurity`, no `fadena-std` | 7.888 | **A — candidato respaldado por presencia local**; verificar edición/alcance y bibliografía oficial. |
+| `src_de275591245abbd3` | Normalización — presentación | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 18 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_elmasri_navathe_sistemas_bd` | Elmasri & Navathe, Sistemas de BD | `COMPLEMENTARY` | SHA exacto de libro en el directorio; DB `subject=Cybersecurity`, no `fadena-std` | 9.116 | **A — candidato respaldado por presencia local**; confirmar bibliografía/rol complementario. |
+| `src_f3352475bc0cd360` | SQL básico — soluciones de ejercicios | **Sin rol** | SHA exacto en el directorio; `subject=fadena-std`; existe y tiene chunks | 8 | **B — revisión requerida**: decidir política de soluciones/evaluaciones y rol; no asignarlo ni quitar ACL automáticamente. |
+| `src_f93b8a264e20359c` | SQL básico | `PRIMARY` | SHA exacto en el directorio; `subject=fadena-std` | 26 | **A — candidato respaldado**; decisión formal pendiente. |
+| `src_fadena_prog_archivos` | Manejo y persistencia de archivos | `PRIMARY` | Dos documentos bajo almacenamiento/benchmark; no hay SHA coincidente en `fuentes/fadena-std`; DB `subject=Cybersecurity` | 9 | **D — revisión de procedencia/alcance**: el título apunta a programación/archivos y la procedencia local de curso no está demostrada. |
+| `src_fadena_std_unidad1` | Tratamiento de Datos — Unidad 1 | `PRIMARY` | SHA(s) coinciden con `UNIDAD1.pdf` y `UNIDAD1STD.pdf`; DB `subject=Cybersecurity` | 205 | **A — candidato respaldado** por material de cátedra; no equivale a programa oficial completo. |
+| `src_marques_bases_de_datos` | Marqués, Bases de datos | `COMPLEMENTARY` | SHA exacto de libro en el directorio; DB `subject=Cybersecurity`, no `fadena-std` | 1.028 | **A — candidato respaldado por presencia local**; verificar bibliografía/rol complementario. |
+| `src_ramakrishnan_gehrke_dbms` | Ramakrishnan & Gehrke, DBMS | `COMPLEMENTARY` | SHA exacto de libro en `fuentes/fadena-std`; DB `subject=Cybersecurity`, no `fadena-std` | 7.090 | **A — candidato respaldado por presencia local**; confirmar bibliografía/rol complementario, pues `course` está vacío. |
+| `src_ramalho_fluent_python` | Ramalho, Fluent Python | `IMPLEMENTATION` | Fuente bajo almacenamiento/benchmark; sin SHA coincidente en el directorio de curso; DB `subject=Cybersecurity` | 5.683 | **D — revisión de pertinencia**: evaluar contra objetivos de formatos/ETL del programa y confirmar por qué se incluye Python; rol declarado no basta. |
+| `src_rosen_matematicas_discretas` | Rosen, Matemáticas discretas | **Sin rol** | Dos registros de documento, fuera del directorio del curso; `subject=Cybersecurity`; **0 chunks** | 0 | **B — revisión requerida**: sin procedencia curricular específica ni evidencia recuperable hoy; preservar fila/ACL mientras se decide. |
+| `src_silberschatz_fundamentos_bd` | Silberschatz et al., Fundamentos de BD | `PRIMARY` | SHA exacto de libro en el directorio; DB `subject=Cybersecurity`, no `fadena-std` | 9.737 | **A — candidato respaldado por presencia local**; verificar que la autoridad `PRIMARY` concuerde con programa/bibliografía oficial. |
+
+El catálogo de roles contiene además
+`src_cairo_guardati_estructuras_datos` como `FORMAL` con estado
+`SOURCE_MISSING`; no tiene fila en `sources`, documento, chunks ni asociación
+ACL. Se registra como **C — referencia declarada sin fuente local**: no
+crear fila ni ACL basándose en esa declaración.
+
+**Cierre de clasificación de evidencia (sin decidir autorización ACL):**
+
+- **BACKED — 26/30:** hash exacto contra archivo local y rol notebook declarado.
+  Es evidencia de procedencia, no aprobación normativa.
+- **REVIEW_PENDING — 4/30:** dos filas B con rol ausente y dos filas D sin
+  coincidencia local del hash; la evidencia actual no basta para decidir su
+  pertenencia/rol.
+- **NONEXISTENT — 1 referencia separada:** `src_cairo_guardati_estructuras_datos`
+  figura en el catálogo de roles como `SOURCE_MISSING`, pero no integra las 30
+  asociaciones ni tiene registro/fuente local. No crearla ni asociarla.
+
+**Decisión de autoridad ACL:** permanece `PENDING` para las **30/30**
+asociaciones existentes; el estado actual de la ACL no se reinterpreta como
+aprobación humana. No hay decisión `REJECT` en este corte: no se revisaron los
+contenidos completos ni existe criterio curricular autorizado para rechazar
+fuentes. `BACKED`, `REVIEW_PENDING` y `NONEXISTENT` describen evidencia, no
+acciones de conceder, conservar o revocar acceso.
+
+La prueba E2E documentada en la sección siguiente confirma el filtrado de una
+fuente positiva y una negativa sobre una copia temporal real, incluido
+ContextPack/prompt/SSE/provenance. No adjudica las 30 asociaciones, no cubre
+todos los scopes ni compara el almacén vectorial. No se modificaron
+asociaciones; las 30 ACL permanecen intactas y Gate 2 continúa **PARCIAL**.
+
+#### E2E de aislamiento `fadena-std` sobre copia temporal — 2026-09-29
+
+Se ejecutó
+`test_fadena_std_real_corpus_isolation_on_temporary_database_copy` contra una
+copia SQLite consistente de `knowledge_store.db`, creada mediante
+`Connection.backup()` desde una conexión `mode=ro` para incluir correctamente
+el estado confirmado en WAL. La copia pasó `PRAGMA integrity_check` y conservó
+las 30 asociaciones de `fadena-std`. El endpoint se ejecutó con backend
+capturador (`use_mock=True`); no se inició el lifespan de la aplicación ni se
+usó el almacén vectorial productivo.
+
+**Resultado:** `1 passed`. Para la solicitud de `fadena-std`, el retrieval
+recibió `src_fadena_std_unidad1` y excluyó `src_fadena_leng_clase2`, aunque
+ambos estaban en `active_sources`. El prompt capturado contiene el material de
+la fuente positiva y no contiene el ID ni el marcador de la fuente ajena. El
+evento SSE `phase_complete` contiene provenance únicamente para
+`src_fadena_std_unidad1`, con `citation_id` y `doc_hash`; el backend devolvió
+la respuesta esperada con cita `[E1]`. La prueba también verificó que el
+`curriculum_id` persistido siguió siendo `fadena_v1`, que no se crearon
+contratos custom, que las asociaciones no cambiaron y que los hashes del
+archivo original y su WAL permanecieron iguales durante la ejecución.
+
+**Límites y observaciones:** esto demuestra el recorrido integrado de una
+fuente positiva y una negativa sobre el snapshot real, no la autorización
+normativa de las 30 asociaciones, el aislamiento de todos los scopes, ni el
+estado de `vector_store.db`. El backend es un capturador, no un proveedor LLM
+real. Como el ID persistido no se migró, `fadena-std` siguió usando el fallback
+neutral; no se probó la activación de `fadena_std_2026`. El endpoint registró
+un warning porque la copia no contiene la tabla opcional
+`curriculum_progress`; el intento de actualizar progreso no tuvo efecto y no
+impidió completar el flujo. No se modificaron ACL, `curriculum_id`, qrels ni
+Golden Sets. Gate 2 continúa **PARCIAL**.
+
+#### Expediente de evidencia curricular para fuentes pendientes de `fadena-std` — 2026-09-29
+
+Se hizo una revisión read-only de la metadata SQLite, `notebook_source_roles`,
+`notebook_kc_catalog`, los documentos/chunks indexados y los archivos bajo
+`fuentes/fadena-std`. La revisión inicial no tenía acceso al programa analítico,
+pero el usuario compartió después **“Programa Sistema de Tratamientos de Datos
+2026”**, de nueve páginas, cuya portada identifica la Licenciatura en
+Ciberdefensa, año 2026, y atribuye la materia a Gustavo A. Pereira, Adrián
+Chamudis y Mauro Maidana. El documento declara **60 horas**, describe siete
+módulos y contiene bibliografía. Se usa como el programa analítico aportado
+para el cotejo; el archivo no contiene firma digital verificable. Esto
+reemplaza la conclusión anterior de que el programa analítico no estaba
+disponible. `UNIDAD1STD.pdf` queda como evidencia local complementaria.
+
+Identificación del PDF aportado: `Programa Sistema de Tratamientos de Datos
+2026.pdf`, 9 páginas; SHA-256
+`8a759571cbce5ee67814b9e4b4618a684b59bd2e5b8c6bbbaa1ab54859cf88bf`.
+
+**Cotejo de fuentes institucionales públicas:** la página oficial de
+[Licenciatura en Ciberdefensa de FADENA](https://undef.edu.ar/fadena/carreras-de-grado/licciberdefensa/)
+y el [plan de estudios oficial enlazado (PDF)](https://undef.edu.ar/fadena/wp-content/uploads/2026/02/Licenciatura-en-Ciberdefensa.pdf)
+corroboran la materia en el segundo cuatrimestre con **64 horas**; la
+[oferta académica de UNDEF para FADENA](https://undef.edu.ar/oferta-academica/oferta-academica-fadena/)
+corrobora que la carrera pertenece a esa facultad. El PDF lista “Sistemas de
+Tratamiento de Datos” en el segundo cuatrimestre con **64 horas**.
+El programa analítico compartido declara **60 horas**, y el handout local de
+soluciones SQL declara 64 h: se registra la discrepancia sin escoger una
+versión como autoritativa ni editar datos.
+`RDN-13-1.pdf` es el número 13 (agosto de 2026) de una publicación de UNDEF,
+no un reglamento curricular ni el programa analítico; no se usa para adjudicar
+las fuentes.
+
+El programa analítico cubre estructuras de datos y sistemas de archivos/SGBD
+(Módulo 1); SQL y bases relacionales (Módulos 2–4); CSV, XML, JSON, YAML, logs
+y REGEX (Módulo 5); y ETL/Big Data (Módulo 7). Su bibliografía enumera
+Coronel & Morris, Cairo & Guardati, Silberschatz et al., Date, Kroenke,
+Elmasri & Navathe, Ramakrishnan & Gehrke y Marqués. Seis títulos bibliográficos
+corresponden a sources asociados existentes en la matriz; Cairo & Guardati
+figura en el programa, pero su source declarado en configuración
+(`src_cairo_guardati_estructuras_datos`) sigue sin fila/fuente local ni ACL.
+No enumera Rosen, Joyanes ni Ramalho. La coincidencia temática por sí sola no
+prueba adopción bibliográfica.
+
+Los otros programas compartidos (Telecomunicaciones 2025, Lenguajes de
+Programación 2026, Sistemas Operativos II 2026 y Sociedad y Estado 2026) son
+fuentes primarias de sus propias asignaturas, no de las ACL de `fadena-std`.
+Que Lenguajes trate Python o Sistemas Operativos incluya sistemas de archivos
+no autoriza trasladar fuentes entre notebooks.
+
+| Fuente asociada | Evidencia a favor | Límites / evidencia contradictoria | Estado de adjudicación |
+|---|---|---|---|
+| `src_f3352475bc0cd360` — SQL Básico, soluciones | SHA-256 exacto con el handout `6 - SQL Básico - Soluciones Ejercicios.pdf` en `fuentes/fadena-std`; la portada identifica la carrera, asignatura y año 2026. El programa analítico incluye SQL en Módulo 3. | No tiene rol en `notebook_source_roles.json` ni cita bibliográfica propia; `sources.course` está vacío y `sources.role=PRIMARY` es global. El handout declara 64 h, frente a las 60 h del programa analítico (el plan de carrera público declara 64 h). No se ha definido la política pedagógica para exponer soluciones. | **Pertenencia material al curso: fuerte y corroborada. Rol/uso y ACL: `PENDING`.** No asignar rol ni alterar ACL automáticamente. |
+| `src_rosen_matematicas_discretas` — Rosen, Matemáticas discretas | La fuente existe y está asociada a cuatro notebooks (`NB-CYBERSECURITY-V1`, `NB-SEC-01-C-PTR`, `fadena-std`, `fase0-soc`). | No hay SHA coincidente en `fuentes/fadena-std`, no tiene rol declarado para este scope y sus dos documentos suman 0 chunks. El programa analítico no lista Rosen ni incluye un módulo de Matemática Discreta. | **`UNRESOLVED` — no hay evidencia de pertenencia a esta asignatura.** No equivale a una decisión de rechazo o revocación. |
+| `src_fadena_prog_archivos` — Manejo y persistencia de archivos | El metadata de rol lo describe como material de cátedra “Estructuras de Datos y Archivos” atribuido a Pereira/Chamudis/Maidana, los mismos docentes que figuran en el programa. Este incluye estructuras de datos y sistemas de archivos/SGBD en Módulo 1. | No hay SHA coincidente con `fuentes/fadena-std`; `course` está vacío y `subject=Cybersecurity`. El contenido indexado trata operaciones de archivos en un fragmento de Fundamentos de Programación; no se identificó portada de apunte de cátedra ni autoría del archivo. El programa lista Cairo & Guardati para estructuras de datos, pero no este título ni Joyanes. También está asociado a tres scopes ajenos. La relación temática y los nombres de docentes en metadata no prueban que este artefacto sea material del curso. | **`UNRESOLVED` — afinidad curricular real, procedencia del documento no establecida.** Rol y ACL `PENDING`. |
+| `src_ramalho_fluent_python` — Luciano Ramalho, Fluent Python | El programa analítico cubre CSV, XML, JSON, YAML, logs y REGEX en Módulo 5, y ETL en Módulo 7; la metadata describe relación con parte de esos contenidos. | La fuente real es el libro general *Fluent Python* (2.ª ed., Python 3.10; 1.011 páginas), no un apunte limitado a formatos/REGEX. No hay SHA coincidente con `fuentes/fadena-std`, no está en la bibliografía del programa, `course` está vacío y `subject=Cybersecurity`. Sus 5.683 chunks abarcan el libro; hay afinidad de algunos temas, no validación de bibliografía o procedencia. Está compartido con otros tres scopes. | **`UNRESOLVED` — relevancia temática parcial confirmada, adopción/procedencia no acreditada.** Rol y ACL `PENDING`. |
+
+**Conclusión del cotejo:** el programa analítico compartido mejora y diferencia
+la evidencia:
+
+- `src_f3352475bc0cd360`: material de curso claramente identificado, pero
+  pendiente de rol pedagógico y política sobre las soluciones.
+- `src_fadena_prog_archivos`: su tema y los docentes indicados en metadata son
+  compatibles con el programa, pero no se ha demostrado la procedencia del
+  archivo específico.
+- `src_ramalho_fluent_python`: varios temas coinciden expresamente con módulos
+  del programa, pero Ramalho/Fluent Python no aparece en la bibliografía ni se
+  acreditó el uso de ese libro como material de cátedra.
+- `src_rosen_matematicas_discretas`: sin tema equivalente ni entrada
+  bibliográfica en el programa.
+
+Así, el programa analítico aportado permite resolver la correspondencia
+temática de algunas fuentes, pero no convierte todas las asociaciones
+existentes en ACL autorizadas. La discrepancia 60 h/64 h queda pendiente de
+reconciliación documental. Las 30 asociaciones siguen sin decisión ACL humana;
+no se cambió ninguna fila, rol, `curriculum_id`, fuente, qrel ni Golden Set.
+Gate 2 continúa **PARCIAL**.
+
+**Congelamiento actualizado del expediente — 2026-09-29:** el programa
+analítico provisto por el usuario es evidencia primaria nueva y reemplaza la
+conclusión anterior de que faltaba localizarlo. Se cierra la recopilación sobre
+las cuatro fuentes con este baseline:
+
+| Dimensión | Estado congelado |
+|---|---|
+| Asociaciones existentes de `fadena-std` | 30, sin cambios |
+| Procedencia local respaldada por hash y rol declarado | 26 `BACKED`; evidencia, no aprobación |
+| Casos restantes | 4 `REVIEW_PENDING`: una fuente de curso con rol/uso pendiente; tres con temas ausentes o afinidad sin procedencia/bibliografía demostrada |
+| Referencia sin fila/fuente/asociación | 1 `NONEXISTENT`: `src_cairo_guardati_estructuras_datos`; ahora respaldada como entrada bibliográfica del programa, pero sigue sin objeto fuente local ni ACL. No crear ni asociar automáticamente |
+| Aislamiento E2E | `PASS` para el caso positivo/negativo probado en snapshot real; no generaliza a las 30 asociaciones ni a todos los scopes |
+| Fuente curricular | Programa analítico aportado para 2026, con siete módulos y bibliografía (60 h); plan público de carrera y handout local indican 64 h |
+| Decisión ACL / migración | `PENDING`; cero escrituras autorizadas |
+| Gate 2 | **PARCIAL** |
+
+Este congelamiento es documental, no una decisión de conservar, conceder o
+revocar ninguna asociación. El siguiente trabajo de esta línea requiere
+reconciliar la discrepancia de carga horaria y definir autoridad/rol para
+materiales no listados en la bibliografía; el registro `src_cairo...` requiere
+una decisión separada sobre cómo materializar una referencia bibliográfica que
+actualmente carece de fuente local. No inferir cambios de ACL por afinidad
+temática.
 
 #### Revisión de ACL de `NB-SEC-01-C-PTR` y plan de implementación
 
@@ -1952,3 +2383,59 @@ La cola no reemplaza ni modifica el registro de decisiones explícitas.
 Verificación focalizada del inventario y la cola: **11 passed**;
 `py_compile` y `git diff --check` pasaron. No se adjudicó contenido, no se
 modificaron qrels/ACL/base SQLite y no se ejecutó retrieval.
+
+### Reconciliación de H1–H3 y estado de Gate 2 curricular — 2026-09-29
+
+La inspección del árbol actual confirma que los mecanismos centrales de los
+hallazgos H1–H3 del diagnóstico ya están implementados: perfiles por ID exacto
+con `curriculum_id` coincidente, fallback neutral para identidades desconocidas
+o inconsistentes, contratos default sin analogías obligatorias y perfil
+`fadena-std` etiquetado como Sistema de Tratamiento de Datos. Esto corrige la
+descripción de defectos vigentes en el snapshot inicial de Gate 2; no debe
+interpretarse como cierre formal del gate.
+
+Validación ejecutada durante esta reconciliación:
+
+```text
+./.venv/bin/pytest -q tests/pedagogy/test_socratic_system_prompt.py \
+  -k 'notebook_specializations_all_five or profiles_match_versioned_curriculum_catalog or unknown_and_legacy_like_ids_are_neutral or curriculum_mismatch_falls_back_to_neutral_contract or all_notebook_contracts_have_universal_safe_commands'
+7 passed, 6 deselected
+```
+
+Es evidencia unitaria del contrato/perfil. Para cerrar Gate 2 siguen pendientes
+la fuente curricular oficial del programa detallado de `fadena-std`, reconciliar
+identidades y roles de fuentes con los registros efectivos, resolver cualquier
+migración con autorización explícita y probar notebook → fuentes → contrato →
+prompt HTTP/SSE con retrieval real para todos los currículos. La matriz HTTP/SSE
+actual cubre cinco perfiles y fallback neutral con evidencia simulada; incluye
+también precedencia de contratos custom y restricciones explícitas del turno.
+Después se amplió el
+test SSE para verificar cinco perfiles exactos y un ID parecido desconocido:
+`test_chat_sse_sends_only_the_exact_curriculum_profile_to_backend` terminó con
+**6 passed, 5 warnings**. El backend captura el prompt final, pero el contexto
+de fuentes está simulado; el test no demuestra recuperación ni ACL reales. No
+se ejecutó la suite global ni un proveedor real, no se migró la base local y no
+se modificaron ACL, bases protegidas, Golden Sets ni qrels. Además,
+`test_chat_sse_preserves_custom_contract_and_explicit_turn_request` pasó
+(**1 passed, 5 warnings**) y comprobó la precedencia del contrato custom y la
+preservación de una restricción explícita del estudiante. La corrida focalizada
+combinada final de contratos de perfil, persistencia, endpoint SSE, allowlist
+de fuentes y retrieval aislado terminó con **24 passed, 5 warnings**. La prueba
+de allowlist es unitaria; el nuevo test SSE ejecuta retrieval real en una
+fixture temporal.
+`test_chat_sse_retrieves_only_sources_authorized_for_notebook_scope` añade
+un caso `fadena-std` con fuentes, ACL relacional y chunks de fixture en el
+KnowledgeStore temporal. El endpoint ejecuta retrieval real y el test verifica
+que una fuente incluida en `active_sources` pero autorizada solo para otro
+notebook no aparezca en el contexto/prompt ni en la procedencia SSE. El test no
+usa corpus o ACL de producción; por eso Gate 2 permanece **PARCIAL**. Black y
+`git diff --check` pasaron. No se ejecutó la suite global ni un proveedor real,
+no se migró la base local y no se modificaron ACL, bases protegidas, Golden
+Sets ni qrels.
+
+La matriz requisito → test → datos → alcance demostrado → límite/pending está
+en la sección **“Matriz de evidencia Gate B”** del
+[diagnóstico multi-cuaderno](./DIAGNOSTICO_MULTICUADERNO_Y_PLAN_DE_CONTINUIDAD.md).
+No iniciar reconciliaciones con escritura ni migraciones hasta registrar
+primero la autoridad de cada identidad/fuente y la decisión explícita sobre los
+registros locales discrepantes.

@@ -348,17 +348,16 @@ def test_deictic_misconception_followup_rescues_epistemic_pack():
     assert raw_chunks[0]["id"] == "E363"
 
 
-def test_p3_debug_crash_sse_e2e_streaming():
+def test_p3_debug_crash_sse_e2e_streaming(web_state_test_copy):
     """Test 8: P3 Crash Query runs through full Web SSE pipeline with mock container, verifying clean stream without disclaimer."""
     import json
-    from pathlib import Path
     from fastapi.testclient import TestClient
     from study_engine.web.app import create_app
     from study_engine.web.dependencies import AppContainer, set_container
     from study_engine.web.routes.chat import FALLBACK_DISCLAIMER
 
     app = create_app()
-    container = AppContainer(working_dir=Path("data/web_state"), use_mock=True)
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     set_container(container)
     client = TestClient(app)
 

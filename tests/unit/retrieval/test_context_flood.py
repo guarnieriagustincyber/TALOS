@@ -6,7 +6,9 @@ from study_engine.web.dependencies import AppContainer
 from study_engine.web.routes.chat import _assemble_epistemic_context
 
 
-def test_assemble_epistemic_context_supports_30_chunks_and_diversity():
+def test_assemble_epistemic_context_supports_30_chunks_and_diversity(
+    web_state_test_copy,
+):
     # Setup mock store returning 30 search results across 3 sources
     mock_store = MagicMock()
     mock_conn = MagicMock()
@@ -39,7 +41,7 @@ def test_assemble_epistemic_context_supports_30_chunks_and_diversity():
         )
     mock_store.search_hybrid.return_value = results
 
-    container = AppContainer(use_mock=True)
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     pack, raw_chunks = _assemble_epistemic_context(
         store=mock_store,
         container=container,

@@ -432,19 +432,30 @@ def _open_kc_store(knowledge_db: Path):
     return KCAdminStore(SQLiteStorageEngine(Path(knowledge_db)))
 
 
+class BKTStatusReadError(RuntimeError):
+    """Raised when persisted BKT status cannot be read reliably."""
+
+
 def _kc_bkt_status(student_db: Path) -> Dict[str, float]:
-    """p_L por kc_id (si existe la DB de estudiante)."""
-    import sqlite3 as _sq
+    """Return persisted mastery values, treating only a missing DB as optional."""
 
     if not Path(student_db).exists():
         return {}
-    con = _sq.connect(f"file:{student_db}?mode=ro", uri=True)
+
     try:
-        return {r[0]: r[1] for r in con.execute("SELECT kc_id, p_L FROM bkt_states")}
-    except Exception:
-        return {}
-    finally:
-        con.close()
+        db_uri = f"{Path(student_db).resolve().as_uri()}?mode=ro"
+        con = sqlite3.connect(db_uri, uri=True)
+        try:
+            return {
+                row[0]: row[1]
+                for row in con.execute("SELECT kc_id, p_L FROM bkt_states")
+            }
+        finally:
+            con.close()
+    except sqlite3.Error as exc:
+        raise BKTStatusReadError(
+            f"No se pudo leer el estado BKT de '{student_db}': {exc}"
+        ) from exc
 
 
 def _kc_status_label(p_l: Optional[float]) -> str:
@@ -490,7 +501,12 @@ def _cmd_kc_list(args: argparse.Namespace) -> int:
         print(f"No hay KCs definidos para este notebook ('{args.notebook_id}').")
         return 0
 
-    bkt = _kc_bkt_status(Path(args.student_db))
+    try:
+        bkt = _kc_bkt_status(Path(args.student_db))
+    except BKTStatusReadError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
     headers = ("KC_ID", "DIFICULTAD", "ORIGEN", "ESTADO BKT", "TÍTULO")
     widths = [
         min(max([len(headers[i])] + [len(str(r[c])) for r in rows]), 28) + 2

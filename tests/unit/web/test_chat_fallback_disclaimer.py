@@ -10,7 +10,6 @@ Contrato:
 """
 
 import json
-from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
@@ -20,9 +19,9 @@ from study_engine.web.routes.chat import FALLBACK_DISCLAIMER
 
 
 @pytest.fixture
-def chat_client():
+def chat_client(web_state_test_copy):
     app = create_app()
-    container = AppContainer(working_dir=Path("data/web_state"), use_mock=True)
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     set_container(container)
     return TestClient(app)
 

@@ -1,13 +1,21 @@
 """Tests for FastAPI SSE streaming endpoint /api/chat/query (Fase 5.8 / Refinamiento 3)."""
 
 from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
+from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
 
+from study_engine.contracts.catalog import SourceRecord
+from study_engine.contracts.chunk import Chunk
+from study_engine.contracts.document import Document
+from study_engine.contracts.ingestion import SourceManifest
 from study_engine.contracts.notebook import Notebook
 from study_engine.hierarchy.folder import Folder
+from study_engine.pedagogy.contract import PedagogicalContract
+from study_engine.pedagogy.response_phase import ResponsePhase
 from study_engine.web.app import create_app
 from study_engine.web.dependencies import AppContainer, set_container
 
@@ -248,19 +256,80 @@ def test_chat_query_root_global_greeting(client_with_setup):
     assert "Entorno de estudio" in complete_ev["payload"]["decision"]["message"]
 
 
-def test_chat_sse_sends_validated_curriculum_profile_to_backend(
-    client_with_setup, monkeypatch
+@pytest.mark.parametrize(
+    (
+        "notebook_id",
+        "curriculum_id",
+        "expected_subject",
+        "expected_guidance",
+    ),
+    [
+        (
+            "fase0-soc",
+            "roadmap_kasiu_v4_fase0",
+            "Programación y Pensamiento Algorítmico",
+            "traza o pseudocódigo",
+        ),
+        (
+            "fadena-lenguajes",
+            "fadena_lenguajes_2026",
+            "Lenguajes de Programación",
+            "pseudocódigo, C, programación",
+        ),
+        (
+            "fadena-so2",
+            "fadena_so2_2026",
+            "Sistemas Operativos II",
+            "estados, intercalaciones",
+        ),
+        (
+            "fadena-std",
+            "fadena_std_2026",
+            "Sistema de Tratamiento de Datos",
+            "no conviertas toda explicación en SQL",
+        ),
+        (
+            "fadena-teleco",
+            "fadena_teleco_2025",
+            "Infraestructura de Telecomunicaciones",
+            "Señales, capas",
+        ),
+        (
+            "fadena-so2-extra",
+            "fadena_so2_2026",
+            None,
+            None,
+        ),
+    ],
+)
+def test_chat_sse_sends_only_the_exact_curriculum_profile_to_backend(
+    client_with_setup,
+    monkeypatch,
+    notebook_id,
+    curriculum_id,
+    expected_subject,
+    expected_guidance,
 ):
     client, container, _, _ = client_with_setup
     store = container.knowledge_store
-    notebook_id = "fadena-std"
     with store.engine.transaction() as conn:
         row = conn.execute(
             "SELECT subject, curriculum_id FROM notebooks WHERE id = ?",
             (notebook_id,),
         ).fetchone()
-    assert row is not None
-    previous_subject, previous_curriculum_id = row
+    created_notebook = row is None
+    if created_notebook:
+        store.create_notebook(
+            Notebook(
+                id=notebook_id,
+                name=f"Gate 2 test notebook {notebook_id}",
+                subject="Gate 2 test subject",
+                curriculum_id=curriculum_id,
+            )
+        )
+        previous_subject, previous_curriculum_id = None, None
+    else:
+        previous_subject, previous_curriculum_id = row
 
     class CapturingBackend:
         def __init__(self):
@@ -287,19 +356,32 @@ def test_chat_sse_sends_validated_curriculum_profile_to_backend(
         conn.execute(
             "UPDATE notebooks SET subject = ?, curriculum_id = ? WHERE id = ?",
             (
-                "Sistema de Tratamiento de Datos",
-                "fadena_std_2026",
+                expected_subject or "Unmapped test subject",
+                curriculum_id,
                 notebook_id,
             ),
         )
 
     from study_engine.web.routes import chat as chat_route
 
+    assembled_scopes = []
+
+    def assemble_test_context(**kwargs):
+        assembled_scopes.append(kwargs["target_notebook_id"])
+        return (
+            chat_route.EpistemicContextPack(
+                formatted_context="[E1] El concepto está respaldado por material de prueba.",
+                citations=["[E1] Material curricular de prueba, pág. 1"],
+                chunks=evidence,
+            ),
+            evidence,
+        )
+
     evidence = [
         {
             "id": "E1",
-            "chunk_text": "El modelo relacional organiza los datos en relaciones.",
-            "source_id": "src_std_test",
+            "chunk_text": "El concepto está respaldado por material de prueba.",
+            "source_id": "src_gate2_test",
             "source_title": "Material curricular de prueba",
             "page_start": 1,
             "score": 0.95,
@@ -308,9 +390,121 @@ def test_chat_sse_sends_validated_curriculum_profile_to_backend(
     monkeypatch.setattr(
         chat_route,
         "_assemble_epistemic_context",
+        assemble_test_context,
+    )
+    monkeypatch.setattr(
+        chat_route,
+        "_resolve_chat_backend",
+        lambda *_args, **_kwargs: backend,
+    )
+
+    try:
+        response = client.post(
+            "/api/chat/query",
+            json={
+                "prompt": "¿Qué significa este concepto?",
+                "scope_type": "notebook",
+                "scope_id": notebook_id,
+                "requested_phase": "conceptual",
+                "session_id": f"validated-curriculum-profile-{notebook_id}",
+            },
+        )
+    finally:
+        if created_notebook:
+            store.delete_notebook(notebook_id)
+        else:
+            with store.engine.transaction() as conn:
+                conn.execute(
+                    "UPDATE notebooks SET subject = ?, curriculum_id = ? WHERE id = ?",
+                    (previous_subject, previous_curriculum_id, notebook_id),
+                )
+
+    assert response.status_code == 200
+    assert backend.calls
+    assert assembled_scopes == [notebook_id]
+    system_prompt = backend.calls[0]["system_prompt"]
+    assert "x86-64" not in system_prompt
+    if expected_subject is None:
+        assert "PERFIL CURRICULAR VALIDADO" not in system_prompt
+    else:
+        assert f"Materia: {expected_subject}" in system_prompt
+        assert f"curriculum_id: {curriculum_id}" in system_prompt
+        assert expected_guidance in system_prompt
+        for other_profile in (
+            "Programación y Pensamiento Algorítmico",
+            "Lenguajes de Programación",
+            "Sistemas Operativos II",
+            "Sistema de Tratamiento de Datos",
+            "Infraestructura de Telecomunicaciones",
+        ):
+            if other_profile != expected_subject:
+                assert other_profile not in system_prompt
+
+
+def test_chat_sse_preserves_custom_contract_and_explicit_turn_request(
+    client_with_setup, monkeypatch
+):
+    client, container, _, _ = client_with_setup
+    store = container.knowledge_store
+    notebook_id = "fadena-std"
+    had_custom_contract = store.contains_pedagogical_contract(notebook_id)
+    previous_contract = (
+        store.get_pedagogical_contract(notebook_id) if had_custom_contract else None
+    )
+    custom_contract = PedagogicalContract(
+        notebook_id=notebook_id,
+        base_system_prompt="CUSTOM GATE2 CONTRACT: preserve this exact tutoring policy.",
+        response_phases=[
+            ResponsePhase(
+                phase_id="conceptual",
+                phase_prompt_template="Answer the requested concept: {user_query}",
+                max_tokens=600,
+            )
+        ],
+    )
+    store.save_pedagogical_contract(custom_contract)
+
+    class CapturingBackend:
+        def __init__(self):
+            self.calls = []
+
+        async def stream(
+            self,
+            system_prompt,
+            user_prompt,
+            phase_id=None,
+            context=None,
+            max_tokens=None,
+        ):
+            self.calls.append(
+                {
+                    "system_prompt": system_prompt,
+                    "user_prompt": user_prompt,
+                    "context": context,
+                }
+            )
+            yield "Respuesta de prueba [E1]."
+
+    backend = CapturingBackend()
+    from study_engine.web.routes import chat as chat_route
+
+    evidence = [
+        {
+            "id": "E1",
+            "chunk_text": "Evidencia de prueba para el turno.",
+            "source_id": "src_gate2_custom_test",
+            "source_title": "Material curricular de prueba",
+            "page_start": 1,
+            "score": 0.95,
+        }
+    ]
+
+    monkeypatch.setattr(
+        chat_route,
+        "_assemble_epistemic_context",
         lambda **_: (
             chat_route.EpistemicContextPack(
-                formatted_context="[E1] El modelo relacional organiza los datos en relaciones.",
+                formatted_context="[E1] Evidencia de prueba para el turno.",
                 citations=["[E1] Material curricular de prueba, pág. 1"],
                 chunks=evidence,
             ),
@@ -327,25 +521,404 @@ def test_chat_sse_sends_validated_curriculum_profile_to_backend(
         response = client.post(
             "/api/chat/query",
             json={
-                "prompt": "¿Qué es el modelo relacional?",
+                "prompt": "Explicá el modelo relacional en una frase y sin código.",
                 "scope_type": "notebook",
                 "scope_id": notebook_id,
                 "requested_phase": "conceptual",
-                "session_id": "validated-curriculum-profile",
+                "session_id": "gate2-custom-contract-precedence",
             },
         )
     finally:
-        with store.engine.transaction() as conn:
-            conn.execute(
-                "UPDATE notebooks SET subject = ?, curriculum_id = ? WHERE id = ?",
-                (previous_subject, previous_curriculum_id, notebook_id),
-            )
+        if had_custom_contract:
+            store.save_pedagogical_contract(previous_contract)
+        else:
+            store.delete_pedagogical_contract(notebook_id)
 
     assert response.status_code == 200
     assert backend.calls
     system_prompt = backend.calls[0]["system_prompt"]
-    assert "Materia: Sistema de Tratamiento de Datos" in system_prompt
-    assert "curriculum_id: fadena_std_2026" in system_prompt
-    assert "no conviertas toda explicación en SQL" in system_prompt
-    assert "Lenguajes de Programación" not in system_prompt
-    assert "x86-64" not in system_prompt
+    assert "CUSTOM GATE2 CONTRACT" in system_prompt
+    assert "PERFIL CURRICULAR VALIDADO" not in system_prompt
+    assert "en una frase y sin código" in backend.calls[0]["user_prompt"]
+
+
+def test_chat_sse_retrieves_only_sources_authorized_for_notebook_scope(
+    client_with_setup, monkeypatch
+):
+    client, container, _, _ = client_with_setup
+    store = container.knowledge_store
+    target_notebook_id = "fadena-std"
+    fixture_id = uuid4().hex
+    foreign_notebook_id = f"gate2-acl-foreign-{fixture_id}"
+    target_source_id = f"src_gate2_acl_target_{fixture_id}"
+    foreign_source_id = f"src_gate2_acl_foreign_{fixture_id}"
+    target_document_id = f"doc_gate2_acl_target_{fixture_id}"
+    foreign_document_id = f"doc_gate2_acl_foreign_{fixture_id}"
+    notebook_created = not store.contains_notebook(target_notebook_id)
+    foreign_notebook_created = False
+    notebook_identity = None
+    target_source_saved = False
+    foreign_source_saved = False
+    had_custom_contract = store.contains_pedagogical_contract(target_notebook_id)
+    previous_contract = (
+        store.get_pedagogical_contract(target_notebook_id)
+        if had_custom_contract
+        else None
+    )
+
+    if notebook_created:
+        store.create_notebook(
+            Notebook(
+                id=target_notebook_id,
+                name="Gate 2 temporary data notebook",
+                subject="Sistema de Tratamiento de Datos",
+                curriculum_id="fadena_std_2026",
+            )
+        )
+    else:
+        target_notebook = store.get_notebook(target_notebook_id)
+        notebook_identity = (target_notebook.subject, target_notebook.curriculum_id)
+
+    target_subject = "Sistema de Tratamiento de Datos"
+    target_curriculum_id = "fadena_std_2026"
+    assert not store.sources.contains(target_source_id)
+    assert not store.sources.contains(foreign_source_id)
+    with store.engine.transaction() as conn:
+        conn.execute(
+            "UPDATE notebooks SET subject = ?, curriculum_id = ? WHERE id = ?",
+            (target_subject, target_curriculum_id, target_notebook_id),
+        )
+
+    if not store.contains_notebook(foreign_notebook_id):
+        store.create_notebook(
+            Notebook(
+                id=foreign_notebook_id,
+                name="Gate 2 foreign scope",
+            )
+        )
+        foreign_notebook_created = True
+
+    class CapturingBackend:
+        def __init__(self):
+            self.calls = []
+
+        async def stream(
+            self,
+            system_prompt,
+            user_prompt,
+            phase_id=None,
+            context=None,
+            max_tokens=None,
+        ):
+            self.calls.append(
+                {
+                    "system_prompt": system_prompt,
+                    "user_prompt": user_prompt,
+                    "context": context,
+                }
+            )
+            yield "El marcador gate2aclmarker identifica el registro autorizado [E1]."
+
+    backend = CapturingBackend()
+    from study_engine.web.routes import chat as chat_route
+
+    try:
+        if had_custom_contract:
+            store.delete_pedagogical_contract(target_notebook_id)
+
+        for source_id, document_id, content in (
+            (
+                target_source_id,
+                target_document_id,
+                "El marcador gate2aclmarker identifica el registro de datos autorizado TARGET_ONLY.",
+            ),
+            (
+                foreign_source_id,
+                foreign_document_id,
+                "El marcador gate2aclmarker contiene información no autorizada FOREIGN_SECRET.",
+            ),
+        ):
+            store.sources.save(
+                SourceRecord(
+                    source_id=source_id,
+                    manifest=SourceManifest(
+                        source_id=source_id,
+                        filename=f"{source_id}.txt",
+                        byte_size=len(content.encode("utf-8")),
+                        sha256=hashlib.sha256(content.encode("utf-8")).hexdigest(),
+                        file_path=None,
+                        media_type="text/plain",
+                    ),
+                )
+            )
+            if source_id == target_source_id:
+                target_source_saved = True
+                store.link_source_to_notebook(target_notebook_id, source_id)
+            else:
+                foreign_source_saved = True
+                store.link_source_to_notebook(foreign_notebook_id, source_id)
+            store.documents.save(
+                Document(
+                    id=document_id,
+                    source_id=source_id,
+                    title=f"Gate 2 fixture {source_id}",
+                    content=content,
+                )
+            )
+            store.chunks.save_chunks(
+                [
+                    Chunk(
+                        id=f"chunk_{source_id}",
+                        document_id=document_id,
+                        source_id=source_id,
+                        content=content,
+                        page_start=1,
+                        page_end=1,
+                    )
+                ]
+            )
+
+        monkeypatch.setattr(
+            chat_route,
+            "_resolve_chat_backend",
+            lambda *_args, **_kwargs: backend,
+        )
+        response = client.post(
+            "/api/chat/query",
+            json={
+                "prompt": "¿Qué indica el marcador gate2aclmarker?",
+                "scope_type": "notebook",
+                "scope_id": target_notebook_id,
+                "active_sources": [target_source_id, foreign_source_id],
+                "requested_phase": "conceptual",
+                "session_id": f"gate2-real-source-allowlist-{fixture_id}",
+            },
+        )
+    finally:
+        if target_source_saved:
+            store.unlink_source_from_notebook(target_notebook_id, target_source_id)
+            store.delete_source(target_source_id)
+        if foreign_source_saved:
+            store.unlink_source_from_notebook(foreign_notebook_id, foreign_source_id)
+            store.delete_source(foreign_source_id)
+        if foreign_notebook_created:
+            store.delete_notebook(foreign_notebook_id)
+        if notebook_created:
+            store.delete_notebook(target_notebook_id)
+        else:
+            with store.engine.transaction() as conn:
+                conn.execute(
+                    "UPDATE notebooks SET subject = ?, curriculum_id = ? WHERE id = ?",
+                    (*notebook_identity, target_notebook_id),
+                )
+            if previous_contract is not None:
+                store.save_pedagogical_contract(previous_contract)
+
+    assert response.status_code == 200
+    assert backend.calls
+    captured_prompt = backend.calls[0]["user_prompt"]
+    assert "TARGET_ONLY" in captured_prompt
+    assert "FOREIGN_SECRET" not in captured_prompt
+    assert target_source_id in captured_prompt
+    assert foreign_source_id not in captured_prompt
+    assert (
+        "Materia: Sistema de Tratamiento de Datos" in backend.calls[0]["system_prompt"]
+    )
+
+    events = [
+        json.loads(line[6:])
+        for line in response.text.splitlines()
+        if line.startswith("data: ")
+    ]
+    complete_events = [
+        event for event in events if event["event_type"] == "phase_complete"
+    ]
+    assert complete_events
+    provenance = complete_events[-1]["payload"]["evidence_provenance"]
+    assert provenance
+    assert {item["source_id"] for item in provenance} == {target_source_id}
+
+
+def test_fadena_std_real_corpus_isolation_on_temporary_database_copy(
+    tmp_path, monkeypatch
+):
+    """Exercise actual fadena-std ACL, retrieval, provenance and SSE on a DB copy."""
+    import sqlite3
+
+    from study_engine.web import dependencies as dependencies_module
+
+    original_db = Path("data/web_state/knowledge_store.db").resolve()
+    if not original_db.is_file():
+        pytest.skip("Local KnowledgeStore database is not available for the pilot.")
+
+    def file_sha256(path):
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+        return digest.hexdigest()
+
+    original_hash_before = file_sha256(original_db)
+    original_wal = Path(f"{original_db}-wal")
+    original_wal_hash_before = (
+        file_sha256(original_wal) if original_wal.is_file() else None
+    )
+    copied_db = tmp_path / "knowledge_store.db"
+    source_uri = f"file:{original_db.as_posix()}?mode=ro"
+    with sqlite3.connect(source_uri, uri=True) as source_conn:
+        with sqlite3.connect(copied_db) as copy_conn:
+            source_conn.backup(copy_conn)
+
+    with sqlite3.connect(copied_db) as copy_conn:
+        assert copy_conn.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert (
+            copy_conn.execute(
+                "SELECT COUNT(*) FROM notebook_sources WHERE notebook_id = ?",
+                ("fadena-std",),
+            ).fetchone()[0]
+            == 30
+        )
+
+    monkeypatch.setattr(AppContainer, "_seed_curriculum_tree", lambda *_args: None)
+    app = create_app()
+    container = AppContainer(
+        repo_root=Path.cwd(),
+        working_dir=tmp_path,
+        use_mock=True,
+    )
+    monkeypatch.setattr(dependencies_module, "_container", container)
+    store = container.knowledge_store
+    assert store.engine.db_path.resolve() == copied_db.resolve()
+
+    target_notebook_id = "fadena-std"
+    target_source_id = "src_fadena_std_unidad1"
+    foreign_notebook_id = "fadena-lenguajes"
+    foreign_source_id = "src_fadena_leng_clase2"
+    target_sources = {
+        source.source_id for source in store.list_notebook_sources(target_notebook_id)
+    }
+    foreign_sources = {
+        source.source_id for source in store.list_notebook_sources(foreign_notebook_id)
+    }
+    assert target_source_id in target_sources
+    assert foreign_source_id in foreign_sources
+    assert foreign_source_id not in target_sources
+
+    with store.engine.transaction() as conn:
+        notebook_before = conn.execute(
+            "SELECT curriculum_id FROM notebooks WHERE id = ?",
+            (target_notebook_id,),
+        ).fetchone()[0]
+        associations_before = conn.execute(
+            "SELECT source_id FROM notebook_sources WHERE notebook_id = ? ORDER BY source_id",
+            (target_notebook_id,),
+        ).fetchall()
+        contracts_before = conn.execute(
+            "SELECT COUNT(*) FROM pedagogical_contracts WHERE notebook_id = ?",
+            (target_notebook_id,),
+        ).fetchone()[0]
+
+    assert notebook_before == "fadena_v1"
+    assert contracts_before == 0
+
+    class CapturingBackend:
+        def __init__(self):
+            self.calls = []
+
+        async def stream(
+            self,
+            system_prompt,
+            user_prompt,
+            phase_id=None,
+            context=None,
+            max_tokens=None,
+        ):
+            self.calls.append(
+                {
+                    "system_prompt": system_prompt,
+                    "user_prompt": user_prompt,
+                    "context": context,
+                }
+            )
+            yield "Un dato adquiere significado al organizarse como información [E1]."
+
+    backend = CapturingBackend()
+    from study_engine.web.routes import chat as chat_route
+
+    search_calls = []
+    original_search_hybrid = store.search_hybrid
+
+    def observe_search_hybrid(*args, **kwargs):
+        if kwargs.get("notebook_id") == target_notebook_id:
+            search_calls.append(
+                {
+                    "notebook_id": kwargs["notebook_id"],
+                    "source_ids": set(kwargs.get("source_ids") or []),
+                }
+            )
+        return original_search_hybrid(*args, **kwargs)
+
+    monkeypatch.setattr(store, "search_hybrid", observe_search_hybrid)
+    monkeypatch.setattr(
+        chat_route,
+        "_resolve_chat_backend",
+        lambda *_args, **_kwargs: backend,
+    )
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/chat/query",
+        json={
+            "prompt": "¿Qué diferencia hay entre dato, información y conocimiento?",
+            "scope_type": "notebook",
+            "scope_id": target_notebook_id,
+            "active_sources": [target_source_id, foreign_source_id],
+            "requested_phase": "conceptual",
+            "session_id": "gate2-fadena-std-real-copy",
+        },
+    )
+
+    assert response.status_code == 200
+    assert search_calls
+    assert all(call["notebook_id"] == target_notebook_id for call in search_calls)
+    assert all(target_source_id in call["source_ids"] for call in search_calls)
+    assert all(foreign_source_id not in call["source_ids"] for call in search_calls)
+
+    assert backend.calls
+    backend_call = backend.calls[0]
+    assert "Dato, Información y Conocimiento" in backend_call["user_prompt"]
+    assert foreign_source_id not in backend_call["user_prompt"]
+    assert "FOREIGN_SECRET" not in backend_call["user_prompt"]
+    # The copied DB still has the unapproved generic identity; the current
+    # fallback must remain neutral rather than silently activating a profile.
+    assert "PERFIL CURRICULAR VALIDADO" not in backend_call["system_prompt"]
+
+    events = [
+        json.loads(line[6:])
+        for line in response.text.splitlines()
+        if line.startswith("data: ")
+    ]
+    assert any(event["event_type"] == "phase_complete" for event in events)
+    complete = next(
+        event for event in events if event["event_type"] == "phase_complete"
+    )
+    provenance = complete["payload"]["evidence_provenance"]
+    assert provenance
+    assert {item["source_id"] for item in provenance} == {target_source_id}
+    assert all(item["citation_id"] for item in provenance)
+    assert all(item["doc_hash"] for item in provenance)
+
+    with store.engine.transaction() as conn:
+        notebook_after = conn.execute(
+            "SELECT curriculum_id FROM notebooks WHERE id = ?",
+            (target_notebook_id,),
+        ).fetchone()[0]
+        associations_after = conn.execute(
+            "SELECT source_id FROM notebook_sources WHERE notebook_id = ? ORDER BY source_id",
+            (target_notebook_id,),
+        ).fetchall()
+    assert notebook_after == notebook_before
+    assert associations_after == associations_before
+    assert file_sha256(original_db) == original_hash_before
+    if original_wal_hash_before is not None:
+        assert file_sha256(original_wal) == original_wal_hash_before

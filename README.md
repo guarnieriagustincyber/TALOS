@@ -6,60 +6,58 @@ Motor de estudio y tutoría inteligente basado en evidencia y arquitectura multi
 
 ```text
 study-engine/
-│
 ├── README.md
 ├── pyproject.toml
 ├── requirements.txt
-├── .gitignore
-├── .env.example
-│
-├── docs/
-│   ├── 01-SPEC-V1.0.md
-│   ├── 02-ADVERSARIAL-AUDIT.md
-│   ├── 03-EXECUTION-PLAN-V1.0.md
-│   └── 04-DEVELOPMENT-SAFETY-POLICY.md
-│
-├── src/
-│   └── study_engine/
-│       ├── __init__.py
-│       │
-│       ├── ingestion/
-│       ├── retrieval/
-│       ├── evidence/
-│       ├── context/
-│       ├── llm/
-│       ├── tutor/
-│       ├── tester/
-│       └── quality/
-│
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   ├── contract/
-│   ├── security/
-│   └── protected/
-│
-├── scripts/
-│   ├── test.sh
-│   ├── quality_gate.py
-│   └── context_pack.py
-│
-├── configs/
-│   └── .gitkeep
-│
+├── requirements.lock
+├── config/
 ├── data/
-│   ├── fixtures/
-│   └── benchmark/
-│
-├── state/
-│   └── .gitkeep
-│
-├── logs/
-│   └── .gitkeep
-│
-└── docker/
-    └── .gitkeep
+├── docs/
+├── scripts/
+├── src/study_engine/  # paquetes Python
+├── tests/             # suites clasificadas en config/test_perimeter.json
+└── ...
 ```
+
+El árbol omite los directorios de build y caché, y no enumera todos los
+archivos. Los paquetes reales de primer nivel de
+`src/study_engine/` son: `adapters`, `assessment`, `audit`, `context`,
+`contracts`, `curriculum`, `diagnostics`, `evidence`, `execution`,
+`federation`, `generation`, `hierarchy`, `ingestion`, `llm`, `memory`,
+`metrics`, `pedagogy`, `quality`, `retrieval`, `roadmap`, `security`,
+`session`, `state`, `storage`, `student`, `tester`, `tutor`, `utils` y `web`.
+
+Las suites de primer nivel bajo `tests/` son: `adversarial`, `benchmark`,
+`ci`, `cli`, `context`, `contract`, `experiments`, `hierarchy`,
+`integration`, `llm`, `llm_pool`, `memory`, `pedagogy`, `performance`,
+`protected`, `retrieval`, `security`, `session`, `storage`, `survival`,
+`system`, `unit`, `utils` y `web`; `fixtures` contiene datos compartidos.
+El manifiesto
+[`config/test_perimeter.json`](config/test_perimeter.json) clasifica las suites:
+`performance` y `survival` son de cualificación requerida, `utils` es
+support-only, y los dos módulos live/network de `integration` son opcionales.
+El resto de las suites listadas es requerido. El
+[contrato del perímetro](docs/TEST_CERTIFICATION_PERIMETER.md) define el
+alcance exacto.
+
+## Instalación y dependencias
+
+`pyproject.toml` es la fuente declarativa única de dependencias runtime y extras.
+`requirements.lock` es el lock generado para desarrollo, pruebas y todos los
+extras; se regenera con la versión de `uv` y el comando registrados en
+[`docs/DEPENDENCY_REPRODUCIBILITY.md`](docs/DEPENDENCY_REPRODUCIBILITY.md).
+`requirements.txt` es una lista parcial obsoleta, no una vía de instalación
+soportada.
+
+Para instalar el entorno de desarrollo desde el proyecto:
+
+```bash
+python -m pip install -e \
+  ".[dev,gate2-diagnostics,experiments,local-inference]"
+```
+
+Para reconstruir el entorno bloqueado, consulta el procedimiento reproducible;
+no instales encima del `.venv` existente durante esa verificación.
 
 ## Documentación
 
@@ -70,3 +68,5 @@ Consultar el directorio [`docs/`](docs/) para especificaciones completas:
 - [`docs/02-ADVERSARIAL-AUDIT.md`](docs/02-ADVERSARIAL-AUDIT.md): Auditoría adversarial.
 - [`docs/03-EXECUTION-PLAN-V1.0.md`](docs/03-EXECUTION-PLAN-V1.0.md): Plan de ejecución incremental y certificación.
 - [`docs/04-DEVELOPMENT-SAFETY-POLICY.md`](docs/04-DEVELOPMENT-SAFETY-POLICY.md): Política de seguridad y desarrollo.
+- [`docs/TEST_CERTIFICATION_PERIMETER.md`](docs/TEST_CERTIFICATION_PERIMETER.md): perímetro y significado de los perfiles de prueba.
+- [`docs/DEPENDENCY_REPRODUCIBILITY.md`](docs/DEPENDENCY_REPRODUCIBILITY.md): lock e instalación reproducible.

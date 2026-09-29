@@ -11,9 +11,9 @@ from study_engine.web.dependencies import AppContainer, set_container
 
 
 @pytest.mark.integration
-def test_concurrent_llm_calls() -> None:
+def test_concurrent_llm_calls(web_state_test_copy) -> None:
     """Verificar que múltiples requests concurrentes a /api/chat/query no bloquean el servidor ni el event loop."""
-    container = AppContainer(use_mock=True)
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     set_container(container)
     app = create_app()
 

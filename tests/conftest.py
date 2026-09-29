@@ -9,6 +9,50 @@ from study_engine.contracts.ingestion import SourceManifest
 from study_engine.contracts.source import Source, SourceRole
 
 
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+@pytest.fixture(scope="session")
+def web_state_test_copy(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Provide a verified snapshot for tests needing the populated web state."""
+    source_dir = Path(__file__).resolve().parents[1] / "data/web_state"
+    snapshot_dir = tmp_path_factory.mktemp("web_state_test_copy")
+
+    for filename in ("knowledge_store.db", "vector_store.db"):
+        source = source_dir / filename
+        if not source.is_file():
+            raise FileNotFoundError(
+                f"Required web-state test database is missing: {source}"
+            )
+
+        wal_path = Path(f"{source}-wal")
+        if wal_path.exists() and wal_path.stat().st_size:
+            raise RuntimeError(
+                "Cannot snapshot web-state database with a non-empty WAL: "
+                f"{wal_path}"
+            )
+
+        source_hash = _sha256(source)
+        snapshot = snapshot_dir / filename
+        shutil.copyfile(source, snapshot)
+        if wal_path.exists() and wal_path.stat().st_size:
+            raise RuntimeError(
+                "Web-state database WAL became non-empty during snapshot: "
+                f"{wal_path}"
+            )
+        if _sha256(source) != source_hash or _sha256(snapshot) != source_hash:
+            raise RuntimeError(
+                "Web-state database changed while creating its test snapshot: "
+                f"{filename}"
+            )
+    return snapshot_dir
+
+
 @pytest.fixture(scope="session")
 def knowledge_store_test_copy(
     tmp_path_factory: pytest.TempPathFactory,
@@ -24,14 +68,7 @@ def knowledge_store_test_copy(
             f"Cannot snapshot knowledge store with a non-empty WAL: {wal_path}"
         )
 
-    def sha256(path: Path) -> str:
-        digest = hashlib.sha256()
-        with path.open("rb") as handle:
-            for block in iter(lambda: handle.read(1024 * 1024), b""):
-                digest.update(block)
-        return digest.hexdigest()
-
-    source_hash = sha256(source)
+    source_hash = _sha256(source)
     snapshot = tmp_path_factory.mktemp("knowledge_store_test_copy") / source.name
     shutil.copyfile(source, snapshot)
 
@@ -39,7 +76,7 @@ def knowledge_store_test_copy(
         raise RuntimeError(
             f"Knowledge store WAL became non-empty during snapshot: {wal_path}"
         )
-    if sha256(source) != source_hash or sha256(snapshot) != source_hash:
+    if _sha256(source) != source_hash or _sha256(snapshot) != source_hash:
         raise RuntimeError(
             "Knowledge store changed while creating its test snapshot"
         )

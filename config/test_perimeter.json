@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "suites": [
+    {
+      "path": "tests/adversarial",
+      "classification": "required",
+      "reason": "Deterministic adversarial and abuse-resistance regressions."
+    },
+    {
+      "path": "tests/benchmark",
+      "classification": "required",
+      "reason": "Hermetic benchmark evaluator and fixture-contract tests; not live benchmark runs."
+    },
+    {
+      "path": "tests/ci",
+      "classification": "required",
+      "reason": "Repository and test-perimeter integrity checks."
+    },
+    {
+      "path": "tests/cli",
+      "classification": "required",
+      "reason": "Local command-line behavior and output contracts."
+    },
+    {
+      "path": "tests/context",
+      "classification": "required",
+      "reason": "Deterministic context compilation and intent-routing behavior."
+    },
+    {
+      "path": "tests/contract",
+      "classification": "required",
+      "reason": "Public schemas, boundaries, and architectural contracts."
+    },
+    {
+      "path": "tests/experiments",
+      "classification": "required",
+      "reason": "Hermetic experiment fixture and protocol regressions; generated/live evaluations are outside this suite."
+    },
+    {
+      "path": "tests/hierarchy",
+      "classification": "required",
+      "reason": "Local hierarchy and migration contract tests."
+    },
+    {
+      "path": "tests/integration",
+      "classification": "required",
+      "reason": "Hermetic integration tests are required; only the separately listed network/live modules are optional."
+    },
+    {
+      "path": "tests/llm",
+      "classification": "required",
+      "reason": "Provider and backend tests use controlled local substitutes, not live model calls."
+    },
+    {
+      "path": "tests/llm_pool",
+      "classification": "required",
+      "reason": "Local provider-pool and circuit-breaker behavior."
+    },
+    {
+      "path": "tests/memory",
+      "classification": "required",
+      "reason": "Deterministic memory extraction and persistence contracts."
+    },
+    {
+      "path": "tests/pedagogy",
+      "classification": "required",
+      "reason": "Deterministic pedagogical pipeline, phase, and streaming contracts."
+    },
+    {
+      "path": "tests/performance",
+      "classification": "qualification-required",
+      "reason": "Controlled resource and latency qualification; report results with hardware and runtime context."
+    },
+    {
+      "path": "tests/protected",
+      "classification": "required",
+      "reason": "Protected artifact integrity and trust-root verification."
+    },
+    {
+      "path": "tests/retrieval",
+      "classification": "required",
+      "reason": "Hermetic retrieval behavior and fixture-based ranking contracts."
+    },
+    {
+      "path": "tests/security",
+      "classification": "required",
+      "reason": "Deterministic security and input-isolation regressions."
+    },
+    {
+      "path": "tests/session",
+      "classification": "required",
+      "reason": "Local session and submission lifecycle contracts."
+    },
+    {
+      "path": "tests/storage",
+      "classification": "required",
+      "reason": "Local storage and SQLite behavior; protected live data must remain isolated."
+    },
+    {
+      "path": "tests/survival",
+      "classification": "qualification-required",
+      "reason": "Controlled resilience qualification; report results with resource and runtime context."
+    },
+    {
+      "path": "tests/system",
+      "classification": "required",
+      "reason": "Deterministic system boundary and authority-chain contracts."
+    },
+    {
+      "path": "tests/unit",
+      "classification": "required",
+      "reason": "Deterministic unit behavior and component contracts."
+    },
+    {
+      "path": "tests/utils",
+      "classification": "support-only",
+      "reason": "Contains a fixture helper class with __test__ = False, not pytest test cases."
+    },
+    {
+      "path": "tests/web",
+      "classification": "required",
+      "reason": "Local web/API behavior without live external services."
+    }
+  ],
+  "module_overrides": [
+    {
+      "path": "tests/integration/test_llm_latency.py",
+      "classification": "optional",
+      "reason": "Requires live network access; run separately with a recorded provider, credentials, and network configuration."
+    },
+    {
+      "path": "tests/integration/test_study_loop_real_llm.py",
+      "classification": "optional",
+      "reason": "Requires KASIU_LIVE_TESTS=1 and GEMINI_API_KEY; run separately as a live-model evaluation."
+    }
+  ]
+}

@@ -12,6 +12,7 @@ Validates all required endpoints:
 """
 
 from typing import Generator
+from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
@@ -20,9 +21,9 @@ from study_engine.web.dependencies import AppContainer, set_container
 
 
 @pytest.fixture(scope="module")
-def api_client() -> Generator[TestClient, None, None]:
+def api_client(web_state_test_copy: Path) -> Generator[TestClient, None, None]:
     """Provide a TestClient bound to a deterministic, mock-enabled test container."""
-    container = AppContainer(use_mock=True)
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     set_container(container)
     app = create_app()
     with TestClient(app) as client:
@@ -323,4 +324,3 @@ def test_session_endpoints_decommissioned_return_410_gone(api_client: TestClient
     )
     assert submit_res.status_code == 410
     assert submit_res.json()["error"] == "ENDPOINT_RETIRED"
-

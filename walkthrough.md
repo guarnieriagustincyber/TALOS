@@ -1,5 +1,13 @@
 # Walkthrough: Cierre Definitivo Tier-0 y Reconciliación de Suites (2.380 Tests)
 
+> **Registro histórico:** este walkthrough conserva el perímetro y los
+> resultados del cierre Tier-0 al momento de su ejecución. La invocación
+> histórica `pytest tests/` y sus cifras no son el contrato normativo actual.
+> El perímetro vigente está en
+> [`docs/TEST_CERTIFICATION_PERIMETER.md`](docs/TEST_CERTIFICATION_PERIMETER.md)
+> y su manifiesto en `config/test_perimeter.json`; el gate vigente es
+> `scripts/test.sh`.
+
 Cierre formal, definitivo y consolidado del slice **Tier-0**, con todas las compuertas reconciliadas a nivel repositorio en **una sola invocación `pytest tests/`** (2.372 passed, 8 skipped, 0 failed), aislamiento de entorno, tests dinámicos contra contratos vivos, evaluación en vivo del **Golden Set v1 (18/18 PASS)** y registro del backlog técnico.
 
 ---

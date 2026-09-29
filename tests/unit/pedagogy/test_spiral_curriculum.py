@@ -173,7 +173,7 @@ def test_bkt_tracker_polymorphism():
     assert opps[0]["retro_mastery"] == 0.68
 
 
-def test_chat_integration_spiral_directive_injected(caplog):
+def test_chat_integration_spiral_directive_injected(caplog, web_state_test_copy):
     """Verifica que _prepare_chat_context inyecte la directiva espiral y emita log forense."""
     import logging
     from study_engine.contracts.notebook import Notebook
@@ -183,7 +183,7 @@ def test_chat_integration_spiral_directive_injected(caplog):
     from study_engine.web.routes.chat import ChatQueryRequest, _prepare_chat_context
     from datetime import datetime, timezone
 
-    container = AppContainer(use_mock=True)
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     container.pedagogical_orchestrator._kc_catalog["fase0-soc"] = {
         "kcs": [{"kc_id": "race_conditions", "title": "Race Conditions"}]
     }
@@ -233,14 +233,14 @@ def test_chat_integration_spiral_directive_injected(caplog):
     assert found_log, "Debe registrarse el log forense SPIRAL_OPPORTUNITY_DETECTED"
 
 
-def test_struggle_precedence_over_spiral():
+def test_struggle_precedence_over_spiral(web_state_test_copy):
     """Verifica que ante struggle_active, el Protocolo de Lucha prevalezca y NO se inyecte la espiral."""
     from study_engine.student.contracts import BKTState
     from study_engine.web.dependencies import AppContainer
     from study_engine.web.routes.chat import ChatQueryRequest, _prepare_chat_context
     from datetime import datetime, timezone
 
-    container = AppContainer(use_mock=True)
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     container.pedagogical_orchestrator._kc_catalog["fase0-soc"] = {
         "kcs": [{"kc_id": "race_conditions", "title": "Race Conditions"}]
     }
@@ -283,7 +283,9 @@ def test_struggle_precedence_over_spiral():
     assert "=== PROFUNDIZACIÓN RETROACTIVA (CURRÍCULO EN ESPIRAL) ===" not in bkt_directive
 
 
-def test_evaluate_exercise_returns_spiral_opportunities(tmp_path):
+def test_evaluate_exercise_returns_spiral_opportunities(
+    tmp_path, web_state_test_copy
+):
     """Verifica que /api/chat/evaluate devuelva oportunidades en espiral tras acierto con P(L) >= 0.6."""
     import json
     from datetime import datetime, timezone
@@ -293,7 +295,7 @@ def test_evaluate_exercise_returns_spiral_opportunities(tmp_path):
     from study_engine.web.app import create_app
     from study_engine.web.dependencies import AppContainer, set_container
 
-    container = AppContainer(use_mock=True)
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     ex_file = tmp_path / "exercises.json"
     ex_file.write_text(json.dumps([{
         "exercise_id": "ex_spiral_1",
@@ -334,4 +336,3 @@ def test_evaluate_exercise_returns_spiral_opportunities(tmp_path):
     assert "spiral_opportunities" in data
     assert len(data["spiral_opportunities"]) >= 1
     assert data["spiral_opportunities"][0]["retroactive_kc"] == "punteros"
-

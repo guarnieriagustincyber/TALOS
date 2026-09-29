@@ -18,6 +18,7 @@ Checks tested:
 """
 
 import pytest
+from pathlib import Path
 from fastapi.testclient import TestClient
 
 from study_engine.web.app import create_app
@@ -25,9 +26,9 @@ from study_engine.web.dependencies import AppContainer, set_container
 
 
 @pytest.fixture
-def client() -> TestClient:
+def client(web_state_test_copy: Path) -> TestClient:
     app = create_app()
-    container = AppContainer(use_mock=True)
+    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     set_container(container)
     return TestClient(app)
 

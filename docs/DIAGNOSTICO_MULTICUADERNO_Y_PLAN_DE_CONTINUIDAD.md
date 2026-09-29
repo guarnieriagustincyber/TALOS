@@ -1,7 +1,7 @@
 # Diagnóstico multi-cuaderno de TALOS y plan para continuar
 
 **Fecha:** 2026-09-28
-**Base inspeccionada:** `main`, commit `ea060ad`
+**Base de la inspección inicial:** `main`, commit `ea060ad`
 **Propósito:** aclarar el alcance del historial de NotebookLM, auditar las fases
 de mejora pedagógica contra el código y definir las correcciones necesarias
 antes de avanzar.
@@ -14,13 +14,16 @@ estudiante y una política común de interacción. También existen configuracio
 curriculares distintas para programación, Sistemas Operativos, Tratamiento de
 Datos y Telecomunicaciones.
 
-Sin embargo, **la separación entre política pedagógica común y pedagogía
-específica del cuaderno todavía no está asegurada de punta a punta**. El
-fallback actual crea contratos para cuadernos nuevos copiando fases y analogías
-de la Fase 0 de programación; el prompt base conserva supuestos explícitos de
-C/x86-64; y las pruebas actuales no demuestran que el prompt final de cada
-cuaderno esté libre de directivas pedagógicas ajenas a su materia. Se encontró,
-además, una etiqueta de materia incorrecta para `fadena-std`.
+La inspección inicial encontró brechas en el fallback curricular, los supuestos
+del prompt base y la etiqueta de `fadena-std`. La revisión del árbol de trabajo
+del 2026-09-29 confirma que **los mecanismos centrales H1–H3 ya se corrigieron
+localmente**: el fallback es neutral, la selección exige identidad curricular
+exacta y `fadena-std` usa la etiqueta del catálogo. Se añadió una matriz de
+perfiles por HTTP/SSE hasta el prompt del backend, además de una prueba de
+precedencia del contrato custom y restricciones explícitas del turno. La
+separación pedagógica todavía no está aceptada de punta a punta: esas pruebas
+usan evidencia simulada; faltan la reconciliación de identidad/fuentes en los
+registros efectivos y la integración del retrieval/ACL real con el prompt.
 
 Por lo tanto:
 
@@ -36,11 +39,10 @@ Por lo tanto:
 - **F7:** pendiente. La evaluación futura debe cubrir varios currículos; una
   sola sesión de programación no valida el comportamiento multi-cuaderno.
 
-**Conclusión:** antes de considerar cerrada la implementación pedagógica o
-promocionar F5–F7, hay que corregir el perfil de fallback por cuaderno, eliminar
-supuestos de programación del camino común, resolver las contradicciones de
-política y terminar el gate de streaming. Después, la evaluación debe medir
-adaptación curricular además de calidad de respuesta.
+**Conclusión actualizada:** no repetir los fixes centrales H1–H3; completar la
+aceptación E2E del Gate B, luego cerrar F5 y F6 con sus gates, ejecutar la
+regresión consolidada y recién entonces preparar F7. La implementación local
+no es aceptación formal ni certificación del producto.
 
 ## 2. Cómo interpretar el historial de NotebookLM
 
@@ -133,69 +135,47 @@ cuaderno y currículum, la configuración de KCs/fuentes, el prompt/contrato
 pedagógico, el flujo SSE y pruebas representativas. Los hallazgos distinguen
 evidencia observada de cobertura todavía no demostrada.
 
-### H1 — El contrato de fallback hereda directivas de programación a otros cuadernos
+### H1 — Fallback curricular y directivas heredadas
 
-**Prioridad: P0 — corregir antes de cerrar adaptación multi-cuaderno.**
+**Hallazgo original: corregido en los mecanismos centrales; aceptación E2E pendiente.**
 
-- `Notebook` ofrece campos para `subject`, `curriculum_id`, fuentes y metadata
-  en [`contracts/notebook.py`](../src/study_engine/contracts/notebook.py).
-- Existen catálogos distintos en
-  [`notebook_kc_catalog.json`](../config/notebook_kc_catalog.json) y
-  [`notebook_source_roles.json`](../config/notebook_source_roles.json), entre
-  ellos `fase0-soc`, `fadena-so2`, `fadena-std` y `fadena-teleco`.
-- `get_system_prompt_for_notebook()` añade una adaptación textual por ID en
-  [`fase0_seed.py`](../src/study_engine/pedagogy/fase0_seed.py).
-- Pero `get_default_contract()` reutiliza para cualquier ID las
-  `FASE0_RESPONSE_PHASES` y copia el campo `required_analogies` de
-  `FASE0_CONTRACT`. Por eso, una adaptación de tema puede coexistir con fases
-  que piden transistores, diagramas ASCII, pseudocódigo defensivo y
-  pseudocódigo → Python. No encontré un consumidor que inyecte
-  `required_analogies` directamente en el prompt; su efecto runtime debe
-  tratarse como no demostrado hasta cubrirlo en la prueba de contrato/prompt
-  final.
-- El mismo prompt base todavía incluye una sección que asume x86-64 System V y
-  reglas específicas de stack, heap y `malloc` como supuestos predeterminados.
-  Esto entra en tensión con la instrucción más nueva de no asumir plataforma
-  cuando no está provista.
+La inspección inicial encontró que contratos desconocidos heredaban fases de
+programación y que el prompt común imponía supuestos técnicos de esa materia.
+En el árbol revisado actualmente, `get_default_contract()` usa fases neutrales,
+`required_analogies` está vacío y el prompt base no contiene las directivas
+x86-64/System V señaladas en el hallazgo. Los perfiles reconocidos se añaden
+solo tras validar el `curriculum_id` exacto en
+[`fase0_seed.py`](../src/study_engine/pedagogy/fase0_seed.py).
 
-**Impacto:** un cuaderno puede tener buenos KCs y fuentes propias, pero recibir
-un contrato de generación diseñado para programación. La adaptación nominal
-del prompt no alcanza si las fases y las reglas base siguen prescribiendo otra
-materia.
+La prueba de perfiles, fallback neutral y mismatch curricular ejecutada durante
+esta auditoría pasó **7 tests**. También se amplió la prueba del endpoint SSE:
+la matriz de cinco perfiles exactos y un ID parecido desconocido pasó (**6
+passed, 5 warnings**) y captura el prompt que recibe el backend. La prueba usa
+un paquete de evidencia simulado; verifica la resolución notebook → contrato →
+prompt HTTP/SSE, no el retrieval/ACL real ni la correspondencia de fuentes.
+Tampoco valida la respuesta de un proveedor real.
 
-**Verificación faltante:** las pruebas inspeccionadas comprueban que ciertas
-adaptaciones contienen nombres de programas o fuentes y que existen comandos
-universales; no comprueban que el contrato completo ni el prompt final de cada
-cuaderno queden libres de instrucciones ajenas.
+### H2 — Identidad curricular de `fadena-std`
 
-### H2 — La adaptación de `fadena-std` describe una materia distinta
+**Hallazgo original: etiqueta corregida en el perfil local; fuente curricular y recorrido E2E aún requieren cierre.**
 
-**Prioridad: P0 — corregir junto con H1.**
+El perfil vigente denomina `fadena-std` **Sistema de Tratamiento de Datos** y
+usa `fadena_std_2026`, alineado con el catálogo curricular versionado. La
+corrección evita la etiqueta anterior de “Sistemas de Transmisión de Datos”.
+Esto no sustituye la evidencia oficial del programa detallado ni acredita que
+las fuentes autorizadas y el prompt final entregado al modelo correspondan a
+esa identidad en todos los registros persistidos.
 
-En `NOTEBOOK_ADAPTATIONS`, `fadena-std` se describe como “Sistemas de
-Transmisión de Datos” y refiere a un programa de siete módulos. En cambio,
-`notebook_kc_catalog.json` y `notebook_source_roles.json` identifican
-`fadena-std` como **Sistema de Tratamiento de Datos** y lo vinculan con bases
-de datos, SQL, formatos semiestructurados, ETL y fuentes relacionadas.
+### H3 — Resolución exacta del perfil
 
-Esta divergencia puede producir una directiva curricular equivocada aunque la
-recuperación documental se aisle correctamente. Corregir el mapeo contra la
-fuente oficial del programa antes de ajustar el resto del perfil.
+**Hallazgo original: mecanismo corregido; cobertura de integración pendiente.**
 
-### H3 — La adaptación por subcadena puede seleccionar un perfil no exacto
-
-**Prioridad: P1.**
-
-`get_system_prompt_for_notebook()` intenta resolver IDs desconocidos buscando
-coincidencias parciales de subcadena contra las claves de `NOTEBOOK_ADAPTATIONS`.
-No hay evidencia en las pruebas revisadas de que los IDs ambiguos o similares
-se rechacen de forma segura. Un fallback accidental puede asociar el prompt del
-cuaderno incorrecto.
-
-Resolver el perfil desde un registro explícito con ID exacto. Si no existe
-configuración, usar un perfil neutral sin supuestos de dominio, o emitir un
-error de configuración visible en la creación del contrato; no seleccionar el
-primer parecido.
+La resolución actual consulta `NOTEBOOK_PROFILES` por ID exacto y exige que el
+`curriculum_id` coincida. IDs desconocidos, parecidos o con un currículo
+distinto reciben el prompt neutral; no se selecciona un perfil por subcadena.
+Sigue pendiente probar identidad, fuentes, contrato y prompt final
+integrados por HTTP/SSE para todos los currículos requeridos; por eso H1–H3 no
+equivalen al cierre del Gate B.
 
 ### H4 — Política de soluciones completas alineada en Gate 1
 
@@ -322,7 +302,7 @@ correspondiente.
 | **F0 — línea de base** | Completada como protocolo | Los 20 turnos comparativos tienen limitaciones explícitas; no prueban causalidad ni aprendizaje. El transcript Fase 0 de programación es evidencia de dinámica, no benchmark multi-materia. |
 | **F1 — contrato por turno** | Implementada y validada localmente | Resolver y prompt ensamblado tienen pruebas. No equivale a cumplimiento perfecto de un proveedor real. |
 | **F2 — modos pedagógicos** | Implementada y validada localmente | Ejercicio, feedback, reparación, reexplicación, síntesis y solución explícita probados en el pipeline. Pendiente evaluar resultados reales en varios cuadernos. |
-| **F3 — rigor técnico** | Implementada y validada localmente | Reduce supuestos y conexiones de seguridad forzadas en instrucciones; no verifica verdad factual de cada salida. Revisar H1 por las instrucciones heredadas del prompt base. |
+| **F3 — rigor técnico** | Implementada y validada localmente | Reduce supuestos y conexiones de seguridad forzadas en instrucciones; no verifica verdad factual de cada salida. El hallazgo H1 sobre el prompt base fue corregido; la aceptación curricular E2E sigue en Gate B. |
 | **F4 — formato/código** | Implementada, con tests de pipeline/UI | Validación de reglas y renderer no prueba corrección semántica del contenido. Añadir no-contaminación curricular multi-cuaderno. |
 | **F5 — fuentes/memoria/continuidad** | Implementación amplia; aceptación abierta | Las adiciones están comprometidas y los tests focalizados indicados arriba pasan. Cerrar los casos faltantes de H6 y mantener la naturaleza heurística de discrepancias visible. |
 | **F6 — streaming/fiabilidad** | Parcial, no aceptada | Hay contratos y pruebas de componentes; H5 demuestra trabajo pendiente en el consumidor SSE y manejo seguro de errores. |
@@ -353,27 +333,52 @@ curricular de fallback y validar su selección. Orden propuesto:
 runtime para referencias exactas con estado activo. La integración de la misma
 política en TutorPolicy/Study Loop sigue pendiente.
 
-### Gate B — Reparar el aislamiento de perfiles por cuaderno (bloqueante)
+### Gate B — Aceptar el aislamiento de perfiles por cuaderno (parcial)
 
-1. Corregir `fadena-std` contra el programa oficial de Tratamiento de Datos.
-2. Sustituir el fallback que copia `FASE0_RESPONSE_PHASES` y analogías de
-   Fase 0 por:
-   - contrato explícito propio para los cuadernos soportados; o
-   - contrato neutral común que no prescriba formato ni contenido de una
-     materia, si no hay perfil registrado.
-3. Mover las suposiciones de programación/x86-64 fuera del prompt global y
-   aplicarlas únicamente cuando el cuaderno, la consulta o el material activo
-   establezcan ese entorno.
-4. Resolver cuaderno/perfil por ID registrado exacto; eliminar la selección
-   por subcadena ambigua.
-5. Auditar la asociación de `Notebook.curriculum_id`, catálogo de KCs,
-   alineación de fuentes y contrato pedagógico en el camino real de chat.
+**Implementación central observada:** H1–H3 están corregidos localmente: el
+fallback y los contratos default son neutrales, los perfiles requieren
+coincidencia exacta de ID y `curriculum_id`, y `fadena-std` usa la etiqueta
+Sistema de Tratamiento de Datos del catálogo. La validación focalizada ejecutada
+durante esta auditoría pasó **7 tests** de perfil exacto, desconocidos y
+mismatch curricular.
 
-**Tests de salida:** contrato y prompt final para `fase0-soc`, `fadena-so2`,
-`fadena-std` y al menos un cuaderno adicional; assertions positivas de los
-elementos propios y negativas de directivas ajenas. Un ID desconocido debe
-tomar el fallback neutral o fallar con diagnóstico explícito, nunca heredar un
-perfil parecido.
+**Pendiente para cerrar el gate:**
+
+1. Respaldar el perfil `fadena-std` con la fuente curricular oficial para el
+   programa detallado; no inferir unidades, autores o contenidos desde KCs.
+2. Reconciliar identidad canónica/aliases, `curriculum_id`, roles de fuentes y
+   ciclo de alta en los registros efectivos. Cualquier migración de la base
+   local requiere autorización y evidencia previa; no ampliar ACL por
+   inferencia.
+3. Extender la cobertura HTTP/SSE con retrieval real y fixtures de almacén
+   controladas. Ya hay una matriz de identidad/perfil que usa evidencia
+   simulada para cinco perfiles y un caso `fadena-std` que pasa por asociación
+   explícita de fuentes, allowlist de scope, retrieval real y prompt final. La
+   precedencia del contrato custom y la conservación de una restricción
+   explícita del turno también tienen pruebas integradas.
+4. Cotejar la identidad curricular y roles de fuentes efectivos para
+   `fase0-soc`, `fadena-so2`, `fadena-std`, `fadena-teleco` y un currículo
+   adicional operativo; no inferir una asociación desde el nombre del curso.
+
+### Matriz de evidencia Gate B
+
+| Requisito | Prueba/evidencia | Datos usados | Qué demuestra | Qué no demuestra / pendiente |
+|---|---|---|---|---|
+| Fallback neutral, perfil exacto y currículo coincidente | `test_socratic_system_prompt.py` (7 casos seleccionados) y `test_default_curriculum_profile_requires_exact_persisted_identity` | Configuración de perfiles y `KnowledgeStore` temporal | ID desconocido/parecido o mismatch no hereda un perfil; identidad persistida exacta selecciona el perfil previsto | No recorre retrieval, ACL ni endpoint SSE. |
+| Matriz de identidad → perfil → prompt SSE | `test_chat_sse_sends_only_the_exact_curriculum_profile_to_backend` (6 casos) | Cinco perfiles configurados y un ID desconocido, cuadernos de test y evidencia simulada | Prompt capturado por el backend contiene el perfil correcto y excluye las otras materias; fallback desconocido queda neutral | No demuestra fuentes autorizadas ni retrieval real para esos cinco casos. |
+| Precedencia de contrato custom y restricción explícita del turno | `test_chat_sse_preserves_custom_contract_and_explicit_turn_request` | Contrato custom temporal/persistido en el store de test y evidencia simulada | El prompt custom prevalece sobre el perfil default y conserva una restricción explícita del estudiante | No prueba el comportamiento de cada contrato custom productivo ni de un proveedor real. |
+| Fuente asociada al notebook y exclusión de fuente de otro scope hasta el prompt | `test_chat_sse_retrieves_only_sources_authorized_for_notebook_scope` | Dos `SourceRecord`, documentos y chunks de fixture; asociación ACL relacional en el `KnowledgeStore` temporal; ambas fuentes solicitadas por `active_sources` | Retrieval real del endpoint entrega al contexto/prompt solo la fuente autorizada por el notebook y la procedencia SSE solo contiene esa fuente | No usa corpus, ACL o registros productivos; el caso integrado es `fadena-std` y no prueba todas las fuentes/currículos reales. |
+| Allowlist de fuentes por scope | `test_retrieval_scope_allowlist.py` | SQLite `:memory:` con scopes y asociaciones sintéticas | Intersección entre fuentes solicitadas y autorización del scope, incluyendo IDs/hash y fuentes desconocidas | Es prueba unitaria, no consulta la base productiva. |
+| Identidad curricular y fuentes efectivas | Pendiente; inventario y autoridad documentados en el runbook de Gate 2 | Registros y configuración operativa autorizados, aún no reconciliados/aprobados | — | Confirmar aliases/IDs/`curriculum_id`, roles de fuente, discrepancias y fuente oficial del programa detallado de `fadena-std`; decidir migraciones antes de escribir. |
+| Gate 2 formal | Pendiente | Evidencia anterior más reconciliación aprobada y matriz integrada suficiente | — | Gate permanece **PARCIAL** hasta cerrar criterios, documentar decisiones y validar sin modificar artefactos protegidos. |
+
+La corrida focalizada combinada del 2026-09-29 terminó con **24 passed, 5
+warnings**; Black y `git diff --check` pasaron. No se usó proveedor real. La
+prueba de ACL integrada opera sobre fixtures temporales, de modo que esta
+evidencia cierra la pregunta de si el recorrido puede probarse end-to-end, pero
+no acredita que los registros, las fuentes autorizadas ni la ACL productiva
+sean correctos. Gate B permanece **PARCIAL** por esos pendientes, no por falta
+abstracta de una prueba de retrieval hasta el prompt.
 
 ### Gate C — Cerrar F5 con criterios observables
 
@@ -431,8 +436,8 @@ declaradas y decisión de aceptar/iterar/inconcluso.
 
 ## 7. Orden recomendado de trabajo
 
-1. **Bloqueante inmediato:** Gate A y Gate B — coherencia normativa y perfiles
-   curriculares reales.
+1. **Bloqueante inmediato:** completar Gate B — evidencia integrada de perfiles
+   curriculares, identidad y fuentes.
 2. **Siguiente:** Gate C — completar aceptación de F5.
 3. **Después:** Gate D — reparar y certificar estados finales de streaming.
 4. **Luego:** Gate E — congelar y ejecutar evaluación multi-currículo con
@@ -477,3 +482,33 @@ cerrar los criterios pendientes de F5/F6 y capturar la baseline está en
 [Suite de fixes y estabilización previa a Fase 7](./PLAN_SUITE_FIX_ESTABILIZACION.md).
 La baseline debe capturarse después de guardar la documentación y antes de
 cualquier cambio de producción; no confundirla con resultados históricos.
+
+## Actualización de estado — 2026-09-29
+
+La lectura del árbol de trabajo actualiza el dictamen de los hallazgos H1–H3:
+sus mecanismos centrales están corregidos y cuentan con pruebas unitarias,
+pero el Gate B sigue parcial por falta de evidencia integrada. Se ejecutaron
+los casos de perfiles exactos, fallback neutral, IDs desconocidos y mismatch
+curricular de `tests/pedagogy/test_socratic_system_prompt.py`: **7 passed**,
+6 deselected. La prueba de SSE se amplió a cinco perfiles exactos y un ID
+parecido desconocido:
+`test_chat_sse_sends_only_the_exact_curriculum_profile_to_backend` terminó con
+**6 passed, 5 warnings** y verificó los prompts capturados en backend. Usa un
+paquete de evidencia simulado, por lo que no prueba retrieval ni ACL reales.
+El test `test_chat_sse_preserves_custom_contract_and_explicit_turn_request`
+pasó (**1 passed, 5 warnings**) y comprobó la precedencia del contrato custom
+y una restricción explícita en el prompt de usuario. En la corrida combinada
+con persistencia curricular y allowlist de fuentes por scope: **23 passed, 5
+warnings**. Después se añadió
+`test_chat_sse_retrieves_only_sources_authorized_for_notebook_scope`: usa
+retrieval real con fuentes y chunks de fixture en el almacén temporal y verifica
+que una fuente de otro notebook no llegue al prompt/contexto ni a la
+procedencia SSE. La suite focalizada combinada final terminó con **24 passed,
+5 warnings**; Black y `git diff --check` pasaron. La prueba no lee ni altera
+las ACL o bases protegidas. No se probó un proveedor real.
+
+La cobertura ya demuestra ese trayecto con una fixture aislada para
+`fadena-std`, no para todos los currículos ni contra corpus/ACL de producción.
+Tampoco autoriza migrar registros curriculares locales ni cambiar ACL. La
+aceptación pendiente y los siguientes pasos de F5/F6/F7 permanecen como están
+descritos arriba.
