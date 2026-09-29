@@ -24,6 +24,8 @@ MANIFEST
 
 # Environments & Virtualenv
 .env
+.env.*
+!.env.example
 .venv
 env/
 venv/
@@ -85,6 +87,23 @@ models/
 data/web_state/*.db
 data/web_state/*-shm
 data/web_state/*-wal
+data/student_submissions/
+data/experiments/
+data/eval/
+data/benchmark/
+data/notebooks/
+data/sources/
+data/web_state/
+data/colab/*.jsonl
+data/ocr/tessdata/*.traineddata
+data/storage/
+artifacts/
+reports/
+tmp/
+benchmark/results/
+benchmark/backups/
+benchmark/comparative_session/
+kasiu-lab/storage/
 node_modules/
 *.log
 *.bak

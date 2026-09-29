@@ -1,8 +1,0 @@
-{
-  "created_at": "2026-09-28T01:28:03.647703-03:00",
-  "database_path": "data/student/student_state.db",
-  "database_existed_before": true,
-  "backup_path": "benchmark/backups/student_state_backup_20260928_012803_541510.db",
-  "backup_sha256": "5d697fedbbe06b4004861ba2a62a139efe57b8cac4e529a2cb93807660a644f3",
-  "snapshot_path": "benchmark/comparative_session/bkt_snapshot_before.json"
-}

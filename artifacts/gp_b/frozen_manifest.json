@@ -1,9 +1,0 @@
-{
-  "campaign_id": "GP-B-V0",
-  "created_at_utc": "2026-09-06T03:59:24Z",
-  "git_commit": "e3fc4422665a778bdcce302f2a760c3e5c82a056",
-  "frozen_src_hashes_sha256": "05867f8ac76c058b9d20b13ab1e6744c69dc45d00ff13e570f4bf42b98d63de8",
-  "perimeter_files_count": 118,
-  "oracle_sha256": "c9ea8ba22c6a8db4af7198dd313b536a6a40464946ee52f4709da4fdef72d35f",
-  "status": "FROZEN_ACTIVE"
-}
