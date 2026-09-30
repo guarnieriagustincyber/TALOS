@@ -1,0 +1,198 @@
+{
+  "schema": "talos-vector-space-fixtures-v1",
+  "base_contract": {
+    "schema": "talos-embedding-contract-v2",
+    "model_id": "Qwen/Qwen3-Embedding-0.6B",
+    "model_revision": "0123456789abcdef0123456789abcdef01234567",
+    "model_artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "dimensions": 1024,
+    "max_length": 512,
+    "truncation_side": "right",
+    "pooling": "mean-attention-mask-v1",
+    "normalization": "l2",
+    "tokenizer_id": "Qwen/Qwen3-Embedding-0.6B",
+    "tokenizer_revision": "0123456789abcdef0123456789abcdef01234567",
+    "tokenizer_artifact_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "query_prefix": "",
+    "query_instruction": "",
+    "query_preprocessing": [
+      "unicode-nfc-u15.0-v1",
+      "strip-unicode-whitespace-u15.0-v1"
+    ],
+    "passage_prefix": "",
+    "passage_instruction": "",
+    "passage_preprocessing": [
+      "unicode-nfc-u15.0-v1",
+      "strip-unicode-whitespace-u15.0-v1"
+    ],
+    "provenance": {
+      "provider_id": "sentence_transformers",
+      "provider_version": "fixture-only",
+      "python_version": "3.x",
+      "framework_versions": {
+        "sentence-transformers": "fixture-only",
+        "torch": "fixture-only"
+      },
+      "device": "fixture",
+      "precision": "fp16",
+      "generated_at": "fixture-only",
+      "hostname": "fixture-only"
+    }
+  },
+  "cases": [
+    {
+      "name": "identical_contracts_are_compatible",
+      "index_contracts": [{}],
+      "expected_status": "DENSE_ACTIVE"
+    },
+    {
+      "name": "different_model_revision_is_incompatible",
+      "index_contracts": [
+        {
+          "model_revision": "1123456789abcdef0123456789abcdef01234567",
+          "model_artifact_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "tokenizer_revision": "1123456789abcdef0123456789abcdef01234567",
+          "tokenizer_artifact_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "expected_status": "DENSE_INCOMPATIBLE"
+    },
+    {
+      "name": "same_dimensions_different_model_is_incompatible",
+      "index_contracts": [
+        {
+          "model_id": "different-model-1024d",
+          "model_revision": "1123456789abcdef0123456789abcdef01234567",
+          "model_artifact_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "tokenizer_id": "different-tokenizer",
+          "tokenizer_revision": "1123456789abcdef0123456789abcdef01234567",
+          "tokenizer_artifact_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "expected_status": "DENSE_INCOMPATIBLE"
+    },
+    {
+      "name": "qwen-1024_vs_e5-384_is_incompatible",
+      "index_contracts": [
+        {
+          "model_id": "intfloat/multilingual-e5-small",
+          "model_revision": "1123456789abcdef0123456789abcdef01234567",
+          "model_artifact_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "dimensions": 384,
+          "pooling": "mean-attention-mask-v1",
+          "normalization": "l2",
+          "tokenizer_id": "intfloat/multilingual-e5-small",
+          "tokenizer_revision": "1123456789abcdef0123456789abcdef01234567",
+          "tokenizer_artifact_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "query_prefix": "query: ",
+          "passage_prefix": "passage: "
+        }
+      ],
+      "expected_status": "DENSE_INCOMPATIBLE"
+    },
+    {
+      "name": "hash-1024_vs_qwen-1024_is_incompatible",
+      "index_contracts": [
+        {
+          "model_id": "sha256-hash-embedding",
+          "model_revision": "1123456789abcdef0123456789abcdef01234567",
+          "model_artifact_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "tokenizer_id": "identity-tokenizer",
+          "tokenizer_revision": "1123456789abcdef0123456789abcdef01234567",
+          "tokenizer_artifact_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "expected_status": "DENSE_INCOMPATIBLE"
+    },
+    {
+      "name": "provider_and_runtime_provenance_do_not_change_space_id",
+      "index_contracts": [
+        {
+          "provenance": {
+            "provider_id": "different-compatible-provider",
+            "provider_version": "another-fixture-version",
+            "python_version": "different-python",
+            "framework_versions": {
+              "other-framework": "new-version"
+            },
+            "device": "different-device",
+            "precision": "fp32",
+            "generated_at": "another-fixture-time",
+            "hostname": "another-fixture-host"
+          }
+        }
+      ],
+      "expected_status": "DENSE_ACTIVE"
+    },
+    {
+      "name": "missing_index_contract_is_legacy",
+      "index_contracts": [
+        null
+      ],
+      "expected_status": "INDEX_LEGACY"
+    },
+    {
+      "name": "v1_contract_is_legacy",
+      "index_contracts": [
+        {
+          "schema": "talos-embedding-contract-v1"
+        }
+      ],
+      "expected_status": "INDEX_LEGACY"
+    },
+    {
+      "name": "mixed_notebook_spaces_are_rejected",
+      "index_contracts": [
+        {},
+        {
+          "model_id": "different-model-1024d",
+          "model_revision": "1123456789abcdef0123456789abcdef01234567",
+          "model_artifact_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "tokenizer_id": "different-tokenizer",
+          "tokenizer_revision": "1123456789abcdef0123456789abcdef01234567",
+          "tokenizer_artifact_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ],
+      "expected_status": "INDEX_MIXED"
+    },
+    {
+      "name": "mixed_and_legacy_index_is_still_rejected_as_mixed",
+      "index_contracts": [
+        {},
+        {
+          "model_id": "different-model-1024d",
+          "model_revision": "1123456789abcdef0123456789abcdef01234567",
+          "model_artifact_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "tokenizer_id": "different-tokenizer",
+          "tokenizer_revision": "1123456789abcdef0123456789abcdef01234567",
+          "tokenizer_artifact_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        null
+      ],
+      "expected_status": "INDEX_MIXED"
+    },
+    {
+      "name": "empty_index_is_not_configured",
+      "index_contracts": [],
+      "expected_status": "DENSE_NOT_CONFIGURED"
+    },
+    {
+      "name": "malformed_v2_index_contract_is_invalid",
+      "index_contracts": [
+        {
+          "dimensions": null
+        }
+      ],
+      "expected_status": "INDEX_INVALID"
+    },
+    {
+      "name": "unknown_index_extension_is_invalid",
+      "index_contracts": [
+        {
+          "pooling_semantics_v2": "different"
+        }
+      ],
+      "expected_status": "INDEX_INVALID"
+    }
+  ]
+}

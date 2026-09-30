@@ -1,0 +1,139 @@
+{
+  "schema": "talos-backend-selection-queries-fixture-v1",
+  "synthetic_only": true,
+  "benchmark_id": "backend-selection-format-fixture",
+  "queries": [
+    {
+      "query_id": "SYN-CONCEPT-001",
+      "query": "¿Qué función cumple la memoria virtual?",
+      "notebook_scope": ["synthetic-os"],
+      "category": "conceptual",
+      "tags": ["spanish_technical", "short"],
+      "required_facets": ["address_translation", "secondary_storage"],
+      "abstention_expected": false,
+      "judgment_status": "EXHAUSTIVELY_JUDGED"
+    },
+    {
+      "query_id": "SYN-SYMBOL-001",
+      "query": "¿Qué significa mmap() en este ejemplo?",
+      "notebook_scope": ["synthetic-os"],
+      "category": "exact_symbol",
+      "tags": ["code_symbol", "exact_match", "short"],
+      "required_facets": ["mmap"],
+      "abstention_expected": false,
+      "judgment_status": "EXHAUSTIVELY_JUDGED"
+    },
+    {
+      "query_id": "SYN-MULTIFACET-001",
+      "query": "Explica cómo el planificador usa prioridades y evita inanición.",
+      "notebook_scope": ["synthetic-os"],
+      "category": "multi_facet",
+      "tags": ["spanish_technical", "long"],
+      "required_facets": ["priority_scheduling", "starvation"],
+      "abstention_expected": false,
+      "judgment_status": "EXHAUSTIVELY_JUDGED"
+    },
+    {
+      "query_id": "SYN-OOD-001",
+      "query": "¿Cuál fue el resultado de la final sintética de 2099?",
+      "notebook_scope": ["synthetic-os"],
+      "category": "ood",
+      "tags": ["abstention"],
+      "required_facets": [],
+      "abstention_expected": true,
+      "judgment_status": "EXHAUSTIVELY_JUDGED"
+    },
+    {
+      "query_id": "SYN-UNKNOWN-001",
+      "query": "Compara dos técnicas sintéticas no adjudicadas.",
+      "notebook_scope": ["synthetic-os"],
+      "category": "conceptual",
+      "tags": ["unjudged_example"],
+      "required_facets": ["technique_a", "technique_b"],
+      "abstention_expected": false,
+      "judgment_status": "UNJUDGED"
+    },
+    {
+      "query_id": "SYN-SCOPE-001",
+      "query": "¿Qué representa el símbolo ficticio kappa_q?",
+      "notebook_scope": ["synthetic-code"],
+      "category": "exact_symbol",
+      "tags": ["code_symbol", "scope_control"],
+      "required_facets": ["kappa_q"],
+      "abstention_expected": false,
+      "judgment_status": "EXHAUSTIVELY_JUDGED"
+    },
+    {
+      "query_id": "SYN-MULTISCOPE-001",
+      "query": "Compara los dos mecanismos ficticios de sincronización.",
+      "notebook_scope": ["synthetic-os", "synthetic-code"],
+      "category": "multi_facet",
+      "tags": ["multi_scope", "long"],
+      "required_facets": ["mechanism_os", "mechanism_code"],
+      "abstention_expected": false,
+      "judgment_status": "EXHAUSTIVELY_JUDGED"
+    },
+    {
+      "query_id": "SYN-PARTIAL-001",
+      "query": "Consulta sintética con parte del pool todavía sin juzgar.",
+      "notebook_scope": ["synthetic-os"],
+      "category": "conceptual",
+      "tags": ["partial_judgment"],
+      "required_facets": ["partial"],
+      "abstention_expected": false,
+      "judgment_status": "PARTIALLY_JUDGED"
+    },
+    {
+      "query_id": "SYN-INCONSISTENT-001",
+      "query": "Consulta sintética con qrels fuera del scope.",
+      "notebook_scope": ["synthetic-os"],
+      "category": "scope_control",
+      "tags": ["invalid_qrels"],
+      "required_facets": [],
+      "abstention_expected": false,
+      "judgment_status": "INCONSISTENT"
+    }
+  ],
+  "corpus": [
+    {
+      "chunk_id": "SYN-CHUNK-001",
+      "notebook_id": "synthetic-os",
+      "text": "[SYNTHETIC] La memoria virtual traduce direcciones virtuales a direcciones físicas."
+    },
+    {
+      "chunk_id": "SYN-CHUNK-002",
+      "notebook_id": "synthetic-os",
+      "text": "[SYNTHETIC] Las páginas inactivas pueden residir temporalmente en almacenamiento secundario."
+    },
+    {
+      "chunk_id": "SYN-CHUNK-003",
+      "notebook_id": "synthetic-os",
+      "text": "[SYNTHETIC] En este pseudocódigo, mmap() denota una operación de mapeo ficticia."
+    },
+    {
+      "chunk_id": "SYN-CHUNK-004",
+      "notebook_id": "synthetic-os",
+      "text": "[SYNTHETIC] El planificador asigna CPU de acuerdo con prioridades declaradas."
+    },
+    {
+      "chunk_id": "SYN-CHUNK-005",
+      "notebook_id": "synthetic-os",
+      "text": "[SYNTHETIC] Una política de envejecimiento puede reducir el riesgo de inanición."
+    },
+    {
+      "chunk_id": "SYN-CHUNK-006",
+      "notebook_id": "synthetic-code",
+      "text": "[SYNTHETIC] En el lenguaje ficticio, kappa_q es un marcador de prueba."
+    },
+    {
+      "chunk_id": "SYN-CHUNK-007",
+      "notebook_id": "synthetic-os",
+      "text": "[SYNTHETIC] El mecanismo ficticio mu_os coordina dos procesos."
+    },
+    {
+      "chunk_id": "SYN-CHUNK-008",
+      "notebook_id": "synthetic-code",
+      "text": "[SYNTHETIC] El mecanismo ficticio mu_code coordina dos tareas."
+    }
+  ]
+}

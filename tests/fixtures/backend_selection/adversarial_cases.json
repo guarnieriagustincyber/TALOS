@@ -1,0 +1,26 @@
+{
+  "schema": "talos-backend-selection-adversarial-fixtures-v1",
+  "synthetic_only": true,
+  "pool_parameters": {
+    "top_n": 2,
+    "top_m": 2,
+    "deduplication_key": ["notebook_id", "chunk_id"]
+  },
+  "cases": [
+    {"name": "query_without_positive", "expected": "UNJUDGED_NOT_ZERO"},
+    {"name": "ood_query", "expected": "SEPARATE_ABSTENTION_EVALUATION"},
+    {"name": "multi_scope_query", "expected": "PER_QUERY_AUTHORIZED_SCOPE_DENOMINATOR"},
+    {"name": "candidate_outside_pool", "expected": "RUN_INCONCLUSIVE"},
+    {"name": "duplicate_pool_candidates", "expected": "DEDUPLICATED_PRESERVE_SOURCES"},
+    {"name": "partial_judgment", "expected": "EXCLUDED_FROM_RANKING_METRICS"},
+    {"name": "unknown_not_zero", "expected": "UNKNOWN"},
+    {"name": "wrong_scope_result", "expected": "INTEGRITY_ERROR"},
+    {"name": "ranking_shorter_than_k", "expected": "PRECISION_DENOMINATOR_K"},
+    {"name": "unpooled_result_at_evaluation", "expected": "RUN_INCONCLUSIVE"},
+    {"name": "lexical_pool_duplicates_and_short_source", "expected": "DEDUPLICATED_PRESERVE_SOURCES_AND_SHORT_SOURCE"},
+    {"name": "recall_denominator_per_query", "expected": "QUERY_SCOPE_ONLY"},
+    {"name": "rss_baseline_and_delta", "expected": "REPORT_TOTAL_AND_DELTA"},
+    {"name": "cpu_without_threshold", "expected": "UNASSESSED_NO_PASS_FAIL"},
+    {"name": "inconsistent_qrels", "expected": "INVALID_BENCHMARK"}
+  ]
+}

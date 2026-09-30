@@ -1777,57 +1777,317 @@ fuentes primarias de sus propias asignaturas, no de las ACL de `fadena-std`.
 Que Lenguajes trate Python o Sistemas Operativos incluya sistemas de archivos
 no autoriza trasladar fuentes entre notebooks.
 
-| Fuente asociada | Evidencia a favor | Límites / evidencia contradictoria | Estado de adjudicación |
+La adjudicación se expresa en cuatro dimensiones separadas: **C1 curricular**
+(el contenido se enseña), **C2 bibliográfica** (la obra está listada),
+**C3 procedencia** (el archivo concreto se acredita como fuente del curso) y
+**C4 uso TALOS** (la política autoriza usarlo como evidencia en este notebook).
+C1–C3 describen la evidencia disponible; no sustituyen la decisión de política
+de C4 ni conceden ACL.
+
+| Fuente asociada | C1 — Curricular | C2 — Bibliográfica | C3 — Procedencia del archivo | C4 — Uso TALOS / adjudicación |
+|---|---|---|---|---|
+| `src_ramakrishnan_gehrke_dbms` — Ramakrishnan & Gehrke | **Sí**: bases de datos/SGBD están en el programa. | **Sí**: aparece explícitamente en la bibliografía. | **Sí**: hay correspondencia SHA-256 exacta con el archivo local de `fuentes/fadena-std`. | Evidencia documental fuerte (C1–C3). La configuración declara actualmente rol `COMPLEMENTARY`; la política que transforma esta evidencia en autorización ACL/uso dentro del notebook sigue **`PENDING`**. No alterar ACL automáticamente. |
+| `src_f3352475bc0cd360` — SQL Básico, soluciones | **Sí**: SQL se incluye en el Módulo 3. | **No**: el handout no aparece como bibliografía formal. | **Sí**: SHA-256 exacto con `6 - SQL Básico - Soluciones Ejercicios.pdf` en `fuentes/fadena-std`; la portada identifica carrera, asignatura y año 2026. | Pertenencia material corroborada; política pedagógica para exponer soluciones y autorización de uso/ACL **`PENDING`**. `sources.course` está vacío y `sources.role=PRIMARY` es global, no prueba autorización scoped. |
+| `src_fadena_prog_archivos` — Manejo y persistencia de archivos | **Sí**: hay correspondencia temática en estructuras de datos/sistemas de archivos del Módulo 1. | **No**: el programa lista Cairo & Guardati, no este material ni Joyanes. | **No acreditada**: no hay SHA coincidente con `fuentes/fadena-std`; `course` está vacío, `subject=Cybersecurity`, y no se identificó portada o autoría del archivo. El título/docentes en metadata no prueban procedencia. | Afinidad temática sí; pertenencia del archivo no demostrada. **`UNRESOLVED`**, sin decisión de rechazo/revocación. Uso/ACL **`PENDING`**. |
+| `src_ramalho_fluent_python` — Luciano Ramalho, *Fluent Python* | **Parcial**: coincide con temas de CSV, XML, JSON, YAML, logs, REGEX y ETL. | **No**: Ramalho/*Fluent Python* no figura en la bibliografía. | **No acreditada**: sin SHA coincidente ni procedencia institucional; la fuente es el libro general (2.ª ed., Python 3.10; 1.011 páginas; 5.683 chunks), no un apunte limitado a esos temas. | Afinidad parcial no prueba adopción. **`UNRESOLVED`**, sin decisión de rechazo/revocación. Uso/ACL **`PENDING`**. |
+| `src_rosen_matematicas_discretas` — Rosen, Matemáticas discretas | **No acreditada**: el programa no tiene contenido equivalente suficiente. | **No**: Rosen no figura en la bibliografía. | **No acreditada**: no hay SHA coincidente en `fuentes/fadena-std`. | **`UNRESOLVED`** — no hay evidencia suficiente de pertenencia a esta asignatura. No equivale a una decisión de rechazo/revocación. |
+
+**Contradicción curricular preservada — carga horaria:** el programa analítico
+aportado declara **60 h**; el plan oficial de la carrera y el handout local SQL
+declaran **64 h**. Se registra como **`CONTRADICTION — curricular workload
+discrepancy`**; no se elige una cifra como vigente ni se corrigen datos sin
+respaldo.
+
+**Conclusión del cotejo:** `src_ramakrishnan_gehrke_dbms` es el caso con la
+evidencia documental más completa (C1, C2 y C3). `src_f3352475bc0cd360` acredita
+pertenencia del material, pero no su inclusión bibliográfica ni la política de
+uso de soluciones. Para `src_fadena_prog_archivos`, `src_ramalho_fluent_python`
+y `src_rosen_matematicas_discretas`, la evidencia no justifica promover su
+declaración/relación actual a autorización de uso. La matriz separa evidencia
+de decisión: no cambia ninguna asociación ACL, rol, `curriculum_id`, fuente,
+qrel ni Golden Set. Las 30 asociaciones siguen sin decisión ACL humana y Gate 2
+continúa **PARCIAL**.
+
+#### Contrato C4-DRAFT — política documental y propuesta de transiciones
+
+Este borrador gobierna la adjudicación documental de fuentes de `fadena-std`;
+no está aprobado como política institucional y no es una migración ni una
+modificación de la configuración/runtime. **C1–C3 son hallazgos de evidencia
+independientes. C4 es una decisión explícita de política** sobre uso pedagógico
+en un scope y propósito concretos. Ningún hallazgo aislado o combinación de
+C1–C3 concede ACL. Los nombres y guardas siguientes son una propuesta
+normativa para revisión; no deben implementarse como máquina de estados hasta
+aprobar una versión de política.
+
+**Estados de evidencia (por dimensión C1, C2 y C3):**
+
+| Estado | Significado |
+|---|---|
+| `CONFIRMED` | Evidencia directa suficiente para la afirmación concreta de esa dimensión. |
+| `PARTIAL` | Correspondencia limitada; no acredita por sí sola la afirmación más amplia. |
+| `NOT_CONFIRMED` | La evidencia examinada no respalda la afirmación; no equivale a rechazo. |
+| `NOT_ASSESSED` | La dimensión todavía no fue examinada. |
+| `CONTRADICTED` | Hay evidencia incompatible que debe quedar registrada sin resolver por inferencia. |
+
+**Estados de adjudicación C4:**
+
+| Estado | Significado y efecto |
+|---|---|
+| `POLICY_DECISION_PENDING` | Evidencia evaluable disponible, pero no existe una regla C4 aplicable/versionada o aún no se emitió una decisión para este caso. No autoriza uso ni ACL. |
+| `PEDAGOGICAL_USE_PENDING` | Falta resolver una condición de uso o tratamiento del contenido (por ejemplo, exposición de soluciones). No autoriza uso ni ACL. |
+| `UNRESOLVED` | Faltan hechos/evidencia necesarios, estos no son verificables o existe una contradicción material que impide resolver el caso. No equivale a rechazo o revocación. |
+| `AUTHORIZED_SCOPED` | Una autoridad humana designada aprobó el uso para el notebook, fuente y propósito expresamente registrados. Autoriza solo ese uso scoped; no cambia por sí mismo ACL, rol global ni otras asociaciones. |
+| `NOT_AUTHORIZED_SCOPED` | Una autoridad humana designada resolvió que el uso especificado no se autoriza en ese scope. No revoca ni modifica asociaciones existentes por sí mismo. |
+
+`POLICY_DECISION_PENDING` y `UNRESOLVED` no son intercambiables: el primero es
+un hueco de política/decisión con hechos suficientes para evaluar; el segundo
+es un hueco epistemológico que impide evaluar responsablemente el caso.
+`PEDAGOGICAL_USE_PENDING` se usa solo cuando una condición pedagógica concreta
+está identificada y pendiente, no como sinónimo genérico de falta de política.
+
+**Identidad y versionado de una decisión.** Cada registro C4 propuesto contiene,
+como mínimo, `decision_id`, `scope_id`/`notebook_id`, `source_id`,
+`artifact_version` (hash cuando exista), `purpose_id`, `policy_id`,
+`policy_version`, `decision_state`, `evidence_set_id` con versión/hash,
+`decided_by`, `decided_at` y, si reemplaza una decisión previa,
+`supersedes_decision_id`. La clave lógica de evaluación es
+`(scope_id, source_id, artifact_version, purpose_id, policy_id,
+policy_version)`. Una decisión es inmutable: nueva evidencia o política crea
+una nueva decisión enlazada como sucesora; no reescribe el registro histórico.
+La autoridad de la decisión debe estar identificada en la política versionada.
+La decisión es vigente para nuevas solicitudes solo mientras sus dimensiones
+de identidad coincidan y su `policy_version` siga siendo la aplicable; un
+cambio de política invalida su uso como precondición operativa hasta nueva
+evaluación, pero no borra ni reescribe el registro histórico.
+
+**Transiciones propuestas para C4 (el estado vigente apunta a una decisión
+inmutable):**
+
+`ASSESS_CASE` usa este orden de decisión, sin cortocircuitos por orden de
+entrada:
+
+1. Validar identidad, propósito, versión/hash de artefacto y esquema del set de
+   evidencia. Si falta un campo obligatorio o una referencia está malformada,
+   no se crea decisión C4: se devuelve `ASSESSMENT_REJECTED` con código de
+   validación. Esto es un resultado de comando, no un estado C4.
+2. Evaluar la suficiencia factual contra el checklist de evidencia versionado
+   del caso. Si falta una pieza requerida, su verificación falla, alguna
+   dimensión requerida está `NOT_ASSESSED`, o queda una contradicción
+   material sin reconciliar, el resultado es `UNRESOLVED`.
+3. Si la evidencia requerida está completa y verificable, pero queda al menos
+   una condición pedagógica explícita en estado pendiente, el resultado es
+   `PEDAGOGICAL_USE_PENDING`.
+4. Si no se cumple 1–3 y no hay una política C4 publicada/aplicable para el
+   propósito exacto, o no hay decisión autorizada emitida bajo esa versión,
+   el resultado es `POLICY_DECISION_PENDING`.
+5. `ASSESS_CASE` nunca emite `AUTHORIZED_SCOPED` ni
+   `NOT_AUTHORIZED_SCOPED`. Esos estados solo pueden surgir de una decisión
+   explícita por evento `POLICY_APPROVED`/`POLICY_REJECTED`.
+
+La precedencia es, por tanto, `ASSESSMENT_REJECTED` (sin caso válido) >
+`UNRESOLVED` > `PEDAGOGICAL_USE_PENDING` > `POLICY_DECISION_PENDING`.
+`PARTIAL` o `NOT_CONFIRMED` no determinan estado automáticamente: el checklist
+versionado define qué afirmación/hecho falta; solo una pieza obligatoria
+incompleta conduce a `UNRESOLVED`. Un conjunto completo que documenta
+`NOT_CONFIRMED` puede pasar a la evaluación pedagógica/política, sin convertir
+esa ausencia de respaldo en un rechazo.
+
+La entrada de evaluación debe ser un snapshot inmutable que contenga la clave
+lógica, los estados C1–C3 y sus referencias verificables, el checklist
+versionado con resultados por requisito, las condiciones pedagógicas con
+estado, y la política/decisión aplicable (si existe). Los checks se calculan
+por identificador de requisito, no por orden de filas. Un mismo snapshot y
+versiones de checklist/política deben producir el mismo único resultado. Hasta
+que el checklist por propósito, materialidad de contradicciones, catálogo de
+condiciones y versiones de política sean valores cerrados, esta función es
+determinista solo para entradas dadas y C4 permanece DRAFT.
+
+| Estado actual | Evento | Precondiciones | Estado siguiente | Efecto permitido / prohibido |
+|---|---|---|---|---|
+| Sin evaluación vigente | `ASSESS_CASE` | Checklist de evidencia identificado/versionado, identidad válida y entradas C1–C3 evaluadas. | Aplicar exactamente la función de precedencia anterior. | Crear una evaluación inmutable con `assessment_id`; ninguna acción ACL. |
+| `POLICY_DECISION_PENDING` | `POLICY_APPROVED` / `POLICY_REJECTED` | Evaluación actual para la misma clave; política y versión publicadas/aplicables; decisor autorizado; alcance/propósito exactos; justificación registrada; sin condición/evidencia pendiente. | `AUTHORIZED_SCOPED` / `NOT_AUTHORIZED_SCOPED`, respectivamente. | Crear decisión inmutable; no escribir ACL. Si alguna guarda falla, rechazar evento sin cambio de estado. |
+| `PEDAGOGICAL_USE_PENDING` | `PEDAGOGICAL_CONDITION_RESOLVED` | Cada condición pendiente identificada tiene resolución y evidencia registradas; evaluación de evidencia válida. | Crear nueva evaluación con la misma precedencia: `UNRESOLVED` si quedan brechas; de otro modo `POLICY_DECISION_PENDING`. Nunca transición directa a decisión terminal. | Mantener evaluación previa; registrar nueva revisión; ninguna acción ACL. |
+| Cualquier evaluación no terminal | `EVIDENCE_GAP_FOUND` | Pieza requerida ausente/no verificable o contradicción material registrada. | `UNRESOLVED` en una nueva evaluación. | Preservar evaluación previa; ninguna acción ACL. |
+| Cualquier estado C4, incluido terminal | `EVIDENCE_SET_UPDATED` / `POLICY_VERSION_CHANGED` / `PURPOSE_CHANGED` / `ARTIFACT_VERSION_CHANGED` | Evento identifica nueva versión de al menos una dimensión de la clave lógica. | Crear nuevo `assessment_id` y ejecutar `ASSESS_CASE`; decisión previa permanece histórica y deja de ser precondición para la nueva clave. | No mutar ni borrar la decisión previa; no cambiar ACL. |
+| Cualquier estado | Evento sin precondiciones o fuera de esta tabla | — | Sin cambio; registrar rechazo de transición | No inferir autorización, denegación operativa ni efecto ACL. |
+
+**Ciclo operativo ACL (registro separado de C4).** Estados propuestos:
+`ACL_NOT_REQUESTED`, `ACL_REQUESTED`, `ACL_REJECTED`, `ACL_NO_OP`,
+`ACL_CONFLICT`, `ACL_SUCCEEDED` y `ACL_FAILED`. Cada solicitud incluye
+`acl_request_id`, clave de idempotencia estable provista por el solicitante,
+scope/fuente exactos, acción `GRANT` o `REVOKE`, decisión C4 referenciada
+cuando aplique, `artifact_version`, solicitante/aprobador autorizados,
+justificación, versión esperada del registro ACL, estado previo esperado y
+estado final esperado. La ejecución valida que la versión/hash del artefacto
+coincida con la decisión citada; si el ACL no puede restringir el grant a esa
+versión, se aplican las mismas reglas de representabilidad de propósito. Cada
+intento incluye `acl_attempt_id`, resultado, marca temporal y verificación
+posterior del estado persistido. Una solicitud lógica es inmutable; los
+reintentos aprobados crean intentos nuevos bajo el mismo request, no requests
+duplicados.
+
+El procesamiento de cada solicitud sigue este orden obligatorio: autenticar al
+caller y autorizar acceso al registro de idempotencia; validar y buscar la
+clave de idempotencia; si ya existe con el mismo payload canónico, devolver el
+mismo request sin crear efectos; si existe con payload distinto, rechazar
+`IDEMPOTENCY_KEY_REUSE`; para una clave nueva, validar scope/fuente/acción,
+autoridad del solicitante/aprobador y guards C4; comprobar request activo para
+`(scope_id, source_id)`; leer asociación y versión bajo exclusión mutua o
+control compare-and-swap; clasificar no-op/conflicto/escritura; escribir
+condicionalmente; releer y verificar. Una solicitud inválida se rechaza antes
+de revelar si la asociación ya existe. Todos los efectos se serializan por
+`(scope_id, source_id)`; una versión/estado previo inesperado produce
+`ACL_CONFLICT`, nunca una escritura a ciegas.
+
+Como la asociación ACL notebook–fuente no codifica necesariamente
+`purpose_id`, una concesión solo puede ejecutarse si la decisión C4 autoriza
+todos los propósitos que la asociación habilitaría en ese scope. Si el ACL
+disponible no puede expresar el alcance de la decisión, la concesión se
+rechaza como `ACL_SCOPE_NOT_REPRESENTABLE`; no se amplía una autorización
+estrecha a una asociación más amplia.
+
+| Estado operativo | Evento | Precondiciones | Estado siguiente | Efecto permitido / prohibido |
+|---|---|---|---|---|
+| Estado objetivo ausente | `REQUEST_GRANT` | Autorización/identidad validadas; decisión C4 vigente y que cubre todos los propósitos que habilita la ACL; aprobador ACL válido; versión ACL coincide. | `ACL_REQUESTED` → `ACL_SUCCEEDED` tras escritura/verificación. | Crear solo la asociación exacta. |
+| Estado objetivo presente | `REQUEST_GRANT` | Autorización/identidad validadas; lectura atómica confirma asociación ya concedida. | `ACL_NO_OP` con resultado `NO_OP_ALREADY_GRANTED`. | No escribir ni cambiar versión; registrar estado observado. |
+| Estado objetivo presente | `REQUEST_REVOKE` | Autorización/identidad y aprobación separada de revocación validadas; asociación exacta presente; motivo registrado; versión ACL coincide. | `ACL_REQUESTED` → `ACL_SUCCEEDED` tras escritura/verificación. | Eliminar solo la asociación exacta aprobada. |
+| Estado objetivo ausente | `REQUEST_REVOKE` | Autorización/identidad y aprobación separada de revocación validadas; lectura atómica confirma asociación ya ausente. | `ACL_NO_OP` con resultado `NO_OP_ALREADY_ABSENT`. | No escribir ni cambiar versión; registrar estado observado. |
+| Cualquier estado | Repetir misma clave de idempotencia y mismo payload canónico | La clave ya está ligada a un request; autenticación/autorización del caller válida. | Devolver el mismo `acl_request_id` y estado/resultado actual. | No crear request ni intento adicional automáticamente; payload distinto con misma clave se rechaza como `IDEMPOTENCY_KEY_REUSE`. |
+| `ACL_REQUESTED` para objetivo | Solicitud nueva misma dirección o dirección opuesta | Hay request activo para la clave de asociación `(scope_id, source_id)`; no aplica replay de la misma clave idempotente. | `ACL_CONFLICT` con `DUPLICATE_PENDING` o `OPPOSITE_ACTION_PENDING`. | No ejecutar el segundo request; resolver/terminar el primero antes de uno nuevo. |
+| `ACL_REJECTED`, `ACL_NO_OP`, `ACL_CONFLICT`, `ACL_SUCCEEDED` o `ACL_FAILED` | Nueva solicitud con nueva clave idempotente | El request anterior es terminal; caller autorizado; las precondiciones, aprobaciones y versión esperada se vuelven a validar para el estado actual. | Nuevo `acl_request_id` independiente. | Preservar el historial; no reabrir ni sobrescribir el request anterior. |
+| `ACL_NOT_REQUESTED` | `REQUEST_GRANT` / `REQUEST_REVOKE` | Falla autorización, identidad, decisión C4 exigida para grant, representabilidad del scope, aprobación de ACL, estado previo/versionado esperado u otra precondición. | `ACL_REJECTED` con código de causa determinista, por ejemplo `C4_NOT_AUTHORIZED`, `ACL_SCOPE_NOT_REPRESENTABLE`, `APPROVAL_MISSING` o `VERSION_MISMATCH`. | No ejecutar escritura; registrar la guarda fallida. |
+| `ACL_REQUESTED` | `EXECUTION_VERIFIED` | Escritura condicional atómica exitosa; lectura posterior confirma estado esperado, versión nueva y ausencia de efectos laterales protegidos. | `ACL_SUCCEEDED`. | Registrar resultado; no extender a otros scopes/artefactos. |
+| `ACL_REQUESTED` | `EXECUTION_FAILED` | Error de escritura sin confirmar resultado. | `ACL_FAILED`; si el resultado de commit es incierto, bloquear nuevos cambios para la clave hasta reconciliación de lectura. | Exponer error y observación; no reportar éxito ni reintentar implícitamente. |
+| `ACL_FAILED` con resultado incierto | `RECONCILE_READ` | Lectura autoritativa incluye versión, estado previo/actual, actor y correlación con `acl_request_id`/`acl_attempt_id`. | `ACL_SUCCEEDED` si confirma el commit de este intento; permanece `ACL_FAILED` si confirma que no hubo escritura; `ACL_CONFLICT` si el estado cambió por otra operación o no se puede atribuir. | Desbloquear solo tras resultado concluyente; cualquier reintento requiere luego `RETRY_ATTEMPT`. |
+| `ACL_REQUESTED` | Verificación muestra estado distinto | La lectura posterior no coincide con el resultado esperado o cambió la versión por un escritor concurrente. | `ACL_CONFLICT` con `POSTCONDITION_MISMATCH` o `VERSION_CONFLICT`. | No compensar automáticamente; reconciliación explícita antes de nuevo intento. |
+| `ACL_FAILED` | `RETRY_ATTEMPT` | Resultado previo reconciliado; autorización/aprobaciones siguen vigentes; estado/version esperados recalculados y aprobados; un intento activo como máximo. | Sigue `ACL_REQUESTED` con nuevo `acl_attempt_id`. | Reintento explícito de la misma solicitud; máximo uno activo por clave de asociación. |
+
+Un request nuevo con otro idempotency key pero idéntica acción mientras la
+primera está activa produce `DUPLICATE_PENDING`, no otro intento. Tras un
+resultado terminal, una acción repetida se vuelve a clasificar según el estado
+persistido: si ya coincide con el estado deseado es `ACL_NO_OP`; de lo
+contrario, se requiere request nuevo, aprobación vigente y nueva comparación
+de versión. Un request opuesto nunca cancela ni compensa automáticamente otro.
+La unicidad de clave idempotente y el lock/CAS por asociación son atómicos; la
+concurrencia produce un único ganador y el resto recibe conflicto/replay
+determinista. `ACL_FAILED` con resultado de commit incierto no admite reintento
+hasta que una lectura autoritativa reconcilie si el cambio se aplicó.
+
+**Historia frente a proyección actual.** `assessment_id` y `decision_id` son
+registros inmutables. La clave lógica completa más la revisión de evidencia
+identifica una evaluación; repetir `ASSESS_CASE` para el mismo
+`assessment_id` es idempotente. Una nueva versión de evidencia, artefacto,
+propósito o política crea otro `assessment_id`; no cambia resultados
+históricos. La proyección `current_assessment_id` apunta a la última
+evaluación aceptada para la clave lógica activa, en orden de revisión
+monótonamente creciente y mediante compare-and-swap. Si dos revisiones
+concurrentes parten de la misma revisión, solo se publica la que gana el CAS;
+la otra se conserva como historial no vigente y debe rebasarse/re-evaluarse.
+“No vigente” significa que no es precondición para nuevas acciones, no que la
+decisión histórica haya sido revocada.
+
+Una decisión `NOT_AUTHORIZED_SCOPED` significa únicamente “no autorizado para
+el propósito especificado”; **no es una orden de revocación**. Una eventual
+revocación requiere la transición explícita `REQUEST_REVOKE` con su propia
+aprobación. De igual modo, `AUTHORIZED_SCOPED` habilita solicitar una
+concesión, pero no la ejecuta. Este expediente no contiene decisiones
+`AUTHORIZED_SCOPED`/`NOT_AUTHORIZED_SCOPED` ni solicitudes/intentos ACL.
+
+Para hacer reproducible `ASSESS_CASE`, la política versionada debe enumerar
+los requisitos probatorios por propósito y las condiciones pedagógicas
+aplicables. Se aplica la precedencia indicada en la tabla: brecha o
+contradicción material no resuelta → `UNRESOLVED`; condición pedagógica
+concreta pendiente → `PEDAGOGICAL_USE_PENDING`; caso evaluable sin política o
+decisión → `POLICY_DECISION_PENDING`. La ausencia de una política no convierte
+por sí sola un expediente en `UNRESOLVED`. Hasta aprobar el catálogo de
+requisitos y quién determina cada guarda, estas transiciones son propuestas,
+no criterios operativos aprobados.
+
+**Invariantes candidatos a pruebas automatizadas:**
+
+1. Cada decisión C4 debe identificar los campos de identidad/versionado
+descritos arriba. La aprobación no se extiende a otros notebooks, fuentes,
+propósitos, políticas o versiones del artefacto.
+2. La mera asociación persistida, el rol global de `sources`, un rol en
+   `notebook_source_roles.json`, una coincidencia temática, la inclusión
+   bibliográfica o un SHA coincidente no bastan individualmente para conceder
+   ACL. Un SHA acredita identidad del artefacto comparado, no adopción
+   institucional ni permiso pedagógico.
+3. El material de soluciones requiere adjudicación explícita de su propósito
+   y modo de exposición; evidencia de que el documento pertenece al curso no
+   resuelve esa condición.
+4. `UNRESOLVED`, `POLICY_DECISION_PENDING` y `PEDAGOGICAL_USE_PENDING` son
+   estados no autorizantes y no justifican concesión, poda o revocación
+   automática. `NOT_AUTHORIZED_SCOPED` tampoco modifica por sí solo el estado
+   persistido; no hay transición ACL implícita desde ningún estado C4.
+5. Las contradicciones se registran como hallazgos separados con sus fuentes;
+   no se colapsan en `CONFIRMED` ni se elige una versión por conveniencia. La
+   diferencia 60 h/64 h sigue siendo una contradicción documental abierta y no
+   cambia automáticamente los hallazgos específicos sobre obras o archivos.
+6. Una escritura ACL es una operación posterior, independiente, explícitamente
+   solicitada, aprobada y auditable. Debe verificar identidad exacta del
+   notebook y de la fuente, registrar el estado anterior/nuevo y no alterar
+   otras asociaciones, `curriculum_id`, roles globales, qrels o Golden Sets
+   como efecto colateral.
+7. Los eventos no incluidos en las tablas no cambian estado; se rechazan de
+   forma explícita y auditable. Los intentos ACL fallidos no se presentan como
+   exitosos ni se reintentan silenciosamente.
+
+**Aplicación del contrato al corte actual (solo adjudicación documental):**
+
+| Fuente | Hallazgos C1–C3 | Estado C4 | Ejecución ACL |
 |---|---|---|---|
-| `src_f3352475bc0cd360` — SQL Básico, soluciones | SHA-256 exacto con el handout `6 - SQL Básico - Soluciones Ejercicios.pdf` en `fuentes/fadena-std`; la portada identifica la carrera, asignatura y año 2026. El programa analítico incluye SQL en Módulo 3. | No tiene rol en `notebook_source_roles.json` ni cita bibliográfica propia; `sources.course` está vacío y `sources.role=PRIMARY` es global. El handout declara 64 h, frente a las 60 h del programa analítico (el plan de carrera público declara 64 h). No se ha definido la política pedagógica para exponer soluciones. | **Pertenencia material al curso: fuerte y corroborada. Rol/uso y ACL: `PENDING`.** No asignar rol ni alterar ACL automáticamente. |
-| `src_rosen_matematicas_discretas` — Rosen, Matemáticas discretas | La fuente existe y está asociada a cuatro notebooks (`NB-CYBERSECURITY-V1`, `NB-SEC-01-C-PTR`, `fadena-std`, `fase0-soc`). | No hay SHA coincidente en `fuentes/fadena-std`, no tiene rol declarado para este scope y sus dos documentos suman 0 chunks. El programa analítico no lista Rosen ni incluye un módulo de Matemática Discreta. | **`UNRESOLVED` — no hay evidencia de pertenencia a esta asignatura.** No equivale a una decisión de rechazo o revocación. |
-| `src_fadena_prog_archivos` — Manejo y persistencia de archivos | El metadata de rol lo describe como material de cátedra “Estructuras de Datos y Archivos” atribuido a Pereira/Chamudis/Maidana, los mismos docentes que figuran en el programa. Este incluye estructuras de datos y sistemas de archivos/SGBD en Módulo 1. | No hay SHA coincidente con `fuentes/fadena-std`; `course` está vacío y `subject=Cybersecurity`. El contenido indexado trata operaciones de archivos en un fragmento de Fundamentos de Programación; no se identificó portada de apunte de cátedra ni autoría del archivo. El programa lista Cairo & Guardati para estructuras de datos, pero no este título ni Joyanes. También está asociado a tres scopes ajenos. La relación temática y los nombres de docentes en metadata no prueban que este artefacto sea material del curso. | **`UNRESOLVED` — afinidad curricular real, procedencia del documento no establecida.** Rol y ACL `PENDING`. |
-| `src_ramalho_fluent_python` — Luciano Ramalho, Fluent Python | El programa analítico cubre CSV, XML, JSON, YAML, logs y REGEX en Módulo 5, y ETL en Módulo 7; la metadata describe relación con parte de esos contenidos. | La fuente real es el libro general *Fluent Python* (2.ª ed., Python 3.10; 1.011 páginas), no un apunte limitado a formatos/REGEX. No hay SHA coincidente con `fuentes/fadena-std`, no está en la bibliografía del programa, `course` está vacío y `subject=Cybersecurity`. Sus 5.683 chunks abarcan el libro; hay afinidad de algunos temas, no validación de bibliografía o procedencia. Está compartido con otros tres scopes. | **`UNRESOLVED` — relevancia temática parcial confirmada, adopción/procedencia no acreditada.** Rol y ACL `PENDING`. |
-
-**Conclusión del cotejo:** el programa analítico compartido mejora y diferencia
-la evidencia:
-
-- `src_f3352475bc0cd360`: material de curso claramente identificado, pero
-  pendiente de rol pedagógico y política sobre las soluciones.
-- `src_fadena_prog_archivos`: su tema y los docentes indicados en metadata son
-  compatibles con el programa, pero no se ha demostrado la procedencia del
-  archivo específico.
-- `src_ramalho_fluent_python`: varios temas coinciden expresamente con módulos
-  del programa, pero Ramalho/Fluent Python no aparece en la bibliografía ni se
-  acreditó el uso de ese libro como material de cátedra.
-- `src_rosen_matematicas_discretas`: sin tema equivalente ni entrada
-  bibliográfica en el programa.
-
-Así, el programa analítico aportado permite resolver la correspondencia
-temática de algunas fuentes, pero no convierte todas las asociaciones
-existentes en ACL autorizadas. La discrepancia 60 h/64 h queda pendiente de
-reconciliación documental. Las 30 asociaciones siguen sin decisión ACL humana;
-no se cambió ninguna fila, rol, `curriculum_id`, fuente, qrel ni Golden Set.
-Gate 2 continúa **PARCIAL**.
+| `src_ramakrishnan_gehrke_dbms` | Curricular, bibliográfica y procedencia confirmadas en el expediente. | `POLICY_DECISION_PENDING`; la convergencia de evidencia no equivale a aprobación. | Sin autorización de escritura; asociación sin cambios. |
+| `src_f3352475bc0cd360` — SQL soluciones | Correspondencia curricular y procedencia del handout confirmadas; no es bibliografía formal. | `PEDAGOGICAL_USE_PENDING`; definir tratamiento/exposición de soluciones. | Sin autorización de escritura; asociación sin cambios. |
+| `src_fadena_prog_archivos` | Correspondencia curricular temática; bibliografía y procedencia del archivo no confirmadas. | `UNRESOLVED`. | Sin autorización de escritura; asociación sin cambios. |
+| `src_ramalho_fluent_python` | Correspondencia curricular parcial; sin bibliografía ni procedencia institucional acreditadas. | `UNRESOLVED`. | Sin autorización de escritura; asociación sin cambios. |
+| `src_rosen_matematicas_discretas` | Correspondencia curricular, bibliografía y procedencia no confirmadas. | `UNRESOLVED`. | Sin autorización de escritura; asociación sin cambios. |
 
 **Congelamiento actualizado del expediente — 2026-09-29:** el programa
 analítico provisto por el usuario es evidencia primaria nueva y reemplaza la
 conclusión anterior de que faltaba localizarlo. Se cierra la recopilación sobre
-las cuatro fuentes con este baseline:
+las cinco fuentes examinadas con este baseline:
 
 | Dimensión | Estado congelado |
 |---|---|
 | Asociaciones existentes de `fadena-std` | 30, sin cambios |
 | Procedencia local respaldada por hash y rol declarado | 26 `BACKED`; evidencia, no aprobación |
-| Casos restantes | 4 `REVIEW_PENDING`: una fuente de curso con rol/uso pendiente; tres con temas ausentes o afinidad sin procedencia/bibliografía demostrada |
+| Adjudicación por niveles | 5 fuentes examinadas; Ramakrishnan & Gehrke tiene evidencia C1–C3 fuerte y C4 pendiente; SQL soluciones tiene pertenencia/procedencia acreditadas y política C4 pendiente; tres fuentes permanecen `UNRESOLVED` por falta de bibliografía/procedencia o correspondencia curricular suficiente |
 | Referencia sin fila/fuente/asociación | 1 `NONEXISTENT`: `src_cairo_guardati_estructuras_datos`; ahora respaldada como entrada bibliográfica del programa, pero sigue sin objeto fuente local ni ACL. No crear ni asociar automáticamente |
 | Aislamiento E2E | `PASS` para el caso positivo/negativo probado en snapshot real; no generaliza a las 30 asociaciones ni a todos los scopes |
 | Fuente curricular | Programa analítico aportado para 2026, con siete módulos y bibliografía (60 h); plan público de carrera y handout local indican 64 h |
-| Decisión ACL / migración | `PENDING`; cero escrituras autorizadas |
+| Decisión C4 / ACL / migración | Estados C4 propuestos por el borrador anterior; `AUTHORIZED_SCOPED` para ninguna; cero escrituras autorizadas |
 | Gate 2 | **PARCIAL** |
 
 Este congelamiento es documental, no una decisión de conservar, conceder o
-revocar ninguna asociación. El siguiente trabajo de esta línea requiere
-reconciliar la discrepancia de carga horaria y definir autoridad/rol para
-materiales no listados en la bibliografía; el registro `src_cairo...` requiere
-una decisión separada sobre cómo materializar una referencia bibliográfica que
-actualmente carece de fuente local. No inferir cambios de ACL por afinidad
-temática.
+revocar ninguna asociación. El contrato C4 y sus transiciones permanecen
+**DRAFT**, sin aprobación normativa ni implementación; las etiquetas de estado
+aplicadas a las cinco fuentes son adjudicaciones documentales provisionales.
+Reconciliar la discrepancia horaria sigue siendo una línea documental separada;
+el registro `src_cairo...` requiere decidir cómo materializar una referencia
+bibliográfica que actualmente carece de fuente local. No inferir cambios de ACL
+por afinidad temática ni por la sola presencia de una fuente en una matriz de
+roles.
+
+**Corte de diseño C4-DRAFT — 2026-09-29:**
+
+| Área | Estado |
+|---|---|
+| Separación C1–C3 / decisión C4 / acción ACL | Conceptualmente definida; sin autoridad operativa implícita |
+| Transiciones, precedencia de evaluación, historial/proyección | Estructuralmente especificados como borrador; no aprobados ni implementados |
+| Idempotencia, reintentos, no-op y conflictos ACL | Reglas propuestas en el borrador; sin código ni escrituras ACL |
+| Insumos normativos C4 | **PENDIENTES**: checklist probatorio por propósito; criterios de materialidad/reconciliación de contradicciones; catálogo de condiciones pedagógicas; política y autoridades decisoras versionadas por propósito |
+| Prueba de dos implementadores | Gate futuro después de congelar los insumos normativos: mismo snapshot, evento, estado previo y versiones deben derivar la misma transición, resultado y efectos permitidos/prohibidos |
+| Estado de madurez | **C4: DRAFT; determinismo estructural documentado, determinismo normativo pendiente** |
+| Gate 2 | **PARCIAL** |
+| Superficies operativas protegidas | ACL, corpus, curriculum, roles, asociaciones, benchmarks y Golden Sets: sin cambios en esta etapa; no implementar modelos, migraciones, endpoints ni enforcement C4 |
+
+La prueba de dos implementadores no se considera aprobada por la sola
+descripción de la estructura: debe ejecutarse contra entradas normativas
+congeladas y casos concretos antes de promover el borrador a `C4-SPEC`. Hasta
+entonces, el borrador sirve para revisión documental y para derivar únicamente
+invariantes negativas de no-mutación, no para aplicar decisiones o controlar
+accesos.
 
 #### Revisión de ACL de `NB-SEC-01-C-PTR` y plan de implementación
 

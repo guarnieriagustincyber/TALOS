@@ -1,0 +1,277 @@
+{
+  "schema": "talos-vector-space-promotion-fixtures-v1",
+  "base_contract": {
+    "schema": "talos-embedding-contract-v2",
+    "model_id": "fixture/model",
+    "model_revision": "0123456789abcdef0123456789abcdef01234567",
+    "model_artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "dimensions": 4,
+    "max_length": 32,
+    "truncation_side": "right",
+    "pooling": "mean-attention-mask-v1",
+    "normalization": "l2",
+    "tokenizer_id": "fixture/tokenizer",
+    "tokenizer_revision": "0123456789abcdef0123456789abcdef01234567",
+    "tokenizer_artifact_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "query_prefix": "",
+    "query_instruction": "",
+    "query_preprocessing": [
+      "unicode-nfc-u15.0-v1"
+    ],
+    "passage_prefix": "",
+    "passage_instruction": "",
+    "passage_preprocessing": [
+      "unicode-nfc-u15.0-v1"
+    ]
+  },
+  "base_candidate": {
+    "subject": "stored_index",
+    "contract": {},
+    "claimed_vector_space_id": "$VECTOR_SPACE_ID",
+    "artifact_evidence": {
+      "state": "VERIFIED",
+      "model_artifact_sha256": "$MODEL_ARTIFACT_SHA256",
+      "tokenizer_artifact_sha256": "$TOKENIZER_ARTIFACT_SHA256"
+    },
+    "pipeline_evidence": {
+      "state": "VERIFIED",
+      "vector_space_id": "$VECTOR_SPACE_ID"
+    },
+    "binding_evidence": {
+      "state": "VERIFIED",
+      "vector_space_id": "$VECTOR_SPACE_ID",
+      "snapshot_id": "synthetic-snapshot-001"
+    },
+    "coverage_evidence": {
+      "state": "VERIFIED",
+      "total_records": 2,
+      "bound_records": 2
+    },
+    "consistency_state": "VERIFIED",
+    "index_records": [
+      {
+        "vector_space_id": "$VECTOR_SPACE_ID",
+        "dimensions": 4
+      },
+      {
+        "vector_space_id": "$VECTOR_SPACE_ID",
+        "dimensions": 4
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "PROMOTABLE",
+      "expected_status": "PROMOTABLE",
+      "expected_reason": "ALL_PROMOTION_PREDICATES_VERIFIED"
+    },
+    {
+      "name": "NEW_V2_INDEX",
+      "overrides": {
+        "subject": "prospective"
+      },
+      "expected_status": "PROMOTABLE",
+      "expected_reason": "ALL_PROMOTION_PREDICATES_VERIFIED"
+    },
+    {
+      "name": "CONTRACT_ONLY",
+      "overrides": {
+        "subject": "prospective",
+        "artifact_evidence": {
+          "state": "UNKNOWN",
+          "model_artifact_sha256": null,
+          "tokenizer_artifact_sha256": null
+        },
+        "pipeline_evidence": {
+          "state": "UNKNOWN",
+          "vector_space_id": null
+        },
+        "binding_evidence": {
+          "state": "UNKNOWN",
+          "vector_space_id": null,
+          "snapshot_id": null
+        },
+        "coverage_evidence": {
+          "state": "UNKNOWN",
+          "total_records": 0,
+          "bound_records": 0
+        },
+        "consistency_state": "UNKNOWN",
+        "index_records": []
+      },
+      "expected_status": "CANDIDATE",
+      "expected_reason": "CONTRACT_ONLY"
+    },
+    {
+      "name": "PROVENANCE_MISSING",
+      "overrides": {
+        "binding_evidence": {
+          "state": "UNBOUND",
+          "vector_space_id": "$VECTOR_SPACE_ID",
+          "snapshot_id": null
+        }
+      },
+      "expected_status": "LEGACY / UNRESOLVED",
+      "expected_reason": "PROVENANCE_MISSING"
+    },
+    {
+      "name": "ARTIFACT_UNVERIFIED",
+      "overrides": {
+        "subject": "prospective",
+        "artifact_evidence": {
+          "state": "UNVERIFIED",
+          "model_artifact_sha256": "$MODEL_ARTIFACT_SHA256",
+          "tokenizer_artifact_sha256": "$TOKENIZER_ARTIFACT_SHA256"
+        },
+        "pipeline_evidence": {
+          "state": "UNKNOWN",
+          "vector_space_id": null
+        },
+        "binding_evidence": {
+          "state": "UNKNOWN",
+          "vector_space_id": null,
+          "snapshot_id": null
+        },
+        "coverage_evidence": {
+          "state": "UNKNOWN",
+          "total_records": 0,
+          "bound_records": 0
+        },
+        "consistency_state": "UNKNOWN",
+        "index_records": []
+      },
+      "expected_status": "CANDIDATE",
+      "expected_reason": "ARTIFACT_UNVERIFIED"
+    },
+    {
+      "name": "PARTIAL_COVERAGE",
+      "overrides": {
+        "coverage_evidence": {
+          "state": "VERIFIED",
+          "total_records": 2,
+          "bound_records": 1
+        }
+      },
+      "expected_status": "LEGACY / UNRESOLVED",
+      "expected_reason": "PARTIAL_COVERAGE"
+    },
+    {
+      "name": "INVENTORY_COUNT_MISMATCH",
+      "overrides": {
+        "index_records": [
+          {
+            "vector_space_id": "$VECTOR_SPACE_ID",
+            "dimensions": 4
+          }
+        ]
+      },
+      "expected_status": "LEGACY / UNRESOLVED",
+      "expected_reason": "PARTIAL_COVERAGE"
+    },
+    {
+      "name": "MANIFEST_MISMATCH",
+      "overrides": {
+        "artifact_evidence": {
+          "state": "VERIFIED",
+          "model_artifact_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "tokenizer_artifact_sha256": "$TOKENIZER_ARTIFACT_SHA256"
+        }
+      },
+      "expected_status": "REJECTED",
+      "expected_reason": "MANIFEST_MISMATCH"
+    },
+    {
+      "name": "MIXED_VECTOR_SPACES",
+      "overrides": {
+        "index_records": [
+          {
+            "vector_space_id": "$VECTOR_SPACE_ID",
+            "dimensions": 4
+          },
+          {
+            "vector_space_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "dimensions": 4
+          }
+        ]
+      },
+      "expected_status": "HETEROGENEOUS",
+      "expected_reason": "MIXED_VECTOR_SPACES"
+    },
+    {
+      "name": "CONTRADICTORY_EVIDENCE",
+      "overrides": {
+        "consistency_state": "CONTRADICTORY"
+      },
+      "expected_status": "REJECTED",
+      "expected_reason": "CONTRADICTORY_EVIDENCE"
+    },
+    {
+      "name": "MUTABLE_REVISION",
+      "contract_overrides": {
+        "model_revision": "main"
+      },
+      "expected_status": "REJECTED",
+      "expected_reason": "MUTABLE_REVISION"
+    },
+    {
+      "name": "INVALID_INDEX",
+      "overrides": {
+        "index_records": [
+          {
+            "vector_space_id": "$VECTOR_SPACE_ID",
+            "dimensions": 0
+          }
+        ]
+      },
+      "expected_status": "REJECTED",
+      "expected_reason": "INVALID_INDEX"
+    },
+    {
+      "name": "DIMENSION_MISMATCH",
+      "overrides": {
+        "index_records": [
+          {
+            "vector_space_id": "$VECTOR_SPACE_ID",
+            "dimensions": 3
+          },
+          {
+            "vector_space_id": "$VECTOR_SPACE_ID",
+            "dimensions": 4
+          }
+        ]
+      },
+      "expected_status": "REJECTED",
+      "expected_reason": "INVALID_INDEX"
+    },
+    {
+      "name": "INVALID_CONTRACT",
+      "contract_overrides": {
+        "dimensions": null
+      },
+      "expected_status": "REJECTED",
+      "expected_reason": "INVALID_CONTRACT"
+    },
+    {
+      "name": "HISTORICAL_PLAUSIBLE_ID_WITHOUT_PROVENANCE",
+      "overrides": {
+        "pipeline_evidence": {
+          "state": "UNKNOWN",
+          "vector_space_id": null
+        },
+        "binding_evidence": {
+          "state": "UNKNOWN",
+          "vector_space_id": null,
+          "snapshot_id": null
+        },
+        "coverage_evidence": {
+          "state": "UNKNOWN",
+          "total_records": 0,
+          "bound_records": 0
+        },
+        "consistency_state": "UNKNOWN"
+      },
+      "expected_status": "LEGACY / UNRESOLVED",
+      "expected_reason": "PROVENANCE_MISSING"
+    }
+  ]
+}
