@@ -12,7 +12,10 @@ localmente y sin cargar corpus ni producción<br>
 pero no ejecutado en esta etapa<br>
 **Inspección estática E5 ONNX:** ejecutada; archivo FP32 verificado por tipos
 Protobuf, sin sesión/inferencia<br>
-**Freeze de compatibilidad:** permanece congelado y sin cambios
+**Freeze de compatibilidad:** permanece congelado y sin cambios<br>
+**Decisión de runtime E5:** Path A (lock Python 3.10) es la primera vía,
+condicionada a evaluación read-only de viabilidad; véase
+[`E5_RUNTIME_CANDIDATE_DECISION.md`](./E5_RUNTIME_CANDIDATE_DECISION.md)<br>
 
 ## Alcance
 
@@ -63,6 +66,14 @@ Su ejecutable Python enlaza con `/usr/bin/python3`; el entorno incluye `uv`
 (NumPy 2.2.6, ONNX Runtime 1.23.2, Tokenizers 0.23.2), así que el venv
 existente no satisface el runtime bloqueado. No se instaló, creó ni modificó
 ningún entorno.
+
+La decisión técnica versionada selecciona el lock Python 3.10 existente como
+primera vía candidata, condicionada a comprobar la compatibilidad del
+intérprete, plataforma/ABI y wheels para el host objetivo. Esa evaluación debe
+ser read-only. Si Path A no es viable, Path B requiere una decisión versionada
+nueva; no se autoriza adaptar el lock ni reutilizar `.venv` como sustituto.
+Crear entornos, instalar paquetes y ejecutar el harness sintético siguen
+requiriendo autorización específica.
 
 Las referencias y los valores congelados se mantienen en
 [`candidate_contracts_freeze.json`](../reports/backend_selection_adjudication_v1/candidate_contracts_freeze.json).
@@ -302,6 +313,7 @@ Qwen artifact binding/runtime          BLOCKED
 E5 upstream file identity              VERIFIED
 E5 static ONNX FP32                    VERIFIED
 E5 locked runtime execution            BLOCKED
+E5 runtime decision                    PATH_A_SELECTED_FEASIBILITY_PENDING
 E5 padding compatibility               PARTIALLY_RESOLVED_LOCAL_MASKING
 Compatibility specification           FROZEN; unchanged
 Prerequisites resolution gate         OPEN_PARTIALLY_RESOLVED
