@@ -1,0 +1,14 @@
+{
+  "threshold": 100,
+  "minLines": 5,
+  "minTokens": 50,
+  "reporters": ["console"],
+  "formats": ["python", "typescript", "javascript"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/static/vendor/**",
+    "**/*.min.js"
+  ]
+}

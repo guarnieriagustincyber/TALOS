@@ -9,6 +9,8 @@
     "dev": "./bin/tailwindcss -i ./src/styles/input.css -o ./src/styles/tactical.css && vite",
     "build": "./bin/tailwindcss -i ./src/styles/input.css -o ./src/styles/tactical.css --minify && tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
+    "audit:duplicates": "jscpd ../../src/study_engine ../../tests ../../kasiu-lab/ui/src --config ../../.jscpd.json",
+    "audit:ui:serve": "vite --host 127.0.0.1 --port 4173 --strictPort",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -38,6 +40,7 @@
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
     "@vitejs/plugin-react": "4.3.4",
+    "jscpd": "4.2.0",
     "jsdom": "^29.1.1",
     "typescript": "5.7.3",
     "vite": "6.1.1"

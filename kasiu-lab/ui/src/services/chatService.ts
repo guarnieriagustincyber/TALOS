@@ -101,9 +101,11 @@ interface SseEventPayload {
 }
 
 const SSE_EVENT_TYPES = [
+  'phase_start',
   'phase_token',
   'evidence_manifest',
   'phase_complete',
+  'truncated',
   'error',
   'citation_audit',
   'exercise_proposal',
@@ -226,6 +228,7 @@ export const chatService = {
       let fullText = '';
       let done = false;
       let buffer = '';
+      let lastPhaseCompleted = false;
 
       let capturedCitations: Citation[] = [];
       let capturedFacetCoverage: Record<string, 'SUFFICIENT' | 'PARTIAL' | 'MISSING'> = {};
@@ -249,7 +252,10 @@ export const chatService = {
                   if (!eventData) continue;
                   const eventPayload = eventData.payload;
 
-                  if (eventData.event_type === 'phase_token') {
+                  if (eventData.event_type === 'phase_start') {
+                    lastPhaseCompleted = false;
+                  } else if (eventData.event_type === 'phase_token') {
+                    lastPhaseCompleted = false;
                     fullText += eventPayload?.token || '';
                     onProgress?.(fullText);
                   } else if (eventData.event_type === 'evidence_manifest') {
@@ -295,12 +301,20 @@ export const chatService = {
                       capturedAbstentionReason = eventPayload.abstention_reason;
                     }
                   } else if (eventData.event_type === 'phase_complete') {
+                    lastPhaseCompleted = true;
                     if (eventPayload?.decision?.message && !fullText) {
                       fullText = eventPayload.decision.message;
                     }
                     if (eventPayload?.bkt_context) {
                       capturedBktContext = normalizeBktContext(eventPayload.bkt_context);
                     }
+                  } else if (eventData.event_type === 'truncated') {
+                    const message = eventPayload?.message;
+                    throw new SseResponseError(
+                      typeof message === 'string' && message.trim()
+                        ? message
+                        : 'La respuesta quedó truncada antes de completarse.'
+                    );
                   } else if (eventData.event_type === 'error') {
                     const errorMessage = eventPayload?.message || eventPayload?.detail || eventPayload?.error;
                     throw new SseResponseError(typeof errorMessage === 'string' && errorMessage.trim()
@@ -308,10 +322,16 @@ export const chatService = {
                       : 'Ocurrió un error en el servidor.');
                   } else if (
                     eventData.event_type === 'citation_audit' ||
-                    eventData.event_type === 'exercise_proposal' ||
-                    eventData.event_type === 'stream_aborted'
+                    eventData.event_type === 'exercise_proposal'
                   ) {
                     console.debug(`Evento SSE ${eventData.event_type}:`, eventPayload);
+                  } else if (eventData.event_type === 'stream_aborted') {
+                    const message = eventPayload?.message;
+                    throw new SseResponseError(
+                      typeof message === 'string' && message.trim()
+                        ? message
+                        : 'La generación se interrumpió antes de completarse.'
+                    );
                   }
                 }
               }
@@ -335,6 +355,12 @@ export const chatService = {
         }
       } finally {
         clearTimeout(timeoutId);
+      }
+
+      if (!lastPhaseCompleted) {
+        throw new SseResponseError(
+          'La respuesta SSE terminó antes de completarse.'
+        );
       }
 
       const t1 = performance.now();
