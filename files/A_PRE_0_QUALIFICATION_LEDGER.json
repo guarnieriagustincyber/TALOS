@@ -1,0 +1,869 @@
+{
+  "schema": "a-pre-0-qualification-ledger-v2",
+  "created_at": "2026-10-01",
+  "threat_model": {
+    "id": "B",
+    "workload": "potentially-hostile",
+    "trusted_base": [
+      "launcher",
+      "VM",
+      "kernel",
+      "hypervisor"
+    ],
+    "infrastructure_deliberate_capability_injection_in_scope": false
+  },
+  "readiness": {
+    "status": "NOT_READY",
+    "predicate_result": false,
+    "reasons": [
+      "all_385_native_syscall_rows_are_enumerated_but_remain_UNKNOWN_without_final_dispositions",
+      "x32_and_i386_are_excluded_by_scope_but_launcher_enforcement_is_not_qualified",
+      "normative_spec_revision_is_not_part_of_the_qualified_overlay_v4",
+      "required_units_remain_UNKNOWN",
+      "no_separate_machine-validated_qualification_ledger_predicate_exists"
+    ]
+  },
+  "qualification_identity": {
+    "qualified_overlay": {
+      "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/a-pre-snapshot-identity-20261001/overlay-async-seccomp-v4",
+      "commit": "2b2083795602f9099db43bb7ee35b0c030bdf51b",
+      "tree": "d7ae2718c0a969fd1cf8eee0678f0d6f209c59a7"
+    },
+    "current_normative_spec": {
+      "path": "/home/agustin/apre-runner/rev4-clean/docs/A_PRE_0_BASELINE_SPEC.md",
+      "sha256": "f058426b2a7315a90b651eb77d27f2e1c64209105fe8fdc4c1213218d19a0ad4",
+      "present_in_qualified_overlay": false
+    },
+    "existing_domain_matrix": {
+      "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/EFFECT-COVERAGE-ADJUDICATION.md",
+      "sha256": "35da5881e1eb37fbb865a6573b6e00e06456b2625de4a27171369a88202579e2"
+    },
+    "requirements_lock_sha256": "813454bf8dfd410e78789af43b92965b78fdba416757f141e4e6a0c2ee2f4a70"
+  },
+  "target_abi": {
+    "os": "Linux",
+    "distribution": "Ubuntu 26.04 LTS (Resolute)",
+    "architecture": "x86_64",
+    "native_syscall_abi": "x86_64",
+    "kernel_release": "7.0.0-34-generic",
+    "python_runtime": "CPython 3.10.21",
+    "prior_unattributed_os_release": "Linux Mint 22.3 (Zena), Ubuntu base Noble 24.04",
+    "prior_unattributed_kernel_image_version": "7.0.0-34.34~24.04.1",
+    "prior_observation_declared_distribution_match": false,
+    "target_identity_reconciliation": {
+      "status": "DESIGNATED_VM_IDENTITY_CAPTURED; TARGET_TABLE_CANDIDATE_BOUND_BY_HASH",
+      "designated_vm": "fadena-lab",
+      "designation_basis": "CPython build procedure and checkpoint 001 identify fadena-lab as the A-PRE VM; checkpoint 001 distinguishes agustin-desktop/Linux Mint from that VM.",
+      "fresh_capture": "Read-only SSH identity capture at 2026-10-01T06:39:38Z confirmed fadena-lab, Ubuntu 26.04 Resolute, x86_64, kernel 7.0.0-34-generic, and installed packages linux 7.0.0-34.34.",
+      "finding": "The official linux 7.0.0-34.34 source table hash matches the preserved 385-row register hash. The earlier Mint/Noble acquisition remains unattributed auxiliary evidence; it is not the basis for binding the target table.",
+      "noble_hwe_table_scope": "Preserve as auxiliary evidence for the previously inspected Noble HWE build.",
+      "freeze_effect": "Target table identity blocker resolved; row dispositions, variants, and traceability remain open."
+    },
+    "syscall_table_reference_status": "RESOLUTE_LINUX_7.0.0-34.34_SOURCE_HASHED; TABLE_SHA256_MATCHES_PRESERVED_REGISTER; SIGNATURE_NOT_VERIFIED",
+    "scope_decision": "Native x86_64 ABI only",
+    "x32_abi_disposition": "EXCLUDED_BY_SCOPE",
+    "x32_enforcement_status": "NOT_QUALIFIED",
+    "i386_compat_abi_disposition": "EXCLUDED_BY_SCOPE",
+    "i386_compat_enforcement_status": "NOT_QUALIFIED",
+    "designated_vm_syscall_table_acquisition": {
+      "acquisition_id": "A-PRE0-SYSCALL-TABLE-20261001-01",
+      "hostname": "fadena-lab",
+      "vm_identity": "Designated A-PRE-0 VM",
+      "session_context": "Read-only SSH session from the VS Code agent workspace; source artifacts downloaded locally from the official Launchpad source-files endpoint.",
+      "identity_capture_timestamp_utc": "2026-10-01T06:39:38Z",
+      "source_artifact_capture_timestamp_utc": "2026-10-01T06:43:18Z",
+      "os_release": "Ubuntu 26.04 LTS (Resolute)",
+      "kernel_uname": "Linux 7.0.0-34-generic x86_64 GNU/Linux",
+      "dpkg_architecture": "amd64",
+      "native_syscall_abi": "x86_64",
+      "installed_kernel_packages": [
+        "linux-image-7.0.0-34-generic 7.0.0-34.34, source linux-signed",
+        "linux-modules-7.0.0-34-generic 7.0.0-34.34, source linux",
+        "linux-headers-7.0.0-34-generic 7.0.0-34.34, source linux"
+      ],
+      "kernel_source_package": "linux 7.0.0-34.34",
+      "source_listing_url": "https://launchpad.net/ubuntu/+source/linux/7.0.0-34.34/+files",
+      "source_artifacts": [
+        {
+          "filename": "linux_7.0.0-34.34.dsc",
+          "url": "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/linux/7.0.0-34.34/linux_7.0.0-34.34.dsc",
+          "size_bytes": 7787,
+          "sha256_published_and_local": "03239d912d2204cee96216f4006d654ec3d9b4d8882488ca9200c26196c641fc"
+        },
+        {
+          "filename": "linux_7.0.0.orig.tar.gz",
+          "url": "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/linux/7.0.0-34.34/linux_7.0.0.orig.tar.gz",
+          "size_bytes": 254937830,
+          "sha256_published_and_local": "c6343795c8c7e4feff55f5b309365c8e0eaf49cd6abcb412e32315313f149536"
+        },
+        {
+          "filename": "linux_7.0.0-34.34.diff.gz",
+          "url": "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/linux/7.0.0-34.34/linux_7.0.0-34.34.diff.gz",
+          "size_bytes": 2451375,
+          "sha256_published_and_local": "9627f3f544b518adf1b9cb3eac9895398303018948b34fbd7b9b194ef3019cc1"
+        }
+      ],
+      "source_signature_verification": "NOT_PERFORMED",
+      "table_path": "arch/x86/entry/syscalls/syscall_64.tbl",
+      "table_artifact": "linux_7.0.0.orig.tar.gz:linux-7.0/arch/x86/entry/syscalls/syscall_64.tbl",
+      "table_sha256": "93e42d351de2002418bf499b9a538f189fd683e8ecd52b4adc8a0bbe59130455",
+      "table_hash_matches_preserved_385_row_register": true,
+      "ubuntu_delta_changes_table": false,
+      "table_identity_method": "Streamed the named table member from the upstream archive and confirmed the exact Ubuntu delta has no patch referencing that path.",
+      "row_register_action": "Reuse the existing 385-row register unchanged by table SHA-256 identity.",
+      "uapi_header": {
+        "package": "linux-headers-7.0.0-34-generic 7.0.0-34.34",
+        "path": "/usr/src/linux-headers-7.0.0-34-generic/arch/x86/include/generated/uapi/asm/unistd_64.h",
+        "sha256_local": "fb345c85da52add8c7eb5b64274a8d8282975f0a3dd33f9aa172d4be8e95070a"
+      }
+    },
+    "prior_unattributed_noble_syscall_table_source": {
+      "kernel_code_package": "Ubuntu source package linux-hwe-7.0 7.0.0-34.34~24.04.1",
+      "target_binary_package": "linux-image-7.0.0-34-generic",
+      "target_binary_version": "7.0.0-34.34~24.04.1; installed",
+      "target_binary_source_package": "linux-signed-hwe-7.0 7.0.0-34.34~24.04.1",
+      "modules_package": "linux-modules-7.0.0-34-generic 7.0.0-34.34~24.04.1, source linux-hwe-7.0",
+      "headers_package": "linux-headers-7.0.0-34-generic 7.0.0-34.34~24.04.1, source linux-hwe-7.0",
+      "source_chain": "Installed dpkg metadata ties the image to linux-signed-hwe-7.0 and modules/headers to linux-hwe-7.0, same version. The signed source requires the unsigned image at the exact same version; the linux-hwe-7.0 source lists that amd64 binary.",
+      "table_path": "arch/x86/entry/syscalls/syscall_64.tbl",
+      "source_package_descriptor_url": "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/linux-hwe-7.0/7.0.0-34.34~24.04.1/linux-hwe-7.0_7.0.0-34.34~24.04.1.dsc",
+      "source_package_listing_url": "https://launchpad.net/ubuntu/+source/linux-hwe-7.0/7.0.0-34.34~24.04.1/+files",
+      "binary_package_record_url": "https://packages.ubuntu.com/noble/amd64/linux-image-7.0.0-34-generic",
+      "descriptor_sha256": "e9cc83d88922aecea0a7c1d170539baab02d4aa431ce184a867aac7a2ba2b88f",
+      "signing_source": {
+        "package": "linux-signed-hwe-7.0 7.0.0-34.34~24.04.1",
+        "descriptor_sha256_published": "6c390b22c14288b1d05aff0714419b49abdb717a9b67504c39326ca091f81c1f",
+        "archive_sha256_published": "f5b7be51b8ddef58218ce007cc8ebf30ec82458aff517e3416fb6dea12f71160",
+        "signature_verification": "NOT_PERFORMED"
+      },
+      "upstream_archive": {
+        "filename": "linux-hwe-7.0_7.0.0.orig.tar.gz",
+        "size_bytes": 254937830,
+        "sha256": "c6343795c8c7e4feff55f5b309365c8e0eaf49cd6abcb412e32315313f149536"
+      },
+      "ubuntu_delta": {
+        "filename": "linux-hwe-7.0_7.0.0-34.34~24.04.1.diff.gz",
+        "size_bytes": 2455837,
+        "sha256": "81b9d83f6863ea9d41bde191923134fe6bf4261bfcf94a376b85c094fafd6c32"
+      },
+      "local_artifact_hashes_match_published": true,
+      "table_file_sha256": "93e42d351de2002418bf499b9a538f189fd683e8ecd52b4adc8a0bbe59130455",
+      "upstream_table_sha256": "93e42d351de2002418bf499b9a538f189fd683e8ecd52b4adc8a0bbe59130455",
+      "table_diff_vs_upstream": "BYTE_IDENTICAL",
+      "table_source_lines": 443,
+      "native_x86_64_entries": 385,
+      "common_entries": 338,
+      "64_entries": 47,
+      "x32_entries_excluded": 36,
+      "generated_uapi_header": {
+        "package": "linux-headers-7.0.0-34-generic 7.0.0-34.34~24.04.1",
+        "path": "/usr/src/linux-headers-7.0.0-34-generic/arch/x86/include/generated/uapi/asm/unistd_64.h",
+        "sha256": "fb345c85da52add8c7eb5b64274a8d8282975f0a3dd33f9aa172d4be8e95070a"
+      },
+      "signature_verification": "NOT_PERFORMED; gpgv had no acceptable public key",
+      "source_artifacts_downloaded_and_extracted": true,
+      "identity_status": "MATCHED_TO_INSTALLED_NOBLE_HWE_SOURCE; DECLARED_UBUNTU_26_04_TARGET_MISMATCH",
+      "upstream_difference": "The extracted Ubuntu source-package table is byte-identical to the upstream table; the Ubuntu delta does not change syscall_64.tbl."
+    },
+    "source": "Read-only uname, /etc/os-release, dpkg-query package metadata, apt-cache package record, Launchpad source descriptors/listings, and local source/header hashes collected in this resumption."
+  },
+  "inventory": {
+    "source": "The canonical workload-surface manifest derived from the existing effect matrix; the former Python audit-hook row is migrated to sensor_requirements.",
+    "manifest_path": "A_PRE_0_SURFACE_MANIFEST.json",
+    "surface_count": 16,
+    "domain_count": 16,
+    "frozen": false,
+    "freeze_blockers": [
+      "All 385 native syscall table rows are enumerated but UNKNOWN; none has a final surface assignment or effect-based exclusion.",
+      "Finite selector/value partitions have not been populated for all argument axes.",
+      "Static call-site mapping from the target workload snapshot through Python/native/dependency layers to surfaces is incomplete."
+    ],
+    "syscall_dispositions": {
+      "source_identification_status": "DESIGNATED_VM_SOURCE_PACKAGE_HASHED; TABLE_SHA256_MATCHES_PRESERVED_REGISTER; SIGNATURE_NOT_VERIFIED",
+      "table_row_count": 385,
+      "explicit_disposition_row_count": 385,
+      "final_surface_or_exclusion_disposition_count": 0,
+      "unknown_row_count": 385,
+      "static_crosswalk_row_count": 385,
+      "rows_with_candidate_surface_context": 191,
+      "rows_without_surface_candidate_remain_unknown": 194,
+      "runtime_effect_disposition_count": 0,
+      "row_register_state": "ALL_NATIVE_ROWS_ENUMERATED; ALL_STATIC_CROSSWALKS_RECORDED; ALL_PENDING_UNKNOWN",
+      "manifest_rows_ref": "A_PRE_0_SURFACE_MANIFEST.json#syscall_disposition_contract.rows",
+      "unknown_handling": "Historical per-case outcomes are attached only to exact syscall/variant/route records in the manifest; they do not promote any syscall-wide disposition. All unclosed syscall rows remain UNKNOWN.",
+      "surface_syscall_arrays_are_candidate_memberships_only": true,
+      "rows_without_candidate_surface_membership": 194,
+      "surface_syscall_tokens_absent_from_native_table": 0,
+      "status": "STATIC_CROSSWALK_RECORDED; EFFECT_DISPOSITIONS_PENDING",
+      "pending": [
+        "Adjudicate each candidate surface mapping or record an explicit threat-model exclusion; retain UNKNOWN where static evidence is insufficient.",
+        "Complete finite argument/flag partitions and callsite/dependency traceability.",
+        "Resolve name-level potential-surface leads and explicitly unresolved legacy/special interfaces through threat-model review; current crosswalk membership and all row dispositions remain unchanged."
+      ],
+      "historical_case_count": 27,
+      "rows_with_historical_case_evidence": 17,
+      "observed_case_count": 16,
+      "blocked_case_count": 11,
+      "exact_model_b_subcase_credit_count": 11,
+      "current_ready_predicate_eligible_case_count": 0,
+      "row_dispositions_remain_unknown": 385,
+      "manifest_case_summary_ref": "A_PRE_0_SURFACE_MANIFEST.json#syscall_disposition_contract.historical_case_adjudication_summary",
+      "no_candidate_review_ref": "A_PRE_0_SURFACE_MANIFEST.json#syscall_disposition_contract.no_candidate_row_review",
+      "no_candidate_rows_reviewed": 194,
+      "no_candidate_potential_existing_surface_lead_rows": 186,
+      "no_candidate_unresolved_rows": 8,
+      "no_candidate_review_new_surfaces": 0,
+      "no_candidate_review_membership_changes": 0,
+      "rows_without_candidate_surface_remain_unknown": 194,
+      "no_candidate_lead_reference_histogram": {
+        "one_surface_ref": 168,
+        "two_surface_refs": 18
+      },
+      "no_candidate_lead_surface_reference_counts": {
+        "S01": 24,
+        "S02": 19,
+        "S04": 6,
+        "S05": 17,
+        "S06": 19,
+        "S10": 38,
+        "S11": 27,
+        "S15": 3,
+        "S16": 51
+      },
+      "no_candidate_unresolved_review_status": "EIGHT_ROWS_RETAINED_UNKNOWN_WITH_EXPLICIT_REASONS; NO_EXCLUSIONS"
+    },
+    "argument_variant_review": {
+      "status": "PARTIAL_UNKNOWN",
+      "manifest_ref": "A_PRE_0_SURFACE_MANIFEST.json#argument_variant_review",
+      "not_resolved": [
+        "mmap/mapping flags and backing-object partitions",
+        "clone/clone3 flag, structure-version, process/thread, and namespace partitions",
+        "socket family/type/protocol, operation, and ancillary-data partitions",
+        "fcntl command partitions",
+        "ioctl request/object partitions and unverified whole-syscall default-deny",
+        "mount and namespace operation/argument/phase partitions",
+        "seccomp/prctl operation, flags, inheritance, and effective-policy transitions"
+      ],
+      "classification_rule": "Unenumerated values/combination selectors remain UNKNOWN; proposed default-deny is not BLOCKED evidence.",
+      "documentary_review_ref": "A_PRE_0_SURFACE_MANIFEST.json#argument_variant_review.documentary_review_summary",
+      "selector_groups_reviewed": 7,
+      "groups_with_bounded_historical_subcases": 3,
+      "finite_partitions_closed": 0
+    },
+    "python_native_traceability": {
+      "status": "INCOMPLETE_UNKNOWN",
+      "manifest_ref": "A_PRE_0_SURFACE_MANIFEST.json#python_native_traceability",
+      "completed_granularity": "Candidate interface-family mappings only, based on static AST inventory v4.",
+      "missing": [
+        "Callsite-level mapping for the exact workload snapshot.",
+        "Exact CPython, libc, extension, and dependency implementation/version mapping.",
+        "Native syscall emission mapping to the exact table row and argument partition.",
+        "Resolution or explicit UNKNOWN classification for dynamic dispatch, transitive effects, ctypes/cffi, callbacks, and native extensions."
+      ],
+      "documentary_review_ref": "A_PRE_0_SURFACE_MANIFEST.json#python_native_traceability.documentary_adjudication",
+      "exact_workload_callsite_chains": 0,
+      "exact_dependency_or_native_implementation_version_chains": 0,
+      "syscall_row_and_argument_partition_emissions_proven": 0
+    },
+    "qualification_open_items_not_freeze_blockers": [
+      "Launcher enforcement rejecting the explicitly excluded x32/i386 compat ABIs is not qualified.",
+      "Opaque-API default-deny is proposed but not demonstrated as active enforcement.",
+      "Required surface, sensor, and launcher-control units remain unqualified."
+    ],
+    "rule": "The manifest closes names and semantic boundaries only when ABI/version applicability, arguments, relations, and alternatives are explicit. UNKNOWN is an allowed qualification state in a frozen manifest, but not a reason to infer coverage.",
+    "coverage_unit_model": "surface_id + syscall_or_library_interface + ABI + argument_or_flag_partition + resource_or_capability_class + phase + outcome_class. A unit splits where any selector changes security meaning or enforceability; values outside admitted partitions remain UNKNOWN unless an active verified control denies them.",
+    "static_source_inventory": {
+      "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/a-pre-snapshot-identity-20261001/ast-effects-inventory-async-seccomp-v4.json",
+      "sha256": "c20df943850b2b4d782d2ee12507260d9cd0d5cedf84c6120be40fccd503d3a9",
+      "scope": "456 tracked test modules parsed; static direct-call candidates include 350 filesystem mutation, 126 filesystem read, 65 open, 13 process, and 0 matches for the scanner's known imported-network-name patterns. Categories overlap; absence of a match is not proof of absence.",
+      "limitation": "Candidate counts are not site-level Python-to-library-to-native-to-syscall mappings. Dynamic calls, receiver types, transitive effects, and arbitrary native extensions remain unresolved."
+    },
+    "canonical_surface_mapping": {
+      "filesystem-open-create": [
+        "S01"
+      ],
+      "filesystem-fd-io": [
+        "S02"
+      ],
+      "inherited-regular-fd": [
+        "S03",
+        "C-SENS-FD-REGULAR",
+        "C-LAUNCHER-FD-HYGIENE"
+      ],
+      "filesystem-mutations": [
+        "S04"
+      ],
+      "file-mappings": [
+        "S05"
+      ],
+      "anonymous-and-memfd-mappings": [
+        "S06"
+      ],
+      "ip-network": [
+        "S07"
+      ],
+      "unix-socket-and-local-ipc": [
+        "S08",
+        "S10"
+      ],
+      "inherited-connected-af-unix": [
+        "S03",
+        "S08",
+        "S09",
+        "C-SENS-AF-UNIX"
+      ],
+      "process-tree-and-exec": [
+        "S11"
+      ],
+      "pipe-eventfd-futex-signal-descriptors": [
+        "S10"
+      ],
+      "io-uring": [
+        "S12"
+      ],
+      "linux-native-aio": [
+        "S13"
+      ],
+      "posix-aio-workers-native-libraries": [
+        "S14"
+      ],
+      "opaque-and-extensible-kernel-apis": [
+        "S15"
+      ],
+      "kernel-mount-namespaces-credentials-limits": [
+        "S16"
+      ]
+    }
+  },
+  "status_vocabulary": [
+    "OBSERVED",
+    "BLOCKED",
+    "UNKNOWN"
+  ],
+  "unknown_path_entry_status": "UNKNOWN",
+  "unknown_path_evidence_rule": "Every unknown_paths item is a required but unqualified path. It cannot satisfy readiness without a passing evidence reference; a supporting limitation may be referenced by its parent case or matrix row.",
+  "coverage_unit_contract_ref": "A_PRE_0_SURFACE_MANIFEST.json#coverage_unit_contract",
+  "syscall_disposition_contract_ref": "A_PRE_0_SURFACE_MANIFEST.json#syscall_disposition_contract",
+  "python_native_traceability_ref": "A_PRE_0_SURFACE_MANIFEST.json#python_native_traceability",
+  "historical_case_evidence_rule": "The listed OBSERVED/BLOCKED values preserve prior subcase adjudications only. Cases tagged sensor_sensitivity do not count toward workload-surface closure. No existing evidence set includes this reconciled normative spec and manifest in the qualified overlay identity, so none is independently eligible to satisfy A_PRE_0_READY until re-bound to a later qualified snapshot. The manifest now contains exact syscall-linked subcase records (16 OBSERVED, 11 BLOCKED across 17 rows); syscall-wide dispositions remain UNKNOWN and no case is eligible for the current readiness predicate until evidence is rebound to a qualified overlay containing the normative spec.",
+  "domains": [
+    {
+      "id": "filesystem-open-create",
+      "matrix_name": "Apertura/creación de archivos (`open`, `openat`, `openat2`, `creat`)",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [
+        {
+          "id": "openat-path-resolution-in-synthetic-fixture",
+          "status": "OBSERVED",
+          "evidence_refs": [
+            {
+              "kind": "adjudication",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/EFFECT-COVERAGE-ADJUDICATION.md",
+              "sha256": "35da5881e1eb37fbb865a6573b6e00e06456b2625de4a27171369a88202579e2"
+            }
+          ],
+          "scope": "The matrix records readable openat pathname and dirfd fixtures; this does not establish general path attribution."
+        }
+      ],
+      "unknown_paths": [
+        "Exact atomic syscall/path set and general attribution of open/openat/openat2/creat remain unfrozen."
+      ]
+    },
+    {
+      "id": "filesystem-fd-io",
+      "matrix_name": "Lectura/escritura por fd (`read`, `write`, `pread/pwrite`, vectores, `sendfile`, `splice`, `copy_file_range`)",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [
+        {
+          "id": "syscall-event-capture-with-payload-redaction",
+          "status": "OBSERVED",
+          "evidence_refs": [
+            {
+              "kind": "qualification-log",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/implemented-harness-qualification-20261001/seccomp-async-v4/audit-harness-result.log",
+              "sha256": "85b16a94aa3ef9d54640189c21482e5fe2a4e3a95ed1b502cc28d2ac7976cafb"
+            }
+          ],
+          "scope": "Syscall stream capture only; -s 0 does not record read/write payloads."
+        }
+      ],
+      "unknown_paths": [
+        "General fd-to-resource attribution",
+        "All listed transfer families and unlisted alternatives",
+        "Effect/payload attribution where trace data is intentionally absent"
+      ]
+    },
+    {
+      "id": "inherited-regular-fd",
+      "matrix_name": "FD regular heredado desde el launcher",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [
+        {
+          "id": "explicitly-injected-regular-fd-positive",
+          "status": "OBSERVED",
+          "test_purpose": "sensor_sensitivity",
+          "counts_toward_model_b_surface_closure": false,
+          "evidence_refs": [
+            {
+              "kind": "probe-result",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/fd-inheritance-probe-v2-20261001/evidence/result.json",
+              "sha256": "07d7cb072f7701b3c1eb9383806e91c355afd0aebdbe44e578cb6739aaf76f25"
+            }
+          ]
+        },
+        {
+          "id": "unpassed-regular-fd-negative",
+          "status": "BLOCKED",
+          "test_purpose": "launcher_boundary_subcase",
+          "counts_toward_model_b_surface_closure": true,
+          "evidence_refs": [
+            {
+              "kind": "probe-result",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/fd-inheritance-probe-v2-20261001/evidence/result.json",
+              "sha256": "07d7cb072f7701b3c1eb9383806e91c355afd0aebdbe44e578cb6739aaf76f25"
+            }
+          ],
+          "scope": "Only the tested regular descriptor and launcher path."
+        }
+      ],
+      "unknown_paths": [
+        "Other descriptor classes",
+        "dup/dup2/dup3 and close-on-exec transitions",
+        "Descriptor transfer and post-entry acquisition paths"
+      ]
+    },
+    {
+      "id": "filesystem-mutations",
+      "matrix_name": "Mutaciones de namespace de archivos (unlink, rename, link, mkdir/rmdir, symlink, chmod/chown, truncate, xattr, nodos)",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [
+        {
+          "id": "relative-dirfd-open-and-rename",
+          "status": "OBSERVED",
+          "evidence_refs": [
+            {
+              "kind": "adjudication",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/EFFECT-COVERAGE-ADJUDICATION.md",
+              "sha256": "35da5881e1eb37fbb865a6573b6e00e06456b2625de4a27171369a88202579e2"
+            }
+          ],
+          "scope": "Only the recorded relative openat/renameat scratch case."
+        }
+      ],
+      "unknown_paths": [
+        "Other listed mutation operations and syscall variants",
+        "General path/dirfd resolution and race-sensitive attribution",
+        "No atomic operation inventory is frozen."
+      ]
+    },
+    {
+      "id": "file-mappings",
+      "matrix_name": "Mappings (`mmap`, `mprotect`, `munmap`, `msync`)",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [
+        {
+          "id": "explicitly-injected-map-shared-positive",
+          "status": "OBSERVED",
+          "test_purpose": "sensor_sensitivity",
+          "counts_toward_model_b_surface_closure": false,
+          "evidence_refs": [
+            {
+              "kind": "probe-result",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/map-shared-fd-probe-v1-20261001/evidence/result.json",
+              "sha256": "9e78c073f50ef6db4629947e6cfb4ae507808810d1a2dd7d2c1c7250a7c7752f"
+            }
+          ],
+          "scope": "mmap(MAP_SHARED), successful flush and independent external read-back; the CPU store is not a trace event."
+        },
+        {
+          "id": "unpassed-fd-map-shared-negative",
+          "status": "BLOCKED",
+          "test_purpose": "path_boundary_subcase",
+          "counts_toward_model_b_surface_closure": true,
+          "evidence_refs": [
+            {
+              "kind": "probe-result",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/map-shared-fd-probe-v1-20261001/evidence/result.json",
+              "sha256": "9e78c073f50ef6db4629947e6cfb4ae507808810d1a2dd7d2c1c7250a7c7752f"
+            }
+          ],
+          "scope": "Only the tested external pathname with no descriptor passed."
+        }
+      ],
+      "unknown_paths": [
+        "CPU store content and causal attribution by syscall tracing",
+        "MAP_PRIVATE and other mapping variants",
+        "Mapping alternatives already listed in the matrix, including memfd and shared-memory consumers"
+      ]
+    },
+    {
+      "id": "anonymous-and-memfd-mappings",
+      "matrix_name": "Archivos mapeados anónimos/`memfd`",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [],
+      "unknown_paths": [
+        "memfd creation, sharing, consumer attribution, and content effects are not adjudicated."
+      ]
+    },
+    {
+      "id": "ip-network",
+      "matrix_name": "Red IP (superseded by canonical syscall list S07)",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [],
+      "unknown_paths": [
+        "Endpoint/result attribution and the relationship between isolated network namespace and blocked external destinations are incomplete."
+      ]
+    },
+    {
+      "id": "unix-socket-and-local-ipc",
+      "matrix_name": "Unix sockets y IPC local",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [
+        {
+          "id": "local-unix-socket-pipe-and-fionread-fixtures",
+          "status": "OBSERVED",
+          "evidence_refs": [
+            {
+              "kind": "adjudication",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/EFFECT-COVERAGE-ADJUDICATION.md",
+              "sha256": "35da5881e1eb37fbb865a6573b6e00e06456b2625de4a27171369a88202579e2"
+            }
+          ],
+          "scope": "Call/path/count evidence for the existing synthetic cases; payload sentinel was not in trace."
+        }
+      ],
+      "unknown_paths": [
+        "General IPC payload and peer attribution",
+        "The opaqueness of ioctl commands beyond the single FIONREAD subcase"
+      ]
+    },
+    {
+      "id": "inherited-connected-af-unix",
+      "matrix_name": "FD conectado `AF_UNIX` heredado",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [
+        {
+          "id": "explicitly-injected-connected-stream-positive",
+          "status": "OBSERVED",
+          "test_purpose": "sensor_sensitivity",
+          "counts_toward_model_b_surface_closure": false,
+          "evidence_refs": [
+            {
+              "kind": "probe-result",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/inherited-unix-socket-probe-v3-20261001/evidence/result.json",
+              "sha256": "48c54c9300db4026ed3c29287f28d6149d6906962cbd56c677fa801d6ec6ebf1"
+            }
+          ]
+        },
+        {
+          "id": "external-socket-path-without-fd",
+          "status": "BLOCKED",
+          "test_purpose": "path_boundary_subcase",
+          "counts_toward_model_b_surface_closure": true,
+          "evidence_refs": [
+            {
+              "kind": "probe-result",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/inherited-unix-socket-probe-v3-20261001/evidence/result.json",
+              "sha256": "48c54c9300db4026ed3c29287f28d6149d6906962cbd56c677fa801d6ec6ebf1"
+            }
+          ]
+        }
+      ],
+      "unknown_paths": [
+        "Other socket types and descriptor transfer paths"
+      ]
+    },
+    {
+      "id": "process-tree-and-exec",
+      "matrix_name": "Árbol de procesos y ejecución (superseded by canonical syscall list S11)",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [
+        {
+          "id": "synthetic-process-tree-trace",
+          "status": "OBSERVED",
+          "evidence_refs": [
+            {
+              "kind": "qualification-log",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/implemented-harness-qualification-20261001/seccomp-async-v4/audit-harness-result.log",
+              "sha256": "85b16a94aa3ef9d54640189c21482e5fe2a4e3a95ed1b502cc28d2ac7976cafb"
+            }
+          ],
+          "scope": "Synthetic process-tree capture only."
+        }
+      ],
+      "unknown_paths": [
+        "Applicability of the canonical syscall list to the bound kernel table and clone/exec argument variants remains unresolved.",
+        "Coverage of effects of every child/thread remains dependent on all other required domains."
+      ]
+    },
+    {
+      "id": "pipe-eventfd-futex-signal-descriptors",
+      "matrix_name": "Pipes, eventfd, futex, señales y descriptor IPC",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [],
+      "unknown_paths": [
+        "Complete endpoint/peer/data semantics and family coverage are not adjudicated."
+      ]
+    },
+    {
+      "id": "io-uring",
+      "matrix_name": "`io_uring`",
+      "required": true,
+      "status": "BLOCKED",
+      "cases": [
+        {
+          "id": "profile-denies-setup-enter-register",
+          "status": "BLOCKED",
+          "evidence_refs": [
+            {
+              "kind": "seccomp-preflight",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/seccomp-harness-preflight-v4-20261001/evidence/seccomp-probe.json",
+              "sha256": "350d5d8c40125417a9475ed7caa77fcd1acf15bc49f80da817a1cb17695f9d8b"
+            },
+            {
+              "kind": "isolation-and-trace",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/seccomp-harness-preflight-v4-20261001/evidence/isolation.json",
+              "sha256": "17d94bac187ca74b008a34e192c29706e170080e25dc626e13e4b9fb81d8226d"
+            }
+          ],
+          "policy": {
+            "profile": "a-pre-native-async-deny-v1",
+            "sha256": "ff44e7f9573fe503fd023792d1e38c44ba8b4ac53275097559eaece82e0ea9e9"
+          }
+        }
+      ],
+      "scope": "Only the listed io_uring syscalls under the expected active profile."
+    },
+    {
+      "id": "linux-native-aio",
+      "matrix_name": "Linux native AIO (`io_setup`, `io_submit`, `io_getevents`, `io_pgetevents`, `io_destroy`, `io_cancel`)",
+      "required": true,
+      "status": "BLOCKED",
+      "cases": [
+        {
+          "id": "profile-denies-six-linux-aio-syscalls",
+          "status": "BLOCKED",
+          "evidence_refs": [
+            {
+              "kind": "seccomp-preflight",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/seccomp-harness-preflight-v4-20261001/evidence/seccomp-probe.json",
+              "sha256": "350d5d8c40125417a9475ed7caa77fcd1acf15bc49f80da817a1cb17695f9d8b"
+            },
+            {
+              "kind": "isolation-and-trace",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/seccomp-harness-preflight-v4-20261001/evidence/isolation.json",
+              "sha256": "17d94bac187ca74b008a34e192c29706e170080e25dc626e13e4b9fb81d8226d"
+            }
+          ],
+          "policy": {
+            "profile": "a-pre-native-async-deny-v1",
+            "sha256": "ff44e7f9573fe503fd023792d1e38c44ba8b4ac53275097559eaece82e0ea9e9"
+          }
+        }
+      ],
+      "scope": "Six Linux AIO calls listed above; aggregate means calls are denied, not that the full native async universe is covered."
+    },
+    {
+      "id": "posix-aio-workers-native-libraries",
+      "matrix_name": "POSIX AIO, workers y librerías nativas",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [],
+      "unknown_paths": [
+        "Deferred operations and worker/thread/process correlation are not qualified."
+      ]
+    },
+    {
+      "id": "opaque-and-extensible-kernel-apis",
+      "matrix_name": "`ioctl`, `bpf`, `perf_event_open`, `userfaultfd`, mecanismos de kernel extensibles",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [
+        {
+          "id": "ioctl-fionread-single-subcase",
+          "status": "OBSERVED",
+          "evidence_refs": [
+            {
+              "kind": "adjudication",
+              "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/EFFECT-COVERAGE-ADJUDICATION.md",
+              "sha256": "35da5881e1eb37fbb865a6573b6e00e06456b2625de4a27171369a88202579e2"
+            }
+          ],
+          "scope": "FIONREAD on the synthetic pipe only."
+        }
+      ],
+      "unknown_paths": [
+        "ioctl commands outside FIONREAD and other listed extensible APIs remain unclassified."
+      ]
+    },
+    {
+      "id": "kernel-mount-namespaces-credentials-limits",
+      "matrix_name": "Carga de módulo, mount, namespaces, credenciales y límites (superseded by canonical syscall list S16)",
+      "required": true,
+      "status": "UNKNOWN",
+      "cases": [],
+      "unknown_paths": [
+        "Workload-phase attribution is not defined.",
+        "Namespace/credential/capability transitions and effect on containment have not been qualified.",
+        "seccomp inheritance/alteration by the workload has not been qualified."
+      ]
+    }
+  ],
+  "sensor_requirements": [
+    {
+      "id": "T01-python-audit-hook",
+      "name": "sys.addaudithook auxiliary telemetry",
+      "category": "AUXILIARY_ONLY",
+      "workload_surface": false,
+      "qualification_state": "PARTIAL",
+      "evidence_refs": [
+        {
+          "kind": "qualification-log",
+          "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/implemented-harness-qualification-20261001/seccomp-async-v4/audit-harness-result.log",
+          "sha256": "85b16a94aa3ef9d54640189c21482e5fe2a4e3a95ed1b502cc28d2ac7976cafb"
+        }
+      ],
+      "declared_limit": "The hook declares native_syscalls=false and complete=false; it cannot establish absence or completeness of native effects.",
+      "may_close_workload_surface": false
+    }
+  ],
+  "sensitivity_controls": [
+    {
+      "id": "C-SENS-FD-REGULAR",
+      "test_purpose": "sensor_sensitivity",
+      "surface_refs": [
+        "S03"
+      ],
+      "evidence_refs": [
+        {
+          "kind": "probe-result",
+          "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/fd-inheritance-probe-v2-20261001/evidence/result.json",
+          "sha256": "07d7cb072f7701b3c1eb9383806e91c355afd0aebdbe44e578cb6739aaf76f25"
+        }
+      ],
+      "interpretation": "The positive deliberate-injection case is OBSERVED for sensor sensitivity only; it is not a Model B launcher-containment case."
+    },
+    {
+      "id": "C-SENS-MAP-SHARED",
+      "test_purpose": "sensor_sensitivity",
+      "surface_refs": [
+        "S03",
+        "S05"
+      ],
+      "evidence_refs": [
+        {
+          "kind": "probe-result",
+          "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/map-shared-fd-probe-v1-20261001/evidence/result.json",
+          "sha256": "9e78c073f50ef6db4629947e6cfb4ae507808810d1a2dd7d2c1c7250a7c7752f"
+        }
+      ],
+      "interpretation": "The positive injected-FD mapping/flush is OBSERVED for sensitivity only; it does not establish normal-launcher FD hygiene or trace visibility of CPU stores."
+    },
+    {
+      "id": "C-SENS-AF-UNIX",
+      "test_purpose": "sensor_sensitivity",
+      "surface_refs": [
+        "S03",
+        "S08",
+        "S09"
+      ],
+      "evidence_refs": [
+        {
+          "kind": "probe-result",
+          "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/inherited-unix-socket-probe-v3-20261001/evidence/result.json",
+          "sha256": "48c54c9300db4026ed3c29287f28d6149d6906962cbd56c677fa801d6ec6ebf1"
+        }
+      ],
+      "interpretation": "The positive deliberate-injection case is OBSERVED for sensor sensitivity only; it does not establish normal-launcher FD hygiene."
+    }
+  ],
+  "launcher_boundary_requirements": [
+    {
+      "id": "C-LAUNCHER-FD-HYGIENE",
+      "requirement": "At sandbox entry, only explicitly declared descriptors may be inherited; all undeclared descriptors must be closed or otherwise proven unavailable.",
+      "status": "UNKNOWN",
+      "evidence_refs": [
+        {
+          "kind": "probe-result",
+          "path": "/home/agustin/apre-runner/cpython-3.10.21/evidence/instrument-fixtures/fd-inheritance-probe-v2-20261001/evidence/result.json",
+          "sha256": "07d7cb072f7701b3c1eb9383806e91c355afd0aebdbe44e578cb6739aaf76f25"
+        }
+      ],
+      "evidence_scope": "The historical negative control covers one regular FD and the tested launcher path only; no generalization to other descriptor classes, exec transitions, or later transfer paths."
+    }
+  ],
+  "predicate": {
+    "name": "A_PRE_0_READY",
+    "version": 2,
+    "result": false,
+    "required_checks": [
+      "inventory.frozen is true",
+      "target ABI, kernel release, and exact syscall-table source identity are bound",
+      "x32 and i386 are explicitly excluded by scope and launcher enforcement is qualified",
+      "the set of required surface IDs exactly matches the canonical manifest",
+      "every required path/case is explicit and has status OBSERVED or BLOCKED",
+      "every status has evidence references with valid hashes",
+      "OBSERVED evidence proves the relevant event/resource/process/result for its declared scope",
+      "BLOCKED evidence binds denial to the active policy/resource/process for its declared scope",
+      "alternative paths have explicit cases or a documented out-of-scope rationale",
+      "all evidence uses the same qualified snapshot, policy, platform, and threat model",
+      "sensor requirements are evaluated separately and auxiliary Python audit telemetry cannot close a workload surface",
+      "deliberate FD injection controls are labeled sensor_sensitivity and are not credited as launcher containment",
+      "launcher FD hygiene at sandbox entry is independently qualified",
+      "no required unit or alternative path is UNKNOWN",
+      "no evidence is missing, invalid, or contradictory",
+      "collector, builder, and independent verifier pass fail-closed validation",
+      "TALOS execution and collection count during A-PRE-0 qualification is zero"
+    ],
+    "current_false_causes": [
+      "inventory.frozen is false",
+      "target syscall table identity is bound by package/source/table hashes; source OpenPGP signature remains unverified",
+      "native syscall dispositions and finite argument partitions are incomplete",
+      "static call-site/dependency traceability is incomplete",
+      "native-only ABI scope enforcement for excluded compat ABIs is not qualified",
+      "qualified overlay does not contain current normative spec hash",
+      "multiple required domains and paths are UNKNOWN",
+      "current runtime effect_coverage is UNKNOWN and complete is false",
+      "no independent executable validator has validated this ledger schema/predicate"
+    ]
+  },
+  "independent_verification": {
+    "required": true,
+    "implementation_status": "NOT_IMPLEMENTED",
+    "must_not_import_or_execute_talos": true,
+    "mutation_cases_that_must_return_false": [
+      "Remove a required domain or a required path/case.",
+      "Change UNKNOWN to OBSERVED or BLOCKED without valid matching evidence.",
+      "Count a sensor_sensitivity control as workload-surface containment evidence.",
+      "Count an AUXILIARY_ONLY sensor as coverage of a native workload surface.",
+      "Remove an evidence reference, corrupt its hash, or point it outside the allowed evidence roots.",
+      "Make evidence snapshot, platform, threat model, or policy identity disagree with the ledger.",
+      "Add contradictory positive/negative outcomes or invalid trace completion.",
+      "Set inventory.frozen=false, leave an open-ended inventory path unresolved, or omit the ABI syscall-table identity.",
+      "Claim the native-only scope without evidence that x32/i386 compat execution is rejected at the launcher boundary.",
+      "Claim a default-deny control without evidence that the active policy enforces it.",
+      "Use an unsupported schema/version or omit a required field."
+    ],
+    "positive_control": "A synthetic in-memory ledger with frozen exact inventory and internally consistent evidence for every required case may exercise the true branch. It is only a validator test vector and cannot qualify the real A-PRE-0 snapshot.",
+    "current_expected_result": false
+  },
+  "constraints": {
+    "new_domains_added": 0,
+    "new_probes_executed": 0,
+    "talos_executed": false,
+    "full_suites_executed": false,
+    "release_gate_executed": false,
+    "a_pre_1_authorized": false
+  }
+}
