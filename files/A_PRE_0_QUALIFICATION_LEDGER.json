@@ -196,9 +196,9 @@
       "surface_syscall_tokens_absent_from_native_table": 0,
       "status": "STATIC_CROSSWALK_RECORDED; EFFECT_DISPOSITIONS_PENDING",
       "pending": [
-        "Continue adjudicating remaining candidate surface mappings; retain UNKNOWN where static evidence is insufficient.",
+        "Continue adjudicating remaining candidate surface relations; preserve per-surface scope and retain UNKNOWN where evidence is insufficient.",
         "Complete finite argument/flag partitions and callsite/dependency traceability.",
-        "Prepare and review the next documentary batch for S03 FD hygiene/lifecycle; do not infer its memberships from S02 exclusions."
+        "Review descriptor-acquisition and descriptor-passing routes separately; the S03 batch 03 decision does not adjudicate those relations."
       ],
       "historical_case_count": 27,
       "rows_with_historical_case_evidence": 17,
@@ -331,7 +331,66 @@
           "relation_status": "EXCLUDED"
         }
       ],
-      "no_candidate_relation_exclusions_total": 23
+      "no_candidate_relation_exclusions_total": 23,
+      "s03_human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+      "s03_human_adjudicated_membership_count": 9,
+      "s03_human_adjudicated_memberships": [
+        {
+          "nr": 3,
+          "name": "close",
+          "decision": "YES",
+          "scope": "Descriptor close and lifecycle."
+        },
+        {
+          "nr": 436,
+          "name": "close_range",
+          "decision": "YES",
+          "scope": "Descriptor range cleanup and flag-conditioned lifecycle effects."
+        },
+        {
+          "nr": 32,
+          "name": "dup",
+          "decision": "YES",
+          "scope": "Descriptor duplication and open-file-description aliasing."
+        },
+        {
+          "nr": 33,
+          "name": "dup2",
+          "decision": "YES",
+          "scope": "Selected-descriptor duplication/replacement and identity case."
+        },
+        {
+          "nr": 292,
+          "name": "dup3",
+          "decision": "YES",
+          "scope": "Selected-descriptor duplication and O_CLOEXEC."
+        },
+        {
+          "nr": 72,
+          "name": "fcntl",
+          "decision": "YES_CONDITIONAL",
+          "scope": "Only F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD, and F_SETFD."
+        },
+        {
+          "nr": 59,
+          "name": "execve",
+          "decision": "YES_CONDITIONAL",
+          "scope": "FD_CLOEXEC survival/purge across successful exec; process image transition remains S11."
+        },
+        {
+          "nr": 322,
+          "name": "execveat",
+          "decision": "YES_CONDITIONAL",
+          "scope": "FD inheritance across exec and executable resolution/selection via dirfd or executable FD; S01/S11 dimensions remain separate."
+        },
+        {
+          "nr": 438,
+          "name": "pidfd_getfd",
+          "decision": "YES",
+          "scope": "Local descriptor acquisition from another process; mandatory S09/IPC-Processes cross-dimension."
+        }
+      ],
+      "human_adjudicated_candidate_relation_count": 22
     },
     "argument_variant_review": {
       "status": "PARTIAL_UNKNOWN",

@@ -482,10 +482,10 @@
         "candidate_surface_ids": [
           "S03"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the bounded S03 descriptor lifecycle/inheritance/acquisition dimension; no syscall-wide disposition, reachability, or enforcement result inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S03",
@@ -505,7 +505,13 @@
                 "S09",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Descriptor close and lifecycle.",
+                "rationale": "S03 membership is limited to closing the process descriptor entry and its lifecycle. It does not assert destruction of a shared underlying object while other references remain.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 018."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -536,6 +542,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S03",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Descriptor close and lifecycle.",
+              "rationale": "S03 membership is limited to closing the process descriptor entry and its lifecycle. It does not assert destruction of a shared underlying object while other references remain.",
+              "human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -2494,10 +2511,10 @@
         "candidate_surface_ids": [
           "S03"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the bounded S03 descriptor lifecycle/inheritance/acquisition dimension; no syscall-wide disposition, reachability, or enforcement result inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S03",
@@ -2517,7 +2534,13 @@
                 "S09",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Descriptor duplication and open-file-description aliasing.",
+                "rationale": "S03 membership covers creation of a descriptor alias to the same open file description, not copying the underlying object.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 018."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -2548,6 +2571,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S03",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Descriptor duplication and open-file-description aliasing.",
+              "rationale": "S03 membership covers creation of a descriptor alias to the same open file description, not copying the underlying object.",
+              "human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -2562,10 +2596,10 @@
         "candidate_surface_ids": [
           "S03"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the bounded S03 descriptor lifecycle/inheritance/acquisition dimension; no syscall-wide disposition, reachability, or enforcement result inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S03",
@@ -2585,7 +2619,13 @@
                 "S09",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Selected-descriptor duplication/replacement and identity case.",
+                "rationale": "S03 membership covers duplication to a selected descriptor, replacement of a previous destination, and the oldfd == newfd case.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 018."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -2616,6 +2656,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S03",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Selected-descriptor duplication/replacement and identity case.",
+              "rationale": "S03 membership covers duplication to a selected descriptor, replacement of a previous destination, and the oldfd == newfd case.",
+              "human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -4496,10 +4547,10 @@
           "S03",
           "S11"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "PARTIALLY_HUMAN_ADJUDICATED_BY_SURFACE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the bounded S03 descriptor lifecycle/inheritance/acquisition dimension; no syscall-wide disposition, reachability, or enforcement result inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S03",
@@ -4519,7 +4570,13 @@
                 "S09",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES_CONDITIONAL",
+                "scope": "FD_CLOEXEC survival/purge across successful exec; process image transition remains S11.",
+                "rationale": "S03 membership is limited to the survival/purge boundary of descriptors through a successful exec transition as controlled by FD_CLOEXEC. Executable-image replacement belongs to the separate S11/Processes dimension.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 018."
+              }
             },
             {
               "surface_id": "S11",
@@ -4585,6 +4642,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S03",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES_CONDITIONAL",
+              "scope": "FD_CLOEXEC survival/purge across successful exec; process image transition remains S11.",
+              "rationale": "S03 membership is limited to the survival/purge boundary of descriptors through a successful exec transition as controlled by FD_CLOEXEC. Executable-image replacement belongs to the separate S11/Processes dimension.",
+              "human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -5319,10 +5387,10 @@
           "S03",
           "S06"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "PARTIALLY_HUMAN_ADJUDICATED_BY_SURFACE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the bounded S03 descriptor lifecycle/inheritance/acquisition dimension; no syscall-wide disposition, reachability, or enforcement result inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S03",
@@ -5342,7 +5410,13 @@
                 "S09",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES_CONDITIONAL",
+                "scope": "Only F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD, and F_SETFD.",
+                "rationale": "S03 membership is restricted to commands F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD, and F_SETFD. All other fcntl commands remain outside this S03 adjudication and are not adjudicated here.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 018."
+              }
             },
             {
               "surface_id": "S06",
@@ -5401,6 +5475,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S03",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES_CONDITIONAL",
+              "scope": "Only F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD, and F_SETFD.",
+              "rationale": "S03 membership is restricted to commands F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD, and F_SETFD. All other fcntl commands remain outside this S03 adjudication and are not adjudicated here.",
+              "human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -17316,10 +17401,10 @@
         "candidate_surface_ids": [
           "S03"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the bounded S03 descriptor lifecycle/inheritance/acquisition dimension; no syscall-wide disposition, reachability, or enforcement result inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S03",
@@ -17339,7 +17424,13 @@
                 "S09",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Selected-descriptor duplication and O_CLOEXEC.",
+                "rationale": "S03 membership covers selected-descriptor duplication and O_CLOEXEC-controlled inheritance, preserving oldfd/newfd and flag conditions.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 018."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -17370,6 +17461,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S03",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Selected-descriptor duplication and O_CLOEXEC.",
+              "rationale": "S03 membership covers selected-descriptor duplication and O_CLOEXEC-controlled inheritance, preserving oldfd/newfd and flag conditions.",
+              "human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -19053,10 +19155,10 @@
           "S03",
           "S11"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "PARTIALLY_HUMAN_ADJUDICATED_BY_SURFACE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the bounded S03 descriptor lifecycle/inheritance/acquisition dimension; no syscall-wide disposition, reachability, or enforcement result inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S03",
@@ -19076,7 +19178,13 @@
                 "S09",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES_CONDITIONAL",
+                "scope": "FD inheritance across exec and executable resolution/selection via dirfd or executable FD; S01/S11 dimensions remain separate.",
+                "rationale": "S03 membership covers survival/purge of existing descriptors across exec and the descriptor-capability dimension of resolving/selecting the executable via dirfd or an executable FD as applicable. This does not conflate executable selection with inheritance of other FDs; dirfd resolution crosses S01 and image replacement crosses S11/Processes.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 018."
+              }
             },
             {
               "surface_id": "S11",
@@ -19142,6 +19250,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S03",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES_CONDITIONAL",
+              "scope": "FD inheritance across exec and executable resolution/selection via dirfd or executable FD; S01/S11 dimensions remain separate.",
+              "rationale": "S03 membership covers survival/purge of existing descriptors across exec and the descriptor-capability dimension of resolving/selecting the executable via dirfd or an executable FD as applicable. This does not conflate executable selection with inheritance of other FDs; dirfd resolution crosses S01 and image replacement crosses S11/Processes.",
+              "human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -20943,10 +21062,10 @@
         "candidate_surface_ids": [
           "S03"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the bounded S03 descriptor lifecycle/inheritance/acquisition dimension; no syscall-wide disposition, reachability, or enforcement result inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S03",
@@ -20966,7 +21085,13 @@
                 "S09",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Descriptor range cleanup and flag-conditioned lifecycle effects.",
+                "rationale": "S03 membership covers descriptor-range hygiene. Keep effective close, CLOSE_RANGE_CLOEXEC marking, and CLOSE_RANGE_UNSHARE as distinct flag-conditioned effects.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 018."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -20997,6 +21122,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S03",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Descriptor range cleanup and flag-conditioned lifecycle effects.",
+              "rationale": "S03 membership covers descriptor-range hygiene. Keep effective close, CLOSE_RANGE_CLOEXEC marking, and CLOSE_RANGE_UNSHARE as distinct flag-conditioned effects.",
+              "human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -21069,10 +21205,10 @@
           "S03",
           "S09"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "PARTIALLY_HUMAN_ADJUDICATED_BY_SURFACE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the bounded S03 descriptor lifecycle/inheritance/acquisition dimension; no syscall-wide disposition, reachability, or enforcement result inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S03",
@@ -21092,7 +21228,13 @@
                 "S09",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Local descriptor acquisition from another process; mandatory S09/IPC-Processes cross-dimension.",
+                "rationale": "S03 membership covers acquisition in the caller of a local descriptor referring to the object associated with a remote FD, subject to authorization. Cross-process capability transfer remains a separate, mandatory IPC/Processes and S09 dimension.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 018."
+              }
             },
             {
               "surface_id": "S09",
@@ -21149,6 +21291,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S03",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Local descriptor acquisition from another process; mandatory S09/IPC-Processes cross-dimension.",
+              "rationale": "S03 membership covers acquisition in the caller of a local descriptor referring to the object associated with a remote FD, subject to authorization. Cross-process capability transfer remains a separate, mandatory IPC/Processes and S09 dimension.",
+              "human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -22783,7 +22936,72 @@
           "relation_status": "EXCLUDED"
         }
       ]
-    }
+    },
+    "human_adjudicated_membership_batches": [
+      {
+        "batch_id": "03-S03",
+        "reference": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+        "surface_id": "S03",
+        "accepted_relation_count": 9,
+        "syscalls": [
+          {
+            "nr": 3,
+            "name": "close",
+            "decision": "YES",
+            "scope": "Descriptor close and lifecycle."
+          },
+          {
+            "nr": 436,
+            "name": "close_range",
+            "decision": "YES",
+            "scope": "Descriptor range cleanup and flag-conditioned lifecycle effects."
+          },
+          {
+            "nr": 32,
+            "name": "dup",
+            "decision": "YES",
+            "scope": "Descriptor duplication and open-file-description aliasing."
+          },
+          {
+            "nr": 33,
+            "name": "dup2",
+            "decision": "YES",
+            "scope": "Selected-descriptor duplication/replacement and identity case."
+          },
+          {
+            "nr": 292,
+            "name": "dup3",
+            "decision": "YES",
+            "scope": "Selected-descriptor duplication and O_CLOEXEC."
+          },
+          {
+            "nr": 72,
+            "name": "fcntl",
+            "decision": "YES_CONDITIONAL",
+            "scope": "Only F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD, and F_SETFD."
+          },
+          {
+            "nr": 59,
+            "name": "execve",
+            "decision": "YES_CONDITIONAL",
+            "scope": "FD_CLOEXEC survival/purge across successful exec; process image transition remains S11."
+          },
+          {
+            "nr": 322,
+            "name": "execveat",
+            "decision": "YES_CONDITIONAL",
+            "scope": "FD inheritance across exec and executable resolution/selection via dirfd or executable FD; S01/S11 dimensions remain separate."
+          },
+          {
+            "nr": 438,
+            "name": "pidfd_getfd",
+            "decision": "YES",
+            "scope": "Local descriptor acquisition from another process; mandatory S09/IPC-Processes cross-dimension."
+          }
+        ],
+        "global_dispositions_unchanged": "UNKNOWN"
+      }
+    ]
   },
   "argument_variant_review": {
     "completion_status": "PARTIAL_UNKNOWN",
@@ -23142,10 +23360,12 @@
         "pidfd_getfd"
       ],
       "arguments_and_variants": [
-        "fcntl commands F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD, F_SETFD",
-        "FD_CLOEXEC state before and across exec",
-        "descriptor allowlist at sandbox entry",
-        "descriptor identity before/after duplication or acquisition"
+        "fcntl S03 scope is restricted to commands F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD, and F_SETFD; all other commands are outside this adjudication.",
+        "FD_CLOEXEC state and descriptor survival/purge across successful execve/execveat transitions; executable image replacement remains the separate S11/Processes dimension.",
+        "execveat executable resolution/selection via dirfd or executable FD as applicable is distinct from inheritance of other descriptors; dirfd resolution crosses S01.",
+        "close_range effects must distinguish descriptor closure, CLOSE_RANGE_CLOEXEC, and CLOSE_RANGE_UNSHARE.",
+        "descriptor allowlist at sandbox entry.",
+        "descriptor identity before/after duplication or acquisition; pidfd_getfd local acquisition crosses IPC/Processes and S09."
       ],
       "resource": "Open file descriptions, sockets, and other kernel object capabilities held by a process.",
       "alternate_paths": [
@@ -23160,7 +23380,13 @@
         "Deliberate capability injection by trusted infrastructure is not an in-scope adversary action; injected descriptors remain useful as sensor-sensitivity controls."
       ],
       "threat_model_rationale": "The trusted launcher must pass only declared descriptors and prevent undeclared capabilities from entering the workload at the sandbox boundary.",
-      "closure_criterion": "Qualify launcher FD hygiene at entry and enumerate later acquisition/duplication/exec transitions; controls must identify the permitted FD set and fail closed on unknown descriptors."
+      "closure_criterion": "Qualify launcher FD hygiene at entry and enumerate later acquisition/duplication/exec transitions; controls must identify the permitted FD set and fail closed on unknown descriptors.",
+      "human_adjudicated_membership_batch": {
+        "reference": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
+        "date": "2026-10-01",
+        "accepted_syscall_count": 9,
+        "scope_rule": "Only the per-syscall S03 dimensions recorded in the human_adjudication fields are accepted. Other commands, variants, surfaces, syscall-wide disposition, reachability, and control outcomes remain unadjudicated."
+      }
     },
     {
       "id": "S04",
