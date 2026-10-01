@@ -21,3 +21,4 @@ Checkpoints are listed in chronological order. Checkpoint 1 is the oldest, highe
 | 9 | Static inventory and variant review | 009-static-inventory-and-variant-r.md |
 - [011-consolidacion-pistas-y-legacy.md](011-consolidacion-pistas-y-legacy.md) - Consolidación de referencias potenciales y razones explícitas para las ocho filas legacy/special.
 - [012-punto-de-guardado-luz-verde.md](012-punto-de-guardado-luz-verde.md) - Punto de reanudación exacto; continuar al recibir «luz verde».
+- [013-punto-de-guardado-cierre-y-reanudacion.md](013-punto-de-guardado-cierre-y-reanudacion.md) - Cierre de sesión con identidad persistente, estado documental, restricciones vigentes y reanudación desde las 186 pistas.
