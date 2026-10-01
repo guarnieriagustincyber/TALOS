@@ -22,3 +22,4 @@ Checkpoints are listed in chronological order. Checkpoint 1 is the oldest, highe
 - [011-consolidacion-pistas-y-legacy.md](011-consolidacion-pistas-y-legacy.md) - Consolidación de referencias potenciales y razones explícitas para las ocho filas legacy/special.
 - [012-punto-de-guardado-luz-verde.md](012-punto-de-guardado-luz-verde.md) - Punto de reanudación exacto; continuar al recibir «luz verde».
 - [013-punto-de-guardado-cierre-y-reanudacion.md](013-punto-de-guardado-cierre-y-reanudacion.md) - Cierre de sesión con identidad persistente, estado documental, restricciones vigentes y reanudación desde las 186 pistas.
+- [014-adjudicacion-documental-lote-01-s01.md](014-adjudicacion-documental-lote-01-s01.md) - Revisión y materialización de 13 relaciones humanas aceptadas con S01; cuatro exclusiones y siete relaciones UNKNOWN permanecen acotadas sin cambiar disposiciones.

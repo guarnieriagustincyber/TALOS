@@ -230,12 +230,12 @@
     "final_surface_or_exclusion_disposition_count": 0,
     "unknown_row_count": 385,
     "static_crosswalk_row_count": 385,
-    "rows_with_candidate_surface_context": 191,
-    "rows_without_surface_candidate_remain_unknown": 194,
+    "rows_with_candidate_surface_context": 204,
+    "rows_without_surface_candidate_remain_unknown": 181,
     "runtime_effect_disposition_count": 0,
     "historical_case_count": 27,
     "rows_with_historical_case_evidence": 17,
-    "rows_without_candidate_surface_membership": 194,
+    "rows_without_candidate_surface_membership": 181,
     "surface_syscall_tokens_absent_from_native_table": [],
     "row_register_state": "ALL_NATIVE_ROWS_ENUMERATED; ALL_STATIC_CROSSWALKS_RECORDED; ALL_PENDING_UNKNOWN",
     "abi_entry_counts": {
@@ -243,7 +243,7 @@
       "64": 47,
       "x32_excluded": 36
     },
-    "unknown_handling": "Every common/64 row has an explicit static_disposition_review. Historical OBSERVED/BLOCKED case outcomes are recorded only for exact named subcases and do not promote the syscall-wide disposition; candidate memberships and case evidence remain bounded documentary records. Unclosed variants/routes remain UNKNOWN.",
+    "unknown_handling": "Every common/64 row has an explicit static_disposition_review. Historical OBSERVED/BLOCKED case outcomes are recorded only for exact named subcases and do not promote syscall-wide disposition. Human-adjudicated candidate memberships are limited to the explicit relation and do not establish effects, reachability, coverage, or readiness; unclosed variants/routes remain UNKNOWN.",
     "historical_case_adjudication_summary": {
       "status": "HISTORICAL_SUBCASES_ADJUDICATED; SYSCALL_ROW_DISPOSITIONS_UNCHANGED",
       "rows_with_historical_case_evidence": 17,
@@ -5724,13 +5724,44 @@
         "name": "getdents",
         "entry_point": "sys_getdents",
         "source_line": 90,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
-          "alternate_surface_routes": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Interacts with an already-selected directory object and allows discovery of its contents/topology. S01 covers that object interaction; FD acquisition and lifecycle also belong to S03.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
+          "alternate_surface_routes": [
+            "S03"
+          ],
           "variant_review_refs": [],
           "evidence": {
             "table_entry": "PRESENT_IN_TARGET_BOUND_TABLE",
@@ -5739,20 +5770,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -5764,12 +5796,41 @@
         "name": "getcwd",
         "entry_point": "sys_getcwd",
         "source_line": 91,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Discovers the filesystem location of cwd and returns its pathname representation. S01 covers location/context discovery, not opening an object.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
           "alternate_surface_routes": [],
           "variant_review_refs": [],
           "evidence": {
@@ -5779,20 +5840,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -5804,12 +5866,41 @@
         "name": "chdir",
         "entry_point": "sys_chdir",
         "source_line": 92,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Resolves a pathname and changes cwd, altering the reference point for later relative path resolution. Direct S01 relation.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
           "alternate_surface_routes": [],
           "variant_review_refs": [],
           "evidence": {
@@ -5819,20 +5910,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -5844,13 +5936,44 @@
         "name": "fchdir",
         "entry_point": "sys_fchdir",
         "source_line": 93,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
-          "alternate_surface_routes": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Sets cwd from an FD identifying a directory. S01 covers object resolution/context; S03 covers FD acquisition, identity, and lifecycle.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
+          "alternate_surface_routes": [
+            "S03"
+          ],
           "variant_review_refs": [],
           "evidence": {
             "table_entry": "PRESENT_IN_TARGET_BOUND_TABLE",
@@ -5859,20 +5982,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -8935,12 +9059,41 @@
         "name": "statfs",
         "entry_point": "sys_statfs",
         "source_line": 149,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Selects/resolves a filesystem object by pathname to query metadata about its filesystem. S01 represents the resolution/selection dimension, not opening.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
           "alternate_surface_routes": [],
           "variant_review_refs": [],
           "evidence": {
@@ -8950,20 +9103,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -8975,13 +9129,44 @@
         "name": "fstatfs",
         "entry_point": "sys_fstatfs",
         "source_line": 150,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
-          "alternate_surface_routes": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Queries the filesystem associated with an object identified by FD. S01 covers object selection/identity; S03 covers FD provenance and lifecycle.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
+          "alternate_surface_routes": [
+            "S03"
+          ],
           "variant_review_refs": [],
           "evidence": {
             "table_entry": "PRESENT_IN_TARGET_BOUND_TABLE",
@@ -8990,20 +9175,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -11433,12 +11619,41 @@
         "name": "getxattr",
         "entry_point": "sys_getxattr",
         "source_line": 203,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Resolves/selects the filesystem object by pathname for attribute lookup. S01 represents that path-resolution dimension; xattr reading is not attributed entirely to S01.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
           "alternate_surface_routes": [],
           "variant_review_refs": [],
           "evidence": {
@@ -11448,20 +11663,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -11473,12 +11689,41 @@
         "name": "lgetxattr",
         "entry_point": "sys_lgetxattr",
         "source_line": 204,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Resolves/selects the symlink itself, without dereferencing it, for attribute lookup. S01 membership is limited to object selection; preserve the no-follow variant.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
           "alternate_surface_routes": [],
           "variant_review_refs": [],
           "evidence": {
@@ -11488,20 +11733,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -11513,13 +11759,44 @@
         "name": "fgetxattr",
         "entry_point": "sys_fgetxattr",
         "source_line": 205,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
-          "alternate_surface_routes": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Selects the object by FD for attribute lookup. S01 represents object identification/selection; S03 covers FD provenance and capability.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
+          "alternate_surface_routes": [
+            "S03"
+          ],
           "variant_review_refs": [],
           "evidence": {
             "table_entry": "PRESENT_IN_TARGET_BOUND_TABLE",
@@ -11528,20 +11805,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -11553,12 +11831,41 @@
         "name": "listxattr",
         "entry_point": "sys_listxattr",
         "source_line": 206,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Resolves/selects the object by pathname for xattr-name enumeration. S01 represents path resolution, not the entire xattr enumeration effect.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
           "alternate_surface_routes": [],
           "variant_review_refs": [],
           "evidence": {
@@ -11568,20 +11875,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -11593,12 +11901,41 @@
         "name": "llistxattr",
         "entry_point": "sys_llistxattr",
         "source_line": 207,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Selects the symlink itself by pathname, without following it, for xattr-name enumeration. Preserve the no-dereference variant.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
           "alternate_surface_routes": [],
           "variant_review_refs": [],
           "evidence": {
@@ -11608,20 +11945,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -11633,13 +11971,44 @@
         "name": "flistxattr",
         "entry_point": "sys_flistxattr",
         "source_line": 208,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
-          "alternate_surface_routes": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Selects the object by FD for xattr-name enumeration. S01 represents object identification/selection; S03 covers FD provenance and lifecycle.",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
+          "alternate_surface_routes": [
+            "S03"
+          ],
           "variant_review_refs": [],
           "evidence": {
             "table_entry": "PRESENT_IN_TARGET_BOUND_TABLE",
@@ -11648,20 +12017,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -17433,13 +17803,44 @@
         "name": "name_to_handle_at",
         "entry_point": "sys_name_to_handle_at",
         "source_line": 315,
-        "candidate_surface_ids": [],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_surface_ids": [
+          "S01"
+        ],
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
-          "candidate_surface_context": [],
-          "alternate_surface_routes": [],
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S01 object-resolution, selection, identification, or location-discovery dimension only; no complete effect, reachability, or enforcement result inferred.",
+          "candidate_surface_context": [
+            {
+              "surface_id": "S01",
+              "surface_name": "Filesystem path discovery and open/create",
+              "resource_class": "Filesystem objects reachable by pathname, dirfd, or directory enumeration.",
+              "declared_variant_axes": [
+                "absolute and relative pathname",
+                "dirfd identity and resolution",
+                "creation and resolution flags",
+                "symlink and mount-boundary resolution",
+                "result and resolved resource identity"
+              ],
+              "alternate_surface_ids": [
+                "S02",
+                "S03",
+                "S05",
+                "S06"
+              ],
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Candidate membership relation with S01 only; syscall disposition remains UNKNOWN.",
+                "rationale": "Resolves/selects an object through dirfd/path and derives an opaque handle and mount ID. S01 covers pathname/dirfd object identification only; this does not admit open_by_handle_at (304).",
+                "source": "Explicit human adjudication provided 2026-10-01."
+              },
+              "membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
+            }
+          ],
+          "alternate_surface_routes": [
+            "S03"
+          ],
           "variant_review_refs": [],
           "evidence": {
             "table_entry": "PRESENT_IN_TARGET_BOUND_TABLE",
@@ -17448,20 +17849,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "No canonical surface candidate is recorded; assign one or document an explicit threat-model exclusion and its rationale.",
+            "Human-adjudicated S01 membership is candidate-scope only; exact callsite, argument/resource partitions, phase, alternate routes, and effect/enforcement qualification remain open.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_ACCEPTED_CANDIDATE_RELATION",
             "potential_surface_refs": [
               "S01"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
             "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
-            "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "candidate_membership_unchanged": false,
+            "disposition_unchanged": "UNKNOWN",
+            "human_decision": "YES: add S01 as a candidate relation only; retain UNKNOWN syscall disposition."
           }
         },
         "disposition_status": "UNKNOWN",
@@ -22061,12 +22463,15 @@
       "Resolve all finite argument/flag partitions and exact callsite/dependency traceability as separate documented blockers."
     ],
     "no_candidate_row_review": {
-      "status": "ALL_194_ROWS_STATICALLY_REVIEWED; CANDIDATE_LEADS_ONLY; DISPOSITIONS_UNCHANGED",
+      "status": "INITIAL_194_ROW_REVIEW_RECORDED; S01_BATCH_01_HUMAN_ADJUDICATED; OTHER_LEADS_PENDING; DISPOSITIONS_UNCHANGED",
       "source_row_count": 194,
       "potential_existing_surface_lead_row_count": 186,
       "unresolved_without_justified_existing_surface_lead_count": 8,
       "potential_surface_ref_count": 204,
-      "canonical_membership_changes": 0,
+      "canonical_membership_changes": 13,
+      "lead_relation_exclusions": 4,
+      "lead_relations_retained_unknown": 7,
+      "human_adjudication_batch_01_ref": "../checkpoints/014-adjudicacion-documental-lote-01-s01.md",
       "new_surfaces_introduced": 0,
       "explicit_exclusions": 0,
       "rows_still_unknown": 194,
@@ -22080,7 +22485,7 @@
         "tuxcall",
         "vserver"
       ],
-      "rule": "Potential surface refs are review leads only; they do not modify candidate_surface_ids, establish reachability, justify exclusions, close variants, or change any syscall disposition.",
+      "rule": "Potential surface refs are review leads. Only explicit human adjudications recorded in human_adjudication_batch_01 add candidate_surface_ids; neither a candidate relation nor a relation exclusion changes syscall disposition, reachability, variant closure, or coverage.",
       "lead_reference_histogram": {
         "one_surface_ref": 168,
         "two_surface_refs": 18
@@ -22372,7 +22777,20 @@
         "statx",
         "readlink",
         "readlinkat",
-        "getdents64"
+        "getdents64",
+        "getdents",
+        "getcwd",
+        "chdir",
+        "fchdir",
+        "statfs",
+        "fstatfs",
+        "getxattr",
+        "lgetxattr",
+        "fgetxattr",
+        "listxattr",
+        "llistxattr",
+        "flistxattr",
+        "name_to_handle_at"
       ],
       "arguments_and_variants": [
         "absolute and relative pathname",
@@ -22390,7 +22808,8 @@
       ],
       "exclusions": [],
       "threat_model_rationale": "A potentially hostile workload must not obtain undeclared filesystem resources by pathname or metadata/discovery operations.",
-      "closure_criterion": "Enumerate each applicable call and relevant argument class; demonstrate attributable allowed operations or policy-correlated denial for prohibited resources; unresolved path/dirfd/resource remains UNKNOWN."
+      "closure_criterion": "Enumerate each applicable call and relevant argument class; demonstrate attributable allowed operations or policy-correlated denial for prohibited resources; unresolved path/dirfd/resource remains UNKNOWN.",
+      "human_adjudicated_membership_scope": "Human-adjudicated S01 candidate memberships are limited to the filesystem-object resolution, selection, identification, interaction, or location-discovery dimension stated per row; they do not assign the syscall's complete functional effect, prove reachability, or change its UNKNOWN disposition."
     },
     {
       "id": "S02",

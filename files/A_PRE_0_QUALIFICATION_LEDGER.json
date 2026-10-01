@@ -185,20 +185,20 @@
       "final_surface_or_exclusion_disposition_count": 0,
       "unknown_row_count": 385,
       "static_crosswalk_row_count": 385,
-      "rows_with_candidate_surface_context": 191,
-      "rows_without_surface_candidate_remain_unknown": 194,
+      "rows_with_candidate_surface_context": 204,
+      "rows_without_surface_candidate_remain_unknown": 181,
       "runtime_effect_disposition_count": 0,
       "row_register_state": "ALL_NATIVE_ROWS_ENUMERATED; ALL_STATIC_CROSSWALKS_RECORDED; ALL_PENDING_UNKNOWN",
       "manifest_rows_ref": "A_PRE_0_SURFACE_MANIFEST.json#syscall_disposition_contract.rows",
       "unknown_handling": "Historical per-case outcomes are attached only to exact syscall/variant/route records in the manifest; they do not promote any syscall-wide disposition. All unclosed syscall rows remain UNKNOWN.",
       "surface_syscall_arrays_are_candidate_memberships_only": true,
-      "rows_without_candidate_surface_membership": 194,
+      "rows_without_candidate_surface_membership": 181,
       "surface_syscall_tokens_absent_from_native_table": 0,
       "status": "STATIC_CROSSWALK_RECORDED; EFFECT_DISPOSITIONS_PENDING",
       "pending": [
-        "Adjudicate each candidate surface mapping or record an explicit threat-model exclusion; retain UNKNOWN where static evidence is insufficient.",
+        "Continue adjudicating remaining candidate surface mappings; retain UNKNOWN where static evidence is insufficient.",
         "Complete finite argument/flag partitions and callsite/dependency traceability.",
-        "Resolve name-level potential-surface leads and explicitly unresolved legacy/special interfaces through threat-model review; current crosswalk membership and all row dispositions remain unchanged."
+        "Continue reviewing unresolved potential-surface leads and legacy/special interfaces; 13 explicit S01 candidate relations are limited to object selection/discovery dimensions, and all syscall dispositions remain UNKNOWN."
       ],
       "historical_case_count": 27,
       "rows_with_historical_case_evidence": 17,
@@ -213,8 +213,9 @@
       "no_candidate_potential_existing_surface_lead_rows": 186,
       "no_candidate_unresolved_rows": 8,
       "no_candidate_review_new_surfaces": 0,
-      "no_candidate_review_membership_changes": 0,
-      "rows_without_candidate_surface_remain_unknown": 194,
+      "no_candidate_review_membership_changes": 13,
+      "no_candidate_s01_batch_01_ref": "../checkpoints/014-adjudicacion-documental-lote-01-s01.md",
+      "rows_without_candidate_surface_remain_unknown": 181,
       "no_candidate_lead_reference_histogram": {
         "one_surface_ref": 168,
         "two_surface_refs": 18
@@ -230,7 +231,7 @@
         "S15": 3,
         "S16": 51
       },
-      "no_candidate_unresolved_review_status": "EIGHT_ROWS_RETAINED_UNKNOWN_WITH_EXPLICIT_REASONS; NO_EXCLUSIONS"
+      "no_candidate_unresolved_review_status": "EIGHT_ROWS_RETAINED_UNKNOWN_WITH_EXPLICIT_REASONS; NO_SYSCALL_DISPOSITION_EXCLUSIONS; S01_RELATION_EXCLUSIONS_RECORDED_SEPARATELY"
     },
     "argument_variant_review": {
       "status": "PARTIAL_UNKNOWN",
