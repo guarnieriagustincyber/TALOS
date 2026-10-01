@@ -198,7 +198,7 @@
       "pending": [
         "Continue adjudicating remaining candidate surface mappings; retain UNKNOWN where static evidence is insufficient.",
         "Complete finite argument/flag partitions and callsite/dependency traceability.",
-        "Continue reviewing unresolved potential-surface leads and legacy/special interfaces; 13 explicit S01 candidate relations are limited to object selection/discovery dimensions, and all syscall dispositions remain UNKNOWN."
+        "Prepare and review the next documentary batch for S03 FD hygiene/lifecycle; do not infer its memberships from S02 exclusions."
       ],
       "historical_case_count": 27,
       "rows_with_historical_case_evidence": 17,
@@ -231,7 +231,107 @@
         "S15": 3,
         "S16": 51
       },
-      "no_candidate_unresolved_review_status": "EIGHT_ROWS_RETAINED_UNKNOWN_WITH_EXPLICIT_REASONS; NO_SYSCALL_DISPOSITION_EXCLUSIONS; S01_RELATION_EXCLUSIONS_RECORDED_SEPARATELY"
+      "no_candidate_unresolved_review_status": "EIGHT_ROWS_RETAINED_UNKNOWN_WITH_EXPLICIT_REASONS; NO_SYSCALL_DISPOSITION_EXCLUSIONS; S01_AND_S02_RELATION_ADJUDICATIONS_RECORDED_SEPARATELY",
+      "no_candidate_s02_batch_02_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+      "no_candidate_s02_relation_exclusions": 19,
+      "no_candidate_s02_adjudicated_syscalls": [
+        {
+          "nr": 7,
+          "name": "poll",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 8,
+          "name": "lseek",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 23,
+          "name": "select",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 73,
+          "name": "flock",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 162,
+          "name": "sync",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 187,
+          "name": "readahead",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 213,
+          "name": "epoll_create",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 214,
+          "name": "epoll_ctl_old",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 215,
+          "name": "epoll_wait_old",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 221,
+          "name": "fadvise64",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 232,
+          "name": "epoll_wait",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 233,
+          "name": "epoll_ctl",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 270,
+          "name": "pselect6",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 271,
+          "name": "ppoll",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 281,
+          "name": "epoll_pwait",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 291,
+          "name": "epoll_create1",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 306,
+          "name": "syncfs",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 441,
+          "name": "epoll_pwait2",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 451,
+          "name": "cachestat",
+          "relation_status": "EXCLUDED"
+        }
+      ],
+      "no_candidate_relation_exclusions_total": 23
     },
     "argument_variant_review": {
       "status": "PARTIAL_UNKNOWN",

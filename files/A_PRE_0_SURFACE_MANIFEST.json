@@ -744,9 +744,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -784,9 +793,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -1884,9 +1902,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -5411,9 +5438,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -10267,9 +10303,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -11413,9 +11458,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -13101,9 +13155,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -13141,9 +13204,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -13181,9 +13253,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -13458,9 +13539,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -13932,9 +14022,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -13972,9 +14071,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -16034,9 +16142,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -16074,9 +16191,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -16650,9 +16776,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -17155,9 +17290,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -17981,9 +18125,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -21131,9 +21284,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -21622,9 +21784,18 @@
               "S02"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S02 relation is adjudicated EXCLUDED. No other relation is assigned by this decision; global syscall disposition and other qualification requirements remain open.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S02",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+                "human_decision": "Exclude this syscall-to-S02 relation only; do not add S02 to candidate_surface_ids.",
+                "rationale": "S02 is limited to effective payload transport between user space and a descriptor, or between descriptors. Readiness, offset manipulation, locking, synchronization/writeback, and page-cache advice/query are outside this surface. This excludes only the S02 relation; it does not adjudicate membership in any other surface or global syscall disposition."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -22463,13 +22634,13 @@
       "Resolve all finite argument/flag partitions and exact callsite/dependency traceability as separate documented blockers."
     ],
     "no_candidate_row_review": {
-      "status": "INITIAL_194_ROW_REVIEW_RECORDED; S01_BATCH_01_HUMAN_ADJUDICATED; OTHER_LEADS_PENDING; DISPOSITIONS_UNCHANGED",
+      "status": "INITIAL_LEAD_REVIEW_RECORDED; S01_AND_S02_RELATIONS_HUMAN_ADJUDICATED; OTHER_LEADS_PENDING; DISPOSITIONS_UNCHANGED",
       "source_row_count": 194,
       "potential_existing_surface_lead_row_count": 186,
       "unresolved_without_justified_existing_surface_lead_count": 8,
       "potential_surface_ref_count": 204,
       "canonical_membership_changes": 13,
-      "lead_relation_exclusions": 4,
+      "lead_relation_exclusions": 23,
       "lead_relations_retained_unknown": 7,
       "human_adjudication_batch_01_ref": "../checkpoints/014-adjudicacion-documental-lote-01-s01.md",
       "new_surfaces_introduced": 0,
@@ -22485,7 +22656,7 @@
         "tuxcall",
         "vserver"
       ],
-      "rule": "Potential surface refs are review leads. Only explicit human adjudications recorded in human_adjudication_batch_01 add candidate_surface_ids; neither a candidate relation nor a relation exclusion changes syscall disposition, reachability, variant closure, or coverage.",
+      "rule": "Potential surface refs are review leads. Explicit human adjudications record surface-specific candidate relations or exclusions; neither changes syscall-wide disposition, reachability, variant closure, or coverage. An exclusion of one surface relation does not imply membership in another surface.",
       "lead_reference_histogram": {
         "one_surface_ref": 168,
         "two_surface_refs": 18
@@ -22501,7 +22672,7 @@
         "S15": 3,
         "S16": 51
       },
-      "lead_reference_interpretation": "The 204 references collapse to 186 rows: 168 rows have one potential existing-surface reference and 18 rows have two overlapping references. Counts are review workload, not membership or coverage.",
+      "lead_reference_interpretation": "The original 204 references collapse to 186 rows: 168 rows had one potential existing-surface reference and 18 had two overlapping references. These are historical initial-review counts, not current pending relations, memberships, or coverage; 13 S01 candidate relations and 19 S02 relation exclusions have since been human-adjudicated.",
       "unresolved_row_review": {
         "_sysctl": "Legacy sysctl interface; relation to current workload surfaces and effective kernel availability are not established.",
         "afs_syscall": "AFS-specific legacy interface; no workload dependency or threat-model surface relation is established.",
@@ -22512,7 +22683,106 @@
         "tuxcall": "TUX legacy interface; effective availability and any workload relation are not established.",
         "vserver": "Linux-VServer legacy interface; effective availability and any workload relation are not established."
       },
-      "next_adjudication": "For each lead, decide canonical membership, explicit threat-model exclusion, or retained UNKNOWN using exact arguments/resources/phase and workload traceability. Do not promote by name alone."
+      "next_adjudication": "For each lead, decide canonical membership, explicit threat-model exclusion, or retained UNKNOWN using exact arguments/resources/phase and workload traceability. Do not promote by name alone.",
+      "s02_human_adjudication_ref": "../checkpoints/016-adjudicacion-documental-lote-02-s02.md",
+      "s02_relation_exclusion_count": 19,
+      "s02_relation_exclusions": [
+        {
+          "nr": 7,
+          "name": "poll",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 8,
+          "name": "lseek",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 23,
+          "name": "select",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 73,
+          "name": "flock",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 162,
+          "name": "sync",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 187,
+          "name": "readahead",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 213,
+          "name": "epoll_create",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 214,
+          "name": "epoll_ctl_old",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 215,
+          "name": "epoll_wait_old",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 221,
+          "name": "fadvise64",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 232,
+          "name": "epoll_wait",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 233,
+          "name": "epoll_ctl",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 270,
+          "name": "pselect6",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 271,
+          "name": "ppoll",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 281,
+          "name": "epoll_pwait",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 291,
+          "name": "epoll_create1",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 306,
+          "name": "syncfs",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 441,
+          "name": "epoll_pwait2",
+          "relation_status": "EXCLUDED"
+        },
+        {
+          "nr": 451,
+          "name": "cachestat",
+          "relation_status": "EXCLUDED"
+        }
+      ]
     }
   },
   "argument_variant_review": {

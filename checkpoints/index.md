@@ -23,3 +23,5 @@ Checkpoints are listed in chronological order. Checkpoint 1 is the oldest, highe
 - [012-punto-de-guardado-luz-verde.md](012-punto-de-guardado-luz-verde.md) - Punto de reanudación exacto; continuar al recibir «luz verde».
 - [013-punto-de-guardado-cierre-y-reanudacion.md](013-punto-de-guardado-cierre-y-reanudacion.md) - Cierre de sesión con identidad persistente, estado documental, restricciones vigentes y reanudación desde las 186 pistas.
 - [014-adjudicacion-documental-lote-01-s01.md](014-adjudicacion-documental-lote-01-s01.md) - Revisión y materialización de 13 relaciones humanas aceptadas con S01; cuatro exclusiones y siete relaciones UNKNOWN permanecen acotadas sin cambiar disposiciones.
+- [015-preparacion-lote-02-s02.md](015-preparacion-lote-02-s02.md) - Inventario documental de las 19 referencias potenciales S02 para revisión humana; sin adjudicación.
+- [016-adjudicacion-documental-lote-02-s02.md](016-adjudicacion-documental-lote-02-s02.md) - Decisión humana que excluye de S02 las 19 relaciones del lote, sin cambiar las disposiciones globales ni adjudicar otras superficies.
