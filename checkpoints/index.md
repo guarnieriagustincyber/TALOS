@@ -27,3 +27,5 @@ Checkpoints are listed in chronological order. Checkpoint 1 is the oldest, highe
 - [016-adjudicacion-documental-lote-02-s02.md](016-adjudicacion-documental-lote-02-s02.md) - Decisión humana que excluye de S02 las 19 relaciones del lote, sin cambiar las disposiciones globales ni adjudicar otras superficies.
 - [017-preparacion-lote-03-s03.md](017-preparacion-lote-03-s03.md) - Preparación documental para revisión humana de las nueve candidaturas existentes S03; cero referencias potenciales pendientes y sin adjudicación.
 - [018-adjudicacion-documental-lote-03-s03.md](018-adjudicacion-documental-lote-03-s03.md) - Decisión humana que acepta nueve relaciones candidatas S03, con restricciones explícitas por comando y dimensión; disposiciones permanecen UNKNOWN.
+- [019-preparacion-lote-04-s04.md](019-preparacion-lote-04-s04.md) - Preparación documental de 35 candidaturas S04 y seis pistas pendientes; sin adjudicación.
+- [020-adjudicacion-documental-lote-04-s04.md](020-adjudicacion-documental-lote-04-s04.md) - Acepta 35 relaciones S04 y excluye umask; cinco pistas S04 quedan UNKNOWN sin membresía.

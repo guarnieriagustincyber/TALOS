@@ -5685,10 +5685,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -5706,7 +5706,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Path-selected object size mutation; preserve size, resolution, and object-type partitions.",
+                "rationale": "Changes the persistent size/content boundary of the filesystem object selected by pathname; S01 resolution is a separate dimension.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -5735,6 +5741,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Path-selected object size mutation; preserve size, resolution, and object-type partitions.",
+              "rationale": "Changes the persistent size/content boundary of the filesystem object selected by pathname; S01 resolution is a separate dimension.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -5750,10 +5767,10 @@
           "S04",
           "S06"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "PARTIALLY_HUMAN_ADJUDICATED_BY_SURFACE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -5771,7 +5788,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "FD-targeted object size mutation; S06 remains a separate pending relation.",
+                "rationale": "Changes the persistent size of the filesystem object referenced by the FD. The pre-existing S06 relation is independent and remains unadjudicated.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             },
             {
               "surface_id": "S06",
@@ -5834,6 +5857,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "FD-targeted object size mutation; S06 remains a separate pending relation.",
+              "rationale": "Changes the persistent size of the filesystem object referenced by the FD. The pre-existing S06 relation is independent and remains unadjudicated.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6132,10 +6166,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6153,7 +6187,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Source/destination namespace mutation; object lifetime is distinct.",
+                "rationale": "Mutates filesystem namespace entries by moving/replacing the selected name; it does not imply destruction of the underlying object.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6182,6 +6222,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Source/destination namespace mutation; object lifetime is distinct.",
+              "rationale": "Mutates filesystem namespace entries by moving/replacing the selected name; it does not imply destruction of the underlying object.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6196,10 +6247,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6217,7 +6268,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Directory-node creation; resulting mode and parent/path resolution remain selectors/conditions.",
+                "rationale": "Creates a persistent directory node and namespace entry. umask may condition mode but is not itself included in this relation.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6246,6 +6303,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Directory-node creation; resulting mode and parent/path resolution remain selectors/conditions.",
+              "rationale": "Creates a persistent directory node and namespace entry. umask may condition mode but is not itself included in this relation.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6260,10 +6328,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6281,7 +6349,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Directory removal subject to target being empty and applicable filesystem conditions.",
+                "rationale": "Removes an empty directory node/entry from the filesystem namespace.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6310,6 +6384,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Directory removal subject to target being empty and applicable filesystem conditions.",
+              "rationale": "Removes an empty directory node/entry from the filesystem namespace.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6381,10 +6466,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6402,7 +6487,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Hard-link creation and resulting namespace relation.",
+                "rationale": "Creates a persistent hard-link namespace entry for the selected object.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6431,6 +6522,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Hard-link creation and resulting namespace relation.",
+              "rationale": "Creates a persistent hard-link namespace entry for the selected object.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6445,10 +6547,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6466,7 +6568,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Namespace-entry removal, distinct from final object destruction.",
+                "rationale": "Removes a filesystem namespace entry. Physical object destruction is not implied while links or other references remain.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6495,6 +6603,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Namespace-entry removal, distinct from final object destruction.",
+              "rationale": "Removes a filesystem namespace entry. Physical object destruction is not implied while links or other references remain.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6509,10 +6628,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6530,7 +6649,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Symlink creation only; not subsequent target resolution.",
+                "rationale": "Creates a persistent symlink node and stores its target text. Later resolution of that symlink is a separate S01 dimension.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6559,6 +6684,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Symlink creation only; not subsequent target resolution.",
+              "rationale": "Creates a persistent symlink node and stores its target text. Later resolution of that symlink is a separate S01 dimension.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6630,10 +6766,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6651,7 +6787,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Mode/permission metadata mutation on the resolved object.",
+                "rationale": "Mutates the selected filesystem object mode/permission metadata; pathname resolution is a separate dimension.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6680,6 +6822,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Mode/permission metadata mutation on the resolved object.",
+              "rationale": "Mutates the selected filesystem object mode/permission metadata; pathname resolution is a separate dimension.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6694,10 +6847,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6715,7 +6868,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "FD-targeted mode mutation; no automatic S03 decision.",
+                "rationale": "Mutates mode/permission metadata of the object referenced by FD; FD selection does not itself adjudicate S03.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6744,6 +6903,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "FD-targeted mode mutation; no automatic S03 decision.",
+              "rationale": "Mutates mode/permission metadata of the object referenced by FD; FD selection does not itself adjudicate S03.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6758,10 +6928,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6779,7 +6949,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Ownership mutation partitioned by requested IDs, credentials, and resolved target.",
+                "rationale": "Mutates persistent UID/GID ownership metadata of the selected filesystem object.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6808,6 +6984,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Ownership mutation partitioned by requested IDs, credentials, and resolved target.",
+              "rationale": "Mutates persistent UID/GID ownership metadata of the selected filesystem object.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6822,10 +7009,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6843,7 +7030,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "FD-targeted ownership mutation.",
+                "rationale": "Mutates ownership metadata of the filesystem object referenced by FD; the FD selector does not itself adjudicate S03.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6872,6 +7065,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "FD-targeted ownership mutation.",
+              "rationale": "Mutates ownership metadata of the filesystem object referenced by FD; the FD selector does not itself adjudicate S03.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6886,10 +7090,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -6907,7 +7111,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "No-follow symlink ownership mutation.",
+                "rationale": "Mutates ownership metadata of the symlink itself without following it to the target object.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -6936,6 +7146,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "No-follow symlink ownership mutation.",
+              "rationale": "Mutates ownership metadata of the symlink itself without following it to the target object.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -6968,14 +7189,23 @@
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
           ],
           "no_candidate_review": {
-            "review_status": "POTENTIAL_EXISTING_SURFACE_REQUIRES_SCOPE_CONFIRMATION",
+            "review_status": "HUMAN_ADJUDICATED_RELATION_EXCLUDED",
             "potential_surface_refs": [
               "S04"
             ],
             "basis": "Name-level syscall semantics compared against existing canonical surface definitions only; this is a static review lead, not an approved membership, disposition, reachability finding, or coverage claim.",
-            "review_blocker": "Confirm the semantic relation, arguments/resources, alternate paths, phase, and threat-model applicability; retain as a candidate only until reviewed.",
+            "review_blocker": "The S04 relation is adjudicated EXCLUDED. No other surface or global syscall disposition is assigned by this decision.",
             "candidate_membership_unchanged": true,
-            "disposition_unchanged": "UNKNOWN"
+            "disposition_unchanged": "UNKNOWN",
+            "adjudicated_surface_relations": [
+              {
+                "surface_id": "S04",
+                "relation_status": "EXCLUDED",
+                "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+                "human_decision": "Exclude only the umask-to-S04 relation; do not add S04 to candidate_surface_ids and do not assign another surface.",
+                "rationale": "umask changes process state that conditions permissions on future creation operations; it does not itself mutate persistent filesystem object state or metadata."
+              }
+            ]
           }
         },
         "disposition_status": "UNKNOWN",
@@ -8935,10 +9165,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -8956,7 +9186,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Timestamp mutation partitioned by legacy ABI, values, and target.",
+                "rationale": "Mutates atime/mtime metadata of the selected filesystem object; preserve legacy ABI and value conditions.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -8985,6 +9221,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Timestamp mutation partitioned by legacy ABI, values, and target.",
+              "rationale": "Mutates atime/mtime metadata of the selected filesystem object; preserve legacy ABI and value conditions.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -8999,10 +9246,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -9020,7 +9267,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Node creation partitioned by node type and mode/device arguments.",
+                "rationale": "Creates a persistent filesystem node; membership is conditioned on node type and relevant mode/device arguments.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -9049,6 +9302,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Node creation partitioned by node type and mode/device arguments.",
+              "rationale": "Creates a persistent filesystem node; membership is conditioned on node type and relevant mode/device arguments.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -11569,10 +11833,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -11590,7 +11854,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Xattr mutation partitioned by namespace/name, CREATE/REPLACE flags, and target.",
+                "rationale": "Creates or replaces persistent extended-attribute metadata on the selected object.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -11619,6 +11889,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Xattr mutation partitioned by namespace/name, CREATE/REPLACE flags, and target.",
+              "rationale": "Creates or replaces persistent extended-attribute metadata on the selected object.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -11633,10 +11914,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -11654,7 +11935,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "No-follow symlink xattr mutation.",
+                "rationale": "Creates or replaces xattr metadata on the symlink itself under no-follow semantics.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -11683,6 +11970,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "No-follow symlink xattr mutation.",
+              "rationale": "Creates or replaces xattr metadata on the symlink itself under no-follow semantics.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -11697,10 +11995,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -11718,7 +12016,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "FD-targeted xattr mutation; FD use alone does not adjudicate S03.",
+                "rationale": "Creates or replaces xattr metadata on the filesystem object referenced by FD.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -11747,6 +12051,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "FD-targeted xattr mutation; FD use alone does not adjudicate S03.",
+              "rationale": "Creates or replaces xattr metadata on the filesystem object referenced by FD.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -12185,10 +12500,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -12206,7 +12521,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Xattr removal partitioned by namespace/name and resolved target.",
+                "rationale": "Removes persistent xattr metadata from the selected object.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -12235,6 +12556,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Xattr removal partitioned by namespace/name and resolved target.",
+              "rationale": "Removes persistent xattr metadata from the selected object.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -12249,10 +12581,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -12270,7 +12602,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "No-follow symlink xattr removal.",
+                "rationale": "Removes xattr metadata from the symlink itself without following it.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -12299,6 +12637,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "No-follow symlink xattr removal.",
+              "rationale": "Removes xattr metadata from the symlink itself without following it.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -12313,10 +12662,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -12334,7 +12683,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "FD-targeted xattr removal; FD use alone does not adjudicate S03.",
+                "rationale": "Removes xattr metadata from the filesystem object referenced by FD.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -12363,6 +12718,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "FD-targeted xattr removal; FD use alone does not adjudicate S03.",
+              "rationale": "Removes xattr metadata from the filesystem object referenced by FD.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -14241,10 +14607,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -14262,7 +14628,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Timestamp mutation partitioned by time values, precision, and target.",
+                "rationale": "Mutates atime/mtime metadata of the selected object; preserve precision and special-value semantics.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -14291,6 +14663,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Timestamp mutation partitioned by time values, precision, and target.",
+              "rationale": "Mutates atime/mtime metadata of the selected object; preserve precision and special-value semantics.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -15424,10 +15807,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -15445,7 +15828,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Directory creation with dirfd/path resolution as a separate dimension.",
+                "rationale": "Creates a persistent directory node. dirfd selects the resolution context but does not imply S03.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -15474,6 +15863,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Directory creation with dirfd/path resolution as a separate dimension.",
+              "rationale": "Creates a persistent directory node. dirfd selects the resolution context but does not imply S03.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -15488,10 +15888,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -15509,7 +15909,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Node creation partitioned by type/arguments; dirfd is not itself the membership basis.",
+                "rationale": "Creates a persistent node under the selected directory; preserve node type, mode/device, and dirfd resolution conditions.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -15538,6 +15944,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Node creation partitioned by type/arguments; dirfd is not itself the membership basis.",
+              "rationale": "Creates a persistent node under the selected directory; preserve node type, mode/device, and dirfd resolution conditions.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -15552,10 +15969,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -15573,7 +15990,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Ownership mutation partitioned by flags and resolved target.",
+                "rationale": "Mutates ownership metadata; preserve applicable flags and the final object selected by resolution.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -15602,6 +16025,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Ownership mutation partitioned by flags and resolved target.",
+              "rationale": "Mutates ownership metadata; preserve applicable flags and the final object selected by resolution.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -15616,10 +16050,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -15637,7 +16071,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Legacy timestamp mutation with ABI, dirfd, and object-resolution conditions.",
+                "rationale": "Mutates timestamp metadata; retain this legacy variant and its target-ABI conditions rather than normalizing it by name.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -15666,6 +16106,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Legacy timestamp mutation with ABI, dirfd, and object-resolution conditions.",
+              "rationale": "Mutates timestamp metadata; retain this legacy variant and its target-ABI conditions rather than normalizing it by name.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -15737,10 +16188,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -15758,7 +16209,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Namespace removal partitioned by AT_REMOVEDIR and target kind.",
+                "rationale": "Removes a namespace entry; retain AT_REMOVEDIR and target-kind conditions as distinct variants.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -15787,6 +16244,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Namespace removal partitioned by AT_REMOVEDIR and target kind.",
+              "rationale": "Removes a namespace entry; retain AT_REMOVEDIR and target-kind conditions as distinct variants.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -15801,10 +16269,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -15822,7 +16290,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Namespace mutation; source, destination, and dirfd resolution remain explicit.",
+                "rationale": "Mutates source/destination namespace entries. dirfd is a selection/resolution dimension, not the basis of S04 membership.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -15884,6 +16358,17 @@
               ],
               "scope_limit": "One scratch rename case; no other mutation syscall/flags/path-race partition is closed."
             }
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Namespace mutation; source, destination, and dirfd resolution remain explicit.",
+              "rationale": "Mutates source/destination namespace entries. dirfd is a selection/resolution dimension, not the basis of S04 membership.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -15898,10 +16383,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -15919,7 +16404,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Hard-link mutation partitioned by flags and resolved object.",
+                "rationale": "Creates a hard-link namespace entry; preserve applicable flags and the object actually resolved.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -15948,6 +16439,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Hard-link mutation partitioned by flags and resolved object.",
+              "rationale": "Creates a hard-link namespace entry; preserve applicable flags and the object actually resolved.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -15962,10 +16464,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -15983,7 +16485,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Symlink creation; dirfd selection and later resolution remain separate dimensions.",
+                "rationale": "Creates a symlink node under the selected directory and stores target text; subsequent resolution is separate.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -16012,6 +16520,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Symlink creation; dirfd selection and later resolution remain separate dimensions.",
+              "rationale": "Creates a symlink node under the selected directory and stores target text; subsequent resolution is separate.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -16083,10 +16602,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -16104,7 +16623,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Mode mutation with ABI/flag and resolved-target conditions.",
+                "rationale": "Mutates mode/permission metadata of the selected object; preserve target-ABI and applicable flags semantics.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -16133,6 +16658,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Mode mutation with ABI/flag and resolved-target conditions.",
+              "rationale": "Mutates mode/permission metadata of the selected object; preserve target-ABI and applicable flags semantics.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -16774,10 +17310,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -16795,7 +17331,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Timestamp mutation partitioned by values, flags, and resolved target.",
+                "rationale": "Mutates timestamp metadata; preserve UTIME_NOW, UTIME_OMIT, AT_SYMLINK_NOFOLLOW, and other applicable flags/values.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -16824,6 +17366,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Timestamp mutation partitioned by values, flags, and resolved target.",
+              "rationale": "Mutates timestamp metadata; preserve UTIME_NOW, UTIME_OMIT, AT_SYMLINK_NOFOLLOW, and other applicable flags/values.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -17026,10 +17579,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -17047,7 +17600,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Range allocation/content effect partitioned by mode and target filesystem object.",
+                "rationale": "Changes allocation/content state of a filesystem object for the selected range. Membership is conditioned on the mode/flags and their concrete object effect.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -17076,6 +17635,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Range allocation/content effect partitioned by mode and target filesystem object.",
+              "rationale": "Changes allocation/content state of a filesystem object for the selected range. Membership is conditioned on the mode/flags and their concrete object effect.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -18756,10 +19326,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -18777,7 +19347,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Namespace mutation partitioned by operation flags and target ABI.",
+                "rationale": "Mutates namespace entries; preserve RENAME_NOREPLACE, RENAME_EXCHANGE, RENAME_WHITEOUT and other target-ABI-relevant flags.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -18806,6 +19382,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Namespace mutation partitioned by operation flags and target ABI.",
+              "rationale": "Mutates namespace entries; preserve RENAME_NOREPLACE, RENAME_EXCHANGE, RENAME_WHITEOUT and other target-ABI-relevant flags.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -21963,10 +22550,10 @@
         "candidate_surface_ids": [
           "S04"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
-          "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
+          "review_basis": "Static target-bound syscall crosswalk plus explicit human acceptance of the S04 filesystem-state mutation dimension only; path/dirfd/FD/mapping selectors and other surface relations remain separate, with no syscall-wide disposition or enforcement inferred.",
           "candidate_surface_context": [
             {
               "surface_id": "S04",
@@ -21984,7 +22571,13 @@
                 "S05",
                 "S06"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES",
+                "scope": "Mode mutation partitioned by flags and final target.",
+                "rationale": "Mutates mode/permission metadata; preserve flags and the object selected under each variant.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 020."
+              }
             }
           ],
           "alternate_surface_routes": [
@@ -22013,6 +22606,17 @@
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S04",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES",
+              "scope": "Mode mutation partitioned by flags and final target.",
+              "rationale": "Mutates mode/permission metadata; preserve flags and the object selected under each variant.",
+              "human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -22787,13 +23391,13 @@
       "Resolve all finite argument/flag partitions and exact callsite/dependency traceability as separate documented blockers."
     ],
     "no_candidate_row_review": {
-      "status": "INITIAL_LEAD_REVIEW_RECORDED; S01_AND_S02_RELATIONS_HUMAN_ADJUDICATED; OTHER_LEADS_PENDING; DISPOSITIONS_UNCHANGED",
+      "status": "INITIAL_LEAD_REVIEW_RECORDED; S01-S04_RELATIONS_HUMAN_ADJUDICATED; OTHER_LEADS_PENDING; DISPOSITIONS_UNCHANGED",
       "source_row_count": 194,
       "potential_existing_surface_lead_row_count": 186,
       "unresolved_without_justified_existing_surface_lead_count": 8,
       "potential_surface_ref_count": 204,
       "canonical_membership_changes": 13,
-      "lead_relation_exclusions": 23,
+      "lead_relation_exclusions": 24,
       "lead_relations_retained_unknown": 7,
       "human_adjudication_batch_01_ref": "../checkpoints/014-adjudicacion-documental-lote-01-s01.md",
       "new_surfaces_introduced": 0,
@@ -22825,7 +23429,7 @@
         "S15": 3,
         "S16": 51
       },
-      "lead_reference_interpretation": "The original 204 references collapse to 186 rows: 168 rows had one potential existing-surface reference and 18 had two overlapping references. These are historical initial-review counts, not current pending relations, memberships, or coverage; 13 S01 candidate relations and 19 S02 relation exclusions have since been human-adjudicated.",
+      "lead_reference_interpretation": "The original 204 potential references are historical review provenance, not current pending relations, memberships, or coverage. S01 candidate acceptances, S02 relation exclusions, and S04 relation adjudications are recorded separately; five S04 leads remain UNKNOWN.",
       "unresolved_row_review": {
         "_sysctl": "Legacy sysctl interface; relation to current workload surfaces and effective kernel availability are not established.",
         "afs_syscall": "AFS-specific legacy interface; no workload dependency or threat-model surface relation is established.",
@@ -22935,7 +23539,45 @@
           "name": "cachestat",
           "relation_status": "EXCLUDED"
         }
-      ]
+      ],
+      "s04_human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+      "s04_relation_exclusion_count": 1,
+      "s04_relation_exclusions": [
+        {
+          "nr": 95,
+          "name": "umask",
+          "relation_status": "EXCLUDED"
+        }
+      ],
+      "s04_pending_unknown_count": 5,
+      "s04_pending_unknown_syscalls": [
+        {
+          "nr": 179,
+          "name": "quotactl",
+          "relation_status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        },
+        {
+          "nr": 443,
+          "name": "quotactl_fd",
+          "relation_status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        },
+        {
+          "nr": 463,
+          "name": "setxattrat",
+          "relation_status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        },
+        {
+          "nr": 466,
+          "name": "removexattrat",
+          "relation_status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        },
+        {
+          "nr": 469,
+          "name": "file_setattr",
+          "relation_status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        }
+      ],
+      "no_candidate_unresolved_review_status": "EIGHT_ROWS_RETAINED_UNKNOWN_WITH_EXPLICIT_REASONS; NO_SYSCALL_DISPOSITION_EXCLUSIONS; S01-S04_RELATION_ADJUDICATIONS_RECORDED_SEPARATELY"
     },
     "human_adjudicated_membership_batches": [
       {
@@ -22999,6 +23641,15 @@
             "scope": "Local descriptor acquisition from another process; mandatory S09/IPC-Processes cross-dimension."
           }
         ],
+        "global_dispositions_unchanged": "UNKNOWN"
+      },
+      {
+        "batch_id": "04-S04",
+        "reference": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+        "surface_id": "S04",
+        "accepted_relation_count": 35,
+        "excluded_relation_count": 1,
+        "unknown_pending_relation_count": 5,
         "global_dispositions_unchanged": "UNKNOWN"
       }
     ]
@@ -23429,10 +24080,11 @@
         "utimensat"
       ],
       "arguments_and_variants": [
-        "source/destination path and dirfd",
-        "FD-targeted versus pathname-targeted mutation",
-        "mount, symlink, and race-sensitive resolution",
-        "operation-specific flags and result"
+        "Effective persistent filesystem-state mutations only: namespace, node creation/removal, size/allocation, permissions, ownership, timestamps, and persistent object metadata.",
+        "Membership is determined by the mutating effect, not by pathname, dirfd, FD, or mapping used to select/access the object.",
+        "Preserve operation-specific path/dirfd/FD, symlink/mount/race, flag, value, object-type, and result partitions.",
+        "Do not include process state that only conditions future mutation, queries, readiness, FD positioning, coordination, or undelimited filesystem-wide administrative state automatically.",
+        "Hardlink, symlink, rename, and unlink effects on namespace entries are distinct from later resolution or final object destruction."
       ],
       "resource": "Filesystem names, object contents, metadata, and node creation/removal.",
       "alternate_paths": [
@@ -23443,7 +24095,22 @@
       ],
       "exclusions": [],
       "threat_model_rationale": "A potentially hostile workload may alter protected filesystem state by name or through an already-open descriptor.",
-      "closure_criterion": "Freeze operation/variant inventory and attribute affected object(s), or correlate denials to active policy and protected resource; ambiguous resolution remains UNKNOWN."
+      "closure_criterion": "Freeze operation/variant inventory and attribute affected object(s), or correlate denials to active policy and protected resource; ambiguous resolution remains UNKNOWN.",
+      "human_adjudicated_membership_batch": {
+        "reference": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+        "date": "2026-10-01",
+        "accepted_syscall_count": 35,
+        "scope_rule": "Each accepted S04 candidate is limited to the effective filesystem-state mutation and per-row conditions recorded in static_disposition_review.surface_membership_adjudications. Other surface relations and global dispositions remain independently adjudicated."
+      },
+      "human_adjudicated_relation_exclusions": [
+        {
+          "nr": 95,
+          "name": "umask",
+          "relation_status": "EXCLUDED",
+          "reference": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+          "rationale": "Changes process state conditioning future creation permissions; it does not itself mutate persistent filesystem object state or metadata."
+        }
+      ]
     },
     {
       "id": "S05",

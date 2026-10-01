@@ -196,9 +196,9 @@
       "surface_syscall_tokens_absent_from_native_table": 0,
       "status": "STATIC_CROSSWALK_RECORDED; EFFECT_DISPOSITIONS_PENDING",
       "pending": [
-        "Continue adjudicating remaining candidate surface relations; preserve per-surface scope and retain UNKNOWN where evidence is insufficient.",
+        "Continue adjudicating remaining candidate surface relations with explicit per-surface scope; preserve UNKNOWN where evidence is insufficient.",
         "Complete finite argument/flag partitions and callsite/dependency traceability.",
-        "Review descriptor-acquisition and descriptor-passing routes separately; the S03 batch 03 decision does not adjudicate those relations."
+        "Keep the five S04 leads quotactl, quotactl_fd, setxattrat, removexattrat, and file_setattr UNKNOWN pending the evidence recorded in batch 04."
       ],
       "historical_case_count": 27,
       "rows_with_historical_case_evidence": 17,
@@ -331,7 +331,7 @@
           "relation_status": "EXCLUDED"
         }
       ],
-      "no_candidate_relation_exclusions_total": 23,
+      "no_candidate_relation_exclusions_total": 24,
       "s03_human_adjudication_ref": "../checkpoints/018-adjudicacion-documental-lote-03-s03.md",
       "s03_human_adjudicated_membership_count": 9,
       "s03_human_adjudicated_memberships": [
@@ -390,7 +390,257 @@
           "scope": "Local descriptor acquisition from another process; mandatory S09/IPC-Processes cross-dimension."
         }
       ],
-      "human_adjudicated_candidate_relation_count": 22
+      "human_adjudicated_candidate_relation_count": 57,
+      "s04_human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
+      "s04_human_adjudicated_membership_count": 35,
+      "s04_human_adjudicated_memberships": [
+        {
+          "nr": 76,
+          "name": "truncate",
+          "decision": "YES",
+          "scope": "Path-selected object size mutation; preserve size, resolution, and object-type partitions."
+        },
+        {
+          "nr": 77,
+          "name": "ftruncate",
+          "decision": "YES",
+          "scope": "FD-targeted object size mutation; S06 remains a separate pending relation."
+        },
+        {
+          "nr": 285,
+          "name": "fallocate",
+          "decision": "YES",
+          "scope": "Range allocation/content effect partitioned by mode and target filesystem object."
+        },
+        {
+          "nr": 82,
+          "name": "rename",
+          "decision": "YES",
+          "scope": "Source/destination namespace mutation; object lifetime is distinct."
+        },
+        {
+          "nr": 87,
+          "name": "unlink",
+          "decision": "YES",
+          "scope": "Namespace-entry removal, distinct from final object destruction."
+        },
+        {
+          "nr": 86,
+          "name": "link",
+          "decision": "YES",
+          "scope": "Hard-link creation and resulting namespace relation."
+        },
+        {
+          "nr": 264,
+          "name": "renameat",
+          "decision": "YES",
+          "scope": "Namespace mutation; source, destination, and dirfd resolution remain explicit."
+        },
+        {
+          "nr": 263,
+          "name": "unlinkat",
+          "decision": "YES",
+          "scope": "Namespace removal partitioned by AT_REMOVEDIR and target kind."
+        },
+        {
+          "nr": 265,
+          "name": "linkat",
+          "decision": "YES",
+          "scope": "Hard-link mutation partitioned by flags and resolved object."
+        },
+        {
+          "nr": 316,
+          "name": "renameat2",
+          "decision": "YES",
+          "scope": "Namespace mutation partitioned by operation flags and target ABI."
+        },
+        {
+          "nr": 83,
+          "name": "mkdir",
+          "decision": "YES",
+          "scope": "Directory-node creation; resulting mode and parent/path resolution remain selectors/conditions."
+        },
+        {
+          "nr": 84,
+          "name": "rmdir",
+          "decision": "YES",
+          "scope": "Directory removal subject to target being empty and applicable filesystem conditions."
+        },
+        {
+          "nr": 258,
+          "name": "mkdirat",
+          "decision": "YES",
+          "scope": "Directory creation with dirfd/path resolution as a separate dimension."
+        },
+        {
+          "nr": 133,
+          "name": "mknod",
+          "decision": "YES",
+          "scope": "Node creation partitioned by node type and mode/device arguments."
+        },
+        {
+          "nr": 259,
+          "name": "mknodat",
+          "decision": "YES",
+          "scope": "Node creation partitioned by type/arguments; dirfd is not itself the membership basis."
+        },
+        {
+          "nr": 88,
+          "name": "symlink",
+          "decision": "YES",
+          "scope": "Symlink creation only; not subsequent target resolution."
+        },
+        {
+          "nr": 266,
+          "name": "symlinkat",
+          "decision": "YES",
+          "scope": "Symlink creation; dirfd selection and later resolution remain separate dimensions."
+        },
+        {
+          "nr": 90,
+          "name": "chmod",
+          "decision": "YES",
+          "scope": "Mode/permission metadata mutation on the resolved object."
+        },
+        {
+          "nr": 91,
+          "name": "fchmod",
+          "decision": "YES",
+          "scope": "FD-targeted mode mutation; no automatic S03 decision."
+        },
+        {
+          "nr": 268,
+          "name": "fchmodat",
+          "decision": "YES",
+          "scope": "Mode mutation with ABI/flag and resolved-target conditions."
+        },
+        {
+          "nr": 452,
+          "name": "fchmodat2",
+          "decision": "YES",
+          "scope": "Mode mutation partitioned by flags and final target."
+        },
+        {
+          "nr": 92,
+          "name": "chown",
+          "decision": "YES",
+          "scope": "Ownership mutation partitioned by requested IDs, credentials, and resolved target."
+        },
+        {
+          "nr": 93,
+          "name": "fchown",
+          "decision": "YES",
+          "scope": "FD-targeted ownership mutation."
+        },
+        {
+          "nr": 94,
+          "name": "lchown",
+          "decision": "YES",
+          "scope": "No-follow symlink ownership mutation."
+        },
+        {
+          "nr": 260,
+          "name": "fchownat",
+          "decision": "YES",
+          "scope": "Ownership mutation partitioned by flags and resolved target."
+        },
+        {
+          "nr": 188,
+          "name": "setxattr",
+          "decision": "YES",
+          "scope": "Xattr mutation partitioned by namespace/name, CREATE/REPLACE flags, and target."
+        },
+        {
+          "nr": 189,
+          "name": "lsetxattr",
+          "decision": "YES",
+          "scope": "No-follow symlink xattr mutation."
+        },
+        {
+          "nr": 190,
+          "name": "fsetxattr",
+          "decision": "YES",
+          "scope": "FD-targeted xattr mutation; FD use alone does not adjudicate S03."
+        },
+        {
+          "nr": 197,
+          "name": "removexattr",
+          "decision": "YES",
+          "scope": "Xattr removal partitioned by namespace/name and resolved target."
+        },
+        {
+          "nr": 198,
+          "name": "lremovexattr",
+          "decision": "YES",
+          "scope": "No-follow symlink xattr removal."
+        },
+        {
+          "nr": 199,
+          "name": "fremovexattr",
+          "decision": "YES",
+          "scope": "FD-targeted xattr removal; FD use alone does not adjudicate S03."
+        },
+        {
+          "nr": 132,
+          "name": "utime",
+          "decision": "YES",
+          "scope": "Timestamp mutation partitioned by legacy ABI, values, and target."
+        },
+        {
+          "nr": 235,
+          "name": "utimes",
+          "decision": "YES",
+          "scope": "Timestamp mutation partitioned by time values, precision, and target."
+        },
+        {
+          "nr": 261,
+          "name": "futimesat",
+          "decision": "YES",
+          "scope": "Legacy timestamp mutation with ABI, dirfd, and object-resolution conditions."
+        },
+        {
+          "nr": 280,
+          "name": "utimensat",
+          "decision": "YES",
+          "scope": "Timestamp mutation partitioned by values, flags, and resolved target."
+        }
+      ],
+      "s04_relation_exclusion_count": 1,
+      "s04_relation_exclusions": [
+        {
+          "nr": 95,
+          "name": "umask",
+          "relation_status": "EXCLUDED"
+        }
+      ],
+      "s04_pending_unknown_relation_count": 5,
+      "s04_pending_unknown_relations": [
+        {
+          "nr": 179,
+          "name": "quotactl",
+          "status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        },
+        {
+          "nr": 443,
+          "name": "quotactl_fd",
+          "status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        },
+        {
+          "nr": 463,
+          "name": "setxattrat",
+          "status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        },
+        {
+          "nr": 466,
+          "name": "removexattrat",
+          "status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        },
+        {
+          "nr": 469,
+          "name": "file_setattr",
+          "status": "UNKNOWN_NO_CANDIDATE_ADDED"
+        }
+      ]
     },
     "argument_variant_review": {
       "status": "PARTIAL_UNKNOWN",
