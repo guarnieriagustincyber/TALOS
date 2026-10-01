@@ -198,7 +198,8 @@
       "pending": [
         "Continue adjudicating remaining candidate surface relations with explicit per-surface scope; preserve UNKNOWN where evidence is insufficient.",
         "Complete finite argument/flag partitions and callsite/dependency traceability.",
-        "Keep the five S04 leads quotactl, quotactl_fd, setxattrat, removexattrat, and file_setattr UNKNOWN pending the evidence recorded in batch 04."
+        "Keep the five S04 leads quotactl, quotactl_fd, setxattrat, removexattrat, and file_setattr UNKNOWN pending the evidence recorded in batch 04.",
+        "Keep S05 madvise UNKNOWN pending operation-specific MADV_* partition; the 17 S05 potential leads remain outside candidate membership."
       ],
       "historical_case_count": 27,
       "rows_with_historical_case_evidence": 17,
@@ -390,7 +391,7 @@
           "scope": "Local descriptor acquisition from another process; mandatory S09/IPC-Processes cross-dimension."
         }
       ],
-      "human_adjudicated_candidate_relation_count": 57,
+      "human_adjudicated_candidate_relation_count": 63,
       "s04_human_adjudication_ref": "../checkpoints/020-adjudicacion-documental-lote-04-s04.md",
       "s04_human_adjudicated_membership_count": 35,
       "s04_human_adjudicated_memberships": [
@@ -640,7 +641,57 @@
           "name": "file_setattr",
           "status": "UNKNOWN_NO_CANDIDATE_ADDED"
         }
-      ]
+      ],
+      "s05_human_adjudication_ref": "../checkpoints/022-adjudicacion-documental-lote-05-s05.md",
+      "s05_human_adjudicated_membership_count": 6,
+      "s05_human_adjudicated_memberships": [
+        {
+          "nr": 9,
+          "name": "mmap",
+          "decision": "YES_CONDITIONAL",
+          "scope": "Only a mapping backed by a file-backed object. Exclude MAP_ANONYMOUS, anonymous memory, memfd-backed memory, and memfd_secret. Preserve MAP_SHARED/MAP_PRIVATE, FD, offset, length, and PROT_* as separate axes."
+        },
+        {
+          "nr": 10,
+          "name": "mprotect",
+          "decision": "YES_CONDITIONAL",
+          "scope": "Only when the protected range belongs to a file-backed mapping. Preserve PROT_READ, PROT_WRITE, PROT_EXEC, PROT_NONE, range, length, and alignment."
+        },
+        {
+          "nr": 11,
+          "name": "munmap",
+          "decision": "YES_CONDITIONAL",
+          "scope": "Only when the unmapped range corresponds to a file-backed mapping. Preserve partial unmap, range, length, and alignment."
+        },
+        {
+          "nr": 25,
+          "name": "mremap",
+          "decision": "YES_CONDITIONAL",
+          "scope": "Only when the affected mapping is file-backed. Preserve growth, shrink, move, MREMAP_MAYMOVE, and MREMAP_FIXED."
+        },
+        {
+          "nr": 26,
+          "name": "msync",
+          "decision": "YES_CONDITIONAL",
+          "scope": "Only when the synchronized range belongs to a file-backed mapping. Preserve MS_SYNC, MS_ASYNC, MS_INVALIDATE, MAP_SHARED, and MAP_PRIVATE."
+        },
+        {
+          "nr": 329,
+          "name": "pkey_mprotect",
+          "decision": "YES_CONDITIONAL",
+          "scope": "Only when the protected range belongs to a file-backed mapping. Preserve PROT_*, pkey, range, alignment, and key validity; protection-key lifecycle remains separate."
+        }
+      ],
+      "s05_pending_unknown_relation_count": 1,
+      "s05_pending_unknown_relations": [
+        {
+          "nr": 28,
+          "name": "madvise",
+          "status": "UNKNOWN_PENDING_MADV_VARIANT_PARTITION"
+        }
+      ],
+      "s05_unpromoted_potential_lead_count": 17,
+      "s05_unpromoted_potential_lead_status": "REMAIN_OUTSIDE_CANDIDATE_MEMBERSHIP; NOT_ADJUDICATED_BY_BATCH_05"
     },
     "argument_variant_review": {
       "status": "PARTIAL_UNKNOWN",

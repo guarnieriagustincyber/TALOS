@@ -29,3 +29,5 @@ Checkpoints are listed in chronological order. Checkpoint 1 is the oldest, highe
 - [018-adjudicacion-documental-lote-03-s03.md](018-adjudicacion-documental-lote-03-s03.md) - Decisión humana que acepta nueve relaciones candidatas S03, con restricciones explícitas por comando y dimensión; disposiciones permanecen UNKNOWN.
 - [019-preparacion-lote-04-s04.md](019-preparacion-lote-04-s04.md) - Preparación documental de 35 candidaturas S04 y seis pistas pendientes; sin adjudicación.
 - [020-adjudicacion-documental-lote-04-s04.md](020-adjudicacion-documental-lote-04-s04.md) - Acepta 35 relaciones S04 y excluye umask; cinco pistas S04 quedan UNKNOWN sin membresía.
+- [021-preparacion-lote-05-s05.md](021-preparacion-lote-05-s05.md) - Preparación documental de siete candidaturas existentes y 17 pistas S05; todas pendientes de adjudicación humana.
+- [022-adjudicacion-documental-lote-05-s05.md](022-adjudicacion-documental-lote-05-s05.md) - Acepta seis membresías S05 condicionadas a backing file-backed; `madvise` permanece UNKNOWN y las 17 pistas no se promueven.

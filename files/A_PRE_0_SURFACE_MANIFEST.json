@@ -837,7 +837,7 @@
           "S05",
           "S06"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
           "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
@@ -859,7 +859,13 @@
                 "S06",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES_CONDITIONAL",
+                "scope": "Only a mapping backed by a file-backed object. Exclude MAP_ANONYMOUS, anonymous memory, memfd-backed memory, and memfd_secret. Preserve MAP_SHARED/MAP_PRIVATE, FD, offset, length, and PROT_* as separate axes.",
+                "rationale": "Establishes a mapping associated with a file-backed object; backing identity determines S05 versus anonymous/memfd S06. The mapping relation does not adjudicate descriptor lifecycle, filesystem mutation, or later CPU loads/stores.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 022."
+              }
             },
             {
               "surface_id": "S06",
@@ -918,7 +924,7 @@
             ]
           },
           "missing_to_close": [
-            "Candidate surface memberships are unreviewed pointers only; confirm or revise each relation, including cross-surface effects.",
+            "Other candidate surface relations (including S06 where present) remain unreviewed; this S05 relation adjudication does not establish effects, reachability, or coverage.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "Historical evidence case(s) are listed in evidence_case_adjudications; each is bounded to the named variant/route and none is eligible for the current A-PRE-0 readiness predicate until snapshot rebinding."
@@ -988,6 +994,17 @@
               ],
               "scope_limit": "Blocked before mmap invocation; this is evidence for only the tested pathname/no-FD route, not seccomp denial of mmap."
             }
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S05",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES_CONDITIONAL",
+              "scope": "Only a mapping backed by a file-backed object. Exclude MAP_ANONYMOUS, anonymous memory, memfd-backed memory, and memfd_secret. Preserve MAP_SHARED/MAP_PRIVATE, FD, offset, length, and PROT_* as separate axes.",
+              "rationale": "Establishes a mapping associated with a file-backed object; backing identity determines S05 versus anonymous/memfd S06. The mapping relation does not adjudicate descriptor lifecycle, filesystem mutation, or later CPU loads/stores.",
+              "human_adjudication_ref": "../checkpoints/022-adjudicacion-documental-lote-05-s05.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -1003,7 +1020,7 @@
           "S05",
           "S06"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
           "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
@@ -1025,7 +1042,13 @@
                 "S06",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES_CONDITIONAL",
+                "scope": "Only when the protected range belongs to a file-backed mapping. Preserve PROT_READ, PROT_WRITE, PROT_EXEC, PROT_NONE, range, length, and alignment.",
+                "rationale": "Changes protection on a range of a file-backed mapping. Protection changes do not mutate filesystem metadata/content and do not adjudicate S04.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 022."
+              }
             },
             {
               "surface_id": "S06",
@@ -1079,10 +1102,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "Candidate surface memberships are unreviewed pointers only; confirm or revise each relation, including cross-surface effects.",
+            "Other candidate surface relations (including S06 where present) remain unreviewed; this S05 relation adjudication does not establish effects, reachability, or coverage.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S05",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES_CONDITIONAL",
+              "scope": "Only when the protected range belongs to a file-backed mapping. Preserve PROT_READ, PROT_WRITE, PROT_EXEC, PROT_NONE, range, length, and alignment.",
+              "rationale": "Changes protection on a range of a file-backed mapping. Protection changes do not mutate filesystem metadata/content and do not adjudicate S04.",
+              "human_adjudication_ref": "../checkpoints/022-adjudicacion-documental-lote-05-s05.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -1098,7 +1132,7 @@
           "S05",
           "S06"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
           "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
@@ -1120,7 +1154,13 @@
                 "S06",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES_CONDITIONAL",
+                "scope": "Only when the unmapped range corresponds to a file-backed mapping. Preserve partial unmap, range, length, and alignment.",
+                "rationale": "Removes a file-backed mapping range. This is not close(FD), filesystem-object deletion, or S04 mutation.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 022."
+              }
             },
             {
               "surface_id": "S06",
@@ -1174,10 +1214,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "Candidate surface memberships are unreviewed pointers only; confirm or revise each relation, including cross-surface effects.",
+            "Other candidate surface relations (including S06 where present) remain unreviewed; this S05 relation adjudication does not establish effects, reachability, or coverage.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S05",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES_CONDITIONAL",
+              "scope": "Only when the unmapped range corresponds to a file-backed mapping. Preserve partial unmap, range, length, and alignment.",
+              "rationale": "Removes a file-backed mapping range. This is not close(FD), filesystem-object deletion, or S04 mutation.",
+              "human_adjudication_ref": "../checkpoints/022-adjudicacion-documental-lote-05-s05.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -1986,7 +2037,7 @@
           "S05",
           "S06"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
           "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
@@ -2008,7 +2059,13 @@
                 "S06",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES_CONDITIONAL",
+                "scope": "Only when the affected mapping is file-backed. Preserve growth, shrink, move, MREMAP_MAYMOVE, and MREMAP_FIXED.",
+                "rationale": "Changes the geometry/location of a file-backed mapping. Mapping growth/shrink/move does not itself change filesystem-object size or adjudicate S04.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 022."
+              }
             },
             {
               "surface_id": "S06",
@@ -2062,10 +2119,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "Candidate surface memberships are unreviewed pointers only; confirm or revise each relation, including cross-surface effects.",
+            "Other candidate surface relations (including S06 where present) remain unreviewed; this S05 relation adjudication does not establish effects, reachability, or coverage.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S05",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES_CONDITIONAL",
+              "scope": "Only when the affected mapping is file-backed. Preserve growth, shrink, move, MREMAP_MAYMOVE, and MREMAP_FIXED.",
+              "rationale": "Changes the geometry/location of a file-backed mapping. Mapping growth/shrink/move does not itself change filesystem-object size or adjudicate S04.",
+              "human_adjudication_ref": "../checkpoints/022-adjudicacion-documental-lote-05-s05.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -2081,7 +2149,7 @@
           "S05",
           "S06"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
           "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
@@ -2103,7 +2171,13 @@
                 "S06",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES_CONDITIONAL",
+                "scope": "Only when the synchronized range belongs to a file-backed mapping. Preserve MS_SYNC, MS_ASYNC, MS_INVALIDATE, MAP_SHARED, and MAP_PRIVATE.",
+                "rationale": "Synchronizes a file-backed mapping range; synchronization is not payload I/O S02 and is not automatically the S04 mutation that originated bytes. Do not attribute the preceding CPU store to msync.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 022."
+              }
             },
             {
               "surface_id": "S06",
@@ -2161,7 +2235,7 @@
             ]
           },
           "missing_to_close": [
-            "Candidate surface memberships are unreviewed pointers only; confirm or revise each relation, including cross-surface effects.",
+            "Other candidate surface relations (including S06 where present) remain unreviewed; this S05 relation adjudication does not establish effects, reachability, or coverage.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "Historical evidence case(s) are listed in evidence_case_adjudications; each is bounded to the named variant/route and none is eligible for the current A-PRE-0 readiness predicate until snapshot rebinding."
@@ -2212,6 +2286,17 @@
                 }
               ],
               "scope_limit": "Deliberate FD injection only; flush visibility does not observe CPU-store contents."
+            }
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S05",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES_CONDITIONAL",
+              "scope": "Only when the synchronized range belongs to a file-backed mapping. Preserve MS_SYNC, MS_ASYNC, MS_INVALIDATE, MAP_SHARED, and MAP_PRIVATE.",
+              "rationale": "Synchronizes a file-backed mapping range; synchronization is not payload I/O S02 and is not automatically the S04 mutation that originated bytes. Do not attribute the preceding CPU store to msync.",
+              "human_adjudication_ref": "../checkpoints/022-adjudicacion-documental-lote-05-s05.md",
+              "disposition_unchanged": "UNKNOWN"
             }
           ]
         },
@@ -20214,7 +20299,7 @@
           "S05",
           "S06"
         ],
-        "candidate_membership_status": "UNREVIEWED",
+        "candidate_membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
         "static_disposition_review": {
           "classification_status": "UNKNOWN",
           "review_basis": "Static crosswalk from the target-bound syscall table row to existing candidate surface definitions only; no effect or enforcement result inferred.",
@@ -20236,7 +20321,13 @@
                 "S06",
                 "S10"
               ],
-              "membership_status": "UNREVIEWED_CANDIDATE"
+              "membership_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "human_adjudication": {
+                "decision": "YES_CONDITIONAL",
+                "scope": "Only when the protected range belongs to a file-backed mapping. Preserve PROT_*, pkey, range, alignment, and key validity; protection-key lifecycle remains separate.",
+                "rationale": "Changes protection/key association on a file-backed mapping range. The key lifecycle is a separate dimension and is not adjudicated by this relation.",
+                "source": "Explicit human adjudication provided 2026-10-01; see checkpoint 022."
+              }
             },
             {
               "surface_id": "S06",
@@ -20290,10 +20381,21 @@
             "control_denial_evidence": "NONE_RECORDED_PER_ROW"
           },
           "missing_to_close": [
-            "Candidate surface memberships are unreviewed pointers only; confirm or revise each relation, including cross-surface effects.",
+            "Other candidate surface relations (including S06 where present) remain unreviewed; this S05 relation adjudication does not establish effects, reachability, or coverage.",
             "No row-specific workload callsite or exact Python/native/dependency path is bound to this syscall.",
             "No syscall-specific finite argument/value partition and resource-class closure is established.",
             "No row-specific runtime effect observation or correlated active-control denial is recorded; table membership is not effect evidence."
+          ],
+          "surface_membership_adjudications": [
+            {
+              "surface_id": "S05",
+              "relation_status": "HUMAN_ADJUDICATED_CANDIDATE",
+              "decision": "YES_CONDITIONAL",
+              "scope": "Only when the protected range belongs to a file-backed mapping. Preserve PROT_*, pkey, range, alignment, and key validity; protection-key lifecycle remains separate.",
+              "rationale": "Changes protection/key association on a file-backed mapping range. The key lifecycle is a separate dimension and is not adjudicated by this relation.",
+              "human_adjudication_ref": "../checkpoints/022-adjudicacion-documental-lote-05-s05.md",
+              "disposition_unchanged": "UNKNOWN"
+            }
           ]
         },
         "disposition_status": "UNKNOWN",
@@ -24125,12 +24227,15 @@
         "madvise"
       ],
       "arguments_and_variants": [
-        "backing FD/object identity",
-        "MAP_SHARED versus MAP_PRIVATE",
-        "protection, offset, length, remap, and sync flags",
-        "mapping lifecycle and independently verified resulting content"
+        "backing FD/object identity; file-backed versus MAP_ANONYMOUS, anonymous, and memfd-backed memory",
+        "MAP_SHARED versus MAP_PRIVATE; these flags are semantic axes, not standalone membership rules",
+        "PROT_* protections, offset, length, range, alignment, and mapping lifecycle",
+        "mremap growth, shrink, move, MREMAP_MAYMOVE, and MREMAP_FIXED",
+        "msync MS_SYNC, MS_ASYNC, and MS_INVALIDATE; synchronization versus CPU stores and payload I/O",
+        "madvise MADV_* variants remain UNKNOWN pending explicit partition and adjudication",
+        "pkey_mprotect protection, pkey, range, alignment, and key validity; key lifecycle remains separate"
       ],
-      "resource": "File-backed mappings, including mappings of resources outside the visible pathname namespace.",
+      "resource": "Mappings backed by file-backed objects, including resources outside the visible pathname namespace; anonymous and memfd-backed mappings are excluded.",
       "alternate_paths": [
         "S02",
         "S03",
@@ -24138,9 +24243,14 @@
         "S06",
         "S10"
       ],
-      "exclusions": [],
+      "exclusions": [
+        "MAP_ANONYMOUS",
+        "anonymous memory",
+        "memfd-backed memory",
+        "memfd_secret"
+      ],
       "threat_model_rationale": "A file-backed mapping can retain access to an object through an FD and shared stores can persist outside the process.",
-      "closure_criterion": "Distinguish mapping creation from memory loads/stores; attribute backing object and independently establish relevant effects or demonstrate the resource cannot enter."
+      "closure_criterion": "Distinguish each operation on a file-backed mapping from anonymous/memfd mappings; retain operation-specific flags, range, backing identity, and variants. Separate mapping establishment/protection/lifecycle/synchronization from CPU stores, payload I/O, and filesystem mutation. MADV_* membership requires its own variant-level adjudication."
     },
     {
       "id": "S06",
