@@ -1,0 +1,41 @@
+{
+  "$schema": "https://raw.githubusercontent.com/guarnieriagustincyber/TALOS/main/schemas/probe1_seal_manifest.schema.json",
+  "audit_references": {
+    "checkpoint_reference": "checkpoints/149-probe-1-diseno-routing-adaptativo.md",
+    "checkpoint_reference_sha256": "f8a88cb898cfeb0f7e2a7e2a8569959996fb781a2f9b9bd93d389218a67dc6c6",
+    "preflight_report_path": "reports/v1_5_phase1/PROBE_1_PREFLIGHT_AUDIT_REPORT.md",
+    "preflight_report_sha256": "6e930a3c4503b6946070d42b2caf1d5b9ad74f827b0c43ddea53c66e124d0c59"
+  },
+  "execution_status": "NOT_STARTED",
+  "experiment_id": "exp_ingestion_probe1_adaptive_routing",
+  "experiment_version": "1.0.1-canonical",
+  "governance_status": "SEALED",
+  "normative_specifications": {
+    "benefit_definition_sha256": "bc433c16031d9b9978d836acd3e0d4a6fbe654349bcaccecbf50659e2f5cbe7d",
+    "correction_ledger_sha256": "bdfc0136080e4f03509cb53e20401f4f381337d9c2db6f251301aacaffe5b713",
+    "dataset_manifest_sha256": "1c53a00a89e23abf4aee40e93564aa6290355e734801f90ee65a57d136afac40",
+    "environment_spec_sha256": "3a9af5c43ce5a6edaec7436fdf37107f98edb9e74b472e011daca1d8c9e22f95",
+    "experiment_plan_sha256": "de36abe472d66922d3451a387d1f3405779f95033129fe027717907670570691",
+    "feature_spec_sha256": "0c7d6537baaab8561dbed41af0b563a139fded5f3985ea190e22643f4a74f516",
+    "gold_standard_sha256": "30f9ae06bd40ada1a7a8fa150aecc574ee8154cfbb7fbfab25dfa465949da177",
+    "human_adjudication_protocol_sha256": "5fb5b3b06ed90831c9b6ab463a979cb1b367ed1aaa7c9866aa126ef4c7df5896",
+    "metrics_spec_sha256": "ee853f78a15362835b572026201cf604d675553b8566590d737fe0e0dc8b83ee",
+    "router_spec_sha256": "eb887f87696b6874eddc3df09eac2899f8789783267ef25036de88aa9f6c6bba"
+  },
+  "production_invariants": {
+    "database_changes": 0,
+    "production_db_hashes": {
+      "cal_store_db": "82773155ca35028274ba0f378fdcd37a5374bb4483a579654a6e9facfd443782",
+      "knowledge_store_db": "fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+      "quotas_db": "09838ed16f1bbab384e6a83be651c9f8657db11c6a72caa5c32947a2cc18050d",
+      "student_state_db": "f70f380dbad3f50cb7fa825009d8afd7d0d07ed0b4501c329c65288d4e840b2d",
+      "study_engine_db": "e3ba06536f7dbba337dee3c1c5f01b43660ce276abb54c5cee2d5defc5b970aa",
+      "vector_store_db": "d6d9f8c8eb6e5188e8e600a73cc05bd001d2e389061815d7d0df33f447a9dde4"
+    },
+    "production_selection": "NOT_PERFORMED",
+    "v1_runtime_modified": false
+  },
+  "seal_timestamp": "2026-10-06T00:05:00Z",
+  "seal_version": "1.0.0-canonical",
+  "source_pdf_sha256": "1217dd5e6038f150f454198b9645b7f4b89929ff88ba3744ca2c446082f4fb47"
+}

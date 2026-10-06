@@ -1,0 +1,379 @@
+{
+  "$schema": "https://raw.githubusercontent.com/guarnieriagustincyber/TALOS/main/schemas/probe1_dataset_manifest.schema.json",
+  "dataset_id": "dataset_joyanes_fundamentos_ch02_v1",
+  "document_title": "Fundamentos de programación: Algoritmos, estructura de datos y objetos",
+  "document_author": "Luis Joyanes Aguilar",
+  "document_edition": "4ta Edición (McGraw-Hill)",
+  "source_pdf": "fuentes/fase0-soc/Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf",
+  "pdf_sha256": "1217dd5e6038f150f454198b9645b7f4b89929ff88ba3744ca2c446082f4fb47",
+  "chapter_number": 2,
+  "chapter_title": "Metodología de la programación y desarrollo de software",
+  "created_at": "2026-10-05T23:50:00Z",
+  "governance": {
+    "status": "FROZEN_PRE_EXECUTION",
+    "leakage_risk": false,
+    "dev_pages_count": 19,
+    "test_pages_count": 19,
+    "total_pages_count": 38,
+    "split_method": "stratified_by_typology_and_probe0_isolation",
+    "seed": 42
+  },
+  "physical_pages_range": {
+    "start": 75,
+    "end": 112,
+    "count": 38
+  },
+  "logical_pages_range": {
+    "start": 45,
+    "end": 82,
+    "count": 38
+  },
+  "dev_pages": [
+    "joyanes_ch02_p075",
+    "joyanes_ch02_p079",
+    "joyanes_ch02_p080",
+    "joyanes_ch02_p082",
+    "joyanes_ch02_p083",
+    "joyanes_ch02_p084",
+    "joyanes_ch02_p086",
+    "joyanes_ch02_p087",
+    "joyanes_ch02_p089",
+    "joyanes_ch02_p091",
+    "joyanes_ch02_p095",
+    "joyanes_ch02_p096",
+    "joyanes_ch02_p097",
+    "joyanes_ch02_p100",
+    "joyanes_ch02_p101",
+    "joyanes_ch02_p102",
+    "joyanes_ch02_p103",
+    "joyanes_ch02_p105",
+    "joyanes_ch02_p106"
+  ],
+  "test_pages": [
+    "joyanes_ch02_p076",
+    "joyanes_ch02_p077",
+    "joyanes_ch02_p078",
+    "joyanes_ch02_p081",
+    "joyanes_ch02_p085",
+    "joyanes_ch02_p088",
+    "joyanes_ch02_p090",
+    "joyanes_ch02_p092",
+    "joyanes_ch02_p093",
+    "joyanes_ch02_p094",
+    "joyanes_ch02_p098",
+    "joyanes_ch02_p099",
+    "joyanes_ch02_p104",
+    "joyanes_ch02_p107",
+    "joyanes_ch02_p108",
+    "joyanes_ch02_p109",
+    "joyanes_ch02_p110",
+    "joyanes_ch02_p111",
+    "joyanes_ch02_p112"
+  ],
+  "pages": [
+    {
+      "page_id": "joyanes_ch02_p075",
+      "physical_page_number": 75,
+      "logical_page_number": 45,
+      "split": "DEV",
+      "typology": "CHAPTER_TITLE_AND_INTRO",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p076",
+      "physical_page_number": 76,
+      "logical_page_number": 46,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p077",
+      "physical_page_number": 77,
+      "logical_page_number": 47,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p078",
+      "physical_page_number": 78,
+      "logical_page_number": 48,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p079",
+      "physical_page_number": 79,
+      "logical_page_number": 49,
+      "split": "DEV",
+      "typology": "MIXED_DIAGRAM_AND_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p080",
+      "physical_page_number": 80,
+      "logical_page_number": 50,
+      "split": "DEV",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p081",
+      "physical_page_number": 81,
+      "logical_page_number": 51,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p082",
+      "physical_page_number": 82,
+      "logical_page_number": 52,
+      "split": "DEV",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p083",
+      "physical_page_number": 83,
+      "logical_page_number": 53,
+      "split": "DEV",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p084",
+      "physical_page_number": 84,
+      "logical_page_number": 54,
+      "split": "DEV",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p085",
+      "physical_page_number": 85,
+      "logical_page_number": 55,
+      "split": "TEST",
+      "typology": "MIXED_DIAGRAM_AND_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p086",
+      "physical_page_number": 86,
+      "logical_page_number": 56,
+      "split": "DEV",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p087",
+      "physical_page_number": 87,
+      "logical_page_number": 57,
+      "split": "DEV",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p088",
+      "physical_page_number": 88,
+      "logical_page_number": 58,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p089",
+      "physical_page_number": 89,
+      "logical_page_number": 59,
+      "split": "DEV",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p090",
+      "physical_page_number": 90,
+      "logical_page_number": 60,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p091",
+      "physical_page_number": 91,
+      "logical_page_number": 61,
+      "split": "DEV",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p092",
+      "physical_page_number": 92,
+      "logical_page_number": 62,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p093",
+      "physical_page_number": 93,
+      "logical_page_number": 63,
+      "split": "TEST",
+      "typology": "MIXED_DIAGRAM_AND_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p094",
+      "physical_page_number": 94,
+      "logical_page_number": 64,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p095",
+      "physical_page_number": 95,
+      "logical_page_number": 65,
+      "split": "DEV",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p096",
+      "physical_page_number": 96,
+      "logical_page_number": 66,
+      "split": "DEV",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p097",
+      "physical_page_number": 97,
+      "logical_page_number": 67,
+      "split": "DEV",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p098",
+      "physical_page_number": 98,
+      "logical_page_number": 68,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p099",
+      "physical_page_number": 99,
+      "logical_page_number": 69,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p100",
+      "physical_page_number": 100,
+      "logical_page_number": 70,
+      "split": "DEV",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "DEVELOPMENT_REFERENCE_PROBE0"
+    },
+    {
+      "page_id": "joyanes_ch02_p101",
+      "physical_page_number": 101,
+      "logical_page_number": 71,
+      "split": "DEV",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p102",
+      "physical_page_number": 102,
+      "logical_page_number": 72,
+      "split": "DEV",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "DEVELOPMENT_REFERENCE_PROBE0"
+    },
+    {
+      "page_id": "joyanes_ch02_p103",
+      "physical_page_number": 103,
+      "logical_page_number": 73,
+      "split": "DEV",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "DEVELOPMENT_REFERENCE_PROBE0"
+    },
+    {
+      "page_id": "joyanes_ch02_p104",
+      "physical_page_number": 104,
+      "logical_page_number": 74,
+      "split": "TEST",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p105",
+      "physical_page_number": 105,
+      "logical_page_number": 75,
+      "split": "DEV",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "DEVELOPMENT_REFERENCE_PROBE0"
+    },
+    {
+      "page_id": "joyanes_ch02_p106",
+      "physical_page_number": 106,
+      "logical_page_number": 76,
+      "split": "DEV",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p107",
+      "physical_page_number": 107,
+      "logical_page_number": 77,
+      "split": "TEST",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p108",
+      "physical_page_number": 108,
+      "logical_page_number": 78,
+      "split": "TEST",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p109",
+      "physical_page_number": 109,
+      "logical_page_number": 79,
+      "split": "TEST",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p110",
+      "physical_page_number": 110,
+      "logical_page_number": 80,
+      "split": "TEST",
+      "typology": "FLOWCHART_OR_DIAGRAM",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p111",
+      "physical_page_number": 111,
+      "logical_page_number": 81,
+      "split": "TEST",
+      "typology": "EXERCISES_PROBLEMS",
+      "probe0_reference_role": "NONE"
+    },
+    {
+      "page_id": "joyanes_ch02_p112",
+      "physical_page_number": 112,
+      "logical_page_number": 82,
+      "split": "TEST",
+      "typology": "EXPOSITORY_PROSE",
+      "probe0_reference_role": "NONE"
+    }
+  ]
+}
