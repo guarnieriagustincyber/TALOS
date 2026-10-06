@@ -1,0 +1,14 @@
+{
+  "control_id": "C3",
+  "name": "Embedding Alignment and Vector-to-Chunk Mapping",
+  "timestamp": "2026-10-05T18:57:51.040021+00:00",
+  "model_name": "Qwen/Qwen3-Embedding-0.6B",
+  "dimensions": 1024,
+  "token_budget": 512,
+  "queries_verified": 22,
+  "dense_candidates_verified": 220,
+  "unmapped_vector_ids": 0,
+  "out_of_bounds_scores": 0,
+  "results": [],
+  "status": "PASS"
+}

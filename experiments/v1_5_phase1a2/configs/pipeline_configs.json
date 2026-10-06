@@ -1,0 +1,215 @@
+{
+  "$schema": "talos-pipeline-configs-schema-v1",
+  "version": "1.1.0",
+  "governance": {
+    "status": "INITIAL_EXPERIMENT_MATRIX",
+    "pdf_processing_local": "FORBIDDEN FOR THIS EXPERIMENTAL CAMPAIGN",
+    "pdf_processing_colab": "REQUIRED"
+  },
+  "controls": {
+    "retrieval_control_v1": "FTS5_BM25",
+    "document_control_v1": {"extractor": "pypdf", "chunker": "fixed_character_sliding_500c"},
+    "embedding_control_v1": {"model_id": "Qwen/Qwen3-Embedding-0.6B", "dimensions": 1024, "pooling": "lasttoken"}
+  },
+  "pipelines": [
+    {
+      "pipeline_id": "EXP-EXT-01",
+      "classification": "FACTORIAL_CONTROL",
+      "variable_isolated": "extractor",
+      "description": "Control histórico TALOS V1 (pypdf + chunking léxico 500c + Qwen3 1024d)",
+      "is_control": true,
+      "extractor": {"engine": "pypdf", "version": "5.x"},
+      "chunking": {"strategy": "fixed_character_sliding", "nominal_chars": 500, "overlap_chars": 50},
+      "embedding": {
+        "model_id": "Qwen/Qwen3-Embedding-0.6B",
+        "dimensions": 1024,
+        "pooling": "lasttoken",
+        "normalize_l2": true,
+        "max_sequence_tokens": 512,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    },
+    {
+      "pipeline_id": "EXP-EXT-02",
+      "classification": "FACTORIAL_ISOLATION",
+      "variable_isolated": "extractor",
+      "description": "PyMuPDF con chunking léxico C1 y Qwen3 M1 (aislamiento de motor de extracción C rápido)",
+      "is_control": false,
+      "extractor": {"engine": "pymupdf", "version": "1.24+"},
+      "chunking": {"strategy": "fixed_character_sliding", "nominal_chars": 500, "overlap_chars": 50},
+      "embedding": {
+        "model_id": "Qwen/Qwen3-Embedding-0.6B",
+        "dimensions": 1024,
+        "pooling": "lasttoken",
+        "normalize_l2": true,
+        "max_sequence_tokens": 512,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    },
+    {
+      "pipeline_id": "EXP-EXT-03",
+      "classification": "FACTORIAL_ISOLATION",
+      "variable_isolated": "extractor",
+      "description": "Docling con chunking léxico C1 y Qwen3 M1 (aislamiento de extracción de maquetación profunda)",
+      "is_control": false,
+      "extractor": {"engine": "docling", "version": "2.x", "table_mode": "accurate"},
+      "chunking": {"strategy": "fixed_character_sliding", "nominal_chars": 500, "overlap_chars": 50},
+      "embedding": {
+        "model_id": "Qwen/Qwen3-Embedding-0.6B",
+        "dimensions": 1024,
+        "pooling": "lasttoken",
+        "normalize_l2": true,
+        "max_sequence_tokens": 512,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    },
+    {
+      "pipeline_id": "EXP-CHK-01",
+      "classification": "FACTORIAL_CONTROL",
+      "variable_isolated": "chunking",
+      "description": "Docling con chunking léxico C1 y Qwen3 M1 (base para variación de chunking)",
+      "is_control": false,
+      "extractor": {"engine": "docling", "version": "2.x", "table_mode": "accurate"},
+      "chunking": {"strategy": "fixed_character_sliding", "nominal_chars": 500, "overlap_chars": 50},
+      "embedding": {
+        "model_id": "Qwen/Qwen3-Embedding-0.6B",
+        "dimensions": 1024,
+        "pooling": "lasttoken",
+        "normalize_l2": true,
+        "max_sequence_tokens": 512,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    },
+    {
+      "pipeline_id": "EXP-CHK-02",
+      "classification": "FACTORIAL_ISOLATION",
+      "variable_isolated": "chunking",
+      "description": "Docling con chunking por secciones y encabezados (Section-Aware / Heading-Path)",
+      "is_control": false,
+      "extractor": {"engine": "docling", "version": "2.x", "table_mode": "accurate"},
+      "chunking": {"strategy": "section_aware_heading_path", "max_chars_ceiling": 1500, "prepend_heading_path": true},
+      "embedding": {
+        "model_id": "Qwen/Qwen3-Embedding-0.6B",
+        "dimensions": 1024,
+        "pooling": "lasttoken",
+        "normalize_l2": true,
+        "max_sequence_tokens": 512,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    },
+    {
+      "pipeline_id": "EXP-CHK-03",
+      "classification": "FACTORIAL_ISOLATION",
+      "variable_isolated": "chunking",
+      "description": "Docling con preservación atómica de párrafos y código (C3)",
+      "is_control": false,
+      "extractor": {"engine": "docling", "version": "2.x", "table_mode": "accurate"},
+      "chunking": {"strategy": "paragraph_code_atomic", "max_chars_ceiling": 2000, "atomic_tables": true, "atomic_code": true},
+      "embedding": {
+        "model_id": "Qwen/Qwen3-Embedding-0.6B",
+        "dimensions": 1024,
+        "pooling": "lasttoken",
+        "normalize_l2": true,
+        "max_sequence_tokens": 512,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    },
+    {
+      "pipeline_id": "EXP-EMB-01",
+      "classification": "FACTORIAL_CONTROL",
+      "variable_isolated": "embedding",
+      "description": "PyMuPDF + C2 con Qwen3 M1 (base para variación de embeddings)",
+      "is_control": false,
+      "extractor": {"engine": "pymupdf", "version": "1.24+"},
+      "chunking": {"strategy": "section_aware_heading_path", "max_chars_ceiling": 1500, "prepend_heading_path": true},
+      "embedding": {
+        "model_id": "Qwen/Qwen3-Embedding-0.6B",
+        "dimensions": 1024,
+        "pooling": "lasttoken",
+        "normalize_l2": true,
+        "max_sequence_tokens": 512,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    },
+    {
+      "pipeline_id": "EXP-EMB-02",
+      "classification": "FACTORIAL_ISOLATION",
+      "variable_isolated": "embedding",
+      "description": "PyMuPDF + C2 con E5-small M3 (evaluación de viabilidad de runtime local 384d)",
+      "is_control": false,
+      "extractor": {"engine": "pymupdf", "version": "1.24+"},
+      "chunking": {"strategy": "section_aware_heading_path", "max_chars_ceiling": 1500, "prepend_heading_path": true},
+      "embedding": {
+        "model_id": "intfloat/multilingual-e5-small",
+        "dimensions": 384,
+        "pooling": "mean",
+        "normalize_l2": true,
+        "max_sequence_tokens": 512,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32",
+        "prefixes": {"query": "query: ", "passage": "passage: "}
+      }
+    },
+    {
+      "pipeline_id": "EXP-EMB-03",
+      "classification": "FACTORIAL_ISOLATION",
+      "variable_isolated": "embedding",
+      "description": "PyMuPDF + C2 con BGE-M3 M2 (evaluación de contexto largo 8192 tokens)",
+      "is_control": false,
+      "extractor": {"engine": "pymupdf", "version": "1.24+"},
+      "chunking": {"strategy": "section_aware_heading_path", "max_chars_ceiling": 1500, "prepend_heading_path": true},
+      "embedding": {
+        "model_id": "BAAI/bge-m3",
+        "dimensions": 1024,
+        "pooling": "cls",
+        "normalize_l2": true,
+        "max_sequence_tokens": 8192,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    },
+    {
+      "pipeline_id": "PIPE-INT-01",
+      "classification": "INTEGRATED_CONFIGURATION",
+      "variable_isolated": "none_multivariate",
+      "description": "Docling + C2 Section-Aware + BGE-M3 (Sinergia multimodal y contexto largo)",
+      "is_control": false,
+      "extractor": {"engine": "docling", "version": "2.x", "table_mode": "accurate"},
+      "chunking": {"strategy": "section_aware_heading_path", "max_chars_ceiling": 3000, "prepend_heading_path": true},
+      "embedding": {
+        "model_id": "BAAI/bge-m3",
+        "dimensions": 1024,
+        "pooling": "cls",
+        "normalize_l2": true,
+        "max_sequence_tokens": 8192,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    },
+    {
+      "pipeline_id": "PIPE-INT-03",
+      "classification": "CHUNKING_AND_CONTEXT_ASSEMBLY",
+      "variable_isolated": "hierarchical_architecture",
+      "description": "PyMuPDF con chunking jerárquico Padre-Hijo (C4)",
+      "is_control": false,
+      "extractor": {"engine": "pymupdf", "version": "1.24+"},
+      "chunking": {"strategy": "hierarchical_parent_child", "child_nominal_chars": 400, "parent_window_chars": 2000},
+      "embedding": {
+        "model_id": "Qwen/Qwen3-Embedding-0.6B",
+        "dimensions": 1024,
+        "pooling": "lasttoken",
+        "normalize_l2": true,
+        "max_sequence_tokens": 512,
+        "inference_dtype": "float32",
+        "storage_dtype": "float32"
+      }
+    }
+  ]
+}

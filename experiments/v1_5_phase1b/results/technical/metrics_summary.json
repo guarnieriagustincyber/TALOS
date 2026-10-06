@@ -1,0 +1,356 @@
+{
+  "metadata": {
+    "execution_id": "run_1b_canonical_20261005_151258",
+    "execution_start": "2026-10-05T15:12:19-0300",
+    "execution_end": "2026-10-05T15:12:58-0300",
+    "total_duration_sec": 38.44,
+    "queries_evaluated": 22,
+    "conditions_evaluated": 8,
+    "total_cells": 176,
+    "protocol_version": "v1.0.2-canonical",
+    "protocol_sha256": "0f61adfbb5048982c77cab8388796319c8b8c99d1726f4fde9826ea992c9f426",
+    "seal_sha256": "8989bd49737ae0fd57e2b2d7495765dae5b34b82a1f9adf7777a8a80c792d970",
+    "query_bank_sha256": "647d6c04b0879f49d346b586cc407331d486c9aab0b23e99747d680e26717fb2",
+    "random_seed": 42
+  },
+  "condition_metrics": {
+    "C0": {
+      "condition_id": "C0",
+      "canonical_name": "COND-BASE-FTS5",
+      "precision_at_1_lower_bound": 0.0,
+      "precision_at_3_lower_bound": 0.0185,
+      "precision_at_5_lower_bound": 0.0111,
+      "mrr_at_5_lower_bound": 0.0185,
+      "ndcg_at_5_lower_bound": 0.022,
+      "strict_sufficiency_at_1_lower_bound": 0.0,
+      "unjudged_cells_count": 127,
+      "qrel_status": "PRELIMINARY_LOWER_BOUND_1A",
+      "avg_latency_ms": 0.2,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C1": {
+      "condition_id": "C1",
+      "canonical_name": "COND-DENSE-QWEN",
+      "precision_at_1_lower_bound": 0.1667,
+      "precision_at_3_lower_bound": 0.0556,
+      "precision_at_5_lower_bound": 0.0556,
+      "mrr_at_5_lower_bound": 0.1917,
+      "ndcg_at_5_lower_bound": 0.1073,
+      "strict_sufficiency_at_1_lower_bound": 0.0,
+      "unjudged_cells_count": 96,
+      "qrel_status": "PRELIMINARY_LOWER_BOUND_1A",
+      "avg_latency_ms": 0.0,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C2": {
+      "condition_id": "C2",
+      "canonical_name": "COND-DENSE-BGE",
+      "precision_at_1_lower_bound": 0.1667,
+      "precision_at_3_lower_bound": 0.0741,
+      "precision_at_5_lower_bound": 0.0444,
+      "mrr_at_5_lower_bound": 0.1852,
+      "ndcg_at_5_lower_bound": 0.1031,
+      "strict_sufficiency_at_1_lower_bound": 0.0,
+      "unjudged_cells_count": 92,
+      "qrel_status": "PRELIMINARY_LOWER_BOUND_1A",
+      "avg_latency_ms": 0.0,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C3": {
+      "condition_id": "C3",
+      "canonical_name": "COND-DENSE-E5",
+      "precision_at_1_lower_bound": 0.0556,
+      "precision_at_3_lower_bound": 0.037,
+      "precision_at_5_lower_bound": 0.0222,
+      "mrr_at_5_lower_bound": 0.0833,
+      "ndcg_at_5_lower_bound": 0.0737,
+      "strict_sufficiency_at_1_lower_bound": 0.0,
+      "unjudged_cells_count": 87,
+      "qrel_status": "PRELIMINARY_LOWER_BOUND_1A",
+      "avg_latency_ms": 0.0,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C4": {
+      "condition_id": "C4",
+      "canonical_name": "COND-HYBRID-RRF",
+      "precision_at_1_lower_bound": 0.0556,
+      "precision_at_3_lower_bound": 0.0556,
+      "precision_at_5_lower_bound": 0.0333,
+      "mrr_at_5_lower_bound": 0.1019,
+      "ndcg_at_5_lower_bound": 0.0649,
+      "strict_sufficiency_at_1_lower_bound": 0.0,
+      "unjudged_cells_count": 102,
+      "qrel_status": "PRELIMINARY_LOWER_BOUND_1A",
+      "avg_latency_ms": 0.03,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C5": {
+      "condition_id": "C5",
+      "canonical_name": "COND-RERANK-BGE",
+      "precision_at_1_lower_bound": 0.0556,
+      "precision_at_3_lower_bound": 0.0185,
+      "precision_at_5_lower_bound": 0.0222,
+      "mrr_at_5_lower_bound": 0.0694,
+      "ndcg_at_5_lower_bound": 0.0472,
+      "strict_sufficiency_at_1_lower_bound": 0.0,
+      "unjudged_cells_count": 107,
+      "qrel_status": "PRELIMINARY_LOWER_BOUND_1A",
+      "avg_latency_ms": 1746.88,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C6": {
+      "condition_id": "C6",
+      "canonical_name": "COND-EXP-STRUCTURAL",
+      "precision_at_1_lower_bound": 0.0556,
+      "precision_at_3_lower_bound": 0.0185,
+      "precision_at_5_lower_bound": 0.0222,
+      "mrr_at_5_lower_bound": 0.0694,
+      "ndcg_at_5_lower_bound": 0.0472,
+      "strict_sufficiency_at_1_lower_bound": 0.0,
+      "unjudged_cells_count": 107,
+      "qrel_status": "PRELIMINARY_LOWER_BOUND_1A",
+      "avg_latency_ms": 1746.96,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C7": {
+      "condition_id": "C7",
+      "canonical_name": "COND-GUARDED-FULL",
+      "precision_at_1_lower_bound": 0.0,
+      "precision_at_3_lower_bound": 0.0,
+      "precision_at_5_lower_bound": 0.0,
+      "mrr_at_5_lower_bound": 0.0,
+      "ndcg_at_5_lower_bound": 0.0062,
+      "strict_sufficiency_at_1_lower_bound": 0.0,
+      "unjudged_cells_count": 6,
+      "qrel_status": "PRELIMINARY_LOWER_BOUND_1A",
+      "avg_latency_ms": 1746.96,
+      "ood_abstention_rate": 1.0,
+      "indomain_false_rejection_rate": 0.9444444444444444
+    }
+  },
+  "h2_paired_structural_expansion": {
+    "pairs_evaluated": 18,
+    "all_within_budget": true,
+    "expanded_pairs_count": 0,
+    "mean_atomic_chars": 2678.1,
+    "mean_expanded_chars": 2678.1,
+    "mean_expanded_tokens": 496.2,
+    "pairs": [
+      {
+        "query_id": "Q1A2-01",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p500:c0050",
+        "atomic_char_count": 1196,
+        "expanded_char_count": 1196,
+        "expanded_token_count": 425,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-02",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+        "atomic_char_count": 4091,
+        "expanded_char_count": 4091,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-03",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "atomic_char_count": 1980,
+        "expanded_char_count": 1980,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-04",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p14:c0004",
+        "atomic_char_count": 4370,
+        "expanded_char_count": 4370,
+        "expanded_token_count": 504,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-05",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p16:c0006",
+        "atomic_char_count": 3741,
+        "expanded_char_count": 3741,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-06",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "atomic_char_count": 1980,
+        "expanded_char_count": 1980,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-07",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "atomic_char_count": 1980,
+        "expanded_char_count": 1980,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-08",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p15:c0005",
+        "atomic_char_count": 3813,
+        "expanded_char_count": 3813,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-09",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p148:c0032",
+        "atomic_char_count": 1754,
+        "expanded_char_count": 1754,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-10",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+        "atomic_char_count": 2009,
+        "expanded_char_count": 2009,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-11",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p504:c0054",
+        "atomic_char_count": 1273,
+        "expanded_char_count": 1273,
+        "expanded_token_count": 426,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-12",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p15:c0005",
+        "atomic_char_count": 3813,
+        "expanded_char_count": 3813,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-13",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p497:c0047",
+        "atomic_char_count": 1629,
+        "expanded_char_count": 1629,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-14",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p504:c0054",
+        "atomic_char_count": 1273,
+        "expanded_char_count": 1273,
+        "expanded_token_count": 426,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-15",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p148:c0032",
+        "atomic_char_count": 1754,
+        "expanded_char_count": 1754,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-16",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p17:c0007",
+        "atomic_char_count": 3717,
+        "expanded_char_count": 3717,
+        "expanded_token_count": 495,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-17",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p16:c0006",
+        "atomic_char_count": 3741,
+        "expanded_char_count": 3741,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      },
+      {
+        "query_id": "Q1A2-18",
+        "seed_chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+        "atomic_char_count": 4091,
+        "expanded_char_count": 4091,
+        "expanded_token_count": 512,
+        "chunks_included": 1,
+        "is_expanded": false,
+        "within_budget": true
+      }
+    ]
+  },
+  "ood_negative_control_metrics": {
+    "n_ood": 2,
+    "queries": [
+      "Q1A2-37",
+      "Q1A2-38"
+    ],
+    "c7_abstention_rate": 1.0,
+    "indomain_n": 18,
+    "c7_indomain_false_rejection_rate": 0.9444444444444444
+  },
+  "traceability_integrity": {
+    "total_hits_audited": 1760,
+    "valid_provenance_hits": 1760,
+    "integrity_percentage": 100.0,
+    "chunk_manifest_sha256": "dee6b96efb43e910b52b30f7009035637378357a4376a4c80c4e16d48abd2196"
+  },
+  "production_integrity": {
+    "database_changes": 0,
+    "v1_runtime_modified": false,
+    "post_run_hashes": {
+      "data/web_state/cal_store.db": "82773155ca35028274ba0f378fdcd37a5374bb4483a579654a6e9facfd443782",
+      "data/web_state/knowledge_store.db": "fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+      "data/web_state/quotas.db": "09838ed16f1bbab384e6a83be651c9f8657db11c6a72caa5c32947a2cc18050d",
+      "data/web_state/student_state.db": "f70f380dbad3f50cb7fa825009d8afd7d0d07ed0b4501c329c65288d4e840b2d",
+      "data/web_state/study_engine.db": "e3ba06536f7dbba337dee3c1c5f01b43660ce276abb54c5cee2d5defc5b970aa",
+      "data/web_state/vector_store.db": "d6d9f8c8eb6e5188e8e600a73cc05bd001d2e389061815d7d0df33f447a9dde4"
+    }
+  }
+}

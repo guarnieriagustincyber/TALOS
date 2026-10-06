@@ -111,3 +111,14 @@ node_modules/
 
 kasiu-lab/ui/bin/tailwindcss
 debug_*.txt
+
+# Transport and temporary staging (Drive/Colab & raw sources)
+drive_upload*/
+corpus_upload/
+fuentes/
+scratch/
+
+# Temporary root markers
+BASELINE
+PHASE_*
+PROMOTION

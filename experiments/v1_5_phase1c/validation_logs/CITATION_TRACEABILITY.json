@@ -1,0 +1,63 @@
+{
+  "control_id": "C7",
+  "name": "Citation Validator Grounding and Hallucination Rewriter",
+  "timestamp": "2026-10-05T18:57:51.049230+00:00",
+  "evidence_registered": [
+    {
+      "id": "E1",
+      "citation_id": "E1",
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+      "page": 38
+    },
+    {
+      "id": "E2",
+      "citation_id": "E2",
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p149:c0033",
+      "page": 149
+    },
+    {
+      "id": "E3",
+      "citation_id": "E3",
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+      "page": 138
+    }
+  ],
+  "test_cases": [
+    {
+      "case_name": "Valid Citation [E1]",
+      "input_text": "La estructura general de un algoritmo comprende entrada, proceso y salida [E1].",
+      "output_text": "La estructura general de un algoritmo comprende entrada, proceso y salida [E1].",
+      "invalid_found": [],
+      "audit_valid": [
+        "[E1]"
+      ],
+      "audit_invalid": [],
+      "target_page": 38,
+      "target_chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+      "passed": true
+    },
+    {
+      "case_name": "Hallucinated Citation [E99]",
+      "input_text": "El concepto de apuntadores dinámicos fue introducido formalmente en [E99].",
+      "output_text": "El concepto de apuntadores dinámicos fue introducido formalmente en [ref. no verificada].",
+      "invalid_found": [
+        "[E99]"
+      ],
+      "audit_valid": [],
+      "audit_invalid": [
+        "[E99]"
+      ],
+      "passed": true
+    },
+    {
+      "case_name": "Compound Block [E1, E2, E99]",
+      "input_text": "Los fundamentos teóricos y las notas técnicas se detallan en [E1, E2, E99].",
+      "output_text": "Los fundamentos teóricos y las notas técnicas se detallan en [E1, E2, ref. no verificada].",
+      "invalid_found": [
+        "[E99]"
+      ],
+      "passed": true
+    }
+  ],
+  "status": "PASS"
+}

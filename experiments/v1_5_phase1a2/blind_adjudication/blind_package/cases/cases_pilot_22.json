@@ -1,0 +1,2460 @@
+[
+  {
+    "case_id": "CASE-01",
+    "query_id": "Q1A2-01",
+    "query_text": "¿Cuál es la estructura general de contenidos y preliminares presentada en el índice de Fundamentos de Programación?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      11,
+      14
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Recupera la descripción o listado de capítulos preliminares de la obra.",
+      "sufficient_conditions": "Permite contrastar el esquema temático de la obra."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4992,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5855,
+        "page_number": 500,
+        "heading_path": [
+          "Joyanes",
+          "Página 500"
+        ],
+        "content_snippet": "[Página 500]\n470  \nFundamentos de programación\n  registro : tipo_nodo\n    tipo_elemento: elemento\n    entero: sig\n  fin_registro\n  array[1..Max] de tipo_nodo: lista\n var\n  entero: inic,vacio\n  lista: "
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5005,
+        "page_number": 149,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "Estructura general de un programa  119\nDiagrama de flujo\ninicio\nleer\nNPASOS\nNPASOS <= 0\nN > 0\nescribir\nNPASOS\nFACT\nfin\nescribir\nERROR\n1\n1\nsí\nno\nhacer\nFACT ← 10\nN ← NPASOS-5\nhacer\nFACT ← FACT + N * 5\ns"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5005,
+        "page_number": 149,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "Estructura general de un programa  119\nDiagrama de flujo\ninicio\nleer\nNPASOS\nNPASOS <= 0\nN > 0\nescribir\nNPASOS\nFACT\nfin\nescribir\nERROR\n1\n1\nsí\nno\nhacer\nFACT ← 10\nN ← NPASOS-5\nhacer\nFACT ← FACT + N * 5\ns"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4992,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8373,
+        "page_number": 547,
+        "heading_path": [
+          "Joyanes",
+          "Página 547"
+        ],
+        "content_snippet": "[Página 547]\nEstructura de datos no lineales (árboles y grafos)  517\npresentan estructuras jerárquicas con limitaciones de dos sub-\nárboles por cada nodo. Si se eliminan las restricciones de \nque cada"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5133,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Pág 142",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algoritmo\n   "
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5005,
+        "page_number": 149,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "Estructura general de un programa  119\nDiagrama de flujo\ninicio\nleer\nNPASOS\nNPASOS <= 0\nN > 0\nescribir\nNPASOS\nFACT\nfin\nescribir\nERROR\n1\n1\nsí\nno\nhacer\nFACT ← 10\nN ← NPASOS-5\nhacer\nFACT ← FACT + N * 5\ns"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5251,
+        "page_number": 142,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "112  Fundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algoritmo\n    "
+      }
+    }
+  },
+  {
+    "case_id": "CASE-02",
+    "query_id": "Q1A2-02",
+    "query_text": "¿En qué página y capítulo del índice general se ubican las estructuras de datos y punteros?",
+    "archetype": "ARQ-08",
+    "target_pages": [
+      14,
+      18
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Identifica los números de página o capítulos correspondientes a estructuras de datos o punteros.",
+      "sufficient_conditions": "Proporciona la ubicación precisa en el índice general."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4372,
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ................."
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5587,
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ................."
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5821,
+        "page_number": 13,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "........................................................................................... \n429\n12.1. Introducción a las estructuras de datos ........................................................."
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5821,
+        "page_number": 13,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "........................................................................................... \n429\n12.1. Introducción a las estructuras de datos ........................................................."
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4372,
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ................."
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8398,
+        "page_number": 485,
+        "heading_path": [
+          "Joyanes",
+          "Página 485"
+        ],
+        "content_snippet": "[Página 485]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  455\n  procedimiento consultarCima( E punt: cima;\nS tipo_elemento: elemento)\n   inicio\n   si no vacia (cima) ento"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5519,
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Pág 13",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "417\n11.5.3. Clasificación por mezcla de secuencias equilibridas .......................................................................... \n421\nACTIVIDADES DE PROGRAMACIÓN RESUELTAS .................."
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5821,
+        "page_number": 13,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "........................................................................................... \n429\n12.1. Introducción a las estructuras de datos ........................................................."
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5808,
+        "page_number": 13,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "............................................................................................  429\n12.1. Introducción a las estructuras de datos ........................................................"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-03",
+    "query_id": "Q1A2-03",
+    "query_text": "¿Qué es un algoritmo según Joyanes Aguilar y cuáles son sus características básicas?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      35,
+      40
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Define algoritmo como secuencia finita de pasos o instrucciones no ambiguas.",
+      "sufficient_conditions": "Detalla las características esenciales (precisión, finitud, definición)."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4797,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5617,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4838,
+        "page_number": 138,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "-\ngramas escritos en el lenguaje de programación estructurado; por ejemplo, Pascal.\nUn algoritmo constará de dos componentes: una cabecera de programa y un bloque algoritmo. La cabecera de \nprograma e"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4838,
+        "page_number": 138,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "-\ngramas escritos en el lenguaje de programación estructurado; por ejemplo, Pascal.\nUn algoritmo constará de dos componentes: una cabecera de programa y un bloque algoritmo. La cabecera de \nprograma e"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4797,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8508,
+        "page_number": 141,
+        "heading_path": [
+          "Joyanes",
+          "Nota"
+        ],
+        "content_snippet": "[Nota]\nEstructura general de un programa  111\n2. Comentarios multilínea (comienzan con los caracteres /* y terminan con los caracteres  */, todo lo encerrado \nentre ambos juegos de caracteres son come"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4798,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Pág 138",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread     "
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4838,
+        "page_number": 138,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "-\ngramas escritos en el lenguaje de programación estructurado; por ejemplo, Pascal.\nUn algoritmo constará de dos componentes: una cabecera de programa y un bloque algoritmo. La cabecera de \nprograma e"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4751,
+        "page_number": 138,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "\ngramas escritos en el lenguaje de programación estructurado; por ejemplo, Pascal.\nUn algoritmo constará de dos componentes: una cabecera de programa y un bloque algoritmo . La cabecera de \nprograma e"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-04",
+    "query_id": "Q1A2-04",
+    "query_text": "¿Cuáles son las fases de resolución de un problema mediante computadora según el texto?",
+    "archetype": "ARQ-04",
+    "target_pages": [
+      38,
+      45
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Enumera las etapas principales desde el análisis hasta la verificación del programa.",
+      "sufficient_conditions": "Permite reconstruir la secuencia completa sin omitir pasos críticos."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4616,
+        "page_number": 148,
+        "heading_path": [
+          "Joyanes",
+          "Página 148"
+        ],
+        "content_snippet": "[Página 148]\n118  \nFundamentos de programación\n3.13. Determinar el mayor de tres números enteros.\nSolución\nLos pasos a seguir son:\n1. Comparar el primero y el segundo entero, deduciendo cuál es el may"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5719,
+        "page_number": 16,
+        "heading_path": [
+          "Joyanes",
+          "Página 16"
+        ],
+        "content_snippet": "[Página 16]\n17.7.2. Herencia privada .................................................................................................................................. \n640\n17.7.3. Herencia protegida."
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5609,
+        "page_number": 16,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "..................................................................... \n653\n 18.1. Abstracción y resolución de problemas ................................................................................"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5609,
+        "page_number": 16,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "..................................................................... \n653\n 18.1. Abstracción y resolución de problemas ................................................................................"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4616,
+        "page_number": 148,
+        "heading_path": [
+          "Joyanes",
+          "Página 148"
+        ],
+        "content_snippet": "[Página 148]\n118  \nFundamentos de programación\n3.13. Determinar el mayor de tres números enteros.\nSolución\nLos pasos a seguir son:\n1. Comparar el primero y el segundo entero, deduciendo cuál es el may"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8465,
+        "page_number": 45,
+        "heading_path": [
+          "Joyanes",
+          "Página 45"
+        ],
+        "content_snippet": "[Página 45]\nIntroducción a las computadoras y los lenguajes de programación  15\n1.3. REPRESENTACIÓN DE LA INFORMACIÓN EN LAS COMPUTADORAS\nUna computadora es un sistema para procesar información de mod"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4714,
+        "page_number": 148,
+        "heading_path": [
+          "Joyanes",
+          "Pág 148",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "118  \nFundamentos de programación\n3.13. Determinar el mayor de tres números enteros.\nSolución\nLos pasos a seguir son:\n1. Comparar el primero y el segundo entero, deduciendo cuál es el mayor.\n2. Compar"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5609,
+        "page_number": 16,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "..................................................................... \n653\n 18.1. Abstracción y resolución de problemas ................................................................................"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5521,
+        "page_number": 16,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": ".......................................................................  653\n 18.1. Abstracción y resolución de problemas .............................................................................."
+      }
+    }
+  },
+  {
+    "case_id": "CASE-05",
+    "query_id": "Q1A2-05",
+    "query_text": "¿Cuál es la diferencia entre el diseño descendente (top-down) y el refinamiento por pasos?",
+    "archetype": "ARQ-02",
+    "target_pages": [
+      40,
+      45
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Explica la descomposición modular y la especificación sucesiva de detalles.",
+      "sufficient_conditions": "Contrasta adecuadamente ambos conceptos según la metodología expuesta."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4266,
+        "page_number": 148,
+        "heading_path": [
+          "Joyanes",
+          "Página 148"
+        ],
+        "content_snippet": "[Página 148]\n118  \nFundamentos de programación\n3.13. Determinar el mayor de tres números enteros.\nSolución\nLos pasos a seguir son:\n1. Comparar el primero y el segundo entero, deduciendo cuál es el may"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5073,
+        "page_number": 486,
+        "heading_path": [
+          "Joyanes",
+          "Página 486"
+        ],
+        "content_snippet": "[Página 486]\n456  \nFundamentos de programación\nprocedimiento meter(E/S punt: cima; E tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n   reservar(auxi)\n   auxi→.elemento ← elemento\n   auxi→.cima ←"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5125,
+        "page_number": 16,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "..................................................................... \n653\n 18.1. Abstracción y resolución de problemas ................................................................................"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5125,
+        "page_number": 16,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "..................................................................... \n653\n 18.1. Abstracción y resolución de problemas ................................................................................"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4266,
+        "page_number": 148,
+        "heading_path": [
+          "Joyanes",
+          "Página 148"
+        ],
+        "content_snippet": "[Página 148]\n118  \nFundamentos de programación\n3.13. Determinar el mayor de tres números enteros.\nSolución\nLos pasos a seguir son:\n1. Comparar el primero y el segundo entero, deduciendo cuál es el may"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8159,
+        "page_number": 486,
+        "heading_path": [
+          "Joyanes",
+          "Página 486"
+        ],
+        "content_snippet": "[Página 486]\n456  \nFundamentos de programación\nprocedimiento meter(E/S punt: cima; E tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n   reservar(auxi)\n   auxi→.elemento ← elemento\n   auxi→.cima ←"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4732,
+        "page_number": 16,
+        "heading_path": [
+          "Joyanes",
+          "Pág 16",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "654\n18.1.1. Descomposición procedimental ......................................................................................................... \n654\n18.1.2. Diseño descendente ....................."
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5125,
+        "page_number": 16,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "..................................................................... \n653\n 18.1. Abstracción y resolución de problemas ................................................................................"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.518,
+        "page_number": 16,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": ".......................................................................  653\n 18.1. Abstracción y resolución de problemas .............................................................................."
+      }
+    }
+  },
+  {
+    "case_id": "CASE-06",
+    "query_id": "Q1A2-06",
+    "query_text": "¿Cómo se describe la estructura jerárquica de un programa estructurado?",
+    "archetype": "ARQ-06",
+    "target_pages": [
+      42,
+      45
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Describe la organización modular en niveles de abstracción.",
+      "sufficient_conditions": "Explica la interacción funcional entre el programa principal y subprogramas."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4673,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5633,
+        "page_number": 37,
+        "heading_path": [
+          "Joyanes",
+          "Página 37"
+        ],
+        "content_snippet": "[Página 37]\nIntroducción a las computadoras y los lenguajes de programación  7\n1.2. ORGANIZACIÓN FÍSICA DE UNA COMPUTADORA\nLos dos componentes principales de una computadora son: hardware y software. "
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5063,
+        "page_number": 11,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " 7.7. Estructuras versus registros ............................................................................................................................... \n265\n7.7.1. Registros ..............."
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5063,
+        "page_number": 11,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " 7.7. Estructuras versus registros ............................................................................................................................... \n265\n7.7.1. Registros ..............."
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4673,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8514,
+        "page_number": 547,
+        "heading_path": [
+          "Joyanes",
+          "Página 547"
+        ],
+        "content_snippet": "[Página 547]\nEstructura de datos no lineales (árboles y grafos)  517\npresentan estructuras jerárquicas con limitaciones de dos sub-\nárboles por cada nodo. Si se eliminan las restricciones de \nque cada"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4872,
+        "page_number": 489,
+        "heading_path": [
+          "Joyanes",
+          "Pág 489",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "Estructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  459\nPrograma principal\nX\nY\nZ\nSubprograma\nA\nSubprograma A\nfin _ subprograma A\nfin _ subprograma B\nfin _ subprograma C\nSubprogr"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5063,
+        "page_number": 11,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " 7.7. Estructuras versus registros ............................................................................................................................... \n265\n7.7.1. Registros ..............."
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5006,
+        "page_number": 11,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " 7.7. Estructuras versus registros ...............................................................................................................................  265\n7.7.1. Registros ..............."
+      }
+    }
+  },
+  {
+    "case_id": "CASE-07",
+    "query_id": "Q1A2-07",
+    "query_text": "¿Cómo se define y formaliza la estructura de selección doble (si-entonces-sino) en pseudocódigo?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      135,
+      142
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Presenta la sintaxis o reglas semánticas de la bifurcación lógica doble.",
+      "sufficient_conditions": "Muestra el pseudocódigo formal y las ramas verdadera/falsa."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4755,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5265,
+        "page_number": 499,
+        "heading_path": [
+          "Joyanes",
+          "Página 499"
+        ],
+        "content_snippet": "[Página 499]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  469\nFrente\nFondo\nEliminación\nEliminación\nInserción\nInserción\nFigura 12.18. Doble cola (bicola).\nExisten dos vari"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4624,
+        "page_number": 142,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "imples.\n3. Utilizar siempre sangrías en los bucles o en aquellas instrucciones que proporcionen legibilidad al programa, \ncomo inicio y fin.\nMODELO PROPUESTO DE ALGORITMO\nalgoritmo raices\n// resuelve "
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4624,
+        "page_number": 142,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "imples.\n3. Utilizar siempre sangrías en los bucles o en aquellas instrucciones que proporcionen legibilidad al programa, \ncomo inicio y fin.\nMODELO PROPUESTO DE ALGORITMO\nalgoritmo raices\n// resuelve "
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4755,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8505,
+        "page_number": 503,
+        "heading_path": [
+          "Joyanes",
+          "Página 503"
+        ],
+        "content_snippet": "[Página 503]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  473\nprocedimiento devoluciones( E/S entero: inic, vacio; E/S lista: m)\n var\n  tipo_elemento: elemento\n  entero  "
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4729,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Pág 142",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algoritmo\n   "
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4624,
+        "page_number": 142,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "imples.\n3. Utilizar siempre sangrías en los bucles o en aquellas instrucciones que proporcionen legibilidad al programa, \ncomo inicio y fin.\nMODELO PROPUESTO DE ALGORITMO\nalgoritmo raices\n// resuelve "
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5101,
+        "page_number": 141,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "seccion de declaraciones"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-08",
+    "query_id": "Q1A2-08",
+    "query_text": "¿Cuál es la sintaxis de la sentencia de selección múltiple según_sea (switch) y cómo se maneja la opción por defecto?",
+    "archetype": "ARQ-05",
+    "target_pages": [
+      142,
+      148
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Identifica los bloques de selección múltiple y la cláusula alternativa (de otro modo / default).",
+      "sufficient_conditions": "Permite reproducir la estructura sintáctica completa sin ambigüedades."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.3938,
+        "page_number": 141,
+        "heading_path": [
+          "Joyanes",
+          "Nota"
+        ],
+        "content_snippet": "[Nota]\nEstructura general de un programa  111\n2. Comentarios multilínea (comienzan con los caracteres /* y terminan con los caracteres  */, todo lo encerrado \nentre ambos juegos de caracteres son come"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4554,
+        "page_number": 135,
+        "heading_path": [
+          "Joyanes",
+          "Página 135"
+        ],
+        "content_snippet": "[Página 135]\nEstructura general de un programa  105\n3.9.1. Asignación aritmética\nLas expresiones en las operaciones de asignación son aritméticas:\nAMN ← 3 + 14 + 8 \n se evalúa la expresión 3 + 14 + 8 "
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4124,
+        "page_number": 141,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "eccion de declaraciones\n"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4124,
+        "page_number": 141,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "eccion de declaraciones\n"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.3938,
+        "page_number": 141,
+        "heading_path": [
+          "Joyanes",
+          "Nota"
+        ],
+        "content_snippet": "[Nota]\nEstructura general de un programa  111\n2. Comentarios multilínea (comienzan con los caracteres /* y terminan con los caracteres  */, todo lo encerrado \nentre ambos juegos de caracteres son come"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8218,
+        "page_number": 17,
+        "heading_path": [
+          "Joyanes",
+          "Página 17"
+        ],
+        "content_snippet": "[Página 17]\n18.10.2. Manual de mantenimiento (documentación para programadores) .................................................. \n680\n18.10.3. Reglas de documentación ..............................."
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.3995,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Pág 142",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algoritmo\n   "
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4124,
+        "page_number": 141,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "eccion de declaraciones\n"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5028,
+        "page_number": 141,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "seccion de declaraciones"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-09",
+    "query_id": "Q1A2-09",
+    "query_text": "¿Qué algoritmo o pseudocódigo se presenta para evaluar si un número entero es par o impar?",
+    "archetype": "ARQ-04",
+    "target_pages": [
+      138,
+      145
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Recupera el pseudocódigo o lógica que utiliza el operador módulo para determinar paridad.",
+      "sufficient_conditions": "Proporciona el algoritmo funcional completo."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4914,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.525,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5054,
+        "page_number": 150,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "120  \nFundamentos de programación\nDiagrama de flujo\nescribir\nS\nX <= 50\nfin\nsí\ninicio\nX ← 1\nno\nS ← 0\nS ← S + X\nX ← X + 1\n3.16. Escribir un algoritmo que calcule el producto de los n primeros números na"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5054,
+        "page_number": 150,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "120  \nFundamentos de programación\nDiagrama de flujo\nescribir\nS\nX <= 50\nfin\nsí\ninicio\nX ← 1\nno\nS ← 0\nS ← S + X\nX ← X + 1\n3.16. Escribir un algoritmo que calcule el producto de los n primeros números na"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4914,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8458,
+        "page_number": 149,
+        "heading_path": [
+          "Joyanes",
+          "Página 149"
+        ],
+        "content_snippet": "[Página 149]\nEstructura general de un programa  119\nDiagrama de flujo\ninicio\nleer\nNPASOS\nNPASOS <= 0\nN > 0\nescribir\nNPASOS\nFACT\nfin\nescribir\nERROR\n1\n1\nsí\nno\nhacer\nFACT ← 10\nN ← NPASOS-5\nhacer\nFACT ← F"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5074,
+        "page_number": 150,
+        "heading_path": [
+          "Joyanes",
+          "Pág 150",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "120  \nFundamentos de programación\nDiagrama de flujo\nescribir\nS\nX <= 50\nfin\nsí\ninicio\nX ← 1\nno\nS ← 0\nS ← S + X\nX ← X + 1\n3.16. Escribir un algoritmo que calcule el producto de los n primeros números na"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5054,
+        "page_number": 150,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "120  \nFundamentos de programación\nDiagrama de flujo\nescribir\nS\nX <= 50\nfin\nsí\ninicio\nX ← 1\nno\nS ← 0\nS ← S + X\nX ← X + 1\n3.16. Escribir un algoritmo que calcule el producto de los n primeros números na"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4996,
+        "page_number": 544,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "514  Fundamentos de programación\nlógico función árbollleno(E entero: vacío)\ninicio\n  si vacío = 0 entonces\n    devolver(verdad)\n  si_no\n    devolver(falso)\n  fin_si\nfin_función\nprocedimiento inorden(E"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-10",
+    "query_id": "Q1A2-10",
+    "query_text": "¿Por qué es necesario delimitar explícitamente las estructuras de control anidadas en programación estructurada?",
+    "archetype": "ARQ-07",
+    "target_pages": [
+      140,
+      150
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Explica la resolución de ambigüedad del 'else colgante' o delimitación de bloques.",
+      "sufficient_conditions": "Aporta justificación conceptual sólida según el texto."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4187,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5151,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4708,
+        "page_number": 14,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "............................. \n554\n15.1.1. Limitaciones de la programación estructurada ................................................................................... \n554\n15.1.2. Modelado de obj"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4708,
+        "page_number": 14,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "............................. \n554\n15.1.1. Limitaciones de la programación estructurada ................................................................................... \n554\n15.1.2. Modelado de obj"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4187,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8418,
+        "page_number": 547,
+        "heading_path": [
+          "Joyanes",
+          "Página 547"
+        ],
+        "content_snippet": "[Página 547]\nEstructura de datos no lineales (árboles y grafos)  517\npresentan estructuras jerárquicas con limitaciones de dos sub-\nárboles por cada nodo. Si se eliminan las restricciones de \nque cada"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4689,
+        "page_number": 14,
+        "heading_path": [
+          "Joyanes",
+          "Pág 14",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "553\nINTRODUCCIÓN ......................................................................................................................................................... \n553\n15.1. Programación estru"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4708,
+        "page_number": 14,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "............................. \n554\n15.1.1. Limitaciones de la programación estructurada ................................................................................... \n554\n15.1.2. Modelado de obj"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4754,
+        "page_number": 14,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": ".................................  554\n15.1.1. Limitaciones de la programación estructurada ...................................................................................  554\n15.1.2. Modelado de"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-11",
+    "query_id": "Q1A2-11",
+    "query_text": "¿Cuál es la función del operador de dirección & y del operador de indirección * en punteros de C?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      485,
+      492
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Distingue entre obtener la dirección en memoria (&) y acceder al valor apuntado (*).",
+      "sufficient_conditions": "Define con precisión la semántica de ambos operadores en C."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4531,
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere util"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5665,
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere util"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4834,
+        "page_number": 135,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "ador ← . Así se puede usar el operador de asignación (←) precedido por cualquiera de \nlos siguientes operadores aritméticos: +, –, *, /, %. La sintaxis es la siguiente:\n<nombre_variable> ← <variable> "
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4834,
+        "page_number": 135,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "ador ← . Así se puede usar el operador de asignación (←) precedido por cualquiera de \nlos siguientes operadores aritméticos: +, –, *, /, %. La sintaxis es la siguiente:\n<nombre_variable> ← <variable> "
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4531,
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere util"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8382,
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere util"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4631,
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Pág 136",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere utilizando el sig"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4834,
+        "page_number": 135,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "ador ← . Así se puede usar el operador de asignación (←) precedido por cualquiera de \nlos siguientes operadores aritméticos: +, –, *, /, %. La sintaxis es la siguiente:\n<nombre_variable> ← <variable> "
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4918,
+        "page_number": 136,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "106  Fundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5  equivale a  c +← 5\na ← a * (b + c)  equivale a  a *← b + c\no si lo prefiere utilizando el signo de"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-12",
+    "query_id": "Q1A2-12",
+    "query_text": "¿Cómo se declara un puntero a una estructura struct y cómo se accede a sus miembros con el operador flecha ->?",
+    "archetype": "ARQ-05",
+    "target_pages": [
+      490,
+      498
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Muestra la notación `ptr->campo` o `(*ptr).campo` para structs.",
+      "sufficient_conditions": "Incluye ejemplo de sintaxis en lenguaje C según el texto."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4831,
+        "page_number": 492,
+        "heading_path": [
+          "Joyanes",
+          "Página 492"
+        ],
+        "content_snippet": "[Página 492]\n462  \nFundamentos de programación\n• Acceder al primer elemento de la cola.\n• Añadir un elemento al final de cola.\n• Eliminar el primer elemento de la cola.\n• Vaciar la cola.\n• Verificar e"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5094,
+        "page_number": 485,
+        "heading_path": [
+          "Joyanes",
+          "Página 485"
+        ],
+        "content_snippet": "[Página 485]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  455\n  procedimiento consultarCima( E punt: cima;\nS tipo_elemento: elemento)\n   inicio\n   si no vacia (cima) ento"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4872,
+        "page_number": 486,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "456  \nFundamentos de programación\nprocedimiento meter(E/S punt: cima; E tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n   reservar(auxi)\n   auxi→.elemento ← elemento\n   auxi→.cima ← cima\n   cima"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4872,
+        "page_number": 486,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "456  \nFundamentos de programación\nprocedimiento meter(E/S punt: cima; E tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n   reservar(auxi)\n   auxi→.elemento ← elemento\n   auxi→.cima ← cima\n   cima"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4831,
+        "page_number": 492,
+        "heading_path": [
+          "Joyanes",
+          "Página 492"
+        ],
+        "content_snippet": "[Página 492]\n462  \nFundamentos de programación\n• Acceder al primer elemento de la cola.\n• Añadir un elemento al final de cola.\n• Eliminar el primer elemento de la cola.\n• Vaciar la cola.\n• Verificar e"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8318,
+        "page_number": 545,
+        "heading_path": [
+          "Joyanes",
+          "Página 545"
+        ],
+        "content_snippet": "[Página 545]\nEstructura de datos no lineales (árboles y grafos)  515\n        raíz ← auxi\n      si_no\n        si mayor(a[ant].elemento, elemento) entonces\n          a[ant].izdo ← auxi\n        si_no\n   "
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4956,
+        "page_number": 11,
+        "heading_path": [
+          "Joyanes",
+          "Pág 11",
+          "Código/Párrafo"
+        ],
+        "content_snippet": " 7.7. Estructuras versus registros ............................................................................................................................... \n265\n7.7.1. Registros ..............."
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4872,
+        "page_number": 486,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "456  \nFundamentos de programación\nprocedimiento meter(E/S punt: cima; E tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n   reservar(auxi)\n   auxi→.elemento ← elemento\n   auxi→.cima ← cima\n   cima"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4938,
+        "page_number": 486,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "456  Fundamentos de programación\nprocedimiento meter(E/S punt: cima; E tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n   reservar(auxi)\n   auxi→.elemento ← elemento\n   auxi→.cima ← cima\n   cima "
+      }
+    }
+  },
+  {
+    "case_id": "CASE-13",
+    "query_id": "Q1A2-13",
+    "query_text": "¿Cómo se asigna memoria dinámica mediante malloc y cómo se libera con free en C según Joyanes?",
+    "archetype": "ARQ-04",
+    "target_pages": [
+      495,
+      505
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Describe la llamada a malloc con sizeof y la posterior invocación de free.",
+      "sufficient_conditions": "Explica el ciclo de reserva y liberación de memoria."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4765,
+        "page_number": 492,
+        "heading_path": [
+          "Joyanes",
+          "Página 492"
+        ],
+        "content_snippet": "[Página 492]\n462  \nFundamentos de programación\n• Acceder al primer elemento de la cola.\n• Añadir un elemento al final de cola.\n• Eliminar el primer elemento de la cola.\n• Vaciar la cola.\n• Verificar e"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.49,
+        "page_number": 502,
+        "heading_path": [
+          "Joyanes",
+          "Página 502"
+        ],
+        "content_snippet": "[Página 502]\n472  \nFundamentos de programación\nprocedimiento liberar(E/S entero: posic; E/S lista: m;\n                      E/S entero: vacio)\n inicio\n  m[posic].sig ← vacio\n  vacio ← posic\n fin_proce"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5351,
+        "page_number": 500,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " fin_desde\n  m[Max].sig ← 0\n fin_procedimiento\nprocedimiento reservar(S entero: auxi; E lista: m; E/S entero: vacio)\n inicio\n  si vacio = 0 entonces\n     escribir('Memoria agotada')\n     auxi  ←  0\n  "
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5351,
+        "page_number": 500,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " fin_desde\n  m[Max].sig ← 0\n fin_procedimiento\nprocedimiento reservar(S entero: auxi; E lista: m; E/S entero: vacio)\n inicio\n  si vacio = 0 entonces\n     escribir('Memoria agotada')\n     auxi  ←  0\n  "
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4765,
+        "page_number": 492,
+        "heading_path": [
+          "Joyanes",
+          "Página 492"
+        ],
+        "content_snippet": "[Página 492]\n462  \nFundamentos de programación\n• Acceder al primer elemento de la cola.\n• Añadir un elemento al final de cola.\n• Eliminar el primer elemento de la cola.\n• Vaciar la cola.\n• Verificar e"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8521,
+        "page_number": 497,
+        "heading_path": [
+          "Joyanes",
+          "Página 497"
+        ],
+        "content_snippet": "[Página 497]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  467\n2.º Reestructuración.\n \nCuando final llega al máximo de elementos se desplazan las componentes ocupadas haci"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4852,
+        "page_number": 492,
+        "heading_path": [
+          "Joyanes",
+          "Pág 492",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "462  \nFundamentos de programación\n• Acceder al primer elemento de la cola.\n• Añadir un elemento al final de cola.\n• Eliminar el primer elemento de la cola.\n• Vaciar la cola.\n• Verificar el estado de l"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5351,
+        "page_number": 500,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " fin_desde\n  m[Max].sig ← 0\n fin_procedimiento\nprocedimiento reservar(S entero: auxi; E lista: m; E/S entero: vacio)\n inicio\n  si vacio = 0 entonces\n     escribir('Memoria agotada')\n     auxi  ←  0\n  "
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5205,
+        "page_number": 500,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "fin_desde\n  m[Max].sig ← 0\n fin_procedimiento\nprocedimiento reservar(S entero: auxi; E lista: m; E/S entero: vacio)\n inicio\n  si vacio = 0 entonces\n     escribir('Memoria agotada')\n     auxi  ←  0\n  s"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-14",
+    "query_id": "Q1A2-14",
+    "query_text": "¿En qué se diferencia el paso de parámetros por valor del paso por referencia mediante punteros?",
+    "archetype": "ARQ-03",
+    "target_pages": [
+      488,
+      496
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Explica que el paso por valor copia el dato mientras que por referencia pasa la dirección.",
+      "sufficient_conditions": "Demuestra el impacto en la modificación de la variable original."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4,
+        "page_number": 146,
+        "heading_path": [
+          "Joyanes",
+          "Página 146"
+        ],
+        "content_snippet": "[Página 146]\n116  \nFundamentos de programación\n3.8. Cómo se intercambian los valores de dos variables, A y B.\nSolución\nCon el ejercicio se ha visto cómo se pueden intercambiar los valores de una varia"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4551,
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere util"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4169,
+        "page_number": 146,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "116  \nFundamentos de programación\n3.8. Cómo se intercambian los valores de dos variables, A y B.\nSolución\nCon el ejercicio se ha visto cómo se pueden intercambiar los valores de una variable mediante "
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4169,
+        "page_number": 146,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "116  \nFundamentos de programación\n3.8. Cómo se intercambian los valores de dos variables, A y B.\nSolución\nCon el ejercicio se ha visto cómo se pueden intercambiar los valores de una variable mediante "
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4,
+        "page_number": 146,
+        "heading_path": [
+          "Joyanes",
+          "Página 146"
+        ],
+        "content_snippet": "[Página 146]\n116  \nFundamentos de programación\n3.8. Cómo se intercambian los valores de dos variables, A y B.\nSolución\nCon el ejercicio se ha visto cómo se pueden intercambiar los valores de una varia"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8172,
+        "page_number": 540,
+        "heading_path": [
+          "Joyanes",
+          "Nota"
+        ],
+        "content_snippet": "[Nota]\n510  \nFundamentos de programación\nEJEMPLO 13.10\nDeducir la matriz de adyacencia del grafo siguiente:\nLa matriz de adyacencia resultante de este grafo, cuyos vértices representan ciudades y los "
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4075,
+        "page_number": 146,
+        "heading_path": [
+          "Joyanes",
+          "Pág 146",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "116  \nFundamentos de programación\n3.8. Cómo se intercambian los valores de dos variables, A y B.\nSolución\nCon el ejercicio se ha visto cómo se pueden intercambiar los valores de una variable mediante "
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4169,
+        "page_number": 146,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "116  \nFundamentos de programación\n3.8. Cómo se intercambian los valores de dos variables, A y B.\nSolución\nCon el ejercicio se ha visto cómo se pueden intercambiar los valores de una variable mediante "
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4155,
+        "page_number": 146,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "116  Fundamentos de programación\n3.8. Cómo se intercambian los valores de dos variables, A y B.\nSolución\nCon el ejercicio se ha visto cómo se pueden intercambiar los valores de una variable mediante l"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-15",
+    "query_id": "Q1A2-15",
+    "query_text": "¿Cuál es la definición formal de la notación asintótica O-grande (Big-O) para la complejidad de algoritmos?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      540,
+      545
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Define la cota superior del tiempo de ejecución en función del tamaño de entrada n.",
+      "sufficient_conditions": "Presenta la formulación matemática o conceptual rigurosa."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4265,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.472,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4122,
+        "page_number": 150,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "120  \nFundamentos de programación\nDiagrama de flujo\nescribir\nS\nX <= 50\nfin\nsí\ninicio\nX ← 1\nno\nS ← 0\nS ← S + X\nX ← X + 1\n3.16. Escribir un algoritmo que calcule el producto de los n primeros números na"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4122,
+        "page_number": 150,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "120  \nFundamentos de programación\nDiagrama de flujo\nescribir\nS\nX <= 50\nfin\nsí\ninicio\nX ← 1\nno\nS ← 0\nS ← S + X\nX ← X + 1\n3.16. Escribir un algoritmo que calcule el producto de los n primeros números na"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4265,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.826,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4271,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Pág 142",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algoritmo\n   "
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4122,
+        "page_number": 150,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "120  \nFundamentos de programación\nDiagrama de flujo\nescribir\nS\nX <= 50\nfin\nsí\ninicio\nX ← 1\nno\nS ← 0\nS ← S + X\nX ← X + 1\n3.16. Escribir un algoritmo que calcule el producto de los n primeros números na"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4086,
+        "page_number": 150,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "120  Fundamentos de programación\nDiagrama de flujo\nescribir\nSX <= 50 fin\nsí\ninicio\nX ← 1\nno\nS ← 0\nS ← S + X\nX ← X + 1\n3.16. Escribir un algoritmo que calcule el producto de los n primeros números natu"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-16",
+    "query_id": "Q1A2-16",
+    "query_text": "¿Cuál es la diferencia de eficiencia y crecimiento entre un algoritmo O(n log n) y uno O(n^2)?",
+    "archetype": "ARQ-03",
+    "target_pages": [
+      543,
+      548
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Contrasta el crecimiento casi lineal con el crecimiento cuadrático ante entradas grandes.",
+      "sufficient_conditions": "Aporta justificación analítica sobre la escalabilidad de ambos tipos de algoritmo."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4032,
+        "page_number": 546,
+        "heading_path": [
+          "Joyanes",
+          "Página 546"
+        ],
+        "content_snippet": "[Página 546]\n516  \nFundamentos de programación\nSi los árboles terminaron de recorrerse simultáneamente es que ambos tienen el mismo número de nodos y nunca ha \nsido diferente la información comparada;"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4813,
+        "page_number": 541,
+        "heading_path": [
+          "Joyanes",
+          "Página 541"
+        ],
+        "content_snippet": "[Página 541]\nEstructura de datos no lineales (árboles y grafos)  511\nUn grafo no dirigido de orden N con A arcos requiere N entradas en el directorio y 2*A entradas de listas enlaza-\ndas, excepto si e"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4404,
+        "page_number": 542,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " algoritmo que cree el árbol y nos informe sobre su número de nodos.\n"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4404,
+        "page_number": 542,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " algoritmo que cree el árbol y nos informe sobre su número de nodos.\n"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4032,
+        "page_number": 546,
+        "heading_path": [
+          "Joyanes",
+          "Página 546"
+        ],
+        "content_snippet": "[Página 546]\n516  \nFundamentos de programación\nSi los árboles terminaron de recorrerse simultáneamente es que ambos tienen el mismo número de nodos y nunca ha \nsido diferente la información comparada;"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8485,
+        "page_number": 541,
+        "heading_path": [
+          "Joyanes",
+          "Página 541"
+        ],
+        "content_snippet": "[Página 541]\nEstructura de datos no lineales (árboles y grafos)  511\nUn grafo no dirigido de orden N con A arcos requiere N entradas en el directorio y 2*A entradas de listas enlaza-\ndas, excepto si e"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.398,
+        "page_number": 17,
+        "heading_path": [
+          "Joyanes",
+          "Pág 17",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "687\n18.14.1. Eficiencia versus legibilidad (claridad) ........................................................................................... \n689\n18.15. Transportabilidad ........................"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4404,
+        "page_number": 542,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " algoritmo que cree el árbol y nos informe sobre su número de nodos.\n"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4152,
+        "page_number": 542,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "algoritmo que cree el árbol y nos informe sobre su número de nodos."
+      }
+    }
+  },
+  {
+    "case_id": "CASE-17",
+    "query_id": "Q1A2-17",
+    "query_text": "¿En qué página del índice general se lista el apartado de 'Resolución de problemas con computadoras'?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      11,
+      16
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Localiza el epígrafe dentro del bloque denso del índice.",
+      "sufficient_conditions": "Indica el número de página exacto asociado al epígrafe."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.3931,
+        "page_number": 14,
+        "heading_path": [
+          "Joyanes",
+          "Página 14"
+        ],
+        "content_snippet": "[Página 14]\n13.5. Grafos ................................................................................................................................................................ \n506\n13.5.1. T"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5441,
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ................."
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4689,
+        "page_number": 43,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "do se apaga la computadora.\n"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4689,
+        "page_number": 43,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "do se apaga la computadora.\n"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.3931,
+        "page_number": 14,
+        "heading_path": [
+          "Joyanes",
+          "Página 14"
+        ],
+        "content_snippet": "[Página 14]\n13.5. Grafos ................................................................................................................................................................ \n506\n13.5.1. T"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8232,
+        "page_number": 14,
+        "heading_path": [
+          "Joyanes",
+          "Página 14"
+        ],
+        "content_snippet": "[Página 14]\n13.5. Grafos ................................................................................................................................................................ \n506\n13.5.1. T"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4212,
+        "page_number": 12,
+        "heading_path": [
+          "Joyanes",
+          "Pág 12",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "383\n10.4. Intercalación ...................................................................................................................................................... \n388\nACTIVIDADES DE PROGR"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4689,
+        "page_number": 43,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "do se apaga la computadora.\n"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4565,
+        "page_number": 14,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": ".............................  570\nRESUMEN ............................................................................................................................................................."
+      }
+    }
+  },
+  {
+    "case_id": "CASE-18",
+    "query_id": "Q1A2-18",
+    "query_text": "¿Qué subsecciones componen el capítulo de algoritmos según la jerarquía detallada en el índice de contenidos?",
+    "archetype": "ARQ-04",
+    "target_pages": [
+      13,
+      16
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Recupera la secuencia de subapartados del capítulo de algoritmos.",
+      "sufficient_conditions": "Permite observar la integridad de jerarquía en el bloque denso de índice."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5114,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5684,
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ................."
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5618,
+        "page_number": 138,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "-\ngramas escritos en el lenguaje de programación estructurado; por ejemplo, Pascal.\nUn algoritmo constará de dos componentes: una cabecera de programa y un bloque algoritmo. La cabecera de \nprograma e"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5618,
+        "page_number": 138,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "-\ngramas escritos en el lenguaje de programación estructurado; por ejemplo, Pascal.\nUn algoritmo constará de dos componentes: una cabecera de programa y un bloque algoritmo. La cabecera de \nprograma e"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5114,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8609,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\n"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5071,
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Pág 138",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread     "
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5618,
+        "page_number": 138,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "-\ngramas escritos en el lenguaje de programación estructurado; por ejemplo, Pascal.\nUn algoritmo constará de dos componentes: una cabecera de programa y un bloque algoritmo. La cabecera de \nprograma e"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5563,
+        "page_number": 138,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "\ngramas escritos en el lenguaje de programación estructurado; por ejemplo, Pascal.\nUn algoritmo constará de dos componentes: una cabecera de programa y un bloque algoritmo . La cabecera de \nprograma e"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-19",
+    "query_id": "Q1A2-37",
+    "query_text": "¿Cómo se gestiona el vector de interrupciones en el controlador programable APIC en modo protegido x86?",
+    "archetype": "ARQ-11",
+    "target_pages": null,
+    "rubric_guidance": {
+      "relevant_conditions": "Ningún fragmento de Joyanes debe considerarse relevante (control negativo de dominio).",
+      "sufficient_conditions": "El sistema debe abstenerse o arrojar puntajes de similitud bajos (<0.40)."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4036,
+        "page_number": 43,
+        "heading_path": [
+          "Joyanes",
+          "Página 43"
+        ],
+        "content_snippet": "[Página 43]\nIntroducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4665,
+        "page_number": 489,
+        "heading_path": [
+          "Joyanes",
+          "Página 489"
+        ],
+        "content_snippet": "[Página 489]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  459\nPrograma principal\nX\nY\nZ\nSubprograma\nA\nSubprograma A\nfin _ subprograma A\nfin _ subprograma B\nfin _ subprogra"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4024,
+        "page_number": 488,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "amos que tenemos tres subprogramas llamados A, B y C, y supongamos también que A invoca a B y B \ninvoca a C. Entonces B no terminará su trabajo hasta que C haya terminado y devuelto su control a B. De"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4024,
+        "page_number": 488,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "amos que tenemos tres subprogramas llamados A, B y C, y supongamos también que A invoca a B y B \ninvoca a C. Entonces B no terminará su trabajo hasta que C haya terminado y devuelto su control a B. De"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4036,
+        "page_number": 43,
+        "heading_path": [
+          "Joyanes",
+          "Página 43"
+        ],
+        "content_snippet": "[Página 43]\nIntroducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8255,
+        "page_number": 17,
+        "heading_path": [
+          "Joyanes",
+          "Página 17"
+        ],
+        "content_snippet": "[Página 17]\n18.10.2. Manual de mantenimiento (documentación para programadores) .................................................. \n680\n18.10.3. Reglas de documentación ..............................."
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.3862,
+        "page_number": 43,
+        "heading_path": [
+          "Joyanes",
+          "Pág 43",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "Introducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core 2 Duo de In"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4024,
+        "page_number": 488,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "amos que tenemos tres subprogramas llamados A, B y C, y supongamos también que A invoca a B y B \ninvoca a C. Entonces B no terminará su trabajo hasta que C haya terminado y devuelto su control a B. De"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.3903,
+        "page_number": 502,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " = '*'\n fin_procedimiento"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-20",
+    "query_id": "Q1A2-38",
+    "query_text": "¿Cómo implementa el núcleo NT el algoritmo WSClock para el conjunto de trabajo de páginas en memoria virtual?",
+    "archetype": "ARQ-11",
+    "target_pages": null,
+    "rubric_guidance": {
+      "relevant_conditions": "Ningún fragmento de Joyanes debe considerarse relevante (control negativo de dominio).",
+      "sufficient_conditions": "El sistema debe abstenerse o arrojar puntajes de similitud bajos (<0.40)."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.3867,
+        "page_number": 43,
+        "heading_path": [
+          "Joyanes",
+          "Página 43"
+        ],
+        "content_snippet": "[Página 43]\nIntroducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.528,
+        "page_number": 42,
+        "heading_path": [
+          "Joyanes",
+          "Página 42"
+        ],
+        "content_snippet": "[Página 42]\n12  \nFundamentos de programación\nla cual se puede acceder a la posición para almacenar o recuperar información. La información almacenada en una \nposición de memoria es su contenido. La Fi"
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4279,
+        "page_number": 43,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "Introducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core 2 Duo de In"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4279,
+        "page_number": 43,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "Introducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core 2 Duo de In"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.3867,
+        "page_number": 43,
+        "heading_path": [
+          "Joyanes",
+          "Página 43"
+        ],
+        "content_snippet": "[Página 43]\nIntroducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.825,
+        "page_number": 140,
+        "heading_path": [
+          "Joyanes",
+          "Página 140"
+        ],
+        "content_snippet": "[Página 140]\n110  \nFundamentos de programación\nLas variables de caracteres se declaran de dos modos:\n1. Almacenar un solo carácter.\nvar carácter : nombre, inicial, nota, letra\n \nSe declaran nombre, in"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.38,
+        "page_number": 43,
+        "heading_path": [
+          "Joyanes",
+          "Pág 43",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "Introducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core 2 Duo de In"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4279,
+        "page_number": 43,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "Introducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core 2 Duo de In"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4226,
+        "page_number": 43,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "Introducción a las computadoras y los lenguajes de programación   13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core 2 Duo de I"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-21",
+    "query_id": "Q1A2-39",
+    "query_text": "manejo de pila y almacenamiento",
+    "archetype": "ARQ-12",
+    "target_pages": [
+      485,
+      505
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Evalúa si recupera pila como memoria de ejecución (stack) o como estructura de datos abstracta.",
+      "sufficient_conditions": "Identifica la discriminación de contexto semántico según el capítulo."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4988,
+        "page_number": 490,
+        "heading_path": [
+          "Joyanes",
+          "Página 490"
+        ],
+        "content_snippet": "[Página 490]\n460  \nFundamentos de programación\n  pila        : pilaletras, piladigitos, pilaotroscaracteres\n  carácter    : elemento\ninicio\n  crear (cima1)\n  crear (cima2)\n  crear (cima3)\n  elemento ←"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5672,
+        "page_number": 503,
+        "heading_path": [
+          "Joyanes",
+          "Página 503"
+        ],
+        "content_snippet": "[Página 503]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  473\nprocedimiento devoluciones( E/S entero: inic, vacio; E/S lista: m)\n var\n  tipo_elemento: elemento\n  entero  "
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.558,
+        "page_number": 489,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "arácter:pila\nvar\n  entero      : cima1, cima2, cima3\n"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.558,
+        "page_number": 489,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "arácter:pila\nvar\n  entero      : cima1, cima2, cima3\n"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4988,
+        "page_number": 490,
+        "heading_path": [
+          "Joyanes",
+          "Página 490"
+        ],
+        "content_snippet": "[Página 490]\n460  \nFundamentos de programación\n  pila        : pilaletras, piladigitos, pilaotroscaracteres\n  carácter    : elemento\ninicio\n  crear (cima1)\n  crear (cima2)\n  crear (cima3)\n  elemento ←"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8462,
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ................."
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5374,
+        "page_number": 493,
+        "heading_path": [
+          "Joyanes",
+          "Pág 493",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "Estructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  463\nfinal →\nelemento\nxxx\nyyy\nfinal\nauxi\nzzz\n5.º\nsig\nxxx\nyyy\nfinal\nauxi\nnulo\nnulo\nnulo\nnulo\nzzz\n6.º\nauxi →\nelemento si g\nxxx\nf"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.558,
+        "page_number": 489,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "arácter:pila\nvar\n  entero      : cima1, cima2, cima3\n"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5651,
+        "page_number": 489,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " carácter:pila\nvar\n  entero      : cima1, cima2, cima3"
+      }
+    }
+  },
+  {
+    "case_id": "CASE-22",
+    "query_id": "Q1A2-40",
+    "query_text": "condición de fin y salida de bloque",
+    "archetype": "ARQ-12",
+    "target_pages": [
+      135,
+      150
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Evalúa si recupera condiciones lógicas de estructuras condicionales vs bucles.",
+      "sufficient_conditions": "Determina la especificidad del contexto ante términos polisémicos."
+    },
+    "candidates": {
+      "Pipeline_Alpha": {
+        "mask_name": "Pipeline_Alpha",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4923,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Beta": {
+        "mask_name": "Pipeline_Beta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5021,
+        "page_number": 487,
+        "heading_path": [
+          "Joyanes",
+          "Página 487"
+        ],
+        "content_snippet": "[Página 487]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  457\n      liberar(auxi)\n      {liberar es un procedimiento para la eliminación de\n      variables dinámicas}\n   "
+      },
+      "Pipeline_Gamma": {
+        "mask_name": "Pipeline_Gamma",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5562,
+        "page_number": 502,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "d = '*'\n fin_procedimiento\n"
+      },
+      "Pipeline_Delta": {
+        "mask_name": "Pipeline_Delta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5562,
+        "page_number": 502,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "d = '*'\n fin_procedimiento\n"
+      },
+      "Pipeline_Epsilon": {
+        "mask_name": "Pipeline_Epsilon",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.4923,
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algor"
+      },
+      "Pipeline_Zeta": {
+        "mask_name": "Pipeline_Zeta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.8758,
+        "page_number": 496,
+        "heading_path": [
+          "Joyanes",
+          "Página 496"
+        ],
+        "content_snippet": "[Página 496]\n466  \nFundamentos de programación\nCuando la cola esté vacía frente ← 0    final ← 0\nprocedimiento inicializar(S entero: frente,final)\n inicio\n  frente ← 0\n  final ← 0\n fin_procedimiento\nE"
+      },
+      "Pipeline_Eta": {
+        "mask_name": "Pipeline_Eta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5146,
+        "page_number": 140,
+        "heading_path": [
+          "Joyanes",
+          "Pág 140",
+          "Código/Párrafo"
+        ],
+        "content_snippet": "1. Comentarios de una línea (comienzan con el carácter //)\n// Programa 5.0 realizado por el Señor Mackoy\n// en  Carchelejo (Jaén)en las Fiestas de Agosto \n// de Moros y Cristiano\n"
+      },
+      "Pipeline_Theta": {
+        "mask_name": "Pipeline_Theta",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.5562,
+        "page_number": 502,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": "d = '*'\n fin_procedimiento\n"
+      },
+      "Pipeline_Iota": {
+        "mask_name": "Pipeline_Iota",
+        "rank": 1,
+        "score_cosine_diagnostic": 0.6164,
+        "page_number": 502,
+        "heading_path": [
+          "Documento"
+        ],
+        "content_snippet": " = '*'\n fin_procedimiento"
+      }
+    }
+  }
+]

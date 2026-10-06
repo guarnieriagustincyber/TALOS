@@ -1,0 +1,53 @@
+{
+  "control_id": "C8",
+  "name": "Production Database Isolation Audit",
+  "timestamp": "2026-10-05T18:57:51.900032+00:00",
+  "databases_checked": 6,
+  "violations_detected": 0,
+  "status": "PASS",
+  "verdict": "ZERO_MUTATION_VERIFIED",
+  "database_hashes": [
+    {
+      "path": "data/web_state/cal_store.db",
+      "baseline_hash": "82773155ca35028274ba0f378fdcd37a5374bb4483a579654a6e9facfd443782",
+      "pre_execution_hash": "82773155ca35028274ba0f378fdcd37a5374bb4483a579654a6e9facfd443782",
+      "post_execution_hash": "82773155ca35028274ba0f378fdcd37a5374bb4483a579654a6e9facfd443782",
+      "match": true
+    },
+    {
+      "path": "data/web_state/knowledge_store.db",
+      "baseline_hash": "fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+      "pre_execution_hash": "fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+      "post_execution_hash": "fe53f3b4e1cd6e01effb5c9f38222636199955c027484f4ff15ed95f93d5b2b1",
+      "match": true
+    },
+    {
+      "path": "data/web_state/quotas.db",
+      "baseline_hash": "09838ed16f1bbab384e6a83be651c9f8657db11c6a72caa5c32947a2cc18050d",
+      "pre_execution_hash": "09838ed16f1bbab384e6a83be651c9f8657db11c6a72caa5c32947a2cc18050d",
+      "post_execution_hash": "09838ed16f1bbab384e6a83be651c9f8657db11c6a72caa5c32947a2cc18050d",
+      "match": true
+    },
+    {
+      "path": "data/web_state/student_state.db",
+      "baseline_hash": "f70f380dbad3f50cb7fa825009d8afd7d0d07ed0b4501c329c65288d4e840b2d",
+      "pre_execution_hash": "f70f380dbad3f50cb7fa825009d8afd7d0d07ed0b4501c329c65288d4e840b2d",
+      "post_execution_hash": "f70f380dbad3f50cb7fa825009d8afd7d0d07ed0b4501c329c65288d4e840b2d",
+      "match": true
+    },
+    {
+      "path": "data/web_state/study_engine.db",
+      "baseline_hash": "e3ba06536f7dbba337dee3c1c5f01b43660ce276abb54c5cee2d5defc5b970aa",
+      "pre_execution_hash": "e3ba06536f7dbba337dee3c1c5f01b43660ce276abb54c5cee2d5defc5b970aa",
+      "post_execution_hash": "e3ba06536f7dbba337dee3c1c5f01b43660ce276abb54c5cee2d5defc5b970aa",
+      "match": true
+    },
+    {
+      "path": "data/web_state/vector_store.db",
+      "baseline_hash": "d6d9f8c8eb6e5188e8e600a73cc05bd001d2e389061815d7d0df33f447a9dde4",
+      "pre_execution_hash": "d6d9f8c8eb6e5188e8e600a73cc05bd001d2e389061815d7d0df33f447a9dde4",
+      "post_execution_hash": "d6d9f8c8eb6e5188e8e600a73cc05bd001d2e389061815d7d0df33f447a9dde4",
+      "match": true
+    }
+  ]
+}

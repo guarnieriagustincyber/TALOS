@@ -1,0 +1,20 @@
+{
+  "audit_status": "SEALED_KEY",
+  "blind_package_version": "3.0.0-phase1a3",
+  "source_experiment": "TALOS_V1_5_PHASE1A3_EMBEDDING_ISOLATION",
+  "condition": "CONDITION_H_COMMON_BUDGET_512",
+  "candidate_pool": "64_CHUNKS_C2_HARMONIZED",
+  "included_pipeline_count": 3,
+  "seed_salt": "talos_phase1a3_blind_seed_v3_20261005",
+  "seed_int": 1029930572,
+  "mapping": {
+    "Pipeline_Sigma": "EMB-HARM-QWEN",
+    "Pipeline_Tau": "EMB-HARM-E5",
+    "Pipeline_Upsilon": "EMB-HARM-BGE"
+  },
+  "reverse_mapping": {
+    "EMB-HARM-QWEN": "Pipeline_Sigma",
+    "EMB-HARM-E5": "Pipeline_Tau",
+    "EMB-HARM-BGE": "Pipeline_Upsilon"
+  }
+}

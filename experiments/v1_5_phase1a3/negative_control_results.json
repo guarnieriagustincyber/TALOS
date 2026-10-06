@@ -1,0 +1,530 @@
+{
+  "EMB-HARM-QWEN": {
+    "Q1A2-37": {
+      "top1_chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+      "top1_page": 43,
+      "top1_score_cosine": 0.3837,
+      "top10_results": [
+        {
+          "rank": 1,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+          "text_hash": "180324cfb4d46f30e1baecb2ab222f92540175848ac6c82784a3d908a66edbc8",
+          "page_number": 43,
+          "score_cosine": 0.3837,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 2,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p488:c0038",
+          "text_hash": "d5f4d022f70d8418d85e73beb6d60cd3d789de139b77e47ee2ee8acf9779e051",
+          "page_number": 488,
+          "score_cosine": 0.3818,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 3,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+          "text_hash": "e21191b9423f4028bf49e39238df8ff530871e5198c8bc6b2f952e1120ac7232",
+          "page_number": 38,
+          "score_cosine": 0.3522,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 4,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p145:c0029",
+          "text_hash": "3f0bfba6301c7e90315c78e92587e04f6de2beeab3479d64e065baa85808e003",
+          "page_number": 145,
+          "score_cosine": 0.3358,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 5,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p17:c0007",
+          "text_hash": "611a2f38a335bf50442359dafba05e2192ddafe2cbfe7d45c720c46a99ebdd1a",
+          "page_number": 17,
+          "score_cosine": 0.3256,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 6,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p486:c0036",
+          "text_hash": "b23a98ae9eab1ac0761ba521ea3b0c8ec45e7bb28e50084b1e3a9213ea0ab0fe",
+          "page_number": 486,
+          "score_cosine": 0.3174,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 7,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p489:c0039",
+          "text_hash": "de3cc3adf6b4912c8255e3480f8766737d5ffbc843376db5cd314bcbcfc9baec",
+          "page_number": 489,
+          "score_cosine": 0.3151,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 8,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p502:c0052",
+          "text_hash": "ca20e289f9ae7dc5421c15b390edf4fa79a5c8190fe933451c7c2afb2809830e",
+          "page_number": 502,
+          "score_cosine": 0.3128,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 9,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p146:c0030",
+          "text_hash": "e1df6ddd14848e04cd9e721b85590e0dabe3b919231df85526b39192dcb1e560",
+          "page_number": 146,
+          "score_cosine": 0.307,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 10,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p504:c0054",
+          "text_hash": "c308e5f2d1ba6da115037775309dcbf47c11c9d821164a6891a5df81bce61e19",
+          "page_number": 504,
+          "score_cosine": 0.3023,
+          "is_harmonized_truncated": false
+        }
+      ]
+    },
+    "Q1A2-38": {
+      "top1_chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+      "top1_page": 43,
+      "top1_score_cosine": 0.3831,
+      "top10_results": [
+        {
+          "rank": 1,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+          "text_hash": "180324cfb4d46f30e1baecb2ab222f92540175848ac6c82784a3d908a66edbc8",
+          "page_number": 43,
+          "score_cosine": 0.3831,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 2,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+          "text_hash": "e21191b9423f4028bf49e39238df8ff530871e5198c8bc6b2f952e1120ac7232",
+          "page_number": 38,
+          "score_cosine": 0.3654,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 3,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p150:c0034",
+          "text_hash": "208a2e95999b587fd838408414c17f50c5f8425c7a4317cde1a643d650e2f2cb",
+          "page_number": 150,
+          "score_cosine": 0.3623,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 4,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+          "text_hash": "b83477aa9554ef117ff329419a96d1c90a437ada82a1f1fb9d579ef101364fc0",
+          "page_number": 138,
+          "score_cosine": 0.352,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 5,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p42:c0015",
+          "text_hash": "0253b0032f36c0f6ed57a6f9629abf20f03ccdc98c465bf9d4da0c2d8d0c28ec",
+          "page_number": 42,
+          "score_cosine": 0.3519,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 6,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p149:c0033",
+          "text_hash": "d75671e5fc2b5c8f03f4059e0d2681ecbed35e7a168a7d16982e609b4c3c03da",
+          "page_number": 149,
+          "score_cosine": 0.3442,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 7,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p40:c0013",
+          "text_hash": "4f448f8dfd0dabf8bbeae4718214a2531a4fba534c79b45086d254cc05921686",
+          "page_number": 40,
+          "score_cosine": 0.343,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 8,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p143:c0027",
+          "text_hash": "8df3f0cd6c73086106d0cac6e96f823e725e0443e7dd6b47d9445c01a5290b5b",
+          "page_number": 143,
+          "score_cosine": 0.3378,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 9,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p497:c0047",
+          "text_hash": "b9fe2467c752de373074723fe4aff0d3ba19d2274966734ac92eca8ba128c7c2",
+          "page_number": 497,
+          "score_cosine": 0.3261,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 10,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p137:c0021",
+          "text_hash": "bbd2686a82b194f22e0a5d62c27979c667b4bb9dd69b4cf78c3a0876d5fe2707",
+          "page_number": 137,
+          "score_cosine": 0.3168,
+          "is_harmonized_truncated": true
+        }
+      ]
+    }
+  },
+  "EMB-HARM-E5": {
+    "Q1A2-37": {
+      "top1_chunk_id": "doc_joyanes_fundamentos_4ed:p17:c0007",
+      "top1_page": 17,
+      "top1_score_cosine": 0.8255,
+      "top10_results": [
+        {
+          "rank": 1,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p17:c0007",
+          "text_hash": "611a2f38a335bf50442359dafba05e2192ddafe2cbfe7d45c720c46a99ebdd1a",
+          "page_number": 17,
+          "score_cosine": 0.8255,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 2,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p500:c0050",
+          "text_hash": "40e69a6938366c11c36680072c2879af980f5af5fade408d2693e16e6cdff454",
+          "page_number": 500,
+          "score_cosine": 0.8222,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 3,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+          "text_hash": "180324cfb4d46f30e1baecb2ab222f92540175848ac6c82784a3d908a66edbc8",
+          "page_number": 43,
+          "score_cosine": 0.8221,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 4,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p502:c0052",
+          "text_hash": "ca20e289f9ae7dc5421c15b390edf4fa79a5c8190fe933451c7c2afb2809830e",
+          "page_number": 502,
+          "score_cosine": 0.8198,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 5,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p501:c0051",
+          "text_hash": "26cf0b20e0ac2e65b7ccba517621bf2f400651d7ee6cac29a166686c60456d8f",
+          "page_number": 501,
+          "score_cosine": 0.8188,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 6,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p503:c0053",
+          "text_hash": "69e80cb793ab8a4c2c470eafb5d25dc2de4a1c73c70add60a3c172eb62cb9290",
+          "page_number": 503,
+          "score_cosine": 0.818,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 7,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p488:c0038",
+          "text_hash": "d5f4d022f70d8418d85e73beb6d60cd3d789de139b77e47ee2ee8acf9779e051",
+          "page_number": 488,
+          "score_cosine": 0.8171,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 8,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p143:c0027",
+          "text_hash": "8df3f0cd6c73086106d0cac6e96f823e725e0443e7dd6b47d9445c01a5290b5b",
+          "page_number": 143,
+          "score_cosine": 0.8167,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 9,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p16:c0006",
+          "text_hash": "e9a2d8146a9348daff1170a5204526726ab923506c8852cc1f36f3dbc729f8b8",
+          "page_number": 16,
+          "score_cosine": 0.8158,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 10,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p11:c0001",
+          "text_hash": "eedba7c19a51e126d1424f6e6bd77a33aa397764df30fb6058e2dace725b468c",
+          "page_number": 11,
+          "score_cosine": 0.8152,
+          "is_harmonized_truncated": true
+        }
+      ]
+    },
+    "Q1A2-38": {
+      "top1_chunk_id": "doc_joyanes_fundamentos_4ed:p12:c0002",
+      "top1_page": 12,
+      "top1_score_cosine": 0.8279,
+      "top10_results": [
+        {
+          "rank": 1,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p12:c0002",
+          "text_hash": "b2cebd02d2605b1f177d61fd9f96bee0376e79a6a85a69f2ff09a877e94b65c2",
+          "page_number": 12,
+          "score_cosine": 0.8279,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 2,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p500:c0050",
+          "text_hash": "40e69a6938366c11c36680072c2879af980f5af5fade408d2693e16e6cdff454",
+          "page_number": 500,
+          "score_cosine": 0.8243,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 3,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p497:c0047",
+          "text_hash": "b9fe2467c752de373074723fe4aff0d3ba19d2274966734ac92eca8ba128c7c2",
+          "page_number": 497,
+          "score_cosine": 0.8239,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 4,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+          "text_hash": "227840e3ed414be42a99913b9fb133ac0906949758b8d47ec70ad0ad86c70fc8",
+          "page_number": 13,
+          "score_cosine": 0.8232,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 5,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p543:c0059",
+          "text_hash": "2b14916ec5cfb9fefd768baa4850eaa1a45a6933a5ea401525fdffcb25976f68",
+          "page_number": 543,
+          "score_cosine": 0.8216,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 6,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p501:c0051",
+          "text_hash": "26cf0b20e0ac2e65b7ccba517621bf2f400651d7ee6cac29a166686c60456d8f",
+          "page_number": 501,
+          "score_cosine": 0.8203,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 7,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p137:c0021",
+          "text_hash": "bbd2686a82b194f22e0a5d62c27979c667b4bb9dd69b4cf78c3a0876d5fe2707",
+          "page_number": 137,
+          "score_cosine": 0.8198,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 8,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p140:c0024",
+          "text_hash": "76464923afbc894c4c9700a3c10007b99b5a029dbf56f89704c6f29091cac9a8",
+          "page_number": 140,
+          "score_cosine": 0.8192,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 9,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p499:c0049",
+          "text_hash": "43cf7c3d4563a170349480a0a875f47d512adff712a8f51c77051b7fb3e3defd",
+          "page_number": 499,
+          "score_cosine": 0.8188,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 10,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p150:c0034",
+          "text_hash": "208a2e95999b587fd838408414c17f50c5f8425c7a4317cde1a643d650e2f2cb",
+          "page_number": 150,
+          "score_cosine": 0.8188,
+          "is_harmonized_truncated": false
+        }
+      ]
+    }
+  },
+  "EMB-HARM-BGE": {
+    "Q1A2-37": {
+      "top1_chunk_id": "doc_joyanes_fundamentos_4ed:p489:c0039",
+      "top1_page": 489,
+      "top1_score_cosine": 0.4665,
+      "top10_results": [
+        {
+          "rank": 1,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p489:c0039",
+          "text_hash": "de3cc3adf6b4912c8255e3480f8766737d5ffbc843376db5cd314bcbcfc9baec",
+          "page_number": 489,
+          "score_cosine": 0.4665,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 2,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+          "text_hash": "180324cfb4d46f30e1baecb2ab222f92540175848ac6c82784a3d908a66edbc8",
+          "page_number": 43,
+          "score_cosine": 0.463,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 3,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p16:c0006",
+          "text_hash": "e9a2d8146a9348daff1170a5204526726ab923506c8852cc1f36f3dbc729f8b8",
+          "page_number": 16,
+          "score_cosine": 0.4379,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 4,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p11:c0001",
+          "text_hash": "eedba7c19a51e126d1424f6e6bd77a33aa397764df30fb6058e2dace725b468c",
+          "page_number": 11,
+          "score_cosine": 0.4367,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 5,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p145:c0029",
+          "text_hash": "3f0bfba6301c7e90315c78e92587e04f6de2beeab3479d64e065baa85808e003",
+          "page_number": 145,
+          "score_cosine": 0.429,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 6,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p42:c0015",
+          "text_hash": "0253b0032f36c0f6ed57a6f9629abf20f03ccdc98c465bf9d4da0c2d8d0c28ec",
+          "page_number": 42,
+          "score_cosine": 0.4271,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 7,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+          "text_hash": "e21191b9423f4028bf49e39238df8ff530871e5198c8bc6b2f952e1120ac7232",
+          "page_number": 38,
+          "score_cosine": 0.4259,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 8,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p146:c0030",
+          "text_hash": "e1df6ddd14848e04cd9e721b85590e0dabe3b919231df85526b39192dcb1e560",
+          "page_number": 146,
+          "score_cosine": 0.4165,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 9,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p486:c0036",
+          "text_hash": "b23a98ae9eab1ac0761ba521ea3b0c8ec45e7bb28e50084b1e3a9213ea0ab0fe",
+          "page_number": 486,
+          "score_cosine": 0.416,
+          "is_harmonized_truncated": false
+        },
+        {
+          "rank": 10,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p487:c0037",
+          "text_hash": "51e9defab1c2ed74328755d974b47071a49e1ed0a75e9f44efd74f81b1e5fee4",
+          "page_number": 487,
+          "score_cosine": 0.4143,
+          "is_harmonized_truncated": false
+        }
+      ]
+    },
+    "Q1A2-38": {
+      "top1_chunk_id": "doc_joyanes_fundamentos_4ed:p42:c0015",
+      "top1_page": 42,
+      "top1_score_cosine": 0.5097,
+      "top10_results": [
+        {
+          "rank": 1,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p42:c0015",
+          "text_hash": "0253b0032f36c0f6ed57a6f9629abf20f03ccdc98c465bf9d4da0c2d8d0c28ec",
+          "page_number": 42,
+          "score_cosine": 0.5097,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 2,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+          "text_hash": "180324cfb4d46f30e1baecb2ab222f92540175848ac6c82784a3d908a66edbc8",
+          "page_number": 43,
+          "score_cosine": 0.4954,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 3,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+          "text_hash": "e21191b9423f4028bf49e39238df8ff530871e5198c8bc6b2f952e1120ac7232",
+          "page_number": 38,
+          "score_cosine": 0.4686,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 4,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p40:c0013",
+          "text_hash": "4f448f8dfd0dabf8bbeae4718214a2531a4fba534c79b45086d254cc05921686",
+          "page_number": 40,
+          "score_cosine": 0.4682,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 5,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p11:c0001",
+          "text_hash": "eedba7c19a51e126d1424f6e6bd77a33aa397764df30fb6058e2dace725b468c",
+          "page_number": 11,
+          "score_cosine": 0.462,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 6,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+          "text_hash": "b83477aa9554ef117ff329419a96d1c90a437ada82a1f1fb9d579ef101364fc0",
+          "page_number": 138,
+          "score_cosine": 0.4597,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 7,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p39:c0012",
+          "text_hash": "e8b7c992e41ef126d6d48d97ddd30e0be3223034d4669b68101743cffdef42fd",
+          "page_number": 39,
+          "score_cosine": 0.4591,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 8,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p16:c0006",
+          "text_hash": "e9a2d8146a9348daff1170a5204526726ab923506c8852cc1f36f3dbc729f8b8",
+          "page_number": 16,
+          "score_cosine": 0.4588,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 9,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p44:c0017",
+          "text_hash": "bb9862e322e8413309971d127e5705f0e7c7a98828119e9cc8015056f492646a",
+          "page_number": 44,
+          "score_cosine": 0.4573,
+          "is_harmonized_truncated": true
+        },
+        {
+          "rank": 10,
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p45:c0018",
+          "text_hash": "402de2a830551410122909648a9fb855504cd3734b6fd3213eaf87adae90d8fb",
+          "page_number": 45,
+          "score_cosine": 0.4546,
+          "is_harmonized_truncated": true
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,604 @@
+{
+  "metadata": {
+    "adjudicator": "N=1 Blind",
+    "package": "blind_adjudication_v3 (Phase 1A.3)",
+    "timestamp": "2026-10-05",
+    "methodology": "Evaluación ciega estricta. Sin inferencia de backend. Rúbrica estándar de RAG (Relevance, Sufficiency, Grounding, Context Quality)."
+  },
+  "cases": [
+    {
+      "case_id": "Caso #01 [Q1A2-01]",
+      "query": "¿Cuál es la estructura general de contenidos y preliminares presentada en el índice de Fundamentos de Programación?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Poor",
+          "notes": "Recupera Nota 1 sobre palabras reservadas. Falla total en recuperar el índice."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera algoritmo de comparación de árboles binarios. Irrelevante."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera código de lista enlazada (menú de ventas/devoluciones). Irrelevante."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #02 [Q1A2-02]",
+      "query": "¿En qué página y capítulo del índice general se ubican las estructuras de datos y punteros?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera índice del Capítulo 11 (Ordenación). No menciona estructuras de datos/punteros."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera procedimiento consultarCima (pilas). Irrelevante para el índice."
+        },
+        "Upsilon": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma. Índice del Capítulo 11."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #03 [Q1A2-03]",
+      "query": "¿Qué es un algoritmo según Joyanes Aguilar y cuáles son sus características básicas?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera sección 3.11 'Escritura de algoritmos'. No define el concepto formal ni sus características (precisión, finitud)."
+        },
+        "Tau": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma."
+        },
+        "Upsilon": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #04 [Q1A2-04]",
+      "query": "¿Cuáles son las fases de resolución de un problema mediante computadora según el texto?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera Ejercicio 3.13 (Determinar el mayor de tres números) y su refinamiento. No lista las fases teóricas generales."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera sección 1.3 Representación de la información. Irrelevante."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Tau."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #05 [Q1A2-05]",
+      "query": "¿Cuál es la diferencia entre el diseño descendente (top-down) y el refinamiento por pasos?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Mismo Ejercicio 3.13. No explica la diferencia teórica."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera código de procedimiento meter/sacar (pilas). Irrelevante."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Idéntico a Tau."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #06 [Q1A2-06]",
+      "query": "¿Cómo se describe la estructura jerárquica de un programa estructurado?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1 sobre palabras reservadas."
+        },
+        "Tau": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera definición de estructuras jerárquicas pero aplicada a Árboles y Grafos, no a programas estructurados."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera definición de Hardware, Software y redes."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #07 [Q1A2-07]",
+      "query": "¿Cómo se define y formaliza la estructura de selección doble (si-entonces-sino) en pseudocódigo?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Muestra un ejemplo de 'si d < 0 entonces' dentro del algoritmo raices, pero no la definición formal de la estructura doble."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Procedimiento devoluciones (listas). Irrelevante."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera Figura 12.18 'Doble cola (bicola)'. Confunde el término 'doble'."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #08 [Q1A2-08]",
+      "query": "¿Cuál es la sintaxis de la sentencia de selección múltiple según_sea (switch) y cómo se maneja la opción por defecto?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Comentarios multilínea en Java/Pascal."
+        },
+        "Tau": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice que menciona '18.11.2 Depuración de sentencias si-entonces-sino'. No muestra según_sea."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Operadores aritméticos de asignación múltiple."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #09 [Q1A2-09]",
+      "query": "¿Qué algoritmo o pseudocódigo se presenta para evaluar si un número entero es par o impar?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Algoritmo raices."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Ejercicio 3.13 (mayor de tres números)."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #10 [Q1A2-10]",
+      "query": "¿Por qué es necesario delimitar explícitamente las estructuras de control anidadas en programación estructurada?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Grafos y árboles."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #11 [Q1A2-11]",
+      "query": "¿Cuál es la función del operador de dirección & y del operador de indirección * en punteros de C?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Asignación aritmética múltiple."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #12 [Q1A2-12]",
+      "query": "¿Cómo se declara un puntero a una estructura struct y cómo se accede a sus miembros con el operador flecha ->?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Implementación de colas con punteros. No muestra el operador flecha explícitamente en structs."
+        },
+        "Tau": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Inserción en árbol (a[ant].izdo <- auxi). Usa asignación, no flecha."
+        },
+        "Upsilon": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera 'elemento <- cima->.elemento'. Excelente hallazgo sintáctico del operador flecha."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #13 [Q1A2-13]",
+      "query": "¿Cómo se asigna memoria dinámica mediante malloc y cómo se libera con free en C según Joyanes?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Teoría de colas."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Array circular y reestructuración."
+        },
+        "Upsilon": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera 'procedimiento liberar'. Equivalente a free, pero falta malloc/reservar."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #14 [Q1A2-14]",
+      "query": "¿En qué se diferencia el paso de parámetros por valor del paso por referencia mediante punteros?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Muestra el problema de intercambio por valor (usando AUX), pero no explica punteros ni referencia."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Memoria central, posiciones y palabras."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Asignación aritmética."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #15 [Q1A2-15]",
+      "query": "¿Cuál es la definición formal de la notación asintótica O-grande (Big-O) para la complejidad de algoritmos?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Algoritmo raices."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #16 [Q1A2-16]",
+      "query": "¿Cuál es la diferencia de eficiencia y crecimiento entre un algoritmo O(n log n) y uno O(n^2)?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recorrido simultáneo de árboles."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Grafos dispersos vs densos."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Tau."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #17 [Q1A2-17]",
+      "query": "¿En qué página del índice general se lista el apartado de 'Resolución de problemas con computadoras'?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 13.5 Grafos."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Historia de las computadoras (PC, Apple II)."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice Cap 11."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #18 [Q1A2-18]",
+      "query": "¿Qué subsecciones componen el capítulo de algoritmos según la jerarquía detallada en el índice de contenidos?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice Cap 11."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #19 [Q1A2-37]",
+      "query": "¿Cómo se gestiona el vector de interrupciones en el controlador programable APIC en modo protegido x86?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Recupera lista de procesadores. Correctamente irrelevante."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Índice de documentación. Correctamente irrelevante."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Pila de direcciones de retorno. Correctamente irrelevante."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #20 [Q1A2-38]",
+      "query": "¿Cómo implementa el núcleo NT el algoritmo WSClock para el conjunto de trabajo de páginas en memoria virtual?",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores. Correcto."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Índice Cap 9 Archivos. Correcto."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Memoria central (básico). Correcto."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #21 [Q1A2-39]",
+      "query": "manejo de pila y almacenamiento",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "High",
+          "sufficiency": "Sufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera código completo con declaración y manejo de pilas (pilaletras, piladigitos). Excelente contexto."
+        },
+        "Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice Cap 11. Irrelevante."
+        },
+        "Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Procedimiento devoluciones (listas). Irrelevante."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #22 [Q1A2-40]",
+      "query": "condición de fin y salida de bloque",
+      "evaluations": {
+        "Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera 'fin' de algoritmo y notas de sangría. Muy genérico."
+        },
+        "Tau": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera condiciones lógicas de cola vacía/llena (frente <- 0, final = Max). Parcialmente útil para 'condición de fin'."
+        },
+        "Upsilon": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Implementación de pilas con arrays y liberar."
+        }
+      }
+    }
+  ]
+}

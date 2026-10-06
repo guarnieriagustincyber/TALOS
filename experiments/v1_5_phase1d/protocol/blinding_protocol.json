@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "protocol_name": "PHASE_1D_BLINDING_PROTOCOL",
+  "version": "1.0.0-canonical",
+  "created_at": "2026-10-05T16:10:00-03:00",
+  "status": "FROZEN_SPECIFICATION",
+  "mask_pool": [
+    "Pipeline_Alpha",
+    "Pipeline_Beta",
+    "Pipeline_Gamma",
+    "Pipeline_Delta",
+    "Pipeline_Epsilon",
+    "Pipeline_Zeta",
+    "Pipeline_Eta",
+    "Pipeline_Theta"
+  ],
+  "random_seed": 42,
+  "candidate_anonymization": {
+    "hash_format": "CAND-{MD5_8HEX}",
+    "content_shown": [
+      "query_text",
+      "anonymous_candidate_id",
+      "page_number",
+      "heading_path",
+      "text_content"
+    ],
+    "content_hidden": [
+      "condition_id",
+      "canonical_name",
+      "retrieval_method",
+      "embedding_model",
+      "reranker_model",
+      "score",
+      "raw_rank",
+      "aggregate_metrics"
+    ]
+  },
+  "adjudicator_rules": {
+    "adjudicators_count": 1,
+    "independent_eval": true,
+    "blind_to_hypotheses": true,
+    "blind_to_conditions": true,
+    "relevance_scale": {
+      "3": "High / Direct answer to query",
+      "2": "Partial / Substantial background or concept",
+      "1": "Low / Marginal connection",
+      "0": "None / Irrelevant or misleading"
+    },
+    "sufficiency_scale": {
+      "2": "Strict / Complete self-contained evidence to answer query",
+      "1": "Partial / Incomplete fragment requiring external knowledge",
+      "0": "None / Insufficient or irrelevant"
+    }
+  },
+  "unblinding_criteria": {
+    "trigger": "100% of cells formally submitted and locked",
+    "post_unblinding_changes": "FORBIDDEN"
+  }
+}

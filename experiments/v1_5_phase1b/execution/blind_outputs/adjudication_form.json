@@ -1,0 +1,1235 @@
+{
+  "form_version": "1.0.0-phase1b",
+  "adjudicator_target": "N=1 Blind Expert",
+  "rubric": {
+    "relevance": [
+      "High (3)",
+      "Partial (2)",
+      "Low (1)",
+      "None (0)"
+    ],
+    "sufficiency": [
+      "Strict (2)",
+      "Partial (1)",
+      "None (0)"
+    ],
+    "grounding": [
+      "Verbatim",
+      "Synthesized",
+      "External",
+      "Hallucinated"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "CASE-1B-01",
+      "query_id": "Q1A2-01",
+      "query_text": "¿Cuál es la estructura general de contenidos y preliminares presentada en el índice de Fundamentos de Programación?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-02",
+      "query_id": "Q1A2-02",
+      "query_text": "¿En qué página y capítulo del índice general se ubican las estructuras de datos y punteros?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-03",
+      "query_id": "Q1A2-03",
+      "query_text": "¿Qué es un algoritmo según Joyanes Aguilar y cuáles son sus características básicas?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-04",
+      "query_id": "Q1A2-04",
+      "query_text": "¿Cuáles son las fases de resolución de un problema mediante computadora según el texto?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-05",
+      "query_id": "Q1A2-05",
+      "query_text": "¿Cuál es la diferencia entre el diseño descendente (top-down) y el refinamiento por pasos?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-06",
+      "query_id": "Q1A2-06",
+      "query_text": "¿Cómo se describe la estructura jerárquica de un programa estructurado?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-07",
+      "query_id": "Q1A2-07",
+      "query_text": "¿Cómo se define y formaliza la estructura de selección doble (si-entonces-sino) en pseudocódigo?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-08",
+      "query_id": "Q1A2-08",
+      "query_text": "¿Cuál es la sintaxis de la sentencia de selección múltiple según_sea (switch) y cómo se maneja la opción por defecto?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-09",
+      "query_id": "Q1A2-09",
+      "query_text": "¿Qué algoritmo o pseudocódigo se presenta para evaluar si un número entero es par o impar?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-10",
+      "query_id": "Q1A2-10",
+      "query_text": "¿Por qué es necesario delimitar explícitamente las estructuras de control anidadas en programación estructurada?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-11",
+      "query_id": "Q1A2-11",
+      "query_text": "¿Cuál es la función del operador de dirección & y del operador de indirección * en punteros de C?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-12",
+      "query_id": "Q1A2-12",
+      "query_text": "¿Cómo se declara un puntero a una estructura struct y cómo se accede a sus miembros con el operador flecha ->?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-13",
+      "query_id": "Q1A2-13",
+      "query_text": "¿Cómo se asigna memoria dinámica mediante malloc y cómo se libera con free en C según Joyanes?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-14",
+      "query_id": "Q1A2-14",
+      "query_text": "¿En qué se diferencia el paso de parámetros por valor del paso por referencia mediante punteros?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-15",
+      "query_id": "Q1A2-15",
+      "query_text": "¿Cuál es la definición formal de la notación asintótica O-grande (Big-O) para la complejidad de algoritmos?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-16",
+      "query_id": "Q1A2-16",
+      "query_text": "¿Cuál es la diferencia de eficiencia y crecimiento entre un algoritmo O(n log n) y uno O(n^2)?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-17",
+      "query_id": "Q1A2-17",
+      "query_text": "¿En qué página del índice general se lista el apartado de 'Resolución de problemas con computadoras'?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-18",
+      "query_id": "Q1A2-18",
+      "query_text": "¿Qué subsecciones componen el capítulo de algoritmos según la jerarquía detallada en el índice de contenidos?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-19",
+      "query_id": "Q1A2-37",
+      "query_text": "¿Cómo se gestiona el vector de interrupciones en el controlador programable APIC en modo protegido x86?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-20",
+      "query_id": "Q1A2-38",
+      "query_text": "¿Cómo implementa el núcleo NT el algoritmo WSClock para el conjunto de trabajo de páginas en memoria virtual?",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-21",
+      "query_id": "Q1A2-39",
+      "query_text": "manejo de pila y almacenamiento",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-22",
+      "query_id": "Q1A2-40",
+      "query_text": "condición de fin y salida de bloque",
+      "evaluations": {
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding": null,
+          "notes": ""
+        }
+      }
+    }
+  ]
+}

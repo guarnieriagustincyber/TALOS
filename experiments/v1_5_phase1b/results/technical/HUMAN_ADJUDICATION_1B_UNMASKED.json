@@ -1,0 +1,1748 @@
+{
+  "metadata": {
+    "unmasking_timestamp": "2026-10-05T15:32:28-0300",
+    "execution_id": "run_1b_canonical_20261005_151258",
+    "blinding_key_sha256": "42c744a45bde6b0df0e7abf433f3829e817a03d3769b0b202e8cc24668ea30c0",
+    "status": "UNMASKED_CANONICAL"
+  },
+  "cases": [
+    {
+      "case_id": "CASE-1B-01",
+      "query_id": "Q1A2-01",
+      "query_text": "¿Cuál es la estructura general de contenidos y preliminares presentada en el índice de Fundamentos de Programación?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Describe componentes físicos de la UCP y placa base (p.38). Totalmente ajeno al índice general y preliminares de la obra."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera Nota 1 sobre palabras reservadas. Falla total en recuperar el índice."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera código de lista enlazada (menú de ventas/devoluciones). Irrelevante."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera algoritmo de comparación de árboles binarios. Irrelevante."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Describe componentes físicos de la UCP y placa base (p.38). Totalmente ajeno al índice general y preliminares de la obra."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera código de lista enlazada (menú de ventas/devoluciones). Irrelevante."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera código de lista enlazada (menú de ventas/devoluciones). Irrelevante."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-02",
+      "query_id": "Q1A2-02",
+      "query_text": "¿En qué página y capítulo del índice general se ubican las estructuras de datos y punteros?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Muestra código de manipulación de pilas (p.504). No corresponde al índice general ni localiza capítulos o páginas."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma. Índice del Capítulo 11."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma. Índice del Capítulo 11."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera procedimiento consultarCima (pilas). Irrelevante para el índice."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma. Índice del Capítulo 11."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma. Índice del Capítulo 11."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma. Índice del Capítulo 11."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma. Índice del Capítulo 11."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-03",
+      "query_id": "Q1A2-03",
+      "query_text": "¿Qué es un algoritmo según Joyanes Aguilar y cuáles son sus características básicas?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Propuestas de hardware para aprender a programar (p.44). No define algoritmo ni sus características."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sintaxis de declaración de variables y constantes en pseudocódigo (p.142). No define algoritmo."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-04",
+      "query_id": "Q1A2-04",
+      "query_text": "¿Cuáles son las fases de resolución de un problema mediante computadora según el texto?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Tau."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera Ejercicio 3.13 (Determinar el mayor de tres números) y su refinamiento. No lista las fases teóricas generales."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Tau."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Tau."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera Ejercicio 3.13 (Determinar el mayor de tres números) y su refinamiento. No lista las fases teóricas generales."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Fragmento de índice de grafos (p.14). No contiene las fases de resolución de problemas."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Fragmento de índice de grafos (p.14). No contiene las fases de resolución de problemas."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-05",
+      "query_id": "Q1A2-05",
+      "query_text": "¿Cuál es la diferencia entre el diseño descendente (top-down) y el refinamiento por pasos?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Mismo Ejercicio 3.13. No explica la diferencia teórica."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Mismo Ejercicio 3.13. No explica la diferencia teórica."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Tau."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Tau."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Mismo Ejercicio 3.13. No explica la diferencia teórica."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sumario sobre herencia privada en C++ (p.16). No aborda diseño descendente top-down."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sumario sobre herencia privada en C++ (p.16). No aborda diseño descendente top-down."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-06",
+      "query_id": "Q1A2-06",
+      "query_text": "¿Cómo se describe la estructura jerárquica de un programa estructurado?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1 sobre palabras reservadas."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1 sobre palabras reservadas."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera definición de Hardware, Software y redes."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera definición de estructuras jerárquicas pero aplicada a Árboles y Grafos, no a programas estructurados."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1 sobre palabras reservadas."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1 sobre palabras reservadas."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1 sobre palabras reservadas."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-07",
+      "query_id": "Q1A2-07",
+      "query_text": "¿Cómo se define y formaliza la estructura de selección doble (si-entonces-sino) en pseudocódigo?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Selección de computadora (p.44). Totalmente irrelevante a estructuras selectivas."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Muestra un ejemplo de 'si d < 0 entonces' dentro del algoritmo raices, pero no la definición formal de la estructura doble."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera Figura 12.18 'Doble cola (bicola)'. Confunde el término 'doble'."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Procedimiento devoluciones (listas). Irrelevante."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Estructura general de pseudocódigo (cabecera y bloque) en p.138; no formaliza la estructura selectiva si-entonces-sino."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Estructura general de pseudocódigo (cabecera y bloque) en p.138; no formaliza la estructura selectiva si-entonces-sino."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Estructura general de pseudocódigo (cabecera y bloque) en p.138; no formaliza la estructura selectiva si-entonces-sino."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-08",
+      "query_id": "Q1A2-08",
+      "query_text": "¿Cuál es la sintaxis de la sentencia de selección múltiple según_sea (switch) y cómo se maneja la opción por defecto?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "High (3)",
+          "sufficiency": "Partial (1)",
+          "grounding": "Verbatim",
+          "notes": "Presenta la sintaxis y uso de según_sea opcion hacer en menú de opciones (p.500). Relevante; omite cláusula por defecto."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Comentarios multilínea en Java/Pascal."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Operadores aritméticos de asignación múltiple."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice que menciona '18.11.2 Depuración de sentencias si-entonces-sino'. No muestra según_sea."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "High (3)",
+          "sufficiency": "Partial (1)",
+          "grounding": "Verbatim",
+          "notes": "Presenta la sintaxis y uso de según_sea opcion hacer en menú de opciones (p.500). Relevante; omite cláusula por defecto."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice del capítulo de diseño de clases en UML (p.15). Irrelevante a según_sea."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice del capítulo de diseño de clases en UML (p.15). Irrelevante a según_sea."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-09",
+      "query_id": "Q1A2-09",
+      "query_text": "¿Qué algoritmo o pseudocódigo se presenta para evaluar si un número entero es par o impar?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Algoritmo raices."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Ejercicio 3.13 (mayor de tres números)."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Ejercicio 3.13 (mayor de tres números)."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Ejercicio 3.13 (mayor de tres números)."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Ejercicio 3.13 (mayor de tres números)."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-10",
+      "query_id": "Q1A2-10",
+      "query_text": "¿Por qué es necesario delimitar explícitamente las estructuras de control anidadas en programación estructurada?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Muestra código con estructuras anidadas (p.505), pero sin desarrollo teórico sobre la delimitación de bloques."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Grafos y árboles."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Hardware de computadoras (p.38). Totalmente irrelevante a estructuras de control."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Hardware de computadoras (p.38). Totalmente irrelevante a estructuras de control."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-11",
+      "query_id": "Q1A2-11",
+      "query_text": "¿Cuál es la función del operador de dirección & y del operador de indirección * en punteros de C?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Sigma."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Algoritmo de pilas dinámicas en pseudocódigo (p.504). No explica los operadores & y * específicos de C."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Algoritmo de pilas dinámicas en pseudocódigo (p.504). No explica los operadores & y * específicos de C."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-12",
+      "query_id": "Q1A2-12",
+      "query_text": "¿Cómo se declara un puntero a una estructura struct y cómo se accede a sus miembros con el operador flecha ->?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Declaración de variables primitivas en pseudocódigo (p.139). No aborda structs ni operador flecha."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Implementación de colas con punteros. No muestra el operador flecha explícitamente en structs."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "High (3)",
+          "sufficiency": "Partial (1)",
+          "grounding": "Verbatim",
+          "notes": "Recupera 'elemento <- cima->.elemento'. Excelente hallazgo sintáctico del operador flecha."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Inserción en árbol (a[ant].izdo <- auxi). Usa asignación, no flecha."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Implementación de colas con punteros. No muestra el operador flecha explícitamente en structs."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice de UML (p.15). Irrelevante a punteros y structs en C."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice de UML (p.15). Irrelevante a punteros y structs en C."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-13",
+      "query_id": "Q1A2-13",
+      "query_text": "¿Cómo se asigna memoria dinámica mediante malloc y cómo se libera con free en C según Joyanes?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Intercambio de dos variables con variable auxiliar (p.146). Irrelevante a malloc y free."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Teoría de colas."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera 'procedimiento liberar'. Equivalente a free, pero falta malloc/reservar."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Array circular y reestructuración."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Presenta procedimiento de reserva de nodos reservar en p.500; relevancia conceptual parcial, omite sintaxis C (malloc/free)."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Array circular y reestructuración."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Array circular y reestructuración."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-14",
+      "query_id": "Q1A2-14",
+      "query_text": "¿En qué se diferencia el paso de parámetros por valor del paso por referencia mediante punteros?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Mayor de tres números enteros (p.148). Sin desarrollo de paso de parámetros."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Muestra el problema de intercambio por valor (usando AUX), pero no explica punteros ni referencia."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Asignación aritmética."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Memoria central, posiciones y palabras."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Muestra el problema de intercambio por valor (usando AUX), pero no explica punteros ni referencia."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Ilustra parámetros E/S en procedimientos de pilas (p.504), sin contrastar teóricamente valor vs punteros."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Ilustra parámetros E/S en procedimientos de pilas (p.504), sin contrastar teóricamente valor vs punteros."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-15",
+      "query_id": "Q1A2-15",
+      "query_text": "¿Cuál es la definición formal de la notación asintótica O-grande (Big-O) para la complejidad de algoritmos?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Algoritmo raices."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Algoritmo elemental de tres números (p.148). Irrelevante a complejidad Big-O."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Algoritmo elemental de tres números (p.148). Irrelevante a complejidad Big-O."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-16",
+      "query_id": "Q1A2-16",
+      "query_text": "¿Cuál es la diferencia de eficiencia y crecimiento entre un algoritmo O(n log n) y uno O(n^2)?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Ejercicios de grafos y árboles (p.542). No compara tasas de crecimiento asintótico."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recorrido simultáneo de árboles."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Tau."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Idéntico a Tau."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Ejercicios de grafos y árboles (p.542). No compara tasas de crecimiento asintótico."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice sobre manual de mantenimiento (p.17). Irrelevante a complejidad algorítmica."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice sobre manual de mantenimiento (p.17). Irrelevante a complejidad algorítmica."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-17",
+      "query_id": "Q1A2-17",
+      "query_text": "¿En qué página del índice general se lista el apartado de 'Resolución de problemas con computadoras'?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Página del índice general (p.16), pero corresponde a POO/C++; no contiene la sección de resolución de problemas."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice 13.5 Grafos."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice Cap 11."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Historia de las computadoras (PC, Apple II)."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice 13.5 Grafos."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Página del índice general (p.16), pero corresponde a POO/C++; no contiene la sección de resolución de problemas."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Página del índice general (p.16), pero corresponde a POO/C++; no contiene la sección de resolución de problemas."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-18",
+      "query_id": "Q1A2-18",
+      "query_text": "¿Qué subsecciones componen el capítulo de algoritmos según la jerarquía detallada en el índice de contenidos?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Declaración de cadenas y variables carácter (p.140). No contiene el índice de contenidos."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice Cap 11."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Nota 1."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice Cap 11."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice Cap 11."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-19",
+      "query_id": "Q1A2-37",
+      "query_text": "¿Cómo se gestiona el vector de interrupciones en el controlador programable APIC en modo protegido x86?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Código de árboles binarios (p.488). Control negativo OOD: totalmente ajeno a controladores APIC de x86."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Control negativo. Recupera lista de procesadores. Correctamente irrelevante."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Control negativo. Pila de direcciones de retorno. Correctamente irrelevante."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Control negativo. Índice de documentación. Correctamente irrelevante."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Código de árboles binarios (p.488). Control negativo OOD: totalmente ajeno a controladores APIC de x86."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Control negativo. Índice de documentación. Correctamente irrelevante."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Control negativo. Índice de documentación. Correctamente irrelevante."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-20",
+      "query_id": "Q1A2-38",
+      "query_text": "¿Cómo implementa el núcleo NT el algoritmo WSClock para el conjunto de trabajo de páginas en memoria virtual?",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Hardware básico (p.37). Control negativo OOD: no contiene algoritmos de memoria virtual NT ni WSClock."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Control negativo. Procesadores. Correcto."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Control negativo. Memoria central (básico). Correcto."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Control negativo. Índice Cap 9 Archivos. Correcto."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Hardware básico (p.38). Control negativo OOD: totalmente irrelevante."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Hardware básico (p.38). Control negativo OOD: totalmente irrelevante."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Hardware básico (p.38). Control negativo OOD: totalmente irrelevante."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-21",
+      "query_id": "Q1A2-39",
+      "query_text": "manejo de pila y almacenamiento",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "High (3)",
+          "sufficiency": "Partial (1)",
+          "grounding": "Verbatim",
+          "notes": "Estructuras dinámicas lineales: manejo de pilas (p.505). Relevancia alta; aporta operaciones concretas de apilado."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "High (3)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera código completo con declaración y manejo de pilas (pilaletras, piladigitos). Excelente contexto."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Procedimiento devoluciones (listas). Irrelevante."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Índice Cap 11. Irrelevante."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "High (3)",
+          "sufficiency": "Partial (1)",
+          "grounding": "Verbatim",
+          "notes": "Implementación formal de operación meter (push) en pilas dinámicas (p.486). Relevancia alta; cobertura operativa parcial."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Procedimiento devoluciones (listas). Irrelevante."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Procedimiento devoluciones (listas). Irrelevante."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-1B-22",
+      "query_id": "Q1A2-40",
+      "query_text": "condición de fin y salida de bloque",
+      "evaluations": {
+        "C0": {
+          "condition_id": "C0",
+          "canonical_name": "COND-BASE-FTS5",
+          "mask_name": "Pipeline_Delta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Estructura general de bloques en pseudocódigo (p.138). Mención tangencial; omite condiciones de salida y terminación."
+        },
+        "C1": {
+          "condition_id": "C1",
+          "canonical_name": "COND-DENSE-QWEN",
+          "mask_name": "Pipeline_Epsilon",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera 'fin' de algoritmo y notas de sangría. Muy genérico."
+        },
+        "C2": {
+          "condition_id": "C2",
+          "canonical_name": "COND-DENSE-BGE",
+          "mask_name": "Pipeline_Eta",
+          "relevance": "Low (1)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Implementación de pilas con arrays y liberar."
+        },
+        "C3": {
+          "condition_id": "C3",
+          "canonical_name": "COND-DENSE-E5",
+          "mask_name": "Pipeline_Theta",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera condiciones lógicas de cola vacía/llena (frente <- 0, final = Max). Parcialmente útil para 'condición de fin'."
+        },
+        "C4": {
+          "condition_id": "C4",
+          "canonical_name": "COND-HYBRID-RRF",
+          "mask_name": "Pipeline_Gamma",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera condiciones lógicas de cola vacía/llena (frente <- 0, final = Max). Parcialmente útil para 'condición de fin'."
+        },
+        "C5": {
+          "condition_id": "C5",
+          "canonical_name": "COND-RERANK-BGE",
+          "mask_name": "Pipeline_Zeta",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera condiciones lógicas de cola vacía/llena (frente <- 0, final = Max). Parcialmente útil para 'condición de fin'."
+        },
+        "C6": {
+          "condition_id": "C6",
+          "canonical_name": "COND-EXP-STRUCTURAL",
+          "mask_name": "Pipeline_Alpha",
+          "relevance": "Partial (2)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Recupera condiciones lógicas de cola vacía/llena (frente <- 0, final = Max). Parcialmente útil para 'condición de fin'."
+        },
+        "C7": {
+          "condition_id": "C7",
+          "canonical_name": "COND-GUARDED-FULL",
+          "mask_name": "Pipeline_Beta",
+          "relevance": "None (0)",
+          "sufficiency": "None (0)",
+          "grounding": "Verbatim",
+          "notes": "Sistema abstenido formalmente; no se despachó evidencia textual."
+        }
+      }
+    }
+  ]
+}

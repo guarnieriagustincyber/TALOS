@@ -1,0 +1,63 @@
+{
+  "$schema": "https://raw.githubusercontent.com/guarnieriagustincyber/TALOS/main/schemas/probe1_test_seal_manifest.schema.json",
+  "seal_id": "probe1_test_execution_seal_v1",
+  "sealed_at": "2026-10-06T04:51:21.543583+00:00",
+  "probe_id": "PROBE-1: Adaptive Structural Routing",
+  "phase": "TEST Execution and Blind Evaluation",
+  "overall_test_seal_digest_sha256": "aae910b697c8a4e3fbead40cb0461b39e36b2701c19e2b8c91be11d954a61804",
+  "governance": {
+    "status": "SEALED_TEST_COMPLETED",
+    "calibrated_router_version": "v1.0.1-calibrated-frozen",
+    "calibrated_router_hash": "8753a32db341a6488aa58cb48de40712e7cacb963d6ef1dd2e78df31d70e71fe",
+    "exit_gate_verdict": "FAIL",
+    "production_promotion_permitted": false,
+    "zero_recalibration_verified": true,
+    "database_changes": 0
+  },
+  "sealed_artifacts": {
+    "experiments/v1_5_ingestion/probe1/PROBE1_TEST_MANIFEST.json": {
+      "sha256": "e272b5c8c494a7889f10b4c93acb50292dee81839ea22cdd531f71af93681265",
+      "size_bytes": 4843
+    },
+    "experiments/v1_5_ingestion/probe1/PROBE1_TEST_IMPLEMENTATION_PREFLIGHT.md": {
+      "sha256": "7d294e0f47973fed8a8a04e567a721ace2e65c95f202e121a07416dbf8ae823d",
+      "size_bytes": 9513
+    },
+    "experiments/v1_5_ingestion/probe1/PROBE1_TEST_FEATURES.jsonl": {
+      "sha256": "a3c6a35131e0f5a3945b1a8f0aefd448ab7b9fd565db90b1d7aa63c783615943",
+      "size_bytes": 8057
+    },
+    "experiments/v1_5_ingestion/probe1/PROBE1_TEST_ROUTER_RESULTS.jsonl": {
+      "sha256": "4f939122c52a3682c3e19a6bfed0a84e3fcaa5cd6e975b373c19624f504640fb",
+      "size_bytes": 15740
+    },
+    "experiments/v1_5_ingestion/probe1/PROBE1_TEST_BASELINE_RESULTS.jsonl": {
+      "sha256": "833400088689bb1146fdb0fd1859640b11ebb2ba8ccffbfa7de4b9b9cff94907",
+      "size_bytes": 4478
+    },
+    "experiments/v1_5_ingestion/probe1/PROBE1_TEST_ADJUDICATION.jsonl": {
+      "sha256": "338f14a196d6c9e581e556d835f143457ea4a6dbcaf77b6caaa23994a7bd3557",
+      "size_bytes": 21156
+    },
+    "experiments/v1_5_ingestion/probe1/PROBE1_TEST_METRICS.json": {
+      "sha256": "5260a10e2e965e877e23ced7771a00e360a9964b5d8fbb40de122e4f2cadc0c7",
+      "size_bytes": 3227
+    },
+    "experiments/v1_5_ingestion/probe1/PROBE1_TEST_EXECUTION_AUDIT.md": {
+      "sha256": "00eeb8b3ab650bccfccb2d54f2d97a9dbdf42c99f42ebd851666929982e4bb56",
+      "size_bytes": 16271
+    },
+    "experiments/v1_5_ingestion/probe1/PROBE1_TEST_FINAL_REPORT.md": {
+      "sha256": "19e6b2f16c7886bbdff3bb75e3a667b5b26c12d77afbbeafaa15410c91df8e37",
+      "size_bytes": 19299
+    },
+    "drive_upload_ingestion_probe1_test/data/joyanes_ch02_test_19p.pdf": {
+      "sha256": "69d607feec38c4c34d52a6e10666a4c0520ebfe8846cc859f234e9b750ff2baf",
+      "size_bytes": 3996250
+    },
+    "drive_upload_ingestion_probe1_test/PROBE1_TEST_RESULTS.zip": {
+      "sha256": "3c4e766c46f813963ebc3e2d11313e0c71a04c4c318b5bc1ecf5c9e2cdfa537f",
+      "size_bytes": 157887
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "audit_status": "SEALED_KEY",
+  "run_id": "run_1a2_pilot_joyanes_20261005_061144",
+  "seed_salt": "talos_phase1a2_pilot_seed_20261005_061144",
+  "mapping": {
+    "Pipeline_Alpha": "EXP-EMB-01",
+    "Pipeline_Beta": "EXP-EMB-03",
+    "Pipeline_Gamma": "EXP-EXT-02",
+    "Pipeline_Delta": "EXP-EXT-03",
+    "Pipeline_Epsilon": "EXP-CHK-02",
+    "Pipeline_Zeta": "EXP-EMB-02",
+    "Pipeline_Eta": "EXP-CHK-03",
+    "Pipeline_Theta": "EXP-CHK-01",
+    "Pipeline_Iota": "EXP-EXT-01"
+  },
+  "reverse_mapping": {
+    "EXP-EMB-01": "Pipeline_Alpha",
+    "EXP-EMB-03": "Pipeline_Beta",
+    "EXP-EXT-02": "Pipeline_Gamma",
+    "EXP-EXT-03": "Pipeline_Delta",
+    "EXP-CHK-02": "Pipeline_Epsilon",
+    "EXP-EMB-02": "Pipeline_Zeta",
+    "EXP-CHK-03": "Pipeline_Eta",
+    "EXP-CHK-01": "Pipeline_Theta",
+    "EXP-EXT-01": "Pipeline_Iota"
+  }
+}

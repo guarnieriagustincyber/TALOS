@@ -1,0 +1,524 @@
+{
+  "control_id": "C0",
+  "name": "Identity Reconciliation",
+  "timestamp": "2026-10-05T18:57:51.038126+00:00",
+  "total_evaluated": 64,
+  "matches": 64,
+  "mismatches": 0,
+  "pattern_validations": 64,
+  "results": [
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p11:c0001",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p11:c0001",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 11
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p12:c0002",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p12:c0002",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 12
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 13
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p14:c0004",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p14:c0004",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 14
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p15:c0005",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p15:c0005",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 15
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p16:c0006",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p16:c0006",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 16
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p17:c0007",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p17:c0007",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 17
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p35:c0008",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p35:c0008",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 35
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p36:c0009",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p36:c0009",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 36
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p37:c0010",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p37:c0010",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 37
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 38
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p39:c0012",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p39:c0012",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 39
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p40:c0013",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p40:c0013",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 40
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p41:c0014",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p41:c0014",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 41
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p42:c0015",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p42:c0015",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 42
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 43
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p44:c0017",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p44:c0017",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 44
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p45:c0018",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p45:c0018",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 45
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p135:c0019",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p135:c0019",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 135
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p136:c0020",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p136:c0020",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 136
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p137:c0021",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p137:c0021",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 137
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 138
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p139:c0023",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p139:c0023",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 139
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p140:c0024",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p140:c0024",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 140
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p141:c0025",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p141:c0025",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 141
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p142:c0026",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p142:c0026",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 142
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p143:c0027",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p143:c0027",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 143
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p144:c0028",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p144:c0028",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 144
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p145:c0029",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p145:c0029",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 145
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p146:c0030",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p146:c0030",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 146
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p147:c0031",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p147:c0031",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 147
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p148:c0032",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p148:c0032",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 148
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p149:c0033",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p149:c0033",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 149
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p150:c0034",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p150:c0034",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 150
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p485:c0035",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p485:c0035",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 485
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p486:c0036",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p486:c0036",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 486
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p487:c0037",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p487:c0037",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 487
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p488:c0038",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p488:c0038",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 488
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p489:c0039",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p489:c0039",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 489
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p490:c0040",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p490:c0040",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 490
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p491:c0041",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p491:c0041",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 491
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p492:c0042",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p492:c0042",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 492
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p493:c0043",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p493:c0043",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 493
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p494:c0044",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p494:c0044",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 494
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p495:c0045",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p495:c0045",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 495
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p496:c0046",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p496:c0046",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 496
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p497:c0047",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p497:c0047",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 497
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p498:c0048",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p498:c0048",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 498
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p499:c0049",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p499:c0049",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 499
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p500:c0050",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p500:c0050",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 500
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p501:c0051",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p501:c0051",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 501
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p502:c0052",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p502:c0052",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 502
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p503:c0053",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p503:c0053",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 503
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p504:c0054",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p504:c0054",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 504
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p505:c0055",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p505:c0055",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 505
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p540:c0056",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p540:c0056",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 540
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p541:c0057",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p541:c0057",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 541
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p542:c0058",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p542:c0058",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 542
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p543:c0059",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p543:c0059",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 543
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p544:c0060",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p544:c0060",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 544
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p545:c0061",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p545:c0061",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 545
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p546:c0062",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p546:c0062",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 546
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p547:c0063",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p547:c0063",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 547
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p548:c0064",
+      "runtime_id": "doc_joyanes_fundamentos_4ed:p548:c0064",
+      "id_match": true,
+      "pattern_conformant": true,
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "page_start": 548
+    }
+  ],
+  "status": "PASS"
+}

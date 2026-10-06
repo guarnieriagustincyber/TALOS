@@ -1,0 +1,29 @@
+{
+  "audit_status": "SEALED_KEY",
+  "blind_package_version": "2.0.0-pilot",
+  "source_run_id": "run_1a2_pilot_joyanes_20261005_061144",
+  "excluded_pipeline": "EXP-EXT-03",
+  "exclusion_reason": "OPERATIONAL_FALLBACK_TO_PYMUPDF_INVALIDATING_DOCLING_TREATMENT",
+  "included_pipeline_count": 8,
+  "seed_salt": "talos_phase1a2_pilot_seed_v2_20261005",
+  "mapping": {
+    "Pipeline_Alpha": "EXP-CHK-02",
+    "Pipeline_Beta": "EXP-CHK-03",
+    "Pipeline_Gamma": "EXP-CHK-01",
+    "Pipeline_Delta": "EXP-EXT-02",
+    "Pipeline_Epsilon": "EXP-EMB-02",
+    "Pipeline_Zeta": "EXP-EMB-03",
+    "Pipeline_Eta": "EXP-EXT-01",
+    "Pipeline_Theta": "EXP-EMB-01"
+  },
+  "reverse_mapping": {
+    "EXP-CHK-02": "Pipeline_Alpha",
+    "EXP-CHK-03": "Pipeline_Beta",
+    "EXP-CHK-01": "Pipeline_Gamma",
+    "EXP-EXT-02": "Pipeline_Delta",
+    "EXP-EMB-02": "Pipeline_Epsilon",
+    "EXP-EMB-03": "Pipeline_Zeta",
+    "EXP-EXT-01": "Pipeline_Eta",
+    "EXP-EMB-01": "Pipeline_Theta"
+  }
+}

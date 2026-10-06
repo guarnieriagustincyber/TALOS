@@ -218,14 +218,18 @@ Checkpoints are listed in chronological order. Checkpoint 1 is the oldest, highe
 - [149-probe-1-diseno-routing-adaptativo.md](149-probe-1-diseno-routing-adaptativo.md) — CP149: Diseño, Corrección y Pre-Sellado de PROBE-1 (Adaptive Structural Routing) (PROBE_0 = CLOSED, PROBE_1_DESIGN = COMPLETE, PROBE_1_PREFLIGHT = PASSED, PROBE_1_SEAL = READY_FOR_SEAL, PROBE_1_EXECUTION = NOT_STARTED, CONTROLS_C01_C12 = RESOLVED, CHAPTER_2_38P, 19_DEV_19_TEST, ZERO_LEAKAGE, DATABASE_CHANGES = 0, V1_RUNTIME_MODIFIED = FALSE)
 - [../reports/v1_5_phase1/PROBE_1_PREFLIGHT_AUDIT_REPORT.md](../reports/v1_5_phase1/PROBE_1_PREFLIGHT_AUDIT_REPORT.md) — TALOS V1.5 CP149: Informe Canónico de Auditoría y Preflight de PROBE-1 (Adaptive Structural Routing) (SHA-256: 6e930a3c4503b6946070d42b2caf1d5b9ad74f827b0c43ddea53c66e124d0c59)
 - [150-probe-1-sello-criptografico.md](150-probe-1-sello-criptografico.md) — CP150: Sellado Criptográfico Canónico de PROBE-1 (Adaptive Structural Routing) (PROBE_1_DESIGN = COMPLETE, PROBE_1_PREFLIGHT = PASSED, PROBE_1_SEAL = SEALED, PROBE_1_EXECUTION = NOT_STARTED, SEAL_SHA256: e6e81f98edb872c287ebf87687df0fc6f99b015775b8b0b2d6193106ba82b7cd, ARTIFACTS = 11/11_MATCH, DATABASE_CHANGES = 0, V1_RUNTIME_MODIFIED = FALSE)
-- [../reports/v1_5_phase1/PROBE_1_SEAL_AUDIT_REPORT.md](../reports/v1_5_phase1/PROBE_1_SEAL_AUDIT_REPORT.md) — TALOS V1.5 CP150: Informe Canónico de Auditoría y Certificación de Sellado de PROBE-1 (Adaptive Structural Routing)
+- [151-probe-1-dev-calibration.md](151-probe-1-dev-calibration.md) — CP151: Calibración y Congelamiento del Enrutador Adaptativo en DEV (PROBE-1) (PROBE_1_SEAL = SEALED, DEV_EXECUTION = COMPLETE, ROUTER_CALIBRATED = TRUE, ROUTER_FROZEN = TRUE, PROBE_1_DEV_CALIBRATION = PASSED, TEST_EXECUTION = NOT_STARTED, TEST_ACCESS = DENIED_DURING_DEV, DATABASE_CHANGES = 0, V1_RUNTIME_MODIFIED = FALSE)
+- [../experiments/v1_5_ingestion/probe1/PROBE1_DEV_EXECUTION_AUDIT.md](../experiments/v1_5_ingestion/probe1/PROBE1_DEV_EXECUTION_AUDIT.md) — TALOS V1.5 CP151: Auditoría Canónica de Ejecución en DEV y Calibración (PROBE-1)
+- [../experiments/v1_5_ingestion/probe1/PROBE1_CALIBRATION_REPORT.md](../experiments/v1_5_ingestion/probe1/PROBE1_CALIBRATION_REPORT.md) — TALOS V1.5 CP151: Reporte Canónico de Calibración en DEV (PROBE-1)
+- [../experiments/v1_5_ingestion/probe1/PROBE1_CALIBRATED_ROUTER_SPEC.md](../experiments/v1_5_ingestion/probe1/PROBE1_CALIBRATED_ROUTER_SPEC.md) — TALOS V1.5 CP151: Especificación Formal del Enrutador Calibrado y Congelado (PROBE-1)
 
 
 
 
-
-
-
-
-
-
+- [152-probe-1-test-execution.md](152-probe-1-test-execution.md) — CP152: Ejecución en Holdout TEST, Adjudicación Ciega y Reporte Final (PROBE-1) (PROBE_1_TEST_EXECUTION = COMPLETED, BLIND_ADJUDICATION = FINISHED, EXIT_GATE = FAIL, MER = 44.44%, Q_B3 = 2.6842, RELATIVE_COST = 13.21%, PROBE_1 = CONCLUDED, PRODUCTION_PROMOTION = PROHIBITED, DATABASE_CHANGES = 0, V1_RUNTIME_MODIFIED = FALSE)
+- [../experiments/v1_5_ingestion/probe1/PROBE1_TEST_EXECUTION_AUDIT.md](../experiments/v1_5_ingestion/probe1/PROBE1_TEST_EXECUTION_AUDIT.md) — TALOS V1.5 CP152: Auditoría Canónica de Ejecución en TEST y Evaluación Ciega (PROBE-1)
+- [../experiments/v1_5_ingestion/probe1/PROBE1_TEST_FINAL_REPORT.md](../experiments/v1_5_ingestion/probe1/PROBE1_TEST_FINAL_REPORT.md) — TALOS V1.5 CP152: Reporte Científico Final de Holdout TEST (PROBE-1)
+- [../experiments/v1_5_ingestion/probe1/PROBE1_TEST_METRICS.json](../experiments/v1_5_ingestion/probe1/PROBE1_TEST_METRICS.json) — TALOS V1.5 CP152: Métricas Formales y Telemetría de Holdout TEST (PROBE-1)
+- [../experiments/v1_5_ingestion/probe1/PROBE1_TEST_ADJUDICATION.jsonl](../experiments/v1_5_ingestion/probe1/PROBE1_TEST_ADJUDICATION.jsonl) — TALOS V1.5 CP152: Registro Canónico de Adjudicación Humana Ciega y Ground Truth (PROBE-1)
+- [../experiments/v1_5_ingestion/probe1/PROBE1_TEST_SEAL_MANIFEST.json](../experiments/v1_5_ingestion/probe1/PROBE1_TEST_SEAL_MANIFEST.json) — TALOS V1.5 CP152: Manifiesto Criptográfico de Cierre y Sellado de TEST (PROBE-1)
+- [153-probe-1-cierre-canonico.md](153-probe-1-cierre-canonico.md) — CP153: Cierre Canónico Formal y Gobernanza de PROBE-1 (PROBE_1 = CLOSED, PROBE_1_RESULT = FAILED_PRODUCTION_GATE, ROUTER_PRODUCTION_STATUS = REJECTED, ROUTER_AVAILABLE_FOR_PRODUCTION = FALSE, PROBE_2 = NOT_STARTED, PROBE_2_EXECUTION = FORBIDDEN, DATABASE_CHANGES = 0, V1_RUNTIME_MODIFIED = FALSE)

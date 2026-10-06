@@ -1,0 +1,42 @@
+{
+  "$schema": "https://raw.githubusercontent.com/guarnieriagustincyber/TALOS/main/schemas/probe1_calibrated_router_hash.schema.json",
+  "artifact_id": "probe1_calibrated_router_seal_v1",
+  "experiment_id": "exp_ingestion_probe1_adaptive_routing",
+  "stage": "DEV_CALIBRATION_FREEZE",
+  "created_at": "2026-10-06T00:23:00Z",
+  "governance": {
+    "router_status": "FROZEN_FOR_TEST",
+    "zero_test_access_certified": true,
+    "calibration_scope": "DEV_ONLY_19_PAGES"
+  },
+  "calibrated_thresholds": {
+    "tau_grid": 1.0,
+    "tau_dwg": 12,
+    "tau_code": 0.2,
+    "tau_indent": 3,
+    "tau_dots": 3
+  },
+  "calibrated_thresholds_sha256": "47a6a9df298230a282cf46949ab50c17888308b672d3f2fc706d1a7c85dc4e47",
+  "artifact_hashes": {
+    "router_py": {
+      "path": "drive_upload_ingestion_probe1/src/router.py",
+      "sha256": "49938915444ecf22142917e0b308647f41fb687828938223a249c4c3394c3f32"
+    },
+    "calibrated_router_spec_md": {
+      "path": "experiments/v1_5_ingestion/probe1/PROBE1_CALIBRATED_ROUTER_SPEC.md",
+      "sha256": "2c0ae48895d55ce8c474b8f6fa6ebd781562561d495faacf24ee79f85d0fedc8"
+    },
+    "calibration_report_md": {
+      "path": "experiments/v1_5_ingestion/probe1/PROBE1_CALIBRATION_REPORT.md",
+      "sha256": "207f56ce47c90217eaf405bd61c70e39dedd652bf8712c3931348ec82586e900"
+    },
+    "dev_features_jsonl": {
+      "path": "experiments/v1_5_ingestion/probe1/PROBE1_DEV_FEATURES.jsonl",
+      "sha256": "4cb40345f93a9c04d5fcdce36e4a0acaefe8b6ece4d3447ae22e1b7f631482af"
+    },
+    "dev_results_jsonl": {
+      "path": "experiments/v1_5_ingestion/probe1/PROBE1_DEV_RESULTS.jsonl",
+      "sha256": "41b212180e4458f39ec2738f4f2f4a572f766181ac0efbaa8a19a43508e353a3"
+    }
+  }
+}

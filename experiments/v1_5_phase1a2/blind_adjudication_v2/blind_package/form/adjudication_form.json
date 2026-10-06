@@ -1,0 +1,1373 @@
+{
+  "form_version": "2.0.0-pilot",
+  "adjudicator_id": "HUMAN_ADJUDICATOR_01",
+  "protocol": "Single-Adjudicator Blind Assessment (N=1)",
+  "pipeline_count": 8,
+  "excluded_pipeline": "EXP-EXT-03",
+  "cases": [
+    {
+      "case_id": "CASE-01",
+      "query_id": "Q1A2-01",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-02",
+      "query_id": "Q1A2-02",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-03",
+      "query_id": "Q1A2-03",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-04",
+      "query_id": "Q1A2-04",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-05",
+      "query_id": "Q1A2-05",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-06",
+      "query_id": "Q1A2-06",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-07",
+      "query_id": "Q1A2-07",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-08",
+      "query_id": "Q1A2-08",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-09",
+      "query_id": "Q1A2-09",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-10",
+      "query_id": "Q1A2-10",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-11",
+      "query_id": "Q1A2-11",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-12",
+      "query_id": "Q1A2-12",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-13",
+      "query_id": "Q1A2-13",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-14",
+      "query_id": "Q1A2-14",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-15",
+      "query_id": "Q1A2-15",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-16",
+      "query_id": "Q1A2-16",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-17",
+      "query_id": "Q1A2-17",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-18",
+      "query_id": "Q1A2-18",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-19",
+      "query_id": "Q1A2-37",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-20",
+      "query_id": "Q1A2-38",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-21",
+      "query_id": "Q1A2-39",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    },
+    {
+      "case_id": "CASE-22",
+      "query_id": "Q1A2-40",
+      "evaluations": {
+        "Pipeline_Alpha": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Beta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Gamma": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Delta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Epsilon": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Zeta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Eta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        },
+        "Pipeline_Theta": {
+          "relevance": null,
+          "sufficiency": null,
+          "grounding_potential": null,
+          "context_quality": null,
+          "notes": ""
+        }
+      }
+    }
+  ]
+}

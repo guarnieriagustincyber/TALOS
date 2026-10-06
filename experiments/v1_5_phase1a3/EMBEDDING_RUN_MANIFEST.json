@@ -1,0 +1,37 @@
+{
+  "execution_timestamp": "2026-10-05T08:00:55+0000",
+  "device": "cuda",
+  "gpu_name": "Tesla T4",
+  "common_budget_tokens": 512,
+  "chunks_evaluated": 64,
+  "queries_evaluated": 22,
+  "models": {
+    "EMB-HARM-QWEN": {
+      "model_name": "Qwen/Qwen3-Embedding-0.6B",
+      "dimensions": 1024,
+      "total_encoding_time_s": 15.274,
+      "mean_top1_cosine": 0.4485,
+      "min_top1_cosine": 0.3831,
+      "max_top1_cosine": 0.5105,
+      "std_top1_cosine": 0.0418
+    },
+    "EMB-HARM-E5": {
+      "model_name": "intfloat/multilingual-e5-small",
+      "dimensions": 384,
+      "total_encoding_time_s": 0.922,
+      "mean_top1_cosine": 0.8395,
+      "min_top1_cosine": 0.8149,
+      "max_top1_cosine": 0.8758,
+      "std_top1_cosine": 0.0151
+    },
+    "EMB-HARM-BGE": {
+      "model_name": "BAAI/bge-m3",
+      "dimensions": 1024,
+      "total_encoding_time_s": 5.826,
+      "mean_top1_cosine": 0.5208,
+      "min_top1_cosine": 0.4543,
+      "max_top1_cosine": 0.5855,
+      "std_top1_cosine": 0.0401
+    }
+  }
+}

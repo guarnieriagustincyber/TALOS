@@ -1,0 +1,1916 @@
+[
+  {
+    "query_id": "Q1A2-01",
+    "query_text": "¿Cuál es la estructura general de contenidos y preliminares presentada en el índice de Fundamentos de Programación?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.43
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.03
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1672.78
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1672.86
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1672.86
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-02",
+    "query_text": "¿En qué página y capítulo del índice general se ubican las estructuras de datos y punteros?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.25
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1846.29
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1846.4
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1846.4
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-03",
+    "query_text": "¿Qué es un algoritmo según Joyanes Aguilar y cuáles son sus características básicas?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.26
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1792.65
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1792.72
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1792.72
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-04",
+    "query_text": "¿Cuáles son las fases de resolución de un problema mediante computadora según el texto?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.18
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1791.38
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1791.45
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1791.45
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-05",
+    "query_text": "¿Cuál es la diferencia entre el diseño descendente (top-down) y el refinamiento por pasos?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.16
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1848.3
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1848.38
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1848.38
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-06",
+    "query_text": "¿Cómo se describe la estructura jerárquica de un programa estructurado?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.17
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1727.07
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1727.14
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1727.14
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-07",
+    "query_text": "¿Cómo se define y formaliza la estructura de selección doble (si-entonces-sino) en pseudocódigo?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.17
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1726.34
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1726.42
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1726.42
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-08",
+    "query_text": "¿Cuál es la sintaxis de la sentencia de selección múltiple según_sea (switch) y cómo se maneja la opción por defecto?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 3,
+        "sufficiency_score": 1,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.19
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 3,
+        "sufficiency_score": 1,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1783.19
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1783.27
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1783.27
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-09",
+    "query_text": "¿Qué algoritmo o pseudocódigo se presenta para evaluar si un número entero es par o impar?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.19
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1608.61
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1608.68
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1608.68
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-10",
+    "query_text": "¿Por qué es necesario delimitar explícitamente las estructuras de control anidadas en programación estructurada?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.21
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1789.0
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1789.09
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1789.09
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-11",
+    "query_text": "¿Cuál es la función del operador de dirección & y del operador de indirección * en punteros de C?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.19
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1511.35
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1511.41
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1511.41
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-12",
+    "query_text": "¿Cómo se declara un puntero a una estructura struct y cómo se accede a sus miembros con el operador flecha ->?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.2
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 3,
+        "sufficiency_score": 1,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1632.6
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1632.67
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1632.67
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-13",
+    "query_text": "¿Cómo se asigna memoria dinámica mediante malloc y cómo se libera con free en C según Joyanes?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.19
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1746.65
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1746.72
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1746.72
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-14",
+    "query_text": "¿En qué se diferencia el paso de parámetros por valor del paso por referencia mediante punteros?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.21
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1589.3
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1589.4
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1589.4
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-15",
+    "query_text": "¿Cuál es la definición formal de la notación asintótica O-grande (Big-O) para la complejidad de algoritmos?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.23
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1800.03
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1800.13
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1800.13
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-16",
+    "query_text": "¿Cuál es la diferencia de eficiencia y crecimiento entre un algoritmo O(n log n) y uno O(n^2)?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.22
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1707.76
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1707.83
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1707.83
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-17",
+    "query_text": "¿En qué página del índice general se lista el apartado de 'Resolución de problemas con computadoras'?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.2
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1809.7
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1809.77
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1809.77
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-18",
+    "query_text": "¿Qué subsecciones componen el capítulo de algoritmos según la jerarquía detallada en el índice de contenidos?",
+    "slice_type": "SLICE_IN_DOMAIN",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.18
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1795.33
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1795.42
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1795.42
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-37",
+    "query_text": "¿Cómo se gestiona el vector de interrupciones en el controlador programable APIC en modo protegido x86?",
+    "slice_type": "SLICE_OOD",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.19
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.03
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1697.58
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1697.64
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1697.64
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-38",
+    "query_text": "¿Cómo implementa el núcleo NT el algoritmo WSClock para el conjunto de trabajo de páginas en memoria virtual?",
+    "slice_type": "SLICE_OOD",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.17
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1660.76
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1660.83
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1660.83
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-39",
+    "query_text": "manejo de pila y almacenamiento",
+    "slice_type": "SLICE_POLYSEMY",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 3,
+        "sufficiency_score": 1,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.11
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 3,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 3,
+        "sufficiency_score": 1,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1659.97
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1660.08
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1660.08
+      }
+    }
+  },
+  {
+    "query_id": "Q1A2-40",
+    "query_text": "condición de fin y salida de bloque",
+    "slice_type": "SLICE_POLYSEMY",
+    "conditions": {
+      "C0": {
+        "condition_id": "C0",
+        "mask_name": "Pipeline_Delta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.17
+      },
+      "C1": {
+        "condition_id": "C1",
+        "mask_name": "Pipeline_Epsilon",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C2": {
+        "condition_id": "C2",
+        "mask_name": "Pipeline_Eta",
+        "relevance_score": 1,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C3": {
+        "condition_id": "C3",
+        "mask_name": "Pipeline_Theta",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.0
+      },
+      "C4": {
+        "condition_id": "C4",
+        "mask_name": "Pipeline_Gamma",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 0.02
+      },
+      "C5": {
+        "condition_id": "C5",
+        "mask_name": "Pipeline_Zeta",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1790.23
+      },
+      "C6": {
+        "condition_id": "C6",
+        "mask_name": "Pipeline_Alpha",
+        "relevance_score": 2,
+        "sufficiency_score": 0,
+        "is_relevant": true,
+        "is_strictly_sufficient": false,
+        "is_abstained": false,
+        "latency_ms": 1790.3
+      },
+      "C7": {
+        "condition_id": "C7",
+        "mask_name": "Pipeline_Beta",
+        "relevance_score": 0,
+        "sufficiency_score": 0,
+        "is_relevant": false,
+        "is_strictly_sufficient": false,
+        "is_abstained": true,
+        "latency_ms": 1790.31
+      }
+    }
+  }
+]

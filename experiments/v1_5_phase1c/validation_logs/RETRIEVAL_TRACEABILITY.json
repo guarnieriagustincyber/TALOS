@@ -1,0 +1,103 @@
+{
+  "control_id": "C5",
+  "name": "Retrieval Traceability for Control Query Q1A2-01",
+  "timestamp": "2026-10-05T18:57:51.048416+00:00",
+  "query_id": "Q1A2-01",
+  "query_text": "¿Cuál es la estructura general de contenidos y preliminares presentada en el índice de Fundamentos de Programación?",
+  "condition": "COND-HYBRID-RRF",
+  "candidates_evaluated": 10,
+  "invariants_passed": true,
+  "items": [
+    {
+      "rank": 1,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+      "score": 0.032018,
+      "page_start": 38,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "e21191b9423f4028bf49e39238df8ff530871e5198c8bc6b2f952e1120ac7232",
+      "text_alias_ok": true
+    },
+    {
+      "rank": 2,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p149:c0033",
+      "score": 0.031746,
+      "page_start": 149,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "d75671e5fc2b5c8f03f4059e0d2681ecbed35e7a168a7d16982e609b4c3c03da",
+      "text_alias_ok": true
+    },
+    {
+      "rank": 3,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+      "score": 0.031545,
+      "page_start": 138,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "b83477aa9554ef117ff329419a96d1c90a437ada82a1f1fb9d579ef101364fc0",
+      "text_alias_ok": true
+    },
+    {
+      "rank": 4,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p142:c0026",
+      "score": 0.016129,
+      "page_start": 142,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "9d0d271592be56d08c9c177dfac38b62d8caaff82b421ab0178059cbae0b29ad",
+      "text_alias_ok": true
+    },
+    {
+      "rank": 5,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p137:c0021",
+      "score": 0.016129,
+      "page_start": 137,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "bbd2686a82b194f22e0a5d62c27979c667b4bb9dd69b4cf78c3a0876d5fe2707",
+      "text_alias_ok": true
+    },
+    {
+      "rank": 6,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p145:c0029",
+      "score": 0.015625,
+      "page_start": 145,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "3f0bfba6301c7e90315c78e92587e04f6de2beeab3479d64e065baa85808e003",
+      "text_alias_ok": true
+    },
+    {
+      "rank": 7,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p490:c0040",
+      "score": 0.015385,
+      "page_start": 490,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "5ffe62543e07f855946baf6d10e87f1a36b9fc75029b64d0898317e6809fa98f",
+      "text_alias_ok": true
+    },
+    {
+      "rank": 8,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p141:c0025",
+      "score": 0.015385,
+      "page_start": 141,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "2647af78ef02ced6368decdc30db9e460d387f2d4e65885dcb55cfe024f75dad",
+      "text_alias_ok": true
+    },
+    {
+      "rank": 9,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p500:c0050",
+      "score": 0.015152,
+      "page_start": 500,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "40e69a6938366c11c36680072c2879af980f5af5fade408d2693e16e6cdff454",
+      "text_alias_ok": true
+    },
+    {
+      "rank": 10,
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p544:c0060",
+      "score": 0.014925,
+      "page_start": 544,
+      "retrieval_method": "hybrid_rrf",
+      "content_sha256": "56bee0c14228c4fef56e47cbe4c63a9a587b2138ba48a48628fa91241300908d",
+      "text_alias_ok": true
+    }
+  ],
+  "status": "PASS"
+}

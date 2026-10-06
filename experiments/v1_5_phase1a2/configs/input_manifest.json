@@ -1,0 +1,47 @@
+{
+  "$schema": "https://raw.githubusercontent.com/guarnieriagustincyber/TALOS/main/experiments/v1_5_phase1a2/schemas/input_manifest.schema.json",
+  "batch_id": "batch_1a2_exp_corpus_v1",
+  "created_at": "2026-10-05T02:00:00Z",
+  "governance": {
+    "status": "APPROVED_FOR_1A2_COLAB",
+    "pdf_processing_local": "FORBIDDEN FOR THIS EXPERIMENTAL CAMPAIGN",
+    "pdf_processing_colab": "REQUIRED",
+    "pilot_scope": "doc_joyanes_fundamentos_4ed_only"
+  },
+  "documents": [
+    {
+      "document_id": "doc_joyanes_fundamentos_4ed",
+      "source_id": "src_joyanes_fundamentos",
+      "filename": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf",
+      "edition_version": "4ta Edición (McGraw-Hill)",
+      "language": "es",
+      "input_fixture_status": "VERIFIED",
+      "local_path": "data/sources/general/Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf",
+      "page_count_expected": 802,
+      "sha256": "1217dd5e6038f150f454198b9645b7f4b89929ff88ba3744ca2c446082f4fb47",
+      "target_page_slices": [
+        {"slice_id": "J-01", "pages": [11, 18], "rationale": "Preliminares e Índice General (TOC outlier PROB-1A-03, 47k chars)"},
+        {"slice_id": "J-02", "pages": [35, 45], "rationale": "Prosa, listas y jerarquía básica de encabezados H1-H3"},
+        {"slice_id": "J-03", "pages": [135, 150], "rationale": "Estructuras de control y pseudocódigo estructurado"},
+        {"slice_id": "J-04", "pages": [485, 505], "rationale": "Punteros, estructuras y bloques densos de código C"},
+        {"slice_id": "J-05", "pages": [540, 548], "rationale": "Complejidad algorítmica y notación matemática Big-O"}
+      ]
+    },
+    {
+      "document_id": "doc_tanenbaum_sistemas_operativos_3ed",
+      "source_id": "src_tanenbaum_sistemas_operativos",
+      "filename": "Sistemas_Operativos_Modernos_3ra_Edicion_Tanenbaum.pdf",
+      "edition_version": "3ra Edición (Pearson)",
+      "language": "es",
+      "input_fixture_status": "MISSING",
+      "staging_required_before_full_corpus": true,
+      "page_count_expected": 1104,
+      "sha256": "82f808db394ad24346768393d9894e63717df3d26780c85c2c4314c1d636b042",
+      "target_page_slices": [
+        {"slice_id": "T-01", "pages": [40, 55], "rationale": "Arquitectura de sistemas y llamadas al sistema POSIX"},
+        {"slice_id": "T-02", "pages": [85, 105], "rationale": "Concurrencia, sincronización de procesos y tablas de estados"},
+        {"slice_id": "T-03", "pages": [190, 207], "rationale": "Gestión de memoria, tablas de páginas multinivel y reemplazo"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "seal_status": "SEALED_CANONICAL",
+  "timestamp": "2026-10-05T15:12:19-0300",
+  "seed": 42,
+  "mapping_condition_to_mask": {
+    "C0": "Pipeline_Delta",
+    "C1": "Pipeline_Epsilon",
+    "C2": "Pipeline_Eta",
+    "C3": "Pipeline_Theta",
+    "C4": "Pipeline_Gamma",
+    "C5": "Pipeline_Zeta",
+    "C6": "Pipeline_Alpha",
+    "C7": "Pipeline_Beta"
+  },
+  "mapping_mask_to_condition": {
+    "Pipeline_Delta": "C0",
+    "Pipeline_Epsilon": "C1",
+    "Pipeline_Eta": "C2",
+    "Pipeline_Theta": "C3",
+    "Pipeline_Gamma": "C4",
+    "Pipeline_Zeta": "C5",
+    "Pipeline_Alpha": "C6",
+    "Pipeline_Beta": "C7"
+  },
+  "condition_descriptions": {
+    "C0": "COND-BASE-FTS5",
+    "C1": "COND-DENSE-QWEN",
+    "C2": "COND-DENSE-BGE",
+    "C3": "COND-DENSE-E5",
+    "C4": "COND-HYBRID-RRF",
+    "C5": "COND-RERANK-BGE",
+    "C6": "COND-EXP-STRUCTURAL",
+    "C7": "COND-GUARDED-FULL"
+  }
+}

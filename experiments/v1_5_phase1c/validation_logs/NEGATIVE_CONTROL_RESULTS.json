@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-10-05T18:57:51.049412+00:00",
+  "controls": [
+    {
+      "control_id": "NC-01",
+      "description": "Non-existent chunk_id requested",
+      "injected_value": "doc_joyanes_fundamentos_4ed:p999:c9999",
+      "runtime_action": "REJECT_AND_RETURN_NONE",
+      "passed": true,
+      "verdict": "PASS (Fail-closed: No content hallucinated/invented)"
+    },
+    {
+      "control_id": "NC-02",
+      "description": "Corpus version mismatch injected",
+      "injected_value": "doc_joyanes_fundamentos_3ed_unknown",
+      "runtime_action": "FAIL_CLOSED_VALIDATION_ERROR",
+      "error_message": "Corpus version mismatch: 'doc_joyanes_fundamentos_3ed_unknown' is not certified under TALOS 1C.",
+      "passed": true,
+      "verdict": "PASS (Fail-closed: Mismatched version rejected immediately)"
+    },
+    {
+      "control_id": "NC-03",
+      "description": "Incomplete provenance (page=NULL, source=NULL)",
+      "injected_value": {
+        "source_id": null,
+        "page": null
+      },
+      "runtime_action": "CLASSIFIED_AS_INFERENCE_OR_REJECTED",
+      "passed": true,
+      "verdict": "PASS (Provenance missing: marked EXPLICITLY_UNCERTAIN / INFERENCE, never authoritative fact)"
+    },
+    {
+      "control_id": "NC-04",
+      "description": "Orphaned vector ID without text chunk",
+      "injected_value": {
+        "chunk_id": "orphan_vector_id",
+        "content": ""
+      },
+      "runtime_action": "EXCLUDED_FROM_RANKING_VALIDATION_ERROR",
+      "error_message": "ValidationError caught: string_too_short",
+      "passed": true,
+      "verdict": "PASS (ScoredCandidate requires min_length=1: empty text rejected)"
+    },
+    {
+      "control_id": "NC-05",
+      "description": "Document excluded from notebook ACL (Curricular Isolation)",
+      "injected_value": {
+        "candidate_notebook": "foreign_unauthorized_notebook",
+        "response_notebook": "joyanes_fundamentos"
+      },
+      "runtime_action": "REJECT_WITH_VALUE_ERROR_CURRICULAR_ISOLATION",
+      "error_message": "1 validation error for RetrievalResponse\n  Value error, Curricular isolation violated at index 0: candidate 'doc_joyanes_fundamentos_4ed:p11:c0001' has notebook_id 'foreign_unauthorized_notebook', which does not match response notebook_id 'joyanes_fundamentos'. [type=value_error, input_value={'query': 'test isolation...dex=None, metadata={})]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error",
+      "passed": true,
+      "verdict": "PASS (Curricular isolation enforced: zero leakage across notebook boundaries)"
+    }
+  ],
+  "status": "PASS"
+}

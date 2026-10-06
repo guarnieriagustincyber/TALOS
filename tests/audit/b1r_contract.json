@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "contract_id": "TALOS-B1-R-1",
+  "repetitions_per_case": 3,
+  "consumer_observation": "SOURCE_TRACED_NOT_RUNTIME_TESTED",
+  "expected_cases": {
+    "success": {
+      "events": ["phase_start", "phase_token", "evidence_manifest", "phase_complete"],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": true,
+      "observed_exceptions": []
+    },
+    "error": {
+      "events": ["error"],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": false,
+      "observed_exceptions": ["RuntimeError: synthetic-pipeline-error"]
+    },
+    "abstention": {
+      "events": ["evidence_manifest", "abstention"],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": false,
+      "observed_exceptions": []
+    },
+    "clarification": {
+      "events": ["evidence_manifest", "clarification"],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": false,
+      "observed_exceptions": []
+    },
+    "truncated": {
+      "events": [
+        "phase_start",
+        "truncated",
+        "audit_verdict",
+        "evidence_manifest",
+        "phase_complete"
+      ],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": true,
+      "observed_exceptions": []
+    },
+    "stream_aborted": {
+      "events": ["phase_start", "stream_aborted"],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": false,
+      "observed_exceptions": ["asyncio.CancelledError"]
+    },
+    "eof_without_terminal": {
+      "events": ["phase_start"],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": false,
+      "observed_exceptions": []
+    },
+    "duplicate_terminal": {
+      "events": ["phase_complete", "phase_complete"],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": true,
+      "observed_exceptions": []
+    },
+    "error_after_tokens": {
+      "events": ["phase_start", "phase_token", "error"],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": false,
+      "observed_exceptions": ["RuntimeError: synthetic-pipeline-error"]
+    },
+    "abrupt_close": {
+      "events": ["phase_start", "phase_token"],
+      "http_status": 200,
+      "content_type_prefix": "text/event-stream",
+      "stream_closed": true,
+      "phase_complete_present": false,
+      "observed_exceptions": []
+    }
+  },
+  "required_guard_probes": {
+    "protected_file_read": "protected-file",
+    "sqlite_connection": "sqlite",
+    "outbound_socket": "external-call",
+    "subprocess_creation": "process",
+    "project_write": "project-write",
+    "app_container_construction": "real-container",
+    "normal_startup": "normal-lifespan",
+    "thread_start": "external-call",
+    "provider_construction": "real-provider"
+  },
+  "required_zero_counters": [
+    "real_provider_calls",
+    "real_container_constructions",
+    "protected_data_accesses",
+    "normal_lifespan_runs",
+    "thread_starts",
+    "functional_changes"
+  ],
+  "expected_counts_per_execution": [
+    "route_requests",
+    "synthetic_backend_resolutions",
+    "synthetic_pipeline_constructions",
+    "synthetic_context_calls"
+  ]
+}

@@ -1,0 +1,628 @@
+{
+  "form_version": "3.0.0-phase1a3",
+  "adjudicator_id": "HUMAN_ADJUDICATOR_01",
+  "protocol": "Single-Adjudicator Blind Assessment (N=1)",
+  "pipeline_count": 3,
+  "case_count": 22,
+  "total_cells": 66,
+  "rubric_scales": {
+    "relevance": {
+      "0": "None",
+      "1": "Partial",
+      "2": "Highly Relevant"
+    },
+    "sufficiency": {
+      "0": "Insufficient",
+      "1": "Partial",
+      "2": "Self-Sufficient"
+    },
+    "grounding_potential": {
+      "0": "Critical Risk",
+      "1": "Partial",
+      "2": "Strictly Grounded"
+    },
+    "context_quality": {
+      "0": "Mutilated / Incoherent",
+      "1": "Acceptable",
+      "2": "Clean Structure"
+    }
+  },
+  "cases": [
+    {
+      "case_id": "CASE-01",
+      "query_id": "Q1A2-01",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Poor",
+          "notes": "Recupera Nota 1 sobre palabras reservadas. Falla total en recuperar el índice."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera algoritmo de comparación de árboles binarios. Irrelevante."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera código de lista enlazada (menú de ventas/devoluciones). Irrelevante."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-02",
+      "query_id": "Q1A2-02",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera índice del Capítulo 11 (Ordenación). No menciona estructuras de datos/punteros."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera procedimiento consultarCima (pilas). Irrelevante para el índice."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma. Índice del Capítulo 11."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-03",
+      "query_id": "Q1A2-03",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera sección 3.11 'Escritura de algoritmos'. No define el concepto formal ni sus características (precisión, finitud)."
+        },
+        "Pipeline_Tau": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-04",
+      "query_id": "Q1A2-04",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera Ejercicio 3.13 (Determinar el mayor de tres números) y su refinamiento. No lista las fases teóricas generales."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera sección 1.3 Representación de la información. Irrelevante."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Tau."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-05",
+      "query_id": "Q1A2-05",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Mismo Ejercicio 3.13. No explica la diferencia teórica."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera código de procedimiento meter/sacar (pilas). Irrelevante."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Idéntico a Tau."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-06",
+      "query_id": "Q1A2-06",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1 sobre palabras reservadas."
+        },
+        "Pipeline_Tau": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera definición de estructuras jerárquicas pero aplicada a Árboles y Grafos, no a programas estructurados."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera definición de Hardware, Software y redes."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-07",
+      "query_id": "Q1A2-07",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Muestra un ejemplo de 'si d < 0 entonces' dentro del algoritmo raices, pero no la definición formal de la estructura doble."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Procedimiento devoluciones (listas). Irrelevante."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera Figura 12.18 'Doble cola (bicola)'. Confunde el término 'doble'."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-08",
+      "query_id": "Q1A2-08",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Comentarios multilínea en Java/Pascal."
+        },
+        "Pipeline_Tau": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice que menciona '18.11.2 Depuración de sentencias si-entonces-sino'. No muestra según_sea."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Operadores aritméticos de asignación múltiple."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-09",
+      "query_id": "Q1A2-09",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Algoritmo raices."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Ejercicio 3.13 (mayor de tres números)."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-10",
+      "query_id": "Q1A2-10",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Grafos y árboles."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-11",
+      "query_id": "Q1A2-11",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Asignación aritmética múltiple."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Sigma."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-12",
+      "query_id": "Q1A2-12",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Implementación de colas con punteros. No muestra el operador flecha explícitamente en structs."
+        },
+        "Pipeline_Tau": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Inserción en árbol (a[ant].izdo <- auxi). Usa asignación, no flecha."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera 'elemento <- cima->.elemento'. Excelente hallazgo sintáctico del operador flecha."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-13",
+      "query_id": "Q1A2-13",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Teoría de colas."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Array circular y reestructuración."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera 'procedimiento liberar'. Equivalente a free, pero falta malloc/reservar."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-14",
+      "query_id": "Q1A2-14",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Muestra el problema de intercambio por valor (usando AUX), pero no explica punteros ni referencia."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Memoria central, posiciones y palabras."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Asignación aritmética."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-15",
+      "query_id": "Q1A2-15",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Algoritmo raices."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-16",
+      "query_id": "Q1A2-16",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recorrido simultáneo de árboles."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Grafos dispersos vs densos."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Tau."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-17",
+      "query_id": "Q1A2-17",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 13.5 Grafos."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Historia de las computadoras (PC, Apple II)."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice Cap 11."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-18",
+      "query_id": "Q1A2-18",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Nota 1."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice Cap 11."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-19",
+      "query_id": "Q1A2-37",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Recupera lista de procesadores. Correctamente irrelevante."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Índice de documentación. Correctamente irrelevante."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Pila de direcciones de retorno. Correctamente irrelevante."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-20",
+      "query_id": "Q1A2-38",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores. Correcto."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Índice Cap 9 Archivos. Correcto."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Memoria central (básico). Correcto."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-21",
+      "query_id": "Q1A2-39",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "High",
+          "sufficiency": "Sufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera código completo con declaración y manejo de pilas (pilaletras, piladigitos). Excelente contexto."
+        },
+        "Pipeline_Tau": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice Cap 11. Irrelevante."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Procedimiento devoluciones (listas). Irrelevante."
+        }
+      }
+    },
+    {
+      "case_id": "CASE-22",
+      "query_id": "Q1A2-40",
+      "evaluations": {
+        "Pipeline_Sigma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera 'fin' de algoritmo y notas de sangría. Muy genérico."
+        },
+        "Pipeline_Tau": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera condiciones lógicas de cola vacía/llena (frente <- 0, final = Max). Parcialmente útil para 'condición de fin'."
+        },
+        "Pipeline_Upsilon": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Implementación de pilas con arrays y liberar."
+        }
+      }
+    }
+  ],
+  "audit_status": "COMPLETED_BY_HUMAN_ADJUDICATOR",
+  "adjudication_timestamp": "2026-10-05"
+}

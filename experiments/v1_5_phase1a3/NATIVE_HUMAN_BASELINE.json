@@ -1,0 +1,1407 @@
+{
+  "metadata": {
+    "status": "FROZEN_IMMUTABLE",
+    "phase": "1A.2_TO_1A.3_HANDOFF",
+    "source_run_id": "run_1a2_pilot_joyanes_20261005_061144",
+    "freeze_timestamp": "2026-10-05T04:50:00-03:00",
+    "adjudicator": "N=1 Blind",
+    "package": "blind_adjudication_v2",
+    "methodology": "Evaluación ciega estricta. Sin inferencia de backend. Rúbrica estándar de RAG (Relevance, Sufficiency, Grounding, Context Quality).",
+    "total_cases": 22,
+    "total_evaluated_cells": 176,
+    "pipelines_evaluated": [
+      "Alpha",
+      "Beta",
+      "Gamma",
+      "Delta",
+      "Epsilon",
+      "Zeta",
+      "Eta",
+      "Theta"
+    ],
+    "duplicate_pairs_confirmed": [
+      {
+        "pair": [
+          "Gamma",
+          "Delta"
+        ],
+        "config": "PyMuPDF + C1 + Qwen",
+        "concordance": "100%"
+      },
+      {
+        "pair": [
+          "Alpha",
+          "Theta"
+        ],
+        "config": "PyMuPDF + C2 + Qwen",
+        "concordance": "100%"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "Caso #01 [Q1A2-01]",
+      "query": "¿Cuál es la estructura general de contenidos y preliminares presentada en el índice de Fundamentos de Programación?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera snippet de código (var tipo de datos). Falla total en recuperar el índice."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Mismo snippet de código que Alpha."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Poor",
+          "notes": "Recupera texto de diagrama de flujo (Estructura general de un programa). No es el índice."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Poor",
+          "notes": "Idéntico a Gamma."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera p.547 (Árboles y grafos). Irrelevante."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera p.500 (Registros y listas). Irrelevante."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Snippet de código. Irrelevante."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Snippet de código. Irrelevante."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #02 [Q1A2-02]",
+      "query": "¿En qué página y capítulo del índice general se ubican las estructuras de datos y punteros?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera índice (p.13) pero del Capítulo 11 (Ordenación). No menciona estructuras de datos/punteros."
+        },
+        "Beta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice p.13, sección 11.5.3. Irrelevante para la consulta."
+        },
+        "Gamma": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera línea exacta del índice: '12.1. Introducción a las estructuras de datos ... 429'."
+        },
+        "Delta": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Gamma. Acierto en el índice."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera p.485 (Contenido de estructuras dinámicas), no el índice general."
+        },
+        "Zeta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice p.13, Capítulo 11. Incorrecto."
+        },
+        "Eta": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera '12.1. Introducción a las estructuras de datos'. Acierto."
+        },
+        "Theta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice p.13, Capítulo 11. Incorrecto."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #03 [Q1A2-03]",
+      "query": "¿Qué es un algoritmo según Joyanes Aguilar y cuáles son sus características básicas?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera Nota 1 sobre palabras reservadas en inglés. No define algoritmo."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Misma Nota 1."
+        },
+        "Gamma": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Menciona 'Un algoritmo constará de dos componentes: una cabecera...'. No da la definición formal ni características (precisión, finitud)."
+        },
+        "Delta": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Idéntico a Gamma."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera regla de comentarios multilínea."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1. Irrelevante."
+        },
+        "Eta": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Misma recuperación parcial que Gamma."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1. Irrelevante."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #04 [Q1A2-04]",
+      "query": "¿Cuáles son las fases de resolución de un problema mediante computadora según el texto?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera un ejercicio resuelto (3.13 Determinar el mayor...). No lista las fases teóricas."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Mismo ejercicio resuelto."
+        },
+        "Gamma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera entrada de índice '18.1. Abstracción y resolución de problemas'. No contiene las fases."
+        },
+        "Delta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Gamma."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera p.45 (Representación de la información). Irrelevante."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice de Herencia (POO). Irrelevante."
+        },
+        "Eta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Entrada de índice 18.1. Insuficiente."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Ejercicio resuelto. Irrelevante."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #05 [Q1A2-05]",
+      "query": "¿Cuál es la diferencia entre el diseño descendente (top-down) y el refinamiento por pasos?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Ejercicio 3.13. Irrelevante."
+        },
+        "Beta": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera entradas del índice: '18.1.1 Descomposición procedimental', '18.1.2 Diseño descendente'. No explica la diferencia teórica."
+        },
+        "Gamma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 18.1 general."
+        },
+        "Delta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 18.1 general."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Código de procedimiento (pilas). Irrelevante."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Mismo código de pilas."
+        },
+        "Eta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 18.1 general."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Ejercicio 3.13."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #06 [Q1A2-06]",
+      "query": "¿Cómo se describe la estructura jerárquica de un programa estructurado?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1 sobre palabras reservadas."
+        },
+        "Beta": {
+          "relevance": "High",
+          "sufficiency": "Sufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera diagrama de texto: 'Programa principal -> Subprograma A, B, C'. Describe perfectamente la jerarquía."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 7.7 Estructuras versus registros."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 7.7."
+        },
+        "Epsilon": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Habla de estructuras jerárquicas pero en árboles (datos no lineales), no en programas estructurados."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Hardware y software. Irrelevante."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 7.7."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #07 [Q1A2-07]",
+      "query": "¿Cómo se define y formaliza la estructura de selección doble (si-entonces-sino) en pseudocódigo?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Snippet de declaraciones var/const."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Snippet de declaraciones."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Reglas de sangría y algoritmo raices. No muestra el 'si-entonces-sino'."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Idéntico a Gamma."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Procedimiento devoluciones (listas)."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Figura 12.18 Doble cola (bicola). Confunde 'doble' con selección doble."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "seccion de declaraciones."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Snippet de declaraciones."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #08 [Q1A2-08]",
+      "query": "¿Cuál es la sintaxis de la sentencia de selección múltiple según_sea (switch) y cómo se maneja la opción por defecto?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Comentarios multilínea."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones var/const."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "seccion de declaraciones."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "seccion de declaraciones."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Manual de mantenimiento."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Asignación aritmética."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "seccion de declaraciones."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Comentarios multilínea."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #09 [Q1A2-09]",
+      "query": "¿Qué algoritmo o pseudocódigo se presenta para evaluar si un número entero es par o impar?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Diagrama de flujo para suma/producto (X<=50). No evalúa paridad."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Mismo diagrama de flujo."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Mismo diagrama de flujo."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Diagrama de flujo factorial (NPASOS)."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Función árbollleno."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #10 [Q1A2-10]",
+      "query": "¿Por qué es necesario delimitar explícitamente las estructuras de control anidadas en programación estructurada?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones."
+        },
+        "Beta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 15.1 Programación estructurada."
+        },
+        "Gamma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice '15.1.1 Limitaciones de la programación estructurada'. No contiene la justificación del 'else colgante'."
+        },
+        "Delta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Gamma."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Árboles binarios."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1."
+        },
+        "Eta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 15.1.1."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #11 [Q1A2-11]",
+      "query": "¿Cuál es la función del operador de dirección & y del operador de indirección * en punteros de C?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera operadores de asignación compuesta (+<-, *<-). Falla total."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Mismos operadores de asignación."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Sintaxis de asignación."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Sintaxis de asignación."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Asignación."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Asignación."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Asignación."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Asignación."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #12 [Q1A2-12]",
+      "query": "¿Cómo se declara un puntero a una estructura struct y cómo se accede a sus miembros con el operador flecha ->?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Operaciones de colas."
+        },
+        "Beta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 7.7 Estructuras vs registros."
+        },
+        "Gamma": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera pseudocódigo con el operador flecha: 'auxi->.elemento <- elemento'. Excelente hallazgo sintáctico."
+        },
+        "Delta": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Gamma."
+        },
+        "Epsilon": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Inserción en árbol (usa <-, no ->)."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Procedimiento consultarCima."
+        },
+        "Eta": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera 'auxi->.elemento'. Acierto."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Operaciones de colas."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #13 [Q1A2-13]",
+      "query": "¿Cómo se asigna memoria dinámica mediante malloc y cómo se libera con free en C según Joyanes?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Operaciones de colas."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Operaciones de colas."
+        },
+        "Gamma": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera 'procedimiento reservar ... escribir(Memoria agotada)'. Equivalente a malloc en pseudocódigo."
+        },
+        "Delta": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Idéntico a Gamma."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Reestructuración de colas."
+        },
+        "Zeta": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera 'procedimiento liberar'. Equivalente a free."
+        },
+        "Eta": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera 'reservar'."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Operaciones de colas."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #14 [Q1A2-14]",
+      "query": "¿En qué se diferencia el paso de parámetros por valor del paso por referencia mediante punteros?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera ejercicio 3.8 (Intercambiar valores A y B). Es el ejemplo práctico, pero no la explicación teórica de la diferencia."
+        },
+        "Beta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Mismo ejercicio 3.8."
+        },
+        "Gamma": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Mismo ejercicio 3.8."
+        },
+        "Delta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Mismo ejercicio 3.8."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Matriz de adyacencia."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Operadores de asignación."
+        },
+        "Eta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Ejercicio 3.8."
+        },
+        "Theta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Ejercicio 3.8."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #15 [Q1A2-15]",
+      "query": "¿Cuál es la definición formal de la notación asintótica O-grande (Big-O) para la complejidad de algoritmos?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones var/const."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Diagrama de flujo (bucle)."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Diagrama de flujo."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Diagrama de flujo."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #16 [Q1A2-16]",
+      "query": "¿Cuál es la diferencia de eficiencia y crecimiento entre un algoritmo O(n log n) y uno O(n^2)?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recorrido de árboles."
+        },
+        "Beta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice '18.14.1 Eficiencia versus legibilidad'. No menciona O(n log n) vs O(n^2)."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Algoritmo de conteo de nodos."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Conteo de nodos."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Grafos y listas enlazadas."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Grafos."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Conteo de nodos."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recorrido de árboles."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #17 [Q1A2-17]",
+      "query": "¿En qué página del índice general se lista el apartado de 'Resolución de problemas con computadoras'?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 13.5 Grafos."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 10.4 Intercalación."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Texto suelto sobre apagar la computadora."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Texto suelto."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 13.5 Grafos."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice Cap 11."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice RESUMEN."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice 13.5 Grafos."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #18 [Q1A2-18]",
+      "query": "¿Qué subsecciones componen el capítulo de algoritmos según la jerarquía detallada en el índice de contenidos?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Componentes de un algoritmo (teoría, no índice)."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Componentes de un algoritmo."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice Cap 11."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Componentes de un algoritmo."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Nota 1."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #19 [Q1A2-37]",
+      "query": "¿Cómo se gestiona el vector de interrupciones en el controlador programable APIC en modo protegido x86?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Recupera lista de procesadores (Celeron, Xeon). Correctamente irrelevante."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores. Irrelevante."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Invocación de subprogramas. Irrelevante."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Subprogramas."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Documentación."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Programa principal."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Control negativo. Fin procedimiento."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #20 [Q1A2-38]",
+      "query": "¿Cómo implementa el núcleo NT el algoritmo WSClock para el conjunto de trabajo de páginas en memoria virtual?",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores. Correcto."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores. Correcto."
+        },
+        "Gamma": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores. Correcto."
+        },
+        "Delta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores. Correcto."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Variables carácter. Correcto."
+        },
+        "Zeta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Posición de memoria (básico). Correcto."
+        },
+        "Eta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores. Correcto."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Control negativo. Procesadores. Correcto."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #21 [Q1A2-39]",
+      "query": "manejo de pila y almacenamiento",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "High",
+          "sufficiency": "Sufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera declaración de pilas (pilaletras, cima1) y creación. Excelente contexto."
+        },
+        "Beta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera estructura de lista enlazada (final -> elemento), no pila."
+        },
+        "Gamma": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera declaración 'carácter:pila' y 'cima'."
+        },
+        "Delta": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Idéntico a Gamma."
+        },
+        "Epsilon": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Índice Cap 11."
+        },
+        "Zeta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Procedimiento devoluciones (listas)."
+        },
+        "Eta": {
+          "relevance": "High",
+          "sufficiency": "Partial",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaración de pilas."
+        },
+        "Theta": {
+          "relevance": "High",
+          "sufficiency": "Sufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Recupera declaración de pilas. Excelente."
+        }
+      }
+    },
+    {
+      "case_id": "Caso #22 [Q1A2-40]",
+      "query": "condición de fin y salida de bloque",
+      "evaluations": {
+        "Alpha": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones."
+        },
+        "Beta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Comentarios de programa."
+        },
+        "Gamma": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera 'fin_procedimiento'. Es una salida de bloque, pero falta la condición lógica."
+        },
+        "Delta": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Idéntico a Gamma."
+        },
+        "Epsilon": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Condición de cola vacía (frente<-0). No es salida de bloque genérica."
+        },
+        "Zeta": {
+          "relevance": "Low",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Clean",
+          "notes": "Procedimiento liberar."
+        },
+        "Eta": {
+          "relevance": "Partial",
+          "sufficiency": "Insufficient",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Recupera 'fin_procedimiento'."
+        },
+        "Theta": {
+          "relevance": "None",
+          "sufficiency": "None",
+          "grounding": "Verbatim",
+          "context_quality": "Fragmented",
+          "notes": "Declaraciones."
+        }
+      }
+    }
+  ]
+}

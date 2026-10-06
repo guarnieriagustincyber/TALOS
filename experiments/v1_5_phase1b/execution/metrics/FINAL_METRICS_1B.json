@@ -1,0 +1,275 @@
+{
+  "metadata": {
+    "metrics_version": "1.0.0-official_final",
+    "execution_id": "run_1b_canonical_20261005_151258",
+    "timestamp": "2026-10-05T15:32:28-0300",
+    "qrel_source": "QREL_1B_FINAL (SHA-256: 497c7b37d8e01ad03d58dcb7694d9df616c243545ea48ed0ede270ecf7b583b3)",
+    "queries_in_domain_n": 18,
+    "queries_ood_n": 2,
+    "queries_polysemy_n": 2,
+    "total_cells": 176
+  },
+  "condition_metrics": {
+    "C0": {
+      "condition_id": "C0",
+      "canonical_name": "COND-BASE-FTS5",
+      "precision_at_1_official": 0.0556,
+      "precision_at_3_official": 0.0185,
+      "precision_at_5_official": 0.0111,
+      "mrr_at_5_official": 0.0556,
+      "ndcg_at_5_official": 0.0794,
+      "strict_sufficiency_at_1_official": 0.0,
+      "any_sufficiency_at_1_official": 0.0556,
+      "qrel_authority": "QREL_1B_FINAL",
+      "avg_latency_ms": 0.2,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C1": {
+      "condition_id": "C1",
+      "canonical_name": "COND-DENSE-QWEN",
+      "precision_at_1_official": 0.1667,
+      "precision_at_3_official": 0.0556,
+      "precision_at_5_official": 0.0333,
+      "mrr_at_5_official": 0.1667,
+      "ndcg_at_5_official": 0.1032,
+      "strict_sufficiency_at_1_official": 0.0,
+      "any_sufficiency_at_1_official": 0.0,
+      "qrel_authority": "QREL_1B_FINAL",
+      "avg_latency_ms": 0.0,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C2": {
+      "condition_id": "C2",
+      "canonical_name": "COND-DENSE-BGE",
+      "precision_at_1_official": 0.1667,
+      "precision_at_3_official": 0.0556,
+      "precision_at_5_official": 0.0333,
+      "mrr_at_5_official": 0.1667,
+      "ndcg_at_5_official": 0.1111,
+      "strict_sufficiency_at_1_official": 0.0,
+      "any_sufficiency_at_1_official": 0.0556,
+      "qrel_authority": "QREL_1B_FINAL",
+      "avg_latency_ms": 0.0,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C3": {
+      "condition_id": "C3",
+      "canonical_name": "COND-DENSE-E5",
+      "precision_at_1_official": 0.0556,
+      "precision_at_3_official": 0.0185,
+      "precision_at_5_official": 0.0111,
+      "mrr_at_5_official": 0.0556,
+      "ndcg_at_5_official": 0.0476,
+      "strict_sufficiency_at_1_official": 0.0,
+      "any_sufficiency_at_1_official": 0.0,
+      "qrel_authority": "QREL_1B_FINAL",
+      "avg_latency_ms": 0.0,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C4": {
+      "condition_id": "C4",
+      "canonical_name": "COND-HYBRID-RRF",
+      "precision_at_1_official": 0.1667,
+      "precision_at_3_official": 0.0556,
+      "precision_at_5_official": 0.0333,
+      "mrr_at_5_official": 0.1667,
+      "ndcg_at_5_official": 0.1429,
+      "strict_sufficiency_at_1_official": 0.0,
+      "any_sufficiency_at_1_official": 0.0556,
+      "qrel_authority": "QREL_1B_FINAL",
+      "avg_latency_ms": 0.03,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C5": {
+      "condition_id": "C5",
+      "canonical_name": "COND-RERANK-BGE",
+      "precision_at_1_official": 0.0556,
+      "precision_at_3_official": 0.0185,
+      "precision_at_5_official": 0.0111,
+      "mrr_at_5_official": 0.0556,
+      "ndcg_at_5_official": 0.0635,
+      "strict_sufficiency_at_1_official": 0.0,
+      "any_sufficiency_at_1_official": 0.0,
+      "qrel_authority": "QREL_1B_FINAL",
+      "avg_latency_ms": 1746.88,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C6": {
+      "condition_id": "C6",
+      "canonical_name": "COND-EXP-STRUCTURAL",
+      "precision_at_1_official": 0.0556,
+      "precision_at_3_official": 0.0185,
+      "precision_at_5_official": 0.0111,
+      "mrr_at_5_official": 0.0556,
+      "ndcg_at_5_official": 0.0635,
+      "strict_sufficiency_at_1_official": 0.0,
+      "any_sufficiency_at_1_official": 0.0,
+      "qrel_authority": "QREL_1B_FINAL",
+      "avg_latency_ms": 1746.96,
+      "ood_abstention_rate": 0.0,
+      "indomain_false_rejection_rate": 0.0
+    },
+    "C7": {
+      "condition_id": "C7",
+      "canonical_name": "COND-GUARDED-FULL",
+      "precision_at_1_official": 0.0,
+      "precision_at_3_official": 0.0,
+      "precision_at_5_official": 0.0,
+      "mrr_at_5_official": 0.0,
+      "ndcg_at_5_official": 0.0079,
+      "strict_sufficiency_at_1_official": 0.0,
+      "any_sufficiency_at_1_official": 0.0,
+      "qrel_authority": "QREL_1B_FINAL",
+      "avg_latency_ms": 1746.96,
+      "ood_abstention_rate": 1.0,
+      "indomain_false_rejection_rate": 0.9444444444444444
+    }
+  },
+  "h2_paired_contrast": {
+    "pairs_evaluated": 18,
+    "mean_delta_sufficiency": 0.0,
+    "improved_pairs_count": 0,
+    "pairs": [
+      {
+        "query_id": "Q1A2-01",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-02",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-03",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-04",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-05",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-06",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-07",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-08",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-09",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-10",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-11",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-12",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-13",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-14",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-15",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-16",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-17",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      },
+      {
+        "query_id": "Q1A2-18",
+        "s_atomic": 0,
+        "s_expanded": 0,
+        "delta_s": 0,
+        "is_improved": false
+      }
+    ]
+  },
+  "ood_controls": {
+    "ood_queries": [
+      "Q1A2-37",
+      "Q1A2-38"
+    ],
+    "c7_abstention_rate": 1.0,
+    "c7_indomain_false_rejection": 0.9444444444444444
+  }
+}

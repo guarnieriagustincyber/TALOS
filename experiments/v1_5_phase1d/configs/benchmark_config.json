@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "config_name": "PHASE_1D_BENCHMARK_CONFIG",
+  "version": "1.0.0-canonical",
+  "created_at": "2026-10-05T16:10:00-03:00",
+  "status": "FROZEN_PREREGISTERED",
+  "random_seed": 42,
+  "common_token_budget": 512,
+  "conditions": {
+    "C0": {
+      "condition_id": "C0",
+      "canonical_name": "COND-BASE-FTS5",
+      "representation": "C1-Native",
+      "retrieval_type": "lexical",
+      "retrieval_method": "SQLite_FTS5_BM25",
+      "embedding_model": null,
+      "reranker_model": null,
+      "expansion": "EXP_NONE",
+      "abstention": "ABS_NONE",
+      "parameters": {
+        "retrieval_pool_k": 10,
+        "final_output_k": 5
+      }
+    },
+    "C1": {
+      "condition_id": "C1",
+      "canonical_name": "COND-DENSE-QWEN",
+      "representation": "C2-Harmonized",
+      "retrieval_type": "dense",
+      "retrieval_method": "Dense_Cosine_L2",
+      "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+      "embedding_dimension": 1024,
+      "reranker_model": null,
+      "expansion": "EXP_NONE",
+      "abstention": "ABS_NONE",
+      "parameters": {
+        "retrieval_pool_k": 10,
+        "final_output_k": 5
+      }
+    },
+    "C2": {
+      "condition_id": "C2",
+      "canonical_name": "COND-DENSE-BGE",
+      "representation": "C2-Harmonized",
+      "retrieval_type": "dense",
+      "retrieval_method": "Dense_Cosine_L2",
+      "embedding_model": "BAAI/bge-m3",
+      "embedding_dimension": 1024,
+      "reranker_model": null,
+      "expansion": "EXP_NONE",
+      "abstention": "ABS_NONE",
+      "parameters": {
+        "retrieval_pool_k": 10,
+        "final_output_k": 5
+      }
+    },
+    "C3": {
+      "condition_id": "C3",
+      "canonical_name": "COND-DENSE-E5",
+      "representation": "C2-Harmonized",
+      "retrieval_type": "dense",
+      "retrieval_method": "Dense_Cosine_L2",
+      "embedding_model": "intfloat/multilingual-e5-small",
+      "embedding_dimension": 384,
+      "reranker_model": null,
+      "expansion": "EXP_NONE",
+      "abstention": "ABS_NONE",
+      "parameters": {
+        "retrieval_pool_k": 10,
+        "final_output_k": 5
+      }
+    },
+    "C4": {
+      "condition_id": "C4",
+      "canonical_name": "COND-HYBRID-RRF",
+      "representation": "C2-Harmonized",
+      "retrieval_type": "hybrid",
+      "retrieval_method": "FTS5_PLUS_DENSE_RRF",
+      "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+      "embedding_dimension": 1024,
+      "reranker_model": null,
+      "expansion": "EXP_NONE",
+      "abstention": "ABS_NONE",
+      "parameters": {
+        "rrf_k": 60,
+        "dense_pool_k": 10,
+        "bm25_pool_k": 10,
+        "fused_pool_k": 10,
+        "final_output_k": 5
+      }
+    },
+    "C5": {
+      "condition_id": "C5",
+      "canonical_name": "COND-RERANK-BGE",
+      "representation": "C2-Harmonized",
+      "retrieval_type": "rerank",
+      "retrieval_method": "RRF10_TO_RERANK_M3",
+      "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+      "embedding_dimension": 1024,
+      "reranker_model": "BAAI/bge-reranker-v2-m3",
+      "expansion": "EXP_NONE",
+      "abstention": "ABS_NONE",
+      "parameters": {
+        "rrf_k": 60,
+        "dense_pool_k": 10,
+        "bm25_pool_k": 10,
+        "rerank_pool_k": 10,
+        "final_output_k": 5
+      }
+    },
+    "C6": {
+      "condition_id": "C6",
+      "canonical_name": "COND-EXP-STRUCTURAL",
+      "representation": "C2-Harmonized",
+      "retrieval_type": "expanded",
+      "retrieval_method": "RRF10_TO_RERANK_M3",
+      "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+      "embedding_dimension": 1024,
+      "reranker_model": "BAAI/bge-reranker-v2-m3",
+      "expansion": "STRUCT_HEAD_1500",
+      "abstention": "ABS_NONE",
+      "parameters": {
+        "rrf_k": 60,
+        "dense_pool_k": 10,
+        "bm25_pool_k": 10,
+        "rerank_pool_k": 10,
+        "final_output_k": 5,
+        "expansion_max_tokens": 1500,
+        "expansion_max_chars": 4500,
+        "expansion_rule": "same_doc_and_heading_page_dist_le_1"
+      }
+    },
+    "C7": {
+      "condition_id": "C7",
+      "canonical_name": "COND-GUARDED-FULL",
+      "representation": "C2-Harmonized",
+      "retrieval_type": "guarded",
+      "retrieval_method": "RRF10_TO_RERANK_M3",
+      "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+      "embedding_dimension": 1024,
+      "reranker_model": "BAAI/bge-reranker-v2-m3",
+      "expansion": "STRUCT_HEAD_1500",
+      "abstention": "RERANK_LOGIT",
+      "parameters": {
+        "rrf_k": 60,
+        "dense_pool_k": 10,
+        "bm25_pool_k": 10,
+        "rerank_pool_k": 10,
+        "final_output_k": 5,
+        "expansion_max_tokens": 1500,
+        "expansion_max_chars": 4500,
+        "expansion_rule": "same_doc_and_heading_page_dist_le_1",
+        "abstention_threshold_tau": 0.35
+      }
+    }
+  },
+  "thresholds": {
+    "h4_similarity_threshold_grid": [0.30, 0.35, 0.40, 0.45, 0.50],
+    "h4_reference_point": 0.40,
+    "h4_max_acceptable_frr_id": 0.15,
+    "c7_operational_abstention_threshold": 0.35,
+    "relevance_threshold_score": 2,
+    "sufficiency_threshold_score": 2
+  },
+  "isolation_policy": {
+    "mode": "STRICT_FIXTURE_ISOLATED",
+    "database_changes_allowed": 0,
+    "v1_runtime_modified_allowed": false,
+    "production_selection_allowed": false
+  }
+}

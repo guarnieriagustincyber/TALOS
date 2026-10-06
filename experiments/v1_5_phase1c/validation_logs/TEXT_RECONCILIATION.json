@@ -1,0 +1,464 @@
+{
+  "control_id": "C1",
+  "name": "Textual Reconciliation under Declared Rubric",
+  "timestamp": "2026-10-05T18:57:51.039250+00:00",
+  "total_evaluated": 64,
+  "categories_count": {
+    "BYTE_IDENTICAL": 61,
+    "DECLARED_NORMALIZATION": 3,
+    "DECLARED_TRANSFORMATION": 0,
+    "UNDECLARED_TRANSFORMATION": 0,
+    "MISMATCH": 0
+  },
+  "results": [
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p11:c0001",
+      "canonical_hash": "eedba7c19a51e126d1424f6e6bd77a33aa397764df30fb6058e2dace725b468c",
+      "runtime_raw_hash": "eedba7c19a51e126d1424f6e6bd77a33aa397764df30fb6058e2dace725b468c",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p12:c0002",
+      "canonical_hash": "b2cebd02d2605b1f177d61fd9f96bee0376e79a6a85a69f2ff09a877e94b65c2",
+      "runtime_raw_hash": "146049fb2d291351420a7953081c1ab72793ce4e4b38acf892b2f2372a42638b",
+      "category": "DECLARED_NORMALIZATION",
+      "notes": "SHA-256 matches after declared trailing whitespace/newline stripping (\\s+ / \\n)."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+      "canonical_hash": "227840e3ed414be42a99913b9fb133ac0906949758b8d47ec70ad0ad86c70fc8",
+      "runtime_raw_hash": "cdb39fd08cbf20720684824bb87fd37abb3419352feecdee52b74f136d8bc06b",
+      "category": "DECLARED_NORMALIZATION",
+      "notes": "SHA-256 matches after declared trailing whitespace/newline stripping (\\s+ / \\n)."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p14:c0004",
+      "canonical_hash": "1c6e2f3baa83ee5392335e8273092a1664fa9baff170d8940bc52dcd18accba8",
+      "runtime_raw_hash": "1c6e2f3baa83ee5392335e8273092a1664fa9baff170d8940bc52dcd18accba8",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p15:c0005",
+      "canonical_hash": "ed6270f733099640e2d29c1ef634916122a289924a1402cdd65fe8f5be90bad7",
+      "runtime_raw_hash": "ed6270f733099640e2d29c1ef634916122a289924a1402cdd65fe8f5be90bad7",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p16:c0006",
+      "canonical_hash": "e9a2d8146a9348daff1170a5204526726ab923506c8852cc1f36f3dbc729f8b8",
+      "runtime_raw_hash": "e9a2d8146a9348daff1170a5204526726ab923506c8852cc1f36f3dbc729f8b8",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p17:c0007",
+      "canonical_hash": "611a2f38a335bf50442359dafba05e2192ddafe2cbfe7d45c720c46a99ebdd1a",
+      "runtime_raw_hash": "611a2f38a335bf50442359dafba05e2192ddafe2cbfe7d45c720c46a99ebdd1a",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p35:c0008",
+      "canonical_hash": "b9b9e796c6751f918781bfe314ac89ccb4ec65f2d445de39955279159165953c",
+      "runtime_raw_hash": "b9b9e796c6751f918781bfe314ac89ccb4ec65f2d445de39955279159165953c",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p36:c0009",
+      "canonical_hash": "289c4528f16eacc852601017d5412bd2f9b83a662716fb8d860b4c61f6e15810",
+      "runtime_raw_hash": "289c4528f16eacc852601017d5412bd2f9b83a662716fb8d860b4c61f6e15810",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p37:c0010",
+      "canonical_hash": "48e28e144b7783d3721a26b28ea694eb25764219e22321342392d4012196c379",
+      "runtime_raw_hash": "48e28e144b7783d3721a26b28ea694eb25764219e22321342392d4012196c379",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p38:c0011",
+      "canonical_hash": "e21191b9423f4028bf49e39238df8ff530871e5198c8bc6b2f952e1120ac7232",
+      "runtime_raw_hash": "e21191b9423f4028bf49e39238df8ff530871e5198c8bc6b2f952e1120ac7232",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p39:c0012",
+      "canonical_hash": "e8b7c992e41ef126d6d48d97ddd30e0be3223034d4669b68101743cffdef42fd",
+      "runtime_raw_hash": "dc640845c5da905f826b795ce3ea22375bc210b98c21d0ffadba87e63d20ec46",
+      "category": "DECLARED_NORMALIZATION",
+      "notes": "SHA-256 matches after declared trailing whitespace/newline stripping (\\s+ / \\n)."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p40:c0013",
+      "canonical_hash": "4f448f8dfd0dabf8bbeae4718214a2531a4fba534c79b45086d254cc05921686",
+      "runtime_raw_hash": "4f448f8dfd0dabf8bbeae4718214a2531a4fba534c79b45086d254cc05921686",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p41:c0014",
+      "canonical_hash": "508ea3f96b1eadfd96e1d37283208b1bb1f267f7b867d2b2c5c6046cec67a01c",
+      "runtime_raw_hash": "508ea3f96b1eadfd96e1d37283208b1bb1f267f7b867d2b2c5c6046cec67a01c",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p42:c0015",
+      "canonical_hash": "0253b0032f36c0f6ed57a6f9629abf20f03ccdc98c465bf9d4da0c2d8d0c28ec",
+      "runtime_raw_hash": "0253b0032f36c0f6ed57a6f9629abf20f03ccdc98c465bf9d4da0c2d8d0c28ec",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+      "canonical_hash": "180324cfb4d46f30e1baecb2ab222f92540175848ac6c82784a3d908a66edbc8",
+      "runtime_raw_hash": "180324cfb4d46f30e1baecb2ab222f92540175848ac6c82784a3d908a66edbc8",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p44:c0017",
+      "canonical_hash": "bb9862e322e8413309971d127e5705f0e7c7a98828119e9cc8015056f492646a",
+      "runtime_raw_hash": "bb9862e322e8413309971d127e5705f0e7c7a98828119e9cc8015056f492646a",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p45:c0018",
+      "canonical_hash": "402de2a830551410122909648a9fb855504cd3734b6fd3213eaf87adae90d8fb",
+      "runtime_raw_hash": "402de2a830551410122909648a9fb855504cd3734b6fd3213eaf87adae90d8fb",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p135:c0019",
+      "canonical_hash": "4fd4fb4491abf5d30c593d1c69f5e5bed9a1ac21bf79a1367f457f2a2f17ea38",
+      "runtime_raw_hash": "4fd4fb4491abf5d30c593d1c69f5e5bed9a1ac21bf79a1367f457f2a2f17ea38",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p136:c0020",
+      "canonical_hash": "9a42038901e010a7930f55978581d62ddb821b5953624df63e352863436e996c",
+      "runtime_raw_hash": "9a42038901e010a7930f55978581d62ddb821b5953624df63e352863436e996c",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p137:c0021",
+      "canonical_hash": "bbd2686a82b194f22e0a5d62c27979c667b4bb9dd69b4cf78c3a0876d5fe2707",
+      "runtime_raw_hash": "bbd2686a82b194f22e0a5d62c27979c667b4bb9dd69b4cf78c3a0876d5fe2707",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+      "canonical_hash": "b83477aa9554ef117ff329419a96d1c90a437ada82a1f1fb9d579ef101364fc0",
+      "runtime_raw_hash": "b83477aa9554ef117ff329419a96d1c90a437ada82a1f1fb9d579ef101364fc0",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p139:c0023",
+      "canonical_hash": "8dbc365957f763bf8c77def71739bb43b5401d854d22f68e6324d98cacd6f9bd",
+      "runtime_raw_hash": "8dbc365957f763bf8c77def71739bb43b5401d854d22f68e6324d98cacd6f9bd",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p140:c0024",
+      "canonical_hash": "76464923afbc894c4c9700a3c10007b99b5a029dbf56f89704c6f29091cac9a8",
+      "runtime_raw_hash": "76464923afbc894c4c9700a3c10007b99b5a029dbf56f89704c6f29091cac9a8",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p141:c0025",
+      "canonical_hash": "2647af78ef02ced6368decdc30db9e460d387f2d4e65885dcb55cfe024f75dad",
+      "runtime_raw_hash": "2647af78ef02ced6368decdc30db9e460d387f2d4e65885dcb55cfe024f75dad",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p142:c0026",
+      "canonical_hash": "9d0d271592be56d08c9c177dfac38b62d8caaff82b421ab0178059cbae0b29ad",
+      "runtime_raw_hash": "9d0d271592be56d08c9c177dfac38b62d8caaff82b421ab0178059cbae0b29ad",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p143:c0027",
+      "canonical_hash": "8df3f0cd6c73086106d0cac6e96f823e725e0443e7dd6b47d9445c01a5290b5b",
+      "runtime_raw_hash": "8df3f0cd6c73086106d0cac6e96f823e725e0443e7dd6b47d9445c01a5290b5b",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p144:c0028",
+      "canonical_hash": "06ea9e33c635762ded7d792e5873f279024564c44b43bc57814d60841f55aea7",
+      "runtime_raw_hash": "06ea9e33c635762ded7d792e5873f279024564c44b43bc57814d60841f55aea7",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p145:c0029",
+      "canonical_hash": "3f0bfba6301c7e90315c78e92587e04f6de2beeab3479d64e065baa85808e003",
+      "runtime_raw_hash": "3f0bfba6301c7e90315c78e92587e04f6de2beeab3479d64e065baa85808e003",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p146:c0030",
+      "canonical_hash": "e1df6ddd14848e04cd9e721b85590e0dabe3b919231df85526b39192dcb1e560",
+      "runtime_raw_hash": "e1df6ddd14848e04cd9e721b85590e0dabe3b919231df85526b39192dcb1e560",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p147:c0031",
+      "canonical_hash": "a0ba9eb5a86f75410e22c857f3728b3039ba69f77f52a303ae8ac8187859e005",
+      "runtime_raw_hash": "a0ba9eb5a86f75410e22c857f3728b3039ba69f77f52a303ae8ac8187859e005",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p148:c0032",
+      "canonical_hash": "1240227ba896140d22a3fb38bc7175aa334a39af3351acd1c05378b75aba76aa",
+      "runtime_raw_hash": "1240227ba896140d22a3fb38bc7175aa334a39af3351acd1c05378b75aba76aa",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p149:c0033",
+      "canonical_hash": "d75671e5fc2b5c8f03f4059e0d2681ecbed35e7a168a7d16982e609b4c3c03da",
+      "runtime_raw_hash": "d75671e5fc2b5c8f03f4059e0d2681ecbed35e7a168a7d16982e609b4c3c03da",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p150:c0034",
+      "canonical_hash": "208a2e95999b587fd838408414c17f50c5f8425c7a4317cde1a643d650e2f2cb",
+      "runtime_raw_hash": "208a2e95999b587fd838408414c17f50c5f8425c7a4317cde1a643d650e2f2cb",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p485:c0035",
+      "canonical_hash": "fb287f0620efd1cc9593fd7331b97aa816d87ba2b154348ba49addd2b5fefca9",
+      "runtime_raw_hash": "fb287f0620efd1cc9593fd7331b97aa816d87ba2b154348ba49addd2b5fefca9",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p486:c0036",
+      "canonical_hash": "b23a98ae9eab1ac0761ba521ea3b0c8ec45e7bb28e50084b1e3a9213ea0ab0fe",
+      "runtime_raw_hash": "b23a98ae9eab1ac0761ba521ea3b0c8ec45e7bb28e50084b1e3a9213ea0ab0fe",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p487:c0037",
+      "canonical_hash": "51e9defab1c2ed74328755d974b47071a49e1ed0a75e9f44efd74f81b1e5fee4",
+      "runtime_raw_hash": "51e9defab1c2ed74328755d974b47071a49e1ed0a75e9f44efd74f81b1e5fee4",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p488:c0038",
+      "canonical_hash": "d5f4d022f70d8418d85e73beb6d60cd3d789de139b77e47ee2ee8acf9779e051",
+      "runtime_raw_hash": "d5f4d022f70d8418d85e73beb6d60cd3d789de139b77e47ee2ee8acf9779e051",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p489:c0039",
+      "canonical_hash": "de3cc3adf6b4912c8255e3480f8766737d5ffbc843376db5cd314bcbcfc9baec",
+      "runtime_raw_hash": "de3cc3adf6b4912c8255e3480f8766737d5ffbc843376db5cd314bcbcfc9baec",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p490:c0040",
+      "canonical_hash": "5ffe62543e07f855946baf6d10e87f1a36b9fc75029b64d0898317e6809fa98f",
+      "runtime_raw_hash": "5ffe62543e07f855946baf6d10e87f1a36b9fc75029b64d0898317e6809fa98f",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p491:c0041",
+      "canonical_hash": "d0697e93be2097194b0981b4b1c6feadb0956815cd265aa3503d0e1d13261527",
+      "runtime_raw_hash": "d0697e93be2097194b0981b4b1c6feadb0956815cd265aa3503d0e1d13261527",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p492:c0042",
+      "canonical_hash": "fcde033b70a7e2afbcf8141a6fc4b4d9955f8f776543e59eae973895b3936796",
+      "runtime_raw_hash": "fcde033b70a7e2afbcf8141a6fc4b4d9955f8f776543e59eae973895b3936796",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p493:c0043",
+      "canonical_hash": "4ebf1d25d55c97c22c3963658762110cc0bbb49bf5b85a086a0bcc4d98a3ea29",
+      "runtime_raw_hash": "4ebf1d25d55c97c22c3963658762110cc0bbb49bf5b85a086a0bcc4d98a3ea29",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p494:c0044",
+      "canonical_hash": "7cd7fef31a8b26a24f8598b289dc7c645d201a12a8fac214bbabc1ba55d603bb",
+      "runtime_raw_hash": "7cd7fef31a8b26a24f8598b289dc7c645d201a12a8fac214bbabc1ba55d603bb",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p495:c0045",
+      "canonical_hash": "fe6aecd42247a6a308a97201decb38c18ce6c9b7a34512f86e2aa314ea3007de",
+      "runtime_raw_hash": "fe6aecd42247a6a308a97201decb38c18ce6c9b7a34512f86e2aa314ea3007de",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p496:c0046",
+      "canonical_hash": "b9916fab978cc16770114302c7fba8e564886d27267c2526d683597a98c1f949",
+      "runtime_raw_hash": "b9916fab978cc16770114302c7fba8e564886d27267c2526d683597a98c1f949",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p497:c0047",
+      "canonical_hash": "b9fe2467c752de373074723fe4aff0d3ba19d2274966734ac92eca8ba128c7c2",
+      "runtime_raw_hash": "b9fe2467c752de373074723fe4aff0d3ba19d2274966734ac92eca8ba128c7c2",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p498:c0048",
+      "canonical_hash": "114d46570c460bf0f0d771329fd61b292c616e6367df58c5f667ff41603049c8",
+      "runtime_raw_hash": "114d46570c460bf0f0d771329fd61b292c616e6367df58c5f667ff41603049c8",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p499:c0049",
+      "canonical_hash": "43cf7c3d4563a170349480a0a875f47d512adff712a8f51c77051b7fb3e3defd",
+      "runtime_raw_hash": "43cf7c3d4563a170349480a0a875f47d512adff712a8f51c77051b7fb3e3defd",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p500:c0050",
+      "canonical_hash": "40e69a6938366c11c36680072c2879af980f5af5fade408d2693e16e6cdff454",
+      "runtime_raw_hash": "40e69a6938366c11c36680072c2879af980f5af5fade408d2693e16e6cdff454",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p501:c0051",
+      "canonical_hash": "26cf0b20e0ac2e65b7ccba517621bf2f400651d7ee6cac29a166686c60456d8f",
+      "runtime_raw_hash": "26cf0b20e0ac2e65b7ccba517621bf2f400651d7ee6cac29a166686c60456d8f",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p502:c0052",
+      "canonical_hash": "ca20e289f9ae7dc5421c15b390edf4fa79a5c8190fe933451c7c2afb2809830e",
+      "runtime_raw_hash": "ca20e289f9ae7dc5421c15b390edf4fa79a5c8190fe933451c7c2afb2809830e",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p503:c0053",
+      "canonical_hash": "69e80cb793ab8a4c2c470eafb5d25dc2de4a1c73c70add60a3c172eb62cb9290",
+      "runtime_raw_hash": "69e80cb793ab8a4c2c470eafb5d25dc2de4a1c73c70add60a3c172eb62cb9290",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p504:c0054",
+      "canonical_hash": "c308e5f2d1ba6da115037775309dcbf47c11c9d821164a6891a5df81bce61e19",
+      "runtime_raw_hash": "c308e5f2d1ba6da115037775309dcbf47c11c9d821164a6891a5df81bce61e19",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p505:c0055",
+      "canonical_hash": "d81095f7b640fc39fec09693eac46f8ec8420c0a416c3ee8aefbc8dbffd0f1ca",
+      "runtime_raw_hash": "d81095f7b640fc39fec09693eac46f8ec8420c0a416c3ee8aefbc8dbffd0f1ca",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p540:c0056",
+      "canonical_hash": "7ecd97924a6528f8989bfcaef105315dd16bc0aaf306a3d60e5872e334b3b306",
+      "runtime_raw_hash": "7ecd97924a6528f8989bfcaef105315dd16bc0aaf306a3d60e5872e334b3b306",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p541:c0057",
+      "canonical_hash": "23979d9409e2c37be8c7cc4767ec7f13e8605296ac129cc48d94781d1ef29846",
+      "runtime_raw_hash": "23979d9409e2c37be8c7cc4767ec7f13e8605296ac129cc48d94781d1ef29846",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p542:c0058",
+      "canonical_hash": "2b5b810a6d0f5fa8747b425eed87e71ca9f4349fb26979cb64976ca3a37fe434",
+      "runtime_raw_hash": "2b5b810a6d0f5fa8747b425eed87e71ca9f4349fb26979cb64976ca3a37fe434",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p543:c0059",
+      "canonical_hash": "2b14916ec5cfb9fefd768baa4850eaa1a45a6933a5ea401525fdffcb25976f68",
+      "runtime_raw_hash": "2b14916ec5cfb9fefd768baa4850eaa1a45a6933a5ea401525fdffcb25976f68",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p544:c0060",
+      "canonical_hash": "56bee0c14228c4fef56e47cbe4c63a9a587b2138ba48a48628fa91241300908d",
+      "runtime_raw_hash": "56bee0c14228c4fef56e47cbe4c63a9a587b2138ba48a48628fa91241300908d",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p545:c0061",
+      "canonical_hash": "7986acfb3080fc6e0562b619a7ba8f7e1430a0f29626b69c14d240cb6cb4c0d0",
+      "runtime_raw_hash": "7986acfb3080fc6e0562b619a7ba8f7e1430a0f29626b69c14d240cb6cb4c0d0",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p546:c0062",
+      "canonical_hash": "f73a0849604e0d117dfd1232db63aedc9c04fe9e4c8c05764b074b818460dec5",
+      "runtime_raw_hash": "f73a0849604e0d117dfd1232db63aedc9c04fe9e4c8c05764b074b818460dec5",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p547:c0063",
+      "canonical_hash": "7673dcc349c10dd874ba28f9e543729d875b7f59a0169122d60f6c7ef4abf589",
+      "runtime_raw_hash": "7673dcc349c10dd874ba28f9e543729d875b7f59a0169122d60f6c7ef4abf589",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    },
+    {
+      "chunk_id": "doc_joyanes_fundamentos_4ed:p548:c0064",
+      "canonical_hash": "a0c447e88dcbfb6a41eb4847731b969f8354f5394e279a66e958fdf89a242224",
+      "runtime_raw_hash": "a0c447e88dcbfb6a41eb4847731b969f8354f5394e279a66e958fdf89a242224",
+      "category": "BYTE_IDENTICAL",
+      "notes": "Exact bit-for-bit SHA-256 match between runtime content and canonical manifest."
+    }
+  ],
+  "status": "PASS"
+}

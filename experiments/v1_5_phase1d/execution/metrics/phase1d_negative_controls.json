@@ -1,0 +1,32 @@
+{
+  "NC-01": {
+    "name": "Anti-Leakage",
+    "description": "Corpus strictly restricted to Joyanes document without external keys/tokens",
+    "passed": true,
+    "details": "Foreign chunks detected: 0"
+  },
+  "NC-02": {
+    "name": "Phantom Candidate",
+    "description": "Non-existent chunk ID yields None/empty without synthetic fabrication",
+    "passed": true,
+    "details": "Phantom chunk retrieval: None"
+  },
+  "NC-03": {
+    "name": "Inter-Notebook ACL",
+    "description": "Foreign notebook tagged candidate is isolated from benchmark scope",
+    "passed": true,
+    "details": "Candidate notebook_id=other_unauthorized_notebook correctly recognized as foreign"
+  },
+  "NC-04": {
+    "name": "OOD True Negative",
+    "description": "OOD query yields rerank score below abstention guard threshold tau=0.35",
+    "passed": true,
+    "details": "OOD APIC rerank score: 0.0300 < 0.35"
+  },
+  "NC-05": {
+    "name": "Production Shield",
+    "description": "Production DB hashes match baseline bit-for-bit",
+    "passed": true,
+    "details": "All 6 DBs intact"
+  }
+}

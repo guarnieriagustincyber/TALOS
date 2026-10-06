@@ -1,0 +1,94 @@
+{
+  "$schema": "https://raw.githubusercontent.com/guarnieriagustincyber/TALOS/main/schemas/probe1_test_metrics.schema.json",
+  "experiment_id": "exp_ingestion_probe0_v2",
+  "phase": "V1.5 — Phase 1 / Ingestion Intelligence Lab",
+  "probe": "PROBE-1: Adaptive Structural Routing",
+  "split": "TEST",
+  "evaluation_timestamp": "2026-10-06T04:48:14.446573+00:00",
+  "calibrated_router_version": "v1.0.1-calibrated-frozen",
+  "calibrated_router_hash": "8753a32db341a6488aa58cb48de40712e7cacb963d6ef1dd2e78df31d70e71fe",
+  "test_pages_count": 19,
+  "confusion_matrix": {
+    "TP": 5,
+    "FP": 1,
+    "TN": 9,
+    "FN": 4,
+    "total_positive": 9,
+    "total_negative": 10,
+    "total_pages": 19
+  },
+  "classification_metrics": {
+    "missed_escalation_rate": 0.4444,
+    "missed_escalation_rate_pct": 44.44,
+    "false_escalation_rate": 0.1,
+    "false_escalation_rate_pct": 10.0,
+    "accuracy": 0.7368,
+    "accuracy_pct": 73.68,
+    "precision": 0.8333,
+    "precision_pct": 83.33,
+    "recall": 0.5556,
+    "recall_pct": 55.56
+  },
+  "structural_quality": {
+    "mean_q_b0_pypdf": 2.3421,
+    "mean_q_b1_pymupdf": 2.3596,
+    "mean_q_b2_docling": 2.7895,
+    "mean_q_b3_adaptive": 2.6842,
+    "delta_b3_vs_b2": -0.1053,
+    "delta_b3_vs_b1": 0.3246
+  },
+  "computational_cost_and_latency": {
+    "telemetry_by_baseline": {
+      "pypdf": {
+        "total_ms": 916.03,
+        "mean_ms": 48.21,
+        "median_ms": 33.66,
+        "p95_ms": 91.17,
+        "min_ms": 20.68,
+        "max_ms": 185.98
+      },
+      "pymupdf": {
+        "total_ms": 202.56,
+        "mean_ms": 10.66,
+        "median_ms": 8.86,
+        "p95_ms": 17.12,
+        "min_ms": 5.0,
+        "max_ms": 17.15
+      },
+      "docling": {
+        "total_ms": 72905.09,
+        "mean_ms": 3837.11,
+        "median_ms": 1791.96,
+        "p95_ms": 6708.75,
+        "min_ms": 967.83,
+        "max_ms": 40558.45
+      },
+      "adaptive": {
+        "total_ms": 9632.44,
+        "mean_ms": 506.97,
+        "median_ms": 36.82,
+        "p95_ms": 1891.51,
+        "min_ms": 17.04,
+        "max_ms": 2513.83
+      }
+    },
+    "relative_cost_b3_vs_b2": 0.1321,
+    "cost_reduction_b3_vs_b2_pct": 86.79
+  },
+  "pareto_frontier_analysis": {
+    "pareto_quality_threshold_q_b2_minus_0_15": 2.6395,
+    "q_b3_achieved": 2.6842,
+    "pareto_quality_condition_satisfied": true,
+    "cost_ratio_threshold": 0.5,
+    "cost_ratio_achieved": 0.1321,
+    "pareto_cost_condition_satisfied": true,
+    "pareto_efficient": true
+  },
+  "exit_gate_verdict": {
+    "verdict": "FAIL",
+    "safety_criterion_met": false,
+    "safety_threshold_mer": "<= 10.0%",
+    "safety_mer_achieved": "44.44%",
+    "verdict_rationale": "The adaptive router achieves Pareto efficiency on computational cost (13.21% vs <= 50.0%) and preserves near-Docling mean quality (Q=2.6842 vs target 2.6395). However, it fails the critical safety exit gate because the Missed Escalation Rate is 44.44% (> 10.0% tolerance, and > 20.0% fail limit). Four structurally complex pages (p078 borderless table, p085 concept diagram, p092 UML class diagram, p110 N-S diagram) were not escalated due to low vector line counts and zero table grid lines. The router is rejected for production use in its current form."
+  }
+}

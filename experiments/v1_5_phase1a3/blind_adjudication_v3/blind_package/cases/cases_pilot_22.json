@@ -1,0 +1,1140 @@
+[
+  {
+    "case_id": "CASE-01",
+    "query_id": "Q1A2-01",
+    "query_text": "¿Cuál es la estructura general de contenidos y preliminares presentada en el índice de Fundamentos de Programación?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      11,
+      14
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Recupera la descripción o listado de capítulos preliminares de la obra.",
+      "sufficient_conditions": "Permite contrastar el esquema temático de la obra."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p546:c0062",
+        "page_number": 546,
+        "heading_path": [
+          "Joyanes",
+          "Página 546"
+        ],
+        "content_snippet": "[Página 546]\n516  \nFundamentos de programación\nSi los árboles terminaron de recorrerse simultáneamente es que ambos tienen el mismo número de nodos y nunca ha \nsido diferente la información comparada; por tanto, la función devolverá verdad; en cualquier otro caso la función devolverá \nfalso.\nDiseño del algoritmo\nlógico función iguales(E punt: raíz1, raíz2)\ninicio\n  si raíz1 = nulo entonces\n    si raíz2 = nulo entonces\n      devolver(verdad)\n    fin_si\n  si_no\n    si raíz2 = nulo entonces\n      devolver(falso)\n    si_no\n      si raíz1→.elemento <> raíz2→.elemento entonces\n        devolver(falso)\n      si_no\n        devolver(iguales(raíz1→.izdo, raíz2→.izdo)\n               y iguales(raíz1→.dcho, raíz2→.dcho))\n      fin_si\n    fin_si\n  fin_si\nfin_función\nCONCEPTOS CLAVE\n• Árbol.\n• Árbol binar...",
+        "char_count": 1501
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p500:c0050",
+        "page_number": 500,
+        "heading_path": [
+          "Joyanes",
+          "Página 500"
+        ],
+        "content_snippet": "[Página 500]\n470  \nFundamentos de programación\n  registro : tipo_nodo\n    tipo_elemento: elemento\n    entero: sig\n  fin_registro\n  array[1..Max] de tipo_nodo: lista\n var\n  entero: inic,vacio\n  lista: m\n  carácter: opcion\ninicio\n  iniciar(m, vacio)\n  inicializar(inic)\n  repetir\n    escribir('1.- Ventas')\n    escribir('2.- Devoluciones')\n    escribir('3.- Mostrar lista')\n    escribir('4.- Fin')\n    escribir('Elija opcion')\n    leer(opcion)\n    según_sea opcion hacer\n     '1':nuevasventas(inic,vacio,m)\n     '2':devoluciones(inic,vacio,m)\n     '3':recorrer(inic,m)\n    fin_según\n  hasta_que opcion='4'\nfin\nprocedimiento inicializar(S entero: inic);\n inicio\n  inic ← 0\n fin_procedimiento\nlógico función vacia(E entero: inic)\n inicio\n  devolver(inic = 0)\n fin_función\nprocedimiento iniciar( E/S lista...",
+        "char_count": 1196
+      }
+    }
+  },
+  {
+    "case_id": "CASE-02",
+    "query_id": "Q1A2-02",
+    "query_text": "¿En qué página y capítulo del índice general se ubican las estructuras de datos y punteros?",
+    "archetype": "ARQ-08",
+    "target_pages": [
+      14,
+      18
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Identifica los números de página o capítulos correspondientes a estructuras de datos o punteros.",
+      "sufficient_conditions": "Proporciona la ubicación precisa en el índice general."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ......................................................................................................................................................... \n405\n11.1. Introducción ....................................................................................................................................................... \n406\n11.2. Archivos ordenados ........................................................................................................................................... \n406\n11.3. Fusión de archivos ..........................................................................................",
+        "char_count": 4091
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p485:c0035",
+        "page_number": 485,
+        "heading_path": [
+          "Joyanes",
+          "Página 485"
+        ],
+        "content_snippet": "[Página 485]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  455\n  procedimiento consultarCima( E punt: cima;\nS tipo_elemento: elemento)\n   inicio\n   si no vacia (cima) entonces\n      elemento ← cima→.elemento\n   fin_si\n   fin_procedimiento\nLos elementos se incorporan siempre por un extremo, cima.\n    meter(cima, elemento)\nxxx\nnulo\nnulo\nyyy\ncima\ncima\n \ncima →\nelemento cima\ncima →\nelemento cima\nauxi\nauxi\nzzz\n1.º\n2.º\n3.º\nnulo\ncima\ncima →\nelemento cima\n6.º\nxxx\nyyy\nzzz\nxxx\nyyy\nauxi\n5.º\n4.º\nzzz\n \n1.º cima apunta al último elemento de la pila.\n2.º reservar(auxi).\n3.º Introducimos la información en auxi→.elemento.\n4.º Hacemos que auxi→.cima apunte a donde cima.\n5.º Cambiamos cima para que apunte donde auxi.\n6.º La pila tiene un elemento más.",
+        "char_count": 771
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ......................................................................................................................................................... \n405\n11.1. Introducción ....................................................................................................................................................... \n406\n11.2. Archivos ordenados ........................................................................................................................................... \n406\n11.3. Fusión de archivos ..........................................................................................",
+        "char_count": 4091
+      }
+    }
+  },
+  {
+    "case_id": "CASE-03",
+    "query_id": "Q1A2-03",
+    "query_text": "¿Qué es un algoritmo según Joyanes Aguilar y cuáles son sus características básicas?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      35,
+      40
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Define algoritmo como secuencia finita de pasos o instrucciones no ambiguas.",
+      "sufficient_conditions": "Detalla las características esenciales (precisión, finitud, definición)."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      }
+    }
+  },
+  {
+    "case_id": "CASE-04",
+    "query_id": "Q1A2-04",
+    "query_text": "¿Cuáles son las fases de resolución de un problema mediante computadora según el texto?",
+    "archetype": "ARQ-04",
+    "target_pages": [
+      38,
+      45
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Enumera las etapas principales desde el análisis hasta la verificación del programa.",
+      "sufficient_conditions": "Permite reconstruir la secuencia completa sin omitir pasos críticos."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p148:c0032",
+        "page_number": 148,
+        "heading_path": [
+          "Joyanes",
+          "Página 148"
+        ],
+        "content_snippet": "[Página 148]\n118  \nFundamentos de programación\n3.13. Determinar el mayor de tres números enteros.\nSolución\nLos pasos a seguir son:\n1. Comparar el primero y el segundo entero, deduciendo cuál es el mayor.\n2. Comparar el mayor anterior con el tercero y deducir cuál es el mayor. Este será el resultado.\nLos pasos anteriores se pueden descomponer en otros pasos más simples en lo que se denomina refinamiento del algo-\nritmo:\n1. Obtener el primer número (entrada), denominarlo NUM1.\n2. Obtener el segundo número (entrada), denominarlo NUM2.\n3. Comparar NUM1 con NUM2 y seleccionar el mayor; si los dos enteros son iguales, seleccionar NUM1. Llamar a este \nnúmero MAYOR.\n4. Obtener el tercer número (entrada) y denominarlo NUM3.\n5. Comparar MAYOR con NUM3 y seleccionar el mayor; si los dos enteros son i...",
+        "char_count": 1754
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p45:c0018",
+        "page_number": 45,
+        "heading_path": [
+          "Joyanes",
+          "Página 45"
+        ],
+        "content_snippet": "[Página 45]\nIntroducción a las computadoras y los lenguajes de programación  15\n1.3. REPRESENTACIÓN DE LA INFORMACIÓN EN LAS COMPUTADORAS\nUna computadora es un sistema para procesar información de modo automático. Un tema vital en el proceso de fun-\ncionamiento de una computadora es estudiar la forma de representación de la información en dicha computadora. Es \nnecesario considerar cómo se puede codificar la información en patrones de bits que sean fácilmente almacenables \ny procesables por los elementos internos de la computadora.\nLas formas de información más significativas son: textos, sonidos, imágenes y valores numéricos y, cada una de \nellas presentan peculiaridades distintas. Otros temas importantes en el campo de la programación se refieren a los \nmétodos de detección de errores qu...",
+        "char_count": 1891
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p45:c0018",
+        "page_number": 45,
+        "heading_path": [
+          "Joyanes",
+          "Página 45"
+        ],
+        "content_snippet": "[Página 45]\nIntroducción a las computadoras y los lenguajes de programación  15\n1.3. REPRESENTACIÓN DE LA INFORMACIÓN EN LAS COMPUTADORAS\nUna computadora es un sistema para procesar información de modo automático. Un tema vital en el proceso de fun-\ncionamiento de una computadora es estudiar la forma de representación de la información en dicha computadora. Es \nnecesario considerar cómo se puede codificar la información en patrones de bits que sean fácilmente almacenables \ny procesables por los elementos internos de la computadora.\nLas formas de información más significativas son: textos, sonidos, imágenes y valores numéricos y, cada una de \nellas presentan peculiaridades distintas. Otros temas importantes en el campo de la programación se refieren a los \nmétodos de detección de errores qu...",
+        "char_count": 1891
+      }
+    }
+  },
+  {
+    "case_id": "CASE-05",
+    "query_id": "Q1A2-05",
+    "query_text": "¿Cuál es la diferencia entre el diseño descendente (top-down) y el refinamiento por pasos?",
+    "archetype": "ARQ-02",
+    "target_pages": [
+      40,
+      45
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Explica la descomposición modular y la especificación sucesiva de detalles.",
+      "sufficient_conditions": "Contrasta adecuadamente ambos conceptos según la metodología expuesta."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p148:c0032",
+        "page_number": 148,
+        "heading_path": [
+          "Joyanes",
+          "Página 148"
+        ],
+        "content_snippet": "[Página 148]\n118  \nFundamentos de programación\n3.13. Determinar el mayor de tres números enteros.\nSolución\nLos pasos a seguir son:\n1. Comparar el primero y el segundo entero, deduciendo cuál es el mayor.\n2. Comparar el mayor anterior con el tercero y deducir cuál es el mayor. Este será el resultado.\nLos pasos anteriores se pueden descomponer en otros pasos más simples en lo que se denomina refinamiento del algo-\nritmo:\n1. Obtener el primer número (entrada), denominarlo NUM1.\n2. Obtener el segundo número (entrada), denominarlo NUM2.\n3. Comparar NUM1 con NUM2 y seleccionar el mayor; si los dos enteros son iguales, seleccionar NUM1. Llamar a este \nnúmero MAYOR.\n4. Obtener el tercer número (entrada) y denominarlo NUM3.\n5. Comparar MAYOR con NUM3 y seleccionar el mayor; si los dos enteros son i...",
+        "char_count": 1754
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p486:c0036",
+        "page_number": 486,
+        "heading_path": [
+          "Joyanes",
+          "Página 486"
+        ],
+        "content_snippet": "[Página 486]\n456  \nFundamentos de programación\nprocedimiento meter(E/S punt: cima; E tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n   reservar(auxi)\n   auxi→.elemento ← elemento\n   auxi→.cima ← cima\n   cima ← auxi\n fin_procedimiento\nLos elementos se recuperan en orden inverso a como fueron introducidos\nSacar(cima, elemento)\nnulo\nxxx\nelemento cima\ncima →\ncima →\nyyy\nauxi\n1.º\n2.º\nzzz\ncima\n3.º\ncima →\nelemento cima\nxxx\nyyy\n4.º\n5.º\ncima\nauxi\nzzz\ncima →\nelemento cima\n1.º cima apunta al último elemento de la pila\n2.º Hacemos que auxi apunte adonde apuntaba cima\n3.º Y que cima pase a apuntar adonde cima→.cima\n4.º liberar(auxi)\n5.º La pila tiene un elemento menos\nprocedimiento sacar(E/S punt:cima; S tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n    si no vacia (cima) entonces\n      aux...",
+        "char_count": 866
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p486:c0036",
+        "page_number": 486,
+        "heading_path": [
+          "Joyanes",
+          "Página 486"
+        ],
+        "content_snippet": "[Página 486]\n456  \nFundamentos de programación\nprocedimiento meter(E/S punt: cima; E tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n   reservar(auxi)\n   auxi→.elemento ← elemento\n   auxi→.cima ← cima\n   cima ← auxi\n fin_procedimiento\nLos elementos se recuperan en orden inverso a como fueron introducidos\nSacar(cima, elemento)\nnulo\nxxx\nelemento cima\ncima →\ncima →\nyyy\nauxi\n1.º\n2.º\nzzz\ncima\n3.º\ncima →\nelemento cima\nxxx\nyyy\n4.º\n5.º\ncima\nauxi\nzzz\ncima →\nelemento cima\n1.º cima apunta al último elemento de la pila\n2.º Hacemos que auxi apunte adonde apuntaba cima\n3.º Y que cima pase a apuntar adonde cima→.cima\n4.º liberar(auxi)\n5.º La pila tiene un elemento menos\nprocedimiento sacar(E/S punt:cima; S tipo_elemento: elemento)\n var \n   punt: auxi\n inicio\n    si no vacia (cima) entonces\n      aux...",
+        "char_count": 866
+      }
+    }
+  },
+  {
+    "case_id": "CASE-06",
+    "query_id": "Q1A2-06",
+    "query_text": "¿Cómo se describe la estructura jerárquica de un programa estructurado?",
+    "archetype": "ARQ-06",
+    "target_pages": [
+      42,
+      45
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Describe la organización modular en niveles de abstracción.",
+      "sufficient_conditions": "Explica la interacción funcional entre el programa principal y subprogramas."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p547:c0063",
+        "page_number": 547,
+        "heading_path": [
+          "Joyanes",
+          "Página 547"
+        ],
+        "content_snippet": "[Página 547]\nEstructura de datos no lineales (árboles y grafos)  517\npresentan estructuras jerárquicas con limitaciones de dos sub-\nárboles por cada nodo. Si se eliminan las restricciones de \nque cada nodo puede apuntar a dos nodos —como máxi-\nmo— y que cada nodo puede estar apuntado por otro nodo \n—como máximo— nos encontramos con un grafo. Ejem-\nplos de grafos en la vida real los tenemos en la red de ca-\nrreteras de un estado o región, la red de enlaces ferroviarios \no aéreos nacionales, etc.\nUn grafo G consta de dos conjuntos (G = {V, E}): \nun conjunto V de vértices o nodos y un conjunto E de aris-\ntas (parejas de vértices distintos) que conectan los vértices. \nSi las parejas no están ordenadas, G se denomina grafo no \ndirigido; si los pares están ordenados, entonces G se deno-\nmina gra...",
+        "char_count": 1697
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p37:c0010",
+        "page_number": 37,
+        "heading_path": [
+          "Joyanes",
+          "Página 37"
+        ],
+        "content_snippet": "[Página 37]\nIntroducción a las computadoras y los lenguajes de programación  7\n1.2. ORGANIZACIÓN FÍSICA DE UNA COMPUTADORA\nLos dos componentes principales de una computadora son: hardware y software. Hardware es el equipo físico o los \ndispositivos asociados con una computadora. Sin embargo, para ser útil una computadora necesita además del equipo \nfísico, un conjunto de instrucciones dadas. El conjunto de instrucciones que indican a la computadora aquello que \ndeben hacer se denomina software o programas y se escriben por programadores. Este libro se centra en la ense-\nñanza y aprendizaje de la programación o proceso de escribir programas.\nUna red consta de un número de computadoras conectadas entre sí directamente o a través de otra computadora \ncentral (llamada servidor), de modo que pu...",
+        "char_count": 2051
+      }
+    }
+  },
+  {
+    "case_id": "CASE-07",
+    "query_id": "Q1A2-07",
+    "query_text": "¿Cómo se define y formaliza la estructura de selección doble (si-entonces-sino) en pseudocódigo?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      135,
+      142
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Presenta la sintaxis o reglas semánticas de la bifurcación lógica doble.",
+      "sufficient_conditions": "Muestra el pseudocódigo formal y las ramas verdadera/falsa."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p142:c0026",
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algoritmo\n    .\n    .\n    .\n  <sentencia Sn>\nfin\nNotas\n1. En ocasiones, la declaración de constantes y variables las omitiremos o se describirán en una tabla de varia-\nbles que hace sus mismas funciones.\n2. Las cadenas de caracteres se encerrarán entre comillas simples.\n3. Utilizar siempre sangrías en los bucles o en aquellas instrucciones que proporcionen legibilidad al programa, \ncomo inicio y fin.\nMODELO PROPUESTO DE ALGORITMO\nalgoritmo raices\n// resuelve una ecuación de 2.º grado\nvar\n  real : a, b, c\ninicio\n  leer(a, b, c)\n  d ← b ^ 2 - 4 * a * c\n  si d < 0 entonces\n    escribir('raices complej...",
+        "char_count": 981
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p503:c0053",
+        "page_number": 503,
+        "heading_path": [
+          "Joyanes",
+          "Página 503"
+        ],
+        "content_snippet": "[Página 503]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  473\nprocedimiento devoluciones( E/S entero: inic, vacio; E/S lista: m)\n var\n  tipo_elemento: elemento\n  entero       : posic, anterior\n  entero       : cantidad\n  lógico       : encontrado\n inicio\n   si no vacia(inic) entonces\n     escribir('Introduzca un * en el código para terminar')\n     escribir('Código: ')\n     leer(elemento.cod)\n   si_no\n     escribir('No hay ventas, no puede haber devoluciones')\n   fin_si\n   mientras (elemento.cod<>'*' ) y no vacia(inic) hacer\n     consultar(inic, posic, anterior, elemento, encontrado, m)\n     si encontrado entonces\n       repetir\n         escribir('Deme cantidad devuelta ')\n         leer(cantidad)\n         si cantidad > m[posic].elemento.cantidad entonces\n      ...",
+        "char_count": 1809
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p499:c0049",
+        "page_number": 499,
+        "heading_path": [
+          "Joyanes",
+          "Página 499"
+        ],
+        "content_snippet": "[Página 499]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  469\nFrente\nFondo\nEliminación\nEliminación\nInserción\nInserción\nFigura 12.18. Doble cola (bicola).\nExisten dos variantes de la doble cola:\n• Doble cola de entrada restringida: acepta inserciones sólo al final de la cola.\n• Doble cola de salida restringida: acepta eliminaciones sólo al frente de la cola.\nInserción\nIZQ  =  5\nDCHA = 25\nEliminación\nx\n5\n25\nx\nLos procedimientos de inserción y eliminación de las dobles colas son variantes de los procedimientos estudiados \npara las colas simples y se dejan como ejercicio al lector.\nACTIVIDADES DE PROGRAMACIÓN RESUELTAS\n12.1. Una tienda de artículos deportivos desea almacenar en una lista enlazada, con un único elemento por producto, la \nsiguiente información sobre...",
+        "char_count": 1861
+      }
+    }
+  },
+  {
+    "case_id": "CASE-08",
+    "query_id": "Q1A2-08",
+    "query_text": "¿Cuál es la sintaxis de la sentencia de selección múltiple según_sea (switch) y cómo se maneja la opción por defecto?",
+    "archetype": "ARQ-05",
+    "target_pages": [
+      142,
+      148
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Identifica los bloques de selección múltiple y la cláusula alternativa (de otro modo / default).",
+      "sufficient_conditions": "Permite reproducir la estructura sintáctica completa sin ambigüedades."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p141:c0025",
+        "page_number": 141,
+        "heading_path": [
+          "Joyanes",
+          "Nota"
+        ],
+        "content_snippet": "[Nota]\nEstructura general de un programa  111\n2. Comentarios multilínea (comienzan con los caracteres /* y terminan con los caracteres  */, todo lo encerrado \nentre ambos juegos de caracteres son comentarios)\n/* El maestro Mackoy estudió el Bachiller en el mismo Instituto donde dio clase \nDon Antonio Machado, el poeta */   \nJava\n1. Comentarios de una línea\n// comentarios sobre la Ley de Protección de Datos\n2. Comentarios multilíneas\n/* El pueblo de Mr. Mackoy está en Sierra Mágina, y produce uno \nde los mejores aceites de oliva del mundo mundial             */\n3. Documentación de clases \n/**\n        Documentación de la clase\n*/\nPascal\nLos comentarios se encierran entre los símbolos\n(*               *)\no bien\n{               }\n(* autor J.R. Mackoy *)\n{subrutina ordenacion}\nModula-2\nLos come...",
+        "char_count": 1380
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p17:c0007",
+        "page_number": 17,
+        "heading_path": [
+          "Joyanes",
+          "Página 17"
+        ],
+        "content_snippet": "[Página 17]\n18.10.2. Manual de mantenimiento (documentación para programadores) .................................................. \n680\n18.10.3. Reglas de documentación ................................................................................................................ \n681\n18.11. Depuración ....................................................................................................................................................... \n681\n18.11.1. Localización y reparación de errores ............................................................................................... \n681\n18.11.2. Depuración de sentencias si-entonces-sino ..................................................................................... \n682\n18.11.3. Los equipos de programación ...............",
+        "char_count": 3717
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p136:c0020",
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere utilizando el signo de asignación (=) de C, C++, Java o C#.\nCaso especial\nLos lenguajes C, C++, Java y C# permiten realizar múltiples asignaciones en una sola sentencia\na = b = c = d = e = n +35;\nTabla 3.10. Operadores aritméticos de asignación múltiple\nOperador de asignación\nEjemplo\nOperación\nResultado\nEntero a = 3, b= 5, c = 4, d = 6, e = 10\n*=\na += 8\na = a+8\na = 11\n-=\nb -= 5\nb = b-5\nb = 0\n*=\nc *= 4\nc = c*4\nc = 16\n/=\nd /= 3\nd = d/3\nd = 2\n%=\ne %= 9\ne = e%9\ne = 1\n \n3.9.5. Conversión de tipo\nEn las asignaciones no se pueden asignar valores a una variable de un tipo incompatible al suyo. Se presenta...",
+        "char_count": 1270
+      }
+    }
+  },
+  {
+    "case_id": "CASE-09",
+    "query_id": "Q1A2-09",
+    "query_text": "¿Qué algoritmo o pseudocódigo se presenta para evaluar si un número entero es par o impar?",
+    "archetype": "ARQ-04",
+    "target_pages": [
+      138,
+      145
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Recupera el pseudocódigo o lógica que utiliza el operador módulo para determinar paridad.",
+      "sufficient_conditions": "Proporciona el algoritmo funcional completo."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p142:c0026",
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algoritmo\n    .\n    .\n    .\n  <sentencia Sn>\nfin\nNotas\n1. En ocasiones, la declaración de constantes y variables las omitiremos o se describirán en una tabla de varia-\nbles que hace sus mismas funciones.\n2. Las cadenas de caracteres se encerrarán entre comillas simples.\n3. Utilizar siempre sangrías en los bucles o en aquellas instrucciones que proporcionen legibilidad al programa, \ncomo inicio y fin.\nMODELO PROPUESTO DE ALGORITMO\nalgoritmo raices\n// resuelve una ecuación de 2.º grado\nvar\n  real : a, b, c\ninicio\n  leer(a, b, c)\n  d ← b ^ 2 - 4 * a * c\n  si d < 0 entonces\n    escribir('raices complej...",
+        "char_count": 981
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p148:c0032",
+        "page_number": 148,
+        "heading_path": [
+          "Joyanes",
+          "Página 148"
+        ],
+        "content_snippet": "[Página 148]\n118  \nFundamentos de programación\n3.13. Determinar el mayor de tres números enteros.\nSolución\nLos pasos a seguir son:\n1. Comparar el primero y el segundo entero, deduciendo cuál es el mayor.\n2. Comparar el mayor anterior con el tercero y deducir cuál es el mayor. Este será el resultado.\nLos pasos anteriores se pueden descomponer en otros pasos más simples en lo que se denomina refinamiento del algo-\nritmo:\n1. Obtener el primer número (entrada), denominarlo NUM1.\n2. Obtener el segundo número (entrada), denominarlo NUM2.\n3. Comparar NUM1 con NUM2 y seleccionar el mayor; si los dos enteros son iguales, seleccionar NUM1. Llamar a este \nnúmero MAYOR.\n4. Obtener el tercer número (entrada) y denominarlo NUM3.\n5. Comparar MAYOR con NUM3 y seleccionar el mayor; si los dos enteros son i...",
+        "char_count": 1754
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      }
+    }
+  },
+  {
+    "case_id": "CASE-10",
+    "query_id": "Q1A2-10",
+    "query_text": "¿Por qué es necesario delimitar explícitamente las estructuras de control anidadas en programación estructurada?",
+    "archetype": "ARQ-07",
+    "target_pages": [
+      140,
+      150
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Explica la resolución de ambigüedad del 'else colgante' o delimitación de bloques.",
+      "sufficient_conditions": "Aporta justificación conceptual sólida según el texto."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p547:c0063",
+        "page_number": 547,
+        "heading_path": [
+          "Joyanes",
+          "Página 547"
+        ],
+        "content_snippet": "[Página 547]\nEstructura de datos no lineales (árboles y grafos)  517\npresentan estructuras jerárquicas con limitaciones de dos sub-\nárboles por cada nodo. Si se eliminan las restricciones de \nque cada nodo puede apuntar a dos nodos —como máxi-\nmo— y que cada nodo puede estar apuntado por otro nodo \n—como máximo— nos encontramos con un grafo. Ejem-\nplos de grafos en la vida real los tenemos en la red de ca-\nrreteras de un estado o región, la red de enlaces ferroviarios \no aéreos nacionales, etc.\nUn grafo G consta de dos conjuntos (G = {V, E}): \nun conjunto V de vértices o nodos y un conjunto E de aris-\ntas (parejas de vértices distintos) que conectan los vértices. \nSi las parejas no están ordenadas, G se denomina grafo no \ndirigido; si los pares están ordenados, entonces G se deno-\nmina gra...",
+        "char_count": 1697
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      }
+    }
+  },
+  {
+    "case_id": "CASE-11",
+    "query_id": "Q1A2-11",
+    "query_text": "¿Cuál es la función del operador de dirección & y del operador de indirección * en punteros de C?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      485,
+      492
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Distingue entre obtener la dirección en memoria (&) y acceder al valor apuntado (*).",
+      "sufficient_conditions": "Define con precisión la semántica de ambos operadores en C."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p136:c0020",
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere utilizando el signo de asignación (=) de C, C++, Java o C#.\nCaso especial\nLos lenguajes C, C++, Java y C# permiten realizar múltiples asignaciones en una sola sentencia\na = b = c = d = e = n +35;\nTabla 3.10. Operadores aritméticos de asignación múltiple\nOperador de asignación\nEjemplo\nOperación\nResultado\nEntero a = 3, b= 5, c = 4, d = 6, e = 10\n*=\na += 8\na = a+8\na = 11\n-=\nb -= 5\nb = b-5\nb = 0\n*=\nc *= 4\nc = c*4\nc = 16\n/=\nd /= 3\nd = d/3\nd = 2\n%=\ne %= 9\ne = e%9\ne = 1\n \n3.9.5. Conversión de tipo\nEn las asignaciones no se pueden asignar valores a una variable de un tipo incompatible al suyo. Se presenta...",
+        "char_count": 1270
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p136:c0020",
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere utilizando el signo de asignación (=) de C, C++, Java o C#.\nCaso especial\nLos lenguajes C, C++, Java y C# permiten realizar múltiples asignaciones en una sola sentencia\na = b = c = d = e = n +35;\nTabla 3.10. Operadores aritméticos de asignación múltiple\nOperador de asignación\nEjemplo\nOperación\nResultado\nEntero a = 3, b= 5, c = 4, d = 6, e = 10\n*=\na += 8\na = a+8\na = 11\n-=\nb -= 5\nb = b-5\nb = 0\n*=\nc *= 4\nc = c*4\nc = 16\n/=\nd /= 3\nd = d/3\nd = 2\n%=\ne %= 9\ne = e%9\ne = 1\n \n3.9.5. Conversión de tipo\nEn las asignaciones no se pueden asignar valores a una variable de un tipo incompatible al suyo. Se presenta...",
+        "char_count": 1270
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p136:c0020",
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere utilizando el signo de asignación (=) de C, C++, Java o C#.\nCaso especial\nLos lenguajes C, C++, Java y C# permiten realizar múltiples asignaciones en una sola sentencia\na = b = c = d = e = n +35;\nTabla 3.10. Operadores aritméticos de asignación múltiple\nOperador de asignación\nEjemplo\nOperación\nResultado\nEntero a = 3, b= 5, c = 4, d = 6, e = 10\n*=\na += 8\na = a+8\na = 11\n-=\nb -= 5\nb = b-5\nb = 0\n*=\nc *= 4\nc = c*4\nc = 16\n/=\nd /= 3\nd = d/3\nd = 2\n%=\ne %= 9\ne = e%9\ne = 1\n \n3.9.5. Conversión de tipo\nEn las asignaciones no se pueden asignar valores a una variable de un tipo incompatible al suyo. Se presenta...",
+        "char_count": 1270
+      }
+    }
+  },
+  {
+    "case_id": "CASE-12",
+    "query_id": "Q1A2-12",
+    "query_text": "¿Cómo se declara un puntero a una estructura struct y cómo se accede a sus miembros con el operador flecha ->?",
+    "archetype": "ARQ-05",
+    "target_pages": [
+      490,
+      498
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Muestra la notación `ptr->campo` o `(*ptr).campo` para structs.",
+      "sufficient_conditions": "Incluye ejemplo de sintaxis en lenguaje C según el texto."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p492:c0042",
+        "page_number": 492,
+        "heading_path": [
+          "Joyanes",
+          "Página 492"
+        ],
+        "content_snippet": "[Página 492]\n462  \nFundamentos de programación\n• Acceder al primer elemento de la cola.\n• Añadir un elemento al final de cola.\n• Eliminar el primer elemento de la cola.\n• Vaciar la cola.\n• Verificar el estado de la cola: vacía o llena.\nImplementación con estructuras dinámicas\nAunque, como posteriormente veremos, las colas se pueden simular mediante un array y dos variables numéricas \n(frente, final), deberemos, si el lenguaje lo permite, implementarlas mediante punteros.\nEn una cola las eliminaciones se realizarán por el extremo denominado frente y las inserciones por el final.\nPara la manipulación de una cola necesitaremos los subprogramas: inicializar o crear, consultarPrime-\nro, poner o meter, quitar o sacar y vacia o colaVacia y los siguientes tipos de datos:\ntipo\n puntero_a nodo : pun...",
+        "char_count": 1608
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p545:c0061",
+        "page_number": 545,
+        "heading_path": [
+          "Joyanes",
+          "Página 545"
+        ],
+        "content_snippet": "[Página 545]\nEstructura de datos no lineales (árboles y grafos)  515\n        raíz ← auxi\n      si_no\n        si mayor(a[ant].elemento, elemento) entonces\n          a[ant].izdo ← auxi\n        si_no\n          a[ant].dcho ← auxi\n        fin_si\n      fin_si\n    fin_si\n  fin_si\nfin_procedimiento\nprocedimiento listado (E arr: a; E entero: raíz)\nvar\n  entero: cont\ninicio\n  escribir ('inorden: ')\n  cont ← 0\n  inorden (a, raíz, cont)\n  escribir('El número de nodos es ', cont)\nfin_procedimiento\n13.4. Escribir un procedimiento que permita contar las hojas de un árbol mediante estructuras dinámicas.\nAnálisis del problema\nRecorrer el árbol, contando, únicamente, los nodos que no tienen hijos.\nDiseño del algoritmo\nprocedimiento contarhojas(E punt: raíz;  E/S entero: cont)\ninicio\n  si raíz <> nulo entonc...",
+        "char_count": 1542
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p485:c0035",
+        "page_number": 485,
+        "heading_path": [
+          "Joyanes",
+          "Página 485"
+        ],
+        "content_snippet": "[Página 485]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  455\n  procedimiento consultarCima( E punt: cima;\nS tipo_elemento: elemento)\n   inicio\n   si no vacia (cima) entonces\n      elemento ← cima→.elemento\n   fin_si\n   fin_procedimiento\nLos elementos se incorporan siempre por un extremo, cima.\n    meter(cima, elemento)\nxxx\nnulo\nnulo\nyyy\ncima\ncima\n \ncima →\nelemento cima\ncima →\nelemento cima\nauxi\nauxi\nzzz\n1.º\n2.º\n3.º\nnulo\ncima\ncima →\nelemento cima\n6.º\nxxx\nyyy\nzzz\nxxx\nyyy\nauxi\n5.º\n4.º\nzzz\n \n1.º cima apunta al último elemento de la pila.\n2.º reservar(auxi).\n3.º Introducimos la información en auxi→.elemento.\n4.º Hacemos que auxi→.cima apunte a donde cima.\n5.º Cambiamos cima para que apunte donde auxi.\n6.º La pila tiene un elemento más.",
+        "char_count": 771
+      }
+    }
+  },
+  {
+    "case_id": "CASE-13",
+    "query_id": "Q1A2-13",
+    "query_text": "¿Cómo se asigna memoria dinámica mediante malloc y cómo se libera con free en C según Joyanes?",
+    "archetype": "ARQ-04",
+    "target_pages": [
+      495,
+      505
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Describe la llamada a malloc con sizeof y la posterior invocación de free.",
+      "sufficient_conditions": "Explica el ciclo de reserva y liberación de memoria."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p492:c0042",
+        "page_number": 492,
+        "heading_path": [
+          "Joyanes",
+          "Página 492"
+        ],
+        "content_snippet": "[Página 492]\n462  \nFundamentos de programación\n• Acceder al primer elemento de la cola.\n• Añadir un elemento al final de cola.\n• Eliminar el primer elemento de la cola.\n• Vaciar la cola.\n• Verificar el estado de la cola: vacía o llena.\nImplementación con estructuras dinámicas\nAunque, como posteriormente veremos, las colas se pueden simular mediante un array y dos variables numéricas \n(frente, final), deberemos, si el lenguaje lo permite, implementarlas mediante punteros.\nEn una cola las eliminaciones se realizarán por el extremo denominado frente y las inserciones por el final.\nPara la manipulación de una cola necesitaremos los subprogramas: inicializar o crear, consultarPrime-\nro, poner o meter, quitar o sacar y vacia o colaVacia y los siguientes tipos de datos:\ntipo\n puntero_a nodo : pun...",
+        "char_count": 1608
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p497:c0047",
+        "page_number": 497,
+        "heading_path": [
+          "Joyanes",
+          "Página 497"
+        ],
+        "content_snippet": "[Página 497]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  467\n2.º Reestructuración.\n \nCuando final llega al máximo de elementos se desplazan las componentes ocupadas hacia atrás las posicio-\nnes necesarias para que el principio coincida con el principio de la tabla.\n3.º Mediante un array circular.\n \nUn array circular es aquel en el que se considera que la componente primera sigue a la componente última.\nEsta implementación obliga a dejar siempre una posición libre para separar el principio y el final del array.\nEvidentemente, seguirá existiendo la limitación de que pueda llenarse completamente el array, Max-1 \nposiciones ocupadas.\n12.8.2. Aprovechamiento de la memoria\nEl mejor método para evitar el desaprovechamiento de espacio es el diseño de la cola mediante...",
+        "char_count": 1629
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p502:c0052",
+        "page_number": 502,
+        "heading_path": [
+          "Joyanes",
+          "Página 502"
+        ],
+        "content_snippet": "[Página 502]\n472  \nFundamentos de programación\nprocedimiento liberar(E/S entero: posic; E/S lista: m;\n                      E/S entero: vacio)\n inicio\n  m[posic].sig ← vacio\n  vacio ← posic\n fin_procedimiento\nprocedimiento suprimir(E/S entero: inic, anterior, posic; \n                       E/S lista: m; E/S entero: vacio)\n inicio\n  si anterior=0 entonces\n     inic ← m[posic].sig\n  si_no\n     m[anterior].sig ← m[posic].sig\n  fin_si\n  liberar(posic,m,vacio)\n  anterior ← 0\n  posic ← inic\n fin_procedimiento\nprocedimiento nuevasventas(E/S entero: inic, vacio; E/S lista: m)\n var\n  tipo_elemento: elemento\n  lógico: encontrado\n  entero: anterior, posic\n inicio\n   repetir\n     escribir('Introduzca * en el código para terminar')\n     escribir('Código:   ')\n     leer(elemento.cod)\n     si elemento.co...",
+        "char_count": 1839
+      }
+    }
+  },
+  {
+    "case_id": "CASE-14",
+    "query_id": "Q1A2-14",
+    "query_text": "¿En qué se diferencia el paso de parámetros por valor del paso por referencia mediante punteros?",
+    "archetype": "ARQ-03",
+    "target_pages": [
+      488,
+      496
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Explica que el paso por valor copia el dato mientras que por referencia pasa la dirección.",
+      "sufficient_conditions": "Demuestra el impacto en la modificación de la variable original."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p146:c0030",
+        "page_number": 146,
+        "heading_path": [
+          "Joyanes",
+          "Página 146"
+        ],
+        "content_snippet": "[Página 146]\n116  \nFundamentos de programación\n3.8. Cómo se intercambian los valores de dos variables, A y B.\nSolución\nCon el ejercicio se ha visto cómo se pueden intercambiar los valores de una variable mediante las  instrucciones:\nA ← B\nB ← A\nEl procedimiento para conseguir intercambiar los valores de dos variables entre sí debe recurrir a una variable AUX y a \nlas instrucciones de asignación siguientes:\nAUX ← A\n  A ← B\n  B ← AUX\nVeámoslo con un ejemplo:\na ← 10\nB ← 5\nInstrucción\nA\nB\nAUX\nObservaciones\n  A ← 10\n10\n--\n--\n  B ← 5\n10\n5\n--\nAUX ← A\n10\n5\n10\nLa variable AUX toma el valor de A\n  A ← B\n5\n5\n10\nA toma el valor de B, 5\n  B ← AUX\n 5\n10\n10\nB toma el valor inicial de A, 10\nAhora A = 5 y B = 10.\n3.9. Deducir el valor que toma la variable tras la ejecución de las instrucciones:\nA ← 4\nB ← A...",
+        "char_count": 1470
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p42:c0015",
+        "page_number": 42,
+        "heading_path": [
+          "Joyanes",
+          "Página 42"
+        ],
+        "content_snippet": "[Página 42]\n12  \nFundamentos de programación\nla cual se puede acceder a la posición para almacenar o recuperar información. La información almacenada en una \nposición de memoria es su contenido. La Figura 1.5 muestra una memoria de computadora que consta de 1.000 po-\nsiciones en memoria con direcciones de 0 a 999 en código decimal. El contenido de estas direcciones o posiciones \nde memoria se llaman palabras, que como ya se ha comentado pueden ser de 8, 16, 32 y 64 bits. Por consiguiente, \nsi trabaja con una máquina de 32 bits, significa que en cada posición de memoria de su computadora puede alojar \n32 bits, es decir 32 dígitos, bien ceros o unos.\n.\n.\n.\n325\n999\n998\n997\n3\n2\n1\n0\nDirecciones\nContenido de la\ndirección 997\nFigura 1.5. Memoria central de una computadora.\nLas direcciones de memo...",
+        "char_count": 1786
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p136:c0020",
+        "page_number": 136,
+        "heading_path": [
+          "Joyanes",
+          "Página 136"
+        ],
+        "content_snippet": "[Página 136]\n106  \nFundamentos de programación\ny es equivalente a:\nvariable operador ← expresión\nEJEMPLO\nc ← c + 5 \nequivale a \n \nc +← 5\na ← a * (b + c) \nequivale a \n \na *← b + c\no si lo prefiere utilizando el signo de asignación (=) de C, C++, Java o C#.\nCaso especial\nLos lenguajes C, C++, Java y C# permiten realizar múltiples asignaciones en una sola sentencia\na = b = c = d = e = n +35;\nTabla 3.10. Operadores aritméticos de asignación múltiple\nOperador de asignación\nEjemplo\nOperación\nResultado\nEntero a = 3, b= 5, c = 4, d = 6, e = 10\n*=\na += 8\na = a+8\na = 11\n-=\nb -= 5\nb = b-5\nb = 0\n*=\nc *= 4\nc = c*4\nc = 16\n/=\nd /= 3\nd = d/3\nd = 2\n%=\ne %= 9\ne = e%9\ne = 1\n \n3.9.5. Conversión de tipo\nEn las asignaciones no se pueden asignar valores a una variable de un tipo incompatible al suyo. Se presenta...",
+        "char_count": 1270
+      }
+    }
+  },
+  {
+    "case_id": "CASE-15",
+    "query_id": "Q1A2-15",
+    "query_text": "¿Cuál es la definición formal de la notación asintótica O-grande (Big-O) para la complejidad de algoritmos?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      540,
+      545
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Define la cota superior del tiempo de ejecución en función del tamaño de entrada n.",
+      "sufficient_conditions": "Presenta la formulación matemática o conceptual rigurosa."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p142:c0026",
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algoritmo\n    .\n    .\n    .\n  <sentencia Sn>\nfin\nNotas\n1. En ocasiones, la declaración de constantes y variables las omitiremos o se describirán en una tabla de varia-\nbles que hace sus mismas funciones.\n2. Las cadenas de caracteres se encerrarán entre comillas simples.\n3. Utilizar siempre sangrías en los bucles o en aquellas instrucciones que proporcionen legibilidad al programa, \ncomo inicio y fin.\nMODELO PROPUESTO DE ALGORITMO\nalgoritmo raices\n// resuelve una ecuación de 2.º grado\nvar\n  real : a, b, c\ninicio\n  leer(a, b, c)\n  d ← b ^ 2 - 4 * a * c\n  si d < 0 entonces\n    escribir('raices complej...",
+        "char_count": 981
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      }
+    }
+  },
+  {
+    "case_id": "CASE-16",
+    "query_id": "Q1A2-16",
+    "query_text": "¿Cuál es la diferencia de eficiencia y crecimiento entre un algoritmo O(n log n) y uno O(n^2)?",
+    "archetype": "ARQ-03",
+    "target_pages": [
+      543,
+      548
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Contrasta el crecimiento casi lineal con el crecimiento cuadrático ante entradas grandes.",
+      "sufficient_conditions": "Aporta justificación analítica sobre la escalabilidad de ambos tipos de algoritmo."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p546:c0062",
+        "page_number": 546,
+        "heading_path": [
+          "Joyanes",
+          "Página 546"
+        ],
+        "content_snippet": "[Página 546]\n516  \nFundamentos de programación\nSi los árboles terminaron de recorrerse simultáneamente es que ambos tienen el mismo número de nodos y nunca ha \nsido diferente la información comparada; por tanto, la función devolverá verdad; en cualquier otro caso la función devolverá \nfalso.\nDiseño del algoritmo\nlógico función iguales(E punt: raíz1, raíz2)\ninicio\n  si raíz1 = nulo entonces\n    si raíz2 = nulo entonces\n      devolver(verdad)\n    fin_si\n  si_no\n    si raíz2 = nulo entonces\n      devolver(falso)\n    si_no\n      si raíz1→.elemento <> raíz2→.elemento entonces\n        devolver(falso)\n      si_no\n        devolver(iguales(raíz1→.izdo, raíz2→.izdo)\n               y iguales(raíz1→.dcho, raíz2→.dcho))\n      fin_si\n    fin_si\n  fin_si\nfin_función\nCONCEPTOS CLAVE\n• Árbol.\n• Árbol binar...",
+        "char_count": 1501
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p541:c0057",
+        "page_number": 541,
+        "heading_path": [
+          "Joyanes",
+          "Página 541"
+        ],
+        "content_snippet": "[Página 541]\nEstructura de datos no lineales (árboles y grafos)  511\nUn grafo no dirigido de orden N con A arcos requiere N entradas en el directorio y 2*A entradas de listas enlaza-\ndas, excepto si existen bucles que reducen el número de listas enlazadas en 1.\nUn grafo dirigido de orden N con A arcos requiere N entradas en el directorio y A entradas de listas enlazadas.\n3\n6\nNULO\n2\n2\n5\n3\nNULO\n1\n2\n3\n4\n5\n6\nNULO\nNULO\nNULO\nNULO\nDIRECTORIO\nFigura 13.30.\nEJEMPLO 13.12\nLa lista de adyacencia del grafo del Ejemplo 13.10 es\nSF\nLA\nLV\nKC\nNY\nLA\n1000\nSF\n1000\nLA\n390\nLA\n2000\nSF\n1500\nLV\n390\nKC\n3000\nLV\n3000\nKC\n3500\nKC\n2000\nNY\n2500\nLa elección de la representación depende del algoritmo particular que se vaya a implementar y si el grafo es \n“disperso” o “denso”. Un grafo disperso es uno en el que el número d...",
+        "char_count": 910
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p541:c0057",
+        "page_number": 541,
+        "heading_path": [
+          "Joyanes",
+          "Página 541"
+        ],
+        "content_snippet": "[Página 541]\nEstructura de datos no lineales (árboles y grafos)  511\nUn grafo no dirigido de orden N con A arcos requiere N entradas en el directorio y 2*A entradas de listas enlaza-\ndas, excepto si existen bucles que reducen el número de listas enlazadas en 1.\nUn grafo dirigido de orden N con A arcos requiere N entradas en el directorio y A entradas de listas enlazadas.\n3\n6\nNULO\n2\n2\n5\n3\nNULO\n1\n2\n3\n4\n5\n6\nNULO\nNULO\nNULO\nNULO\nDIRECTORIO\nFigura 13.30.\nEJEMPLO 13.12\nLa lista de adyacencia del grafo del Ejemplo 13.10 es\nSF\nLA\nLV\nKC\nNY\nLA\n1000\nSF\n1000\nLA\n390\nLA\n2000\nSF\n1500\nLV\n390\nKC\n3000\nLV\n3000\nKC\n3500\nKC\n2000\nNY\n2500\nLa elección de la representación depende del algoritmo particular que se vaya a implementar y si el grafo es \n“disperso” o “denso”. Un grafo disperso es uno en el que el número d...",
+        "char_count": 910
+      }
+    }
+  },
+  {
+    "case_id": "CASE-17",
+    "query_id": "Q1A2-17",
+    "query_text": "¿En qué página del índice general se lista el apartado de 'Resolución de problemas con computadoras'?",
+    "archetype": "ARQ-01",
+    "target_pages": [
+      11,
+      16
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Localiza el epígrafe dentro del bloque denso del índice.",
+      "sufficient_conditions": "Indica el número de página exacto asociado al epígrafe."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p14:c0004",
+        "page_number": 14,
+        "heading_path": [
+          "Joyanes",
+          "Página 14"
+        ],
+        "content_snippet": "[Página 14]\n13.5. Grafos ................................................................................................................................................................ \n506\n13.5.1. Terminología de grafos ........................................................................................................................ \n506\n13.5.2. Representación de grafos .................................................................................................................... \n509\nACTIVIDADES DE PROGRAMACIÓN RESUELTAS .............................................................................................. \n512\nCONCEPTOS CLAVE ..................................................................................................................................................",
+        "char_count": 4370
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p36:c0009",
+        "page_number": 36,
+        "heading_path": [
+          "Joyanes",
+          "Página 36"
+        ],
+        "content_snippet": "[Página 36]\n6  \nFundamentos de programación\nestilo de una TV o un equipo de música. Sin embargo, conviene recordar que el PC, tal como se le conoce en la ac-\ntualidad, no fue la primera computadora personal ya que le precedieron otras máquinas con microprocesadores de \n8 bits, muy populares en su tiempo, tales como Apple II, Pet CBM, Atari, TRS-80, etc., y el mítico ZX Spectrum, \nde los diferentes fabricantes citados en el párrafo anterior. \nEl término PC se utiliza indistintamente con el término genérico de computadora de escritorio o computadora \nportátil (desktop) o (laptop)5.\n1.1.2. Clasificación de las computadoras\nLas computadoras modernas se pueden clasificar en computadoras personales, servidores, minicomputadoras, gran-\ndes computadoras (mainframes) y supercomputadoras. \nLas compu...",
+        "char_count": 2071
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ......................................................................................................................................................... \n405\n11.1. Introducción ....................................................................................................................................................... \n406\n11.2. Archivos ordenados ........................................................................................................................................... \n406\n11.3. Fusión de archivos ..........................................................................................",
+        "char_count": 4091
+      }
+    }
+  },
+  {
+    "case_id": "CASE-18",
+    "query_id": "Q1A2-18",
+    "query_text": "¿Qué subsecciones componen el capítulo de algoritmos según la jerarquía detallada en el índice de contenidos?",
+    "archetype": "ARQ-04",
+    "target_pages": [
+      13,
+      16
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Recupera la secuencia de subapartados del capítulo de algoritmos.",
+      "sufficient_conditions": "Permite observar la integridad de jerarquía en el bloque denso de índice."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+        "page_number": 138,
+        "heading_path": [
+          "Joyanes",
+          "Nota 1"
+        ],
+        "content_snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se utilizaran las palabras reservadas en inglés, como suele ocurrir en los lenguajes de programación, se de-\nberá sustituir\nleer      escribir\npor\nread      write o bien print\nNota 2\nSi no se especifica el tipo de dispositivo del cual se leen o escriben datos, los dispositivos de E/S por defecto \nson el teclado y la pantalla.\n3.11. ESCRITURA DE ALGORITMOS/PROGRAMAS\nLa escritura de un algoritmo mediante una herramienta de programación debe ser lo más clara posible y estructurada, \nde modo que su lectura facilite considerablemente el entendimiento del algoritmo y su posterior codificación en un \nlenguaje de programación.\nLos algoritmos deben ser escritos en lenguajes similares a los programas. En nuestro libro utilizaremos esencial-\nmente ...",
+        "char_count": 1980
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ......................................................................................................................................................... \n405\n11.1. Introducción ....................................................................................................................................................... \n406\n11.2. Archivos ordenados ........................................................................................................................................... \n406\n11.3. Fusión de archivos ..........................................................................................",
+        "char_count": 4091
+      }
+    }
+  },
+  {
+    "case_id": "CASE-19",
+    "query_id": "Q1A2-37",
+    "query_text": "¿Cómo se gestiona el vector de interrupciones en el controlador programable APIC en modo protegido x86?",
+    "archetype": "ARQ-11",
+    "target_pages": null,
+    "rubric_guidance": {
+      "relevant_conditions": "Ningún fragmento de Joyanes debe considerarse relevante (control negativo de dominio).",
+      "sufficient_conditions": "El sistema debe abstenerse o arrojar puntajes de similitud bajos (<0.40)."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+        "page_number": 43,
+        "heading_path": [
+          "Joyanes",
+          "Página 43"
+        ],
+        "content_snippet": "[Página 43]\nIntroducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core 2 Duo de Intel que se instalan en portátiles, etc.\nTodas las UCP tienen una velocidad de trabajo, regulada por un pequeño cristal de cuarzo, y que se conoce como \nfrecuencia de reloj. El cristal vibra a un elevado número de ciclos de reloj. Con cada ciclo de reloj se envía un impul-\nso a la UCP, y en principio, cada pulsación puede hacer realizar una o más tareas a la UCP. El número de ciclos de \nreloj por segundo se mide en hertzios. El cristal de la UCP vibra millones de veces por segundo y por esta razón la \nvelocidad del reloj se calcula en millones de oscilaciones (megahercios o MHz) o m...",
+        "char_count": 1760
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p17:c0007",
+        "page_number": 17,
+        "heading_path": [
+          "Joyanes",
+          "Página 17"
+        ],
+        "content_snippet": "[Página 17]\n18.10.2. Manual de mantenimiento (documentación para programadores) .................................................. \n680\n18.10.3. Reglas de documentación ................................................................................................................ \n681\n18.11. Depuración ....................................................................................................................................................... \n681\n18.11.1. Localización y reparación de errores ............................................................................................... \n681\n18.11.2. Depuración de sentencias si-entonces-sino ..................................................................................... \n682\n18.11.3. Los equipos de programación ...............",
+        "char_count": 3717
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p489:c0039",
+        "page_number": 489,
+        "heading_path": [
+          "Joyanes",
+          "Página 489"
+        ],
+        "content_snippet": "[Página 489]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  459\nPrograma principal\nX\nY\nZ\nSubprograma\nA\nSubprograma A\nfin _ subprograma A\nfin _ subprograma B\nfin _ subprograma C\nSubprograma C\nSubprograma B\nSubprograma\nB\nSubprograma\nC\nPuntero de pila\nPila de direcciones\nde retorno\nPrograma principal\nllamar _ a A \n         \nllamar _ a B\ndireccion X\ndireccion Y\ndireccion Z\nllamar a C\nfin\nCuando un subprograma termina, debe retornar a la dirección siguiente a la instrucción que le llamó (llamar_a). \nCada vez que se invoca un subprograma, la dirección siguiente (X, Y o Z) se introduce en la pila. El vaciado de la \npila se realizará por los sucesivos retornos, decrementándose el puntero de pila que queda libre apuntando a la si-\nguiente dirección de retorno.\n← Puntero ...",
+        "char_count": 1415
+      }
+    }
+  },
+  {
+    "case_id": "CASE-20",
+    "query_id": "Q1A2-38",
+    "query_text": "¿Cómo implementa el núcleo NT el algoritmo WSClock para el conjunto de trabajo de páginas en memoria virtual?",
+    "archetype": "ARQ-11",
+    "target_pages": null,
+    "rubric_guidance": {
+      "relevant_conditions": "Ningún fragmento de Joyanes debe considerarse relevante (control negativo de dominio).",
+      "sufficient_conditions": "El sistema debe abstenerse o arrojar puntajes de similitud bajos (<0.40)."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p43:c0016",
+        "page_number": 43,
+        "heading_path": [
+          "Joyanes",
+          "Página 43"
+        ],
+        "content_snippet": "[Página 43]\nIntroducción a las computadoras y los lenguajes de programación  13\nincluye Celeron y Xeon), Opteron de AMD, SPARC de Sun Microsystemas, Crusoe de Transmeta, Centrino Core 2 \ny Centro Core 2 Duo de Intel que se instalan en portátiles, etc.\nTodas las UCP tienen una velocidad de trabajo, regulada por un pequeño cristal de cuarzo, y que se conoce como \nfrecuencia de reloj. El cristal vibra a un elevado número de ciclos de reloj. Con cada ciclo de reloj se envía un impul-\nso a la UCP, y en principio, cada pulsación puede hacer realizar una o más tareas a la UCP. El número de ciclos de \nreloj por segundo se mide en hertzios. El cristal de la UCP vibra millones de veces por segundo y por esta razón la \nvelocidad del reloj se calcula en millones de oscilaciones (megahercios o MHz) o m...",
+        "char_count": 1760
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p12:c0002",
+        "page_number": 12,
+        "heading_path": [
+          "Joyanes",
+          "Página 12"
+        ],
+        "content_snippet": "[Página 12]\n9.5. Operaciones sobre archivos ............................................................................................................................... \n317\n9.5.1. Creación de un archivo .......................................................................................................................... \n318\n9.5.2. Consulta de un archivo .......................................................................................................................... \n318\n9.5.3. Actualización de un archivo .................................................................................................................. \n319\n9.5.4. Clasificación de un archivo ................................................................................................................... \n...",
+        "char_count": 4183
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p42:c0015",
+        "page_number": 42,
+        "heading_path": [
+          "Joyanes",
+          "Página 42"
+        ],
+        "content_snippet": "[Página 42]\n12  \nFundamentos de programación\nla cual se puede acceder a la posición para almacenar o recuperar información. La información almacenada en una \nposición de memoria es su contenido. La Figura 1.5 muestra una memoria de computadora que consta de 1.000 po-\nsiciones en memoria con direcciones de 0 a 999 en código decimal. El contenido de estas direcciones o posiciones \nde memoria se llaman palabras, que como ya se ha comentado pueden ser de 8, 16, 32 y 64 bits. Por consiguiente, \nsi trabaja con una máquina de 32 bits, significa que en cada posición de memoria de su computadora puede alojar \n32 bits, es decir 32 dígitos, bien ceros o unos.\n.\n.\n.\n325\n999\n998\n997\n3\n2\n1\n0\nDirecciones\nContenido de la\ndirección 997\nFigura 1.5. Memoria central de una computadora.\nLas direcciones de memo...",
+        "char_count": 1786
+      }
+    }
+  },
+  {
+    "case_id": "CASE-21",
+    "query_id": "Q1A2-39",
+    "query_text": "manejo de pila y almacenamiento",
+    "archetype": "ARQ-12",
+    "target_pages": [
+      485,
+      505
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Evalúa si recupera pila como memoria de ejecución (stack) o como estructura de datos abstracta.",
+      "sufficient_conditions": "Identifica la discriminación de contexto semántico según el capítulo."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p490:c0040",
+        "page_number": 490,
+        "heading_path": [
+          "Joyanes",
+          "Página 490"
+        ],
+        "content_snippet": "[Página 490]\n460  \nFundamentos de programación\n  pila        : pilaletras, piladigitos, pilaotroscaracteres\n  carácter    : elemento\ninicio\n  crear (cima1)\n  crear (cima2)\n  crear (cima3)\n  elemento ← leercar\n  mientras (codigo(elemento)<> 26) y no llena(cima1) y no\n           llena(cima2)y no llena(cima3) hacer\n     {saldremos del bucle en cuanto se llene alguna de las pilas o\n           pulsemos ^Z}\n     si (elemento >= 'A') y (elemento <= 'Z') o (elemento >= 'a') y\n        (elemento >= 'z')entonces\n       meter (cima1, pilaletras, elemento)\n     si_no\n        si (elemento>= '0') y (elemento<='9') entonces\n           meter (cima2, piladigitos, elemento)\n        si_no \n           meter (cima3, pilaotroscaracteres, elemento)\n        fin_si\n     fin_si\n     elemento ← leercar\n  fin_mientras...",
+        "char_count": 1588
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p13:c0003",
+        "page_number": 13,
+        "heading_path": [
+          "Joyanes",
+          "Página 13"
+        ],
+        "content_snippet": "[Página 13]\nCapítulo 11. Ordenación, búsqueda y fusión externa (archivos) .......................................................................................... \n405\nINTRODUCCIÓN ......................................................................................................................................................... \n405\n11.1. Introducción ....................................................................................................................................................... \n406\n11.2. Archivos ordenados ........................................................................................................................................... \n406\n11.3. Fusión de archivos ..........................................................................................",
+        "char_count": 4091
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p503:c0053",
+        "page_number": 503,
+        "heading_path": [
+          "Joyanes",
+          "Página 503"
+        ],
+        "content_snippet": "[Página 503]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  473\nprocedimiento devoluciones( E/S entero: inic, vacio; E/S lista: m)\n var\n  tipo_elemento: elemento\n  entero       : posic, anterior\n  entero       : cantidad\n  lógico       : encontrado\n inicio\n   si no vacia(inic) entonces\n     escribir('Introduzca un * en el código para terminar')\n     escribir('Código: ')\n     leer(elemento.cod)\n   si_no\n     escribir('No hay ventas, no puede haber devoluciones')\n   fin_si\n   mientras (elemento.cod<>'*' ) y no vacia(inic) hacer\n     consultar(inic, posic, anterior, elemento, encontrado, m)\n     si encontrado entonces\n       repetir\n         escribir('Deme cantidad devuelta ')\n         leer(cantidad)\n         si cantidad > m[posic].elemento.cantidad entonces\n      ...",
+        "char_count": 1809
+      }
+    }
+  },
+  {
+    "case_id": "CASE-22",
+    "query_id": "Q1A2-40",
+    "query_text": "condición de fin y salida de bloque",
+    "archetype": "ARQ-12",
+    "target_pages": [
+      135,
+      150
+    ],
+    "rubric_guidance": {
+      "relevant_conditions": "Evalúa si recupera condiciones lógicas de estructuras condicionales vs bucles.",
+      "sufficient_conditions": "Determina la especificidad del contexto ante términos polisémicos."
+    },
+    "candidates": {
+      "Pipeline_Sigma": {
+        "mask_name": "Pipeline_Sigma",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p142:c0026",
+        "page_number": 142,
+        "heading_path": [
+          "Joyanes",
+          "Notas"
+        ],
+        "content_snippet": "[Notas]\n112  \nFundamentos de programación\nvar tipo de datos : lista de identificadores\nconst lista de identificadores = valor\ninicio\n  <sentencia S1>\n  <sentencia S2>               // cuerpo del algoritmo\n    .\n    .\n    .\n  <sentencia Sn>\nfin\nNotas\n1. En ocasiones, la declaración de constantes y variables las omitiremos o se describirán en una tabla de varia-\nbles que hace sus mismas funciones.\n2. Las cadenas de caracteres se encerrarán entre comillas simples.\n3. Utilizar siempre sangrías en los bucles o en aquellas instrucciones que proporcionen legibilidad al programa, \ncomo inicio y fin.\nMODELO PROPUESTO DE ALGORITMO\nalgoritmo raices\n// resuelve una ecuación de 2.º grado\nvar\n  real : a, b, c\ninicio\n  leer(a, b, c)\n  d ← b ^ 2 - 4 * a * c\n  si d < 0 entonces\n    escribir('raices complej...",
+        "char_count": 981
+      },
+      "Pipeline_Tau": {
+        "mask_name": "Pipeline_Tau",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p496:c0046",
+        "page_number": 496,
+        "heading_path": [
+          "Joyanes",
+          "Página 496"
+        ],
+        "content_snippet": "[Página 496]\n466  \nFundamentos de programación\nCuando la cola esté vacía frente ← 0    final ← 0\nprocedimiento inicializar(S entero: frente,final)\n inicio\n  frente ← 0\n  final ← 0\n fin_procedimiento\nEl procedimiento para la inserción de un nuevo elemento deberá verificar, en primer lugar, que la cola no está \ntotalmente llena y, por consiguiente, no se producirá error de desbordamiento. La condición de desbordamiento se \nproduce cuando final = Max \nprocedimiento meter( E/S entero: final; S entero: frente;\nE/S \narr: c; E tipo_elemento: elemento)\n inicio\n  si final = 0 entonces\n     frente ← 1\n  fin_si\n  final ← final + 1\n  c[final] ← elemento\n fin_procedimiento\nPara eliminar un elemento será preciso verificar, en primer lugar, que la cola no está vacía.\nprocedimiento sacar( E/S entero: fren...",
+        "char_count": 1754
+      },
+      "Pipeline_Upsilon": {
+        "mask_name": "Pipeline_Upsilon",
+        "rank": 1,
+        "chunk_id": "doc_joyanes_fundamentos_4ed:p487:c0037",
+        "page_number": 487,
+        "heading_path": [
+          "Joyanes",
+          "Página 487"
+        ],
+        "content_snippet": "[Página 487]\nEstructuras dinámicas lineales de datos (pilas, colas y listas enlazadas)  457\n      liberar(auxi)\n      {liberar es un procedimiento para la eliminación de\n      variables dinámicas}\n    fin_si\n fin_procedimiento\nImplementación con arrays\nNecesitaremos un array y una variable numérica cima que apunte al último elemento colocado en la pila.\nLa inserción o extracción de un elemento se realizará siempre por la parte superior.\nSu implementación mediante arrays limita el máximo número de elementos que la pila puede contener y origina \nla necesidad de una función más.\nLlena(...)  de resultado lógico\ncima ←0\nInicializar(cima)\ncima \n1\nMeter(cima,p,elemento)\ncima ← 2\nxxxxxxxx\nxxxxxxxx\nxxxxxxxx\ncima ← 1\nxxxxxxxx\nSacar(cima,p,elemento)\nMax\n...\n...\n3\n2\n1\nxxxxxxxx\n←\n const Max = <expresió...",
+        "char_count": 1202
+      }
+    }
+  }
+]

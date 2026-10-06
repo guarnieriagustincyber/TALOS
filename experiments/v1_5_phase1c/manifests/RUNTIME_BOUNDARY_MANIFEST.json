@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "manifest_name": "RUNTIME_BOUNDARY_MANIFEST",
+  "manifest_version": "1.0.0-canonical",
+  "created_at": "2026-10-05T18:57:50.173654+00:00",
+  "runtime_commit": "f81134fc2293916210d53c8065f3a0049e52b0b4",
+  "python_version": "3.12.3",
+  "contracts_evaluated": [
+    "Chunk (study_engine.contracts.chunk.Chunk)",
+    "Evidence (study_engine.contracts.evidence.Evidence)",
+    "ScoredCandidate (study_engine.contracts.retrieval.ScoredCandidate)",
+    "RetrievalResponse (study_engine.contracts.retrieval.RetrievalResponse)",
+    "ChunkWithProvenance (study_engine.context.context_pack.ChunkWithProvenance)",
+    "ContextPack (study_engine.context.context_pack.ContextPack)",
+    "CitationValidator (study_engine.pedagogy.citation_validator.CitationValidator)"
+  ],
+  "isolation_mode": "STRICT_FIXTURE_ISOLATED",
+  "production_access": "FORBIDDEN",
+  "fixture_directory": "experiments/v1_5_phase1c/fixtures"
+}

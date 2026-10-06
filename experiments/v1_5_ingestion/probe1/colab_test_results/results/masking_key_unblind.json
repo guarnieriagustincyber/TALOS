@@ -1,0 +1,97 @@
+{
+  "joyanes_ch02_p076": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "pypdf",
+    "TOOL_GAMMA": "docling"
+  },
+  "joyanes_ch02_p077": {
+    "TOOL_ALPHA": "docling",
+    "TOOL_BETA": "pymupdf",
+    "TOOL_GAMMA": "pypdf"
+  },
+  "joyanes_ch02_p078": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "docling",
+    "TOOL_GAMMA": "pypdf"
+  },
+  "joyanes_ch02_p081": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "docling",
+    "TOOL_GAMMA": "pypdf"
+  },
+  "joyanes_ch02_p085": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "pypdf",
+    "TOOL_GAMMA": "docling"
+  },
+  "joyanes_ch02_p088": {
+    "TOOL_ALPHA": "pypdf",
+    "TOOL_BETA": "pymupdf",
+    "TOOL_GAMMA": "docling"
+  },
+  "joyanes_ch02_p090": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "docling",
+    "TOOL_GAMMA": "pypdf"
+  },
+  "joyanes_ch02_p092": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "docling",
+    "TOOL_GAMMA": "pypdf"
+  },
+  "joyanes_ch02_p093": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "docling",
+    "TOOL_GAMMA": "pypdf"
+  },
+  "joyanes_ch02_p094": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "pypdf",
+    "TOOL_GAMMA": "docling"
+  },
+  "joyanes_ch02_p098": {
+    "TOOL_ALPHA": "pypdf",
+    "TOOL_BETA": "pymupdf",
+    "TOOL_GAMMA": "docling"
+  },
+  "joyanes_ch02_p099": {
+    "TOOL_ALPHA": "docling",
+    "TOOL_BETA": "pymupdf",
+    "TOOL_GAMMA": "pypdf"
+  },
+  "joyanes_ch02_p104": {
+    "TOOL_ALPHA": "pypdf",
+    "TOOL_BETA": "pymupdf",
+    "TOOL_GAMMA": "docling"
+  },
+  "joyanes_ch02_p107": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "docling",
+    "TOOL_GAMMA": "pypdf"
+  },
+  "joyanes_ch02_p108": {
+    "TOOL_ALPHA": "pypdf",
+    "TOOL_BETA": "pymupdf",
+    "TOOL_GAMMA": "docling"
+  },
+  "joyanes_ch02_p109": {
+    "TOOL_ALPHA": "pypdf",
+    "TOOL_BETA": "docling",
+    "TOOL_GAMMA": "pymupdf"
+  },
+  "joyanes_ch02_p110": {
+    "TOOL_ALPHA": "pymupdf",
+    "TOOL_BETA": "docling",
+    "TOOL_GAMMA": "pypdf"
+  },
+  "joyanes_ch02_p111": {
+    "TOOL_ALPHA": "docling",
+    "TOOL_BETA": "pypdf",
+    "TOOL_GAMMA": "pymupdf"
+  },
+  "joyanes_ch02_p112": {
+    "TOOL_ALPHA": "docling",
+    "TOOL_BETA": "pymupdf",
+    "TOOL_GAMMA": "pypdf"
+  }
+}

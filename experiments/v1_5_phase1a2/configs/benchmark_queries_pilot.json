@@ -1,0 +1,427 @@
+{
+  "$schema": "talos-benchmark-query-schema-v1",
+  "benchmark_version": "1.0.0-pilot",
+  "status": "REQUIRES_REVALIDATION",
+  "fixture_scope": "doc_joyanes_fundamentos_4ed_only",
+  "slices_covered": ["J-01", "J-02", "J-03", "J-04", "J-05"],
+  "queries": [
+    {
+      "query_id": "Q1A2-01",
+      "archetype": "ARQ-01",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-01",
+      "query_text": "¿Cuál es la estructura general de contenidos y preliminares presentada en el índice de Fundamentos de Programación?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [11, 14],
+      "target_section": "Contenido General / Preliminares",
+      "gold_chunk_criteria": {
+        "required_terms": ["contenido", "capítulo", "fundamentos", "programación"],
+        "structural_element_required": "text | heading",
+        "minimum_char_overlap": 150
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Recupera la descripción o listado de capítulos preliminares de la obra.",
+        "sufficient_conditions": "Permite contrastar el esquema temático de la obra."
+      }
+    },
+    {
+      "query_id": "Q1A2-02",
+      "archetype": "ARQ-08",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-01",
+      "query_text": "¿En qué página y capítulo del índice general se ubican las estructuras de datos y punteros?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [14, 18],
+      "target_section": "Índice de Contenido / Estructuras de Datos",
+      "gold_chunk_criteria": {
+        "required_terms": ["estructuras de datos", "punteros", "capítulo"],
+        "structural_element_required": "table | text",
+        "minimum_char_overlap": 150
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Identifica los números de página o capítulos correspondientes a estructuras de datos o punteros.",
+        "sufficient_conditions": "Proporciona la ubicación precisa en el índice general."
+      }
+    },
+    {
+      "query_id": "Q1A2-03",
+      "archetype": "ARQ-01",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-02",
+      "query_text": "¿Qué es un algoritmo según Joyanes Aguilar y cuáles son sus características básicas?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [35, 40],
+      "target_section": "Capítulo 1 / Concepto de Algoritmo",
+      "gold_chunk_criteria": {
+        "required_terms": ["algoritmo", "finito", "preciso", "instrucciones"],
+        "structural_element_required": "text",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Define algoritmo como secuencia finita de pasos o instrucciones no ambiguas.",
+        "sufficient_conditions": "Detalla las características esenciales (precisión, finitud, definición)."
+      }
+    },
+    {
+      "query_id": "Q1A2-04",
+      "archetype": "ARQ-04",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-02",
+      "query_text": "¿Cuáles son las fases de resolución de un problema mediante computadora según el texto?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [38, 45],
+      "target_section": "Capítulo 1 / Fases de Resolución de Problemas",
+      "gold_chunk_criteria": {
+        "required_terms": ["análisis", "diseño", "codificación", "ejecución", "depuración"],
+        "structural_element_required": "text | list",
+        "minimum_char_overlap": 250
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Enumera las etapas principales desde el análisis hasta la verificación del programa.",
+        "sufficient_conditions": "Permite reconstruir la secuencia completa sin omitir pasos críticos."
+      }
+    },
+    {
+      "query_id": "Q1A2-05",
+      "archetype": "ARQ-02",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-02",
+      "query_text": "¿Cuál es la diferencia entre el diseño descendente (top-down) y el refinamiento por pasos?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [40, 45],
+      "target_section": "Capítulo 1 / Metodología de Programación",
+      "gold_chunk_criteria": {
+        "required_terms": ["diseño descendente", "top-down", "refinamiento", "módulos"],
+        "structural_element_required": "text",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Explica la descomposición modular y la especificación sucesiva de detalles.",
+        "sufficient_conditions": "Contrasta adecuadamente ambos conceptos según la metodología expuesta."
+      }
+    },
+    {
+      "query_id": "Q1A2-06",
+      "archetype": "ARQ-06",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-02",
+      "query_text": "¿Cómo se describe la estructura jerárquica de un programa estructurado?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [42, 45],
+      "target_section": "Capítulo 1 / Programación Estructurada",
+      "gold_chunk_criteria": {
+        "required_terms": ["jerarquía", "módulos", "estructura", "programa"],
+        "structural_element_required": "text",
+        "minimum_char_overlap": 150
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Describe la organización modular en niveles de abstracción.",
+        "sufficient_conditions": "Explica la interacción funcional entre el programa principal y subprogramas."
+      }
+    },
+    {
+      "query_id": "Q1A2-07",
+      "archetype": "ARQ-01",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-03",
+      "query_text": "¿Cómo se define y formaliza la estructura de selección doble (si-entonces-sino) en pseudocódigo?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [135, 142],
+      "target_section": "Capítulo 4 / Estructuras de Control",
+      "gold_chunk_criteria": {
+        "required_terms": ["si", "entonces", "sino", "fin_si", "condición"],
+        "structural_element_required": "text_with_code",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Presenta la sintaxis o reglas semánticas de la bifurcación lógica doble.",
+        "sufficient_conditions": "Muestra el pseudocódigo formal y las ramas verdadera/falsa."
+      }
+    },
+    {
+      "query_id": "Q1A2-08",
+      "archetype": "ARQ-05",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-03",
+      "query_text": "¿Cuál es la sintaxis de la sentencia de selección múltiple según_sea (switch) y cómo se maneja la opción por defecto?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [142, 148],
+      "target_section": "Capítulo 4 / Selección Múltiple",
+      "gold_chunk_criteria": {
+        "required_terms": ["según_sea", "caso", "de otro modo", "switch"],
+        "structural_element_required": "text_with_code",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Identifica los bloques de selección múltiple y la cláusula alternativa (de otro modo / default).",
+        "sufficient_conditions": "Permite reproducir la estructura sintáctica completa sin ambigüedades."
+      }
+    },
+    {
+      "query_id": "Q1A2-09",
+      "archetype": "ARQ-04",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-03",
+      "query_text": "¿Qué algoritmo o pseudocódigo se presenta para evaluar si un número entero es par o impar?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [138, 145],
+      "target_section": "Capítulo 4 / Ejemplos de Estructuras Condicionales",
+      "gold_chunk_criteria": {
+        "required_terms": ["par", "impar", "mod", "resto", "si"],
+        "structural_element_required": "text_with_code",
+        "minimum_char_overlap": 180
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Recupera el pseudocódigo o lógica que utiliza el operador módulo para determinar paridad.",
+        "sufficient_conditions": "Proporciona el algoritmo funcional completo."
+      }
+    },
+    {
+      "query_id": "Q1A2-10",
+      "archetype": "ARQ-07",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-03",
+      "query_text": "¿Por qué es necesario delimitar explícitamente las estructuras de control anidadas en programación estructurada?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [140, 150],
+      "target_section": "Capítulo 4 / Estructuras Anidadas",
+      "gold_chunk_criteria": {
+        "required_terms": ["anidada", "ambigüedad", "fin_si", "delimitador"],
+        "structural_element_required": "text",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Explica la resolución de ambigüedad del 'else colgante' o delimitación de bloques.",
+        "sufficient_conditions": "Aporta justificación conceptual sólida según el texto."
+      }
+    },
+    {
+      "query_id": "Q1A2-11",
+      "archetype": "ARQ-01",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-04",
+      "query_text": "¿Cuál es la función del operador de dirección & y del operador de indirección * en punteros de C?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [485, 492],
+      "target_section": "Capítulo 12 / Punteros y Memoria",
+      "gold_chunk_criteria": {
+        "required_terms": ["dirección", "indirección", "puntero", "*", "&"],
+        "structural_element_required": "text_with_code",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Distingue entre obtener la dirección en memoria (&) y acceder al valor apuntado (*).",
+        "sufficient_conditions": "Define con precisión la semántica de ambos operadores en C."
+      }
+    },
+    {
+      "query_id": "Q1A2-12",
+      "archetype": "ARQ-05",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-04",
+      "query_text": "¿Cómo se declara un puntero a una estructura struct y cómo se accede a sus miembros con el operador flecha ->?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [490, 498],
+      "target_section": "Capítulo 12 / Punteros a Estructuras",
+      "gold_chunk_criteria": {
+        "required_terms": ["struct", "puntero", "->", "miembro", "flecha"],
+        "structural_element_required": "text_with_code",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Muestra la notación `ptr->campo` o `(*ptr).campo` para structs.",
+        "sufficient_conditions": "Incluye ejemplo de sintaxis en lenguaje C según el texto."
+      }
+    },
+    {
+      "query_id": "Q1A2-13",
+      "archetype": "ARQ-04",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-04",
+      "query_text": "¿Cómo se asigna memoria dinámica mediante malloc y cómo se libera con free en C según Joyanes?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [495, 505],
+      "target_section": "Capítulo 12 / Asignación Dinámica",
+      "gold_chunk_criteria": {
+        "required_terms": ["malloc", "free", "memoria dinámica", "sizeof"],
+        "structural_element_required": "text_with_code",
+        "minimum_char_overlap": 220
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Describe la llamada a malloc con sizeof y la posterior invocación de free.",
+        "sufficient_conditions": "Explica el ciclo de reserva y liberación de memoria."
+      }
+    },
+    {
+      "query_id": "Q1A2-14",
+      "archetype": "ARQ-03",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-04",
+      "query_text": "¿En qué se diferencia el paso de parámetros por valor del paso por referencia mediante punteros?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [488, 496],
+      "target_section": "Capítulo 12 / Paso de Parámetros",
+      "gold_chunk_criteria": {
+        "required_terms": ["paso por valor", "paso por referencia", "puntero", "parámetro"],
+        "structural_element_required": "text",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Explica que el paso por valor copia el dato mientras que por referencia pasa la dirección.",
+        "sufficient_conditions": "Demuestra el impacto en la modificación de la variable original."
+      }
+    },
+    {
+      "query_id": "Q1A2-15",
+      "archetype": "ARQ-01",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-05",
+      "query_text": "¿Cuál es la definición formal de la notación asintótica O-grande (Big-O) para la complejidad de algoritmos?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [540, 545],
+      "target_section": "Capítulo 13 / Complejidad Algorítmica",
+      "gold_chunk_criteria": {
+        "required_terms": ["complejidad", "asintótica", "O", "orden", "tiempo"],
+        "structural_element_required": "text | math",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Define la cota superior del tiempo de ejecución en función del tamaño de entrada n.",
+        "sufficient_conditions": "Presenta la formulación matemática o conceptual rigurosa."
+      }
+    },
+    {
+      "query_id": "Q1A2-16",
+      "archetype": "ARQ-03",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-05",
+      "query_text": "¿Cuál es la diferencia de eficiencia y crecimiento entre un algoritmo O(n log n) y uno O(n^2)?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [543, 548],
+      "target_section": "Capítulo 13 / Comparación de Complejidades",
+      "gold_chunk_criteria": {
+        "required_terms": ["crecimiento", "O(n log n)", "O(n^2)", "cuadrática", "eficiencia"],
+        "structural_element_required": "text | table",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Contrasta el crecimiento casi lineal con el crecimiento cuadrático ante entradas grandes.",
+        "sufficient_conditions": "Aporta justificación analítica sobre la escalabilidad de ambos tipos de algoritmo."
+      }
+    },
+    {
+      "query_id": "Q1A2-17",
+      "archetype": "ARQ-01",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-01",
+      "query_text": "¿En qué página del índice general se lista el apartado de 'Resolución de problemas con computadoras'?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [11, 16],
+      "target_section": "Índice General / Outlier PROB-1A-03",
+      "gold_chunk_criteria": {
+        "required_terms": ["resolución de problemas", "computadoras", "página"],
+        "structural_element_required": "text | table",
+        "minimum_char_overlap": 120
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Localiza el epígrafe dentro del bloque denso del índice.",
+        "sufficient_conditions": "Indica el número de página exacto asociado al epígrafe."
+      }
+    },
+    {
+      "query_id": "Q1A2-18",
+      "archetype": "ARQ-04",
+      "audit_status": "PENDING_VERIFICATION",
+      "slice_id": "J-01",
+      "query_text": "¿Qué subsecciones componen el capítulo de algoritmos según la jerarquía detallada en el índice de contenidos?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [13, 16],
+      "target_section": "Índice General / Outlier PROB-1A-03",
+      "gold_chunk_criteria": {
+        "required_terms": ["algoritmos", "concepto", "propiedades", "representación"],
+        "structural_element_required": "text | table",
+        "minimum_char_overlap": 200
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Recupera la secuencia de subapartados del capítulo de algoritmos.",
+        "sufficient_conditions": "Permite observar la integridad de jerarquía en el bloque denso de índice."
+      }
+    },
+    {
+      "query_id": "Q1A2-37",
+      "archetype": "ARQ-11",
+      "audit_status": "CONTROL_NEGATIVE_OOD",
+      "slice_id": "NONE_OOD",
+      "query_text": "¿Cómo se gestiona el vector de interrupciones en el controlador programable APIC en modo protegido x86?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": null,
+      "target_section": "OUT_OF_DOMAIN",
+      "gold_chunk_criteria": {
+        "required_terms": ["APIC", "vector de interrupciones", "modo protegido"],
+        "structural_element_required": "none",
+        "minimum_char_overlap": 0
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Ningún fragmento de Joyanes debe considerarse relevante (control negativo de dominio).",
+        "sufficient_conditions": "El sistema debe abstenerse o arrojar puntajes de similitud bajos (<0.40)."
+      }
+    },
+    {
+      "query_id": "Q1A2-38",
+      "archetype": "ARQ-11",
+      "audit_status": "CONTROL_NEGATIVE_OOD",
+      "slice_id": "NONE_OOD",
+      "query_text": "¿Cómo implementa el núcleo NT el algoritmo WSClock para el conjunto de trabajo de páginas en memoria virtual?",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": null,
+      "target_section": "OUT_OF_DOMAIN",
+      "gold_chunk_criteria": {
+        "required_terms": ["WSClock", "núcleo NT", "conjunto de trabajo"],
+        "structural_element_required": "none",
+        "minimum_char_overlap": 0
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Ningún fragmento de Joyanes debe considerarse relevante (control negativo de dominio).",
+        "sufficient_conditions": "El sistema debe abstenerse o arrojar puntajes de similitud bajos (<0.40)."
+      }
+    },
+    {
+      "query_id": "Q1A2-39",
+      "archetype": "ARQ-12",
+      "audit_status": "AMBIGUITY_CONTROL",
+      "slice_id": "J-04",
+      "query_text": "manejo de pila y almacenamiento",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [485, 505],
+      "target_section": "Capítulo 12 / Punteros y Memoria",
+      "gold_chunk_criteria": {
+        "required_terms": ["pila", "memoria", "almacenamiento"],
+        "structural_element_required": "text",
+        "minimum_char_overlap": 150
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Evalúa si recupera pila como memoria de ejecución (stack) o como estructura de datos abstracta.",
+        "sufficient_conditions": "Identifica la discriminación de contexto semántico según el capítulo."
+      }
+    },
+    {
+      "query_id": "Q1A2-40",
+      "archetype": "ARQ-12",
+      "audit_status": "AMBIGUITY_CONTROL",
+      "slice_id": "J-03",
+      "query_text": "condición de fin y salida de bloque",
+      "source_document_id": "doc_joyanes_fundamentos_4ed",
+      "target_page_range": [135, 150],
+      "target_section": "Capítulo 4 / Estructuras de Control",
+      "gold_chunk_criteria": {
+        "required_terms": ["condición", "salida", "bloque", "fin"],
+        "structural_element_required": "text",
+        "minimum_char_overlap": 150
+      },
+      "adjudication_rubric": {
+        "relevant_conditions": "Evalúa si recupera condiciones lógicas de estructuras condicionales vs bucles.",
+        "sufficient_conditions": "Determina la especificidad del contexto ante términos polisémicos."
+      }
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "control_id": "C4",
+  "name": "FTS5 and Index Alignment",
+  "timestamp": "2026-10-05T18:57:51.047600+00:00",
+  "indexed_chunks": 64,
+  "test_queries_run": 5,
+  "query_results": [
+    {
+      "query": "algoritmo",
+      "hits_count": 5,
+      "sample_hits": [
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+          "page": 138,
+          "snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se util"
+        },
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p139:c0023",
+          "page": 139,
+          "snippet": "[Página 139]\nEstructura general de un programa  109\nvar\n  ti"
+        }
+      ]
+    },
+    {
+      "query": "estructura",
+      "hits_count": 5,
+      "sample_hits": [
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p11:c0001",
+          "page": 11,
+          "snippet": "[Página 11]\n7.7. Estructuras versus registros .............."
+        },
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p37:c0010",
+          "page": 37,
+          "snippet": "[Página 37]\nIntroducción a las computadoras y los lenguajes "
+        }
+      ]
+    },
+    {
+      "query": "registro",
+      "hits_count": 5,
+      "sample_hits": [
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p487:c0037",
+          "page": 487,
+          "snippet": "[Página 487]\nEstructuras dinámicas lineales de datos (pilas,"
+        },
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p492:c0042",
+          "page": 492,
+          "snippet": "[Página 492]\n462  \nFundamentos de programación\n• Acceder al "
+        }
+      ]
+    },
+    {
+      "query": "pseudocodigo",
+      "hits_count": 2,
+      "sample_hits": [
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p138:c0022",
+          "page": 138,
+          "snippet": "[Nota 1]\n108  \nFundamentos de programación\nNota 1\nSi se util"
+        },
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p140:c0024",
+          "page": 140,
+          "snippet": "[Página 140]\n110  \nFundamentos de programación\nLas variables"
+        }
+      ]
+    },
+    {
+      "query": "memoria",
+      "hits_count": 5,
+      "sample_hits": [
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p35:c0008",
+          "page": 35,
+          "snippet": "[Página 35]\nIntroducción a las computadoras y los lenguajes "
+        },
+        {
+          "chunk_id": "doc_joyanes_fundamentos_4ed:p36:c0009",
+          "page": 36,
+          "snippet": "[Página 36]\n6  \nFundamentos de programación\nestilo de una TV"
+        }
+      ]
+    }
+  ],
+  "status": "PASS"
+}

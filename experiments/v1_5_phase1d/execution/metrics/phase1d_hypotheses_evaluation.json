@@ -1,0 +1,91 @@
+{
+  "H1": {
+    "hypothesis": "Relevance-Sufficiency Gap",
+    "formula": "Delta_brecha = P@1 - S@1 >= 0.15 with McNemar exact test p < 0.05 (b >= 5)",
+    "unit": "18 independent in-domain curricular queries",
+    "observed_delta_c1": 0.1667,
+    "discordant_pairs_b": 3,
+    "discordant_pairs_c": 0,
+    "mcnemar_exact_p": 0.125,
+    "verdict": "INCONCLUSIVE",
+    "rationale": "Delta_brecha=0.1667 >= 0.15 muestra evidencia sustantiva, pero con b=3 < 5 pares discordantes el p-valor exacto es 0.1250 >= 0.05. Siguiendo la regla de CP143-R1, se clasifica como INCONCLUSIVE (hallazgo descriptivo positivo sin significancia estadística concluyente por limitación muestral N=18)."
+  },
+  "H2": {
+    "hypothesis": "Value of Structural Expansion",
+    "design": "Strictly paired comparison C5 (atomic) vs C6 (expanded) on identical seed candidate",
+    "pairs_evaluated": 18,
+    "improved_count": 0,
+    "degraded_count": 0,
+    "neutral_count": 18,
+    "precision_at_5_c5": 0.0111,
+    "precision_at_5_c6": 0.0111,
+    "verdict": "INCONCLUSIVE",
+    "rationale": "En las 18 consultas pareadas, 18 resultaron neutrales (Delta S = 0), 0 mejoradas y 0 degradadas. Sin degradación en P@5 (0.0111 == 0.0111). Dictamen formal: INCONCLUSIVE (sin diferencia estadísticamente detectable en este corpus de 64 chunks)."
+  },
+  "H3": {
+    "hypothesis": "Hybrid Retrieval RRF Superiority",
+    "c4_ndcg5": 0.1429,
+    "c4_mrr5": 0.1667,
+    "max_monomodal_ndcg5": 0.1111,
+    "max_monomodal_mrr5": 0.1667,
+    "verdict": "INCONCLUSIVE",
+    "rationale": "C4 supera a todos los baselines individuales en nDCG@5 (0.1429 > 0.1111), pero empata con C1 y C2 en MRR@5 (0.1667 == 0.1667). Dictamen formal: INCONCLUSIVE (ventaja clara en ranking acumulativo nDCG pero empate técnico en MRR)."
+  },
+  "H4": {
+    "hypothesis": "Static Similarity Threshold Grid Evaluation",
+    "grid": [
+      0.3,
+      0.35,
+      0.4,
+      0.45,
+      0.5
+    ],
+    "grid_results": {
+      "0.3": {
+        "tau": 0.3,
+        "a_ood_pct": 0.0,
+        "frr_id_pct": 0.0,
+        "feasible": false
+      },
+      "0.35": {
+        "tau": 0.35,
+        "a_ood_pct": 0.0,
+        "frr_id_pct": 0.0,
+        "feasible": false
+      },
+      "0.4": {
+        "tau": 0.4,
+        "a_ood_pct": 100.0,
+        "frr_id_pct": 11.1,
+        "feasible": true
+      },
+      "0.45": {
+        "tau": 0.45,
+        "a_ood_pct": 100.0,
+        "frr_id_pct": 50.0,
+        "feasible": false
+      },
+      "0.5": {
+        "tau": 0.5,
+        "a_ood_pct": 100.0,
+        "frr_id_pct": 88.9,
+        "feasible": false
+      }
+    },
+    "feasible_thresholds": [
+      0.4
+    ],
+    "selected_optimal_tau": 0.4,
+    "reference_point_tau": 0.4,
+    "verdict": "SUPPORTED",
+    "rationale": "Existe al menos un umbral en la grilla que satisface A_OOD=100% y FRR_ID <= 15%: tau=0.40 (A_OOD=100.0%, FRR_ID=11.1%). La regla preregistrada selecciona formalmente tau*=0.40. Dictamen formal: SUPPORTED dentro del grid preregistrado."
+  },
+  "H5": {
+    "hypothesis": "Reliable Abstention via Guard C7 (tau=0.35)",
+    "condition": "C7 with operational threshold tau_abstain=0.35",
+    "a_ood_pct": 100.0,
+    "frr_id_pct": 94.4,
+    "verdict": "NOT_SUPPORTED",
+    "rationale": "Bajo la condición operacional C7 (tau=0.35), se alcanza A_OOD=100.0% pero FRR_ID=94.4% (>20%). El guard abstiene excesivamente en el currículo in-domain (17/18 consultas rechazadas falsamente). Dictamen formal: NOT_SUPPORTED bajo el parámetro operacional preregistrado tau=0.35."
+  }
+}
