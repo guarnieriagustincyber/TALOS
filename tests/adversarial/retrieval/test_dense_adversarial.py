@@ -55,7 +55,7 @@ def populated_reference_env(tmp_path: Path):
     ]
     store.save_chunks(chunks)
 
-    vec_store = SQLiteVectorStore(tmp_path / "reference_vectors.db")
+    vec_store = SQLiteVectorStore(tmp_path / "reference_vectors.db", read_only=False)
     provider = MockEmbeddingProvider(dimensions=384)
 
     # Index both notebooks separately

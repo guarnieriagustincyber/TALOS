@@ -187,7 +187,7 @@ class E2ECampaignRunner:
         )
 
         # 2. Vector indexing for dense retrieval
-        vstore = SQLiteVectorStore(db_path=vec_path)
+        vstore = SQLiteVectorStore(db_path=vec_path, read_only=False)
         embedder = DeterministicHashEmbedder(dimensions=128)
         concurrency_chunks = store.chunks.list_by_document("so_concurrencia.pdf")
         records: List[VectorRecord] = []

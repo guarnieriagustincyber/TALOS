@@ -70,11 +70,15 @@ class ContextPack:
     abstained: bool = False
     abstention_reason: Optional[str] = None
     formatted_text: str = ""
+    is_sufficient: bool = False
+    trust_status: Optional[Any] = None
 
     def add_evidence(self, chunk: ChunkWithProvenance) -> None:
         self.retrieved_evidence.append(chunk)
         self.total_tokens += chunk.token_count
+        if not self.abstained and len(self.retrieved_evidence) > 0:
+            self.is_sufficient = True
 
     @property
     def has_evidence(self) -> bool:
-        return len(self.retrieved_evidence) > 0 and not self.abstained
+        return len(self.retrieved_evidence) > 0 and not self.abstained and self.is_sufficient

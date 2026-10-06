@@ -23,6 +23,7 @@ Se certifica el sellado criptográfico canónico del diseño metodológico y las
 DICTAMEN FORMAL DEL AUDIT GATE DE SELLADO (PROBE-1)
 ==================================================================================================
 SEAL_STATUS                     = SEALED
+SEAL_COMMIT                     = 88ad38b80c9c4cd9038f351402e0a02e56e30181
 PROBE1_SEAL_SHA256              = e6e81f98edb872c287ebf87687df0fc6f99b015775b8b0b2d6193106ba82b7cd
 PROBE1_SEAL_MANIFEST            = experiments/v1_5_ingestion/probe1/PROBE1_SEAL_MANIFEST.json
 MANIFEST_SHA256                 = e6e81f98edb872c287ebf87687df0fc6f99b015775b8b0b2d6193106ba82b7cd

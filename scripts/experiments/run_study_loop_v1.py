@@ -186,7 +186,7 @@ class StudyLoopExperimentRunner:
 
 
         # 2. Vector indexing for dense retrieval
-        vstore = SQLiteVectorStore(db_path=vec_path)
+        vstore = SQLiteVectorStore(db_path=vec_path, read_only=False)
         embedder = DeterministicHashEmbedder(dimensions=128)
         pointer_chunks = store.chunks.list_by_document("prog_punteros.pdf")
         records: List[VectorRecord] = []

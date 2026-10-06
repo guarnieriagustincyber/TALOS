@@ -23,6 +23,7 @@ EXPERIMENT_ID                   = exp_ingestion_probe1_adaptive_routing
 EXPERIMENT_VERSION              = 1.0.1-canonical
 SEAL_VERSION                    = 1.0.0-canonical
 SEAL_TIMESTAMP                  = 2026-10-06T00:05:00Z
+SEAL_COMMIT                     = 88ad38b80c9c4cd9038f351402e0a02e56e30181
 GOVERNANCE_STATUS               = SEALED
 EXECUTION_STATUS                = NOT_STARTED (Ejecución estrictamente no iniciada)
 

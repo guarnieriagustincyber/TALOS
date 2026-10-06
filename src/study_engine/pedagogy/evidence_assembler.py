@@ -23,11 +23,20 @@ class MultiSourceEvidenceAssembler:
         self,
         knowledge_store: Optional[Any] = None,
         roles_config_path: Optional[Path] = None,
+        l3_manifest_path: Optional[Path] = None,
     ) -> None:
         self.knowledge_store = knowledge_store
         self.roles_config_path = roles_config_path or (
             Path(__file__).resolve().parents[3] / "config" / "notebook_source_roles.json"
         )
+        if l3_manifest_path is not None:
+            self.l3_manifest_path: Optional[Path] = l3_manifest_path
+        elif roles_config_path is None:
+            self.l3_manifest_path = (
+                Path(__file__).resolve().parents[3] / "config" / "l3_authorization_manifest.json"
+            )
+        else:
+            self.l3_manifest_path = None
         self._roles_config: Dict[str, Dict[str, Any]] = self._load_roles_config()
 
     def _load_roles_config(self) -> Dict[str, Dict[str, Any]]:
@@ -77,6 +86,14 @@ class MultiSourceEvidenceAssembler:
                 return evidence_by_role, all_citations
 
             authorized_sources = set(notebook.sources)
+            if self.l3_manifest_path is not None:
+                from study_engine.contracts.l3_manifest import get_l3_authorized_sources
+
+                l3_sources = get_l3_authorized_sources(
+                    notebook_id, manifest_path=self.l3_manifest_path
+                )
+                authorized_sources = authorized_sources.intersection(l3_sources)
+
             active_sources = [
                 source_id for source_id in nb_roles if source_id in authorized_sources
             ]

@@ -6,6 +6,8 @@
 non-destructive
 **Baseline:** [`REALITY_AUDIT_BASELINE.md`](./REALITY_AUDIT_BASELINE.md)
 **Tool setup:** [`REPOSITORY_REALITY_AUDIT.md`](./REPOSITORY_REALITY_AUDIT.md)
+**Backend B0:** [`BACKEND_OPERATIONAL_ARCHAEOLOGY.md`](./BACKEND_OPERATIONAL_ARCHAEOLOGY.md)
+**Integrated current plan:** [`PLAN_MAESTRO_CIERRE_TALOS.md`](./PLAN_MAESTRO_CIERRE_TALOS.md)
 
 ## Executive summary
 
@@ -22,6 +24,24 @@ subsequent focused test-driven change in `chatService.ts` now rejects explicit
 isolated browser mocks cover those outcomes. This is not evidence of backend
 compatibility.
 
+A follow-up static B0 trace found that normal `AppContainer(use_mock=True)` and
+the existing copied-database fixtures do not satisfy a no-project-data-read
+boundary. It also found backend abstention/clarification events that are not
+recognized by the React event allowlist and end without `phase_complete`;
+therefore the current client will classify those backend responses as
+incomplete. This is a static contract discrepancy, not a runtime observation.
+A subsequent guarded B0.5 subprocess confirmed the import/factory directory
+attempts, blocked the `.env` read under the repository CWD before content was
+read, and ran the startup handler only with a synthetic container while
+suppressing its warmup thread.
+
+B1-A then exercised the actual `/api/chat/query` HTTP route using in-process
+ASGI and synthetic domain dependencies under the same data/network/process
+guards. Schema validation, empty-prompt rejection, normal SSE framing, and
+route conversion of a synthetic pipeline exception to an SSE `error` all
+passed. No normal lifespan, real container, retrieval, provider, persistence,
+or listening server was used.
+
 - jscpd found **337 clone blocks** across 889 analyzed files, amounting to
   **4,925 duplicated lines (3.03%)** under the configured thresholds. No clone
   cluster has yet been adjudicated as accidental or safe to consolidate.
@@ -31,10 +51,11 @@ compatibility.
   scripts.
 - Vulture reported **17 unused/unreachable candidates**. They remain
   `DEAD_CANDIDATE`/`UNKNOWN`; no code was removed.
-- Pytest collection found **2,947 tests** (1,254 under `tests/unit`). Collection
-  is not execution or proof of coverage. The declared perimeter validates 24
-  suites and 451 test modules; the current certification document still says
-  446 modules, a documentation-count discrepancy.
+- At the original audit snapshot, pytest collection found **2,947 tests**
+  (1,254 under `tests/unit`). Collection is not execution or proof of coverage.
+  The then-declared perimeter validated 24 suites and 451 test modules; the
+  certification-document count discrepancy was subsequently reconciled in
+  the A-PRE-0 update below.
 - The isolated React browser suite covers mocked success, error, truncation,
   explicit stream abort, and incomplete EOF. It does not establish compatibility
   with real chat requests or backend SSE behavior.
@@ -276,11 +297,11 @@ No uncaught `pageerror` was observed. These tests are browser
 connectivity or protocol compatibility with the real backend; real API/SSE
 integration remains `UNKNOWN`.
 
-## P9 — Test reality
+## P9 — Test reality at the original audit snapshot
 
 - `pytest --collect-only -q`: 2,947 cases collected; 1,254 in `tests/unit`.
-- Test-perimeter validator: 24 suites, 451 modules, two optional modules;
-  validation passed without running test bodies.
+- Test-perimeter validator at the original audit snapshot: 24 suites, 451
+  modules, two optional modules; validation passed without running test bodies.
 - `tests/web` and `tests/pedagogy` have backend/API/SSE tests. They are not
   browser E2E evidence.
 - No broad test suite was run. The only test bodies executed were the five
@@ -290,13 +311,13 @@ integration remains `UNKNOWN`.
 - The new E2E smoke lives outside `tests/`, so the existing test perimeter
   remains unchanged.
 
-## P10 — Documentation versus implementation
+## P10 — Documentation versus implementation at the original audit snapshot
 
 | Statement/resource | Evidence comparison | Classification |
 |---|---|---|
 | README lists Python package and test-suite structure | Tracked paths and top-level test directories correspond to the documented structure; its tree explicitly says it omits files | `PARTIALLY_VERIFIED` |
-| `TEST_CERTIFICATION_PERIMETER.md` says 446 current test modules | Current filesystem and perimeter validator find 451 `test_*.py` modules | `CONTRADICTORY` count; inspect whether five files were added after the document |
-| `config/test_perimeter.json` and `scripts/quality_gate.py` are normative test-perimeter sources | Validator succeeds for 24 suites and 451 modules; it separates required, qualification, optional, and support-only | `VERIFIED` as configuration/validation behavior; test execution not performed |
+| `TEST_CERTIFICATION_PERIMETER.md` said 446 current test modules | Original filesystem and perimeter validator found 451 `test_*.py` modules | `CONTRADICTORY` at the audit snapshot; reconciled in the A-PRE-0 update below |
+| `config/test_perimeter.json` and `scripts/quality_gate.py` are normative test-perimeter sources | Original validator succeeded for 24 suites and 451 modules; it separated required, qualification, optional, and support-only | `VERIFIED` as configuration/validation behavior at that snapshot; test execution not performed |
 | README says `pyproject.toml` is the single dependency source | The new audit-only tools use separate `requirements-audit.in`/lock files to preserve the E5 lock and avoid changing runtime extras | `PARTIALLY_VERIFIED`; this scoped tooling exception should be reconciled in future documentation |
 | Historical audit reports | `docs/audit_diagnostico.md` explicitly warns its evidence is historical; `docs/audit_comparativo_v1.md` is dated 2026-09-23 | `LEGACY_DOCUMENTATION` for current-state claims unless revalidated |
 | Existing `tests/unit/web/test_chat_ui_sse_contract.py` | Checks legacy static JavaScript, while current React entrypoint is `kasiu-lab/ui/src/main.tsx` | `PARTIALLY_VERIFIED`; not React E2E evidence |
@@ -325,14 +346,219 @@ No component is classified `LEGACY`, `ORPHAN`, or `REMOVE` by this audit.
 |---|---|---|
 | Repository inventory | Counts and metadata recorded; database contents not inspected | `OBSERVED` |
 | Static imports | 907 Python files parsed, zero AST parse failures, approximate edges computed | `STATICALLY_VERIFIED` |
-| FastAPI registration/chat path | Source registration and calls traced; backend not run | `STATICALLY_VERIFIED` |
+| FastAPI registration/chat path | Source trace plus guarded B1-A/B ASGI requests with synthetic domain dependencies | `STATICALLY_VERIFIED` + `RUNTIME_VERIFIED` for route slice only |
 | Python complexity/dead-code candidates | Radon/Vulture reports captured; findings not adjudicated | `CANDIDATE` |
 | Duplication | 337 clone blocks reported; clusters not manually classified | `CANDIDATE` |
 | Test perimeter | 24 suites / 451 modules validated; 2,947 tests collected | `TEST_VERIFIED` for collection only |
 | Browser | Mocked success/error/truncation/abort/incomplete-EOF scenarios | `RUNTIME_VERIFIED` for UI behavior against mock API/SSE |
-| Real backend/SSE compatibility and cross-notebook isolation | Not exercised in browser | `UNKNOWN` |
+| Real backend/SSE compatibility and cross-notebook isolation | B1-A/B exercised the route with synthetic dependencies; real domain, provider, browser integration, and cross-notebook isolation remain untested | `PARTIALLY_VERIFIED` only at the route boundary |
+| Backend HTTP route validation/SSE framing with synthetic dependencies | B1-A validation/normal/error and B1-B terminal sequences passed under guards; not a domain integration test | `RUNTIME_VERIFIED` for tested route serialization only |
+| B1-R synthetic repeatability/sterility | Ten cases × three runs through real route with synthetic domain; independent verifier, negative guard probes, verifier mutations; UI consumer is source-traced, not runtime-tested | `TECHNICAL PASS` for normalized synthetic route observations only; not F6 or product integration |
 | Documentation alignment | One stale test-module count and historical reports identified | `PARTIALLY_VERIFIED` |
 | Production / E5 / Qwen / blind pool | Not accessed or changed | `NOT_RUN / UNCHANGED` |
+
+## P13 — Backend operational archaeology (B0)
+
+The static trace found explicit CLI/server entrypoints and a registered
+`POST /api/chat/query` call path, but it did not import or execute the app.
+Importing the web package runs module-level app construction, which attempts
+idempotent directory creation for static/storage paths and, under repository
+CWD, settings initialization attempts to read `.env`. Normal startup eagerly
+builds the container and schedules a retrieval warmup thread.
+
+The default container writes under `data/web_state`; its pipeline runner reads
+the experiment oracle and may ingest PDFs from `data/benchmark/sources` when
+the knowledge store is empty. `use_mock=True` changes provider/student-storage
+choices but does not bypass the KnowledgeStore/VectorStore initialization,
+curriculum seeding, or all on-disk state. Existing test fixtures copy the
+repository's web-state databases before constructing mock containers.
+
+**B1-A is now complete under a synthetic boundary; the normal
+factory/lifespan/container path remains unsafe as an isolated harness.** B1-A
+explicitly bypassed normal startup/container construction and replaced direct
+context preparation and persistence/background hooks. This verifies only
+route/SSE serialization. Real scope, retrieval, pipeline, and persistence
+require subsequent isolated fixtures. See the
+[`B0 operational map`](./BACKEND_OPERATIONAL_ARCHAEOLOGY.md) for effects,
+replaceability, and the proposed safe boundary.
+
+## P14 — Guarded lifecycle probe (B0.5)
+
+A short-lived child process imported `study_engine.web`, explicitly called
+`create_app()`, and invoked its sole startup handler under instrumentation. The
+probe used a temporary working directory, removed API-key/token-like
+environment variable names from the child, denied opens of `.env`, project
+`data/`, stores/corpus/model file types, SQLite connections, sockets, and
+subprocess/system calls, and suppressed all thread starts.
+
+- Import and explicit factory construction each attempted `mkdir` for
+  `src/study_engine/web/static` and `kasiu-lab/storage`; both already existed,
+  so the calls were no-ops. No other targeted filesystem write was observed.
+- The first import attempt with repository CWD tried to open `.env`; the guard
+  blocked it before any file content was read. The successful probe used a
+  temporary CWD, so project `.env` was not loaded.
+- The sanitized startup handler called the synthetic `get_container` exactly
+  once and attempted to start `retrieval-warmup`; the thread start was
+  suppressed, so its body and any vector-store access did not run.
+- No guarded SQLite/data/corpus/model access, network, or process action was
+  observed. No HTTP request was made and the real container was never
+  constructed.
+
+This proves the app import, factory and startup handler can be reached under
+explicit guards with a synthetic container; it does **not** establish that
+normal startup is sterile or that the chat endpoint is safe to call without
+additional route/domain stubs. B1-A carried forward the temporary-CWD,
+environment scrub, existing-directory precondition, and
+startup/thread/container guards without changing the app factory.
+
+## P15 — Synthetic route contract (B1-A)
+
+A separate guarded child process constructed the app and exercised the actual
+`POST /api/chat/query` route with HTTPX `ASGITransport`; a fail-fast startup
+handler ensured app lifespan was not invoked. The synthetic async dependency
+returned a fake container. Direct context preparation, provider resolution,
+pipeline generation, citation validation, persistence, and memory extraction
+were replaced; the route itself performed request validation and serialized
+the SSE response.
+
+Results:
+
+- invalid request schema: HTTP 422 before context preparation;
+- whitespace-only prompt: HTTP 422 before context preparation;
+- normal fake pipeline: HTTP 200 `text/event-stream` with
+  `phase_start → phase_token → evidence_manifest → phase_complete`;
+- fake pipeline exception: HTTP 200 `text/event-stream` with terminal `error`.
+
+File/SQLite/network/process/thread/write guards reported no violation. App
+imports attempted idempotent `mkdir` calls only for directories already
+present (`static`, `storage`, `storage/sources`, `storage/covers`). To avoid
+creating an executor thread, the route's `asyncio.to_thread` call was replaced
+with an inline wrapper that asserted its only target was the synthetic context
+helper. Thus the probe does not test concurrency or threadpool behavior.
+
+This is `RUNTIME_VERIFIED` for the narrow HTTP route/request-validation/SSE
+serialization boundary only. It is not evidence for real context resolution,
+retrieval, provider, pipeline, persistence, end-to-end backend operation, or
+React compatibility. The probe was one-shot, not yet a committed repeatable
+test. B1-B terminal observations are recorded in P16.
+
+## P16 — Synthetic terminal SSE contract (B1-B)
+
+A second guarded ASGI probe sent four synthetic terminal paths through the
+actual `POST /api/chat/query` route. It reused B1-A's temporary CWD,
+credential scrub, fail-fast startup, fake container/context, inline context
+helper, and denials for project-data/file access, SQLite, network, processes,
+threads, and project writes. No guard violation occurred; the real lifecycle,
+domain, provider, and pipeline were not invoked.
+
+| Case | HTTP status | Ordered SSE events | Last event / phase completion |
+|---|---:|---|---|
+| Abstention | 200 | `evidence_manifest → abstention` | `abstention`; EOF; no `phase_complete` |
+| Clarification | 200 | `evidence_manifest → clarification` | `clarification`; EOF; no `phase_complete` |
+| Truncated | 200 | `phase_start → truncated → audit_verdict → evidence_manifest → phase_complete` | `phase_complete`; EOF |
+| Stream aborted | 200 | `phase_start → stream_aborted` | `stream_aborted`; route closes after cancellation; no `phase_complete` |
+
+Abstention and clarification took the route's early context-pack branch and
+did not call the fake pipeline. The truncation case supplied the source-traced
+post-truncation events through a fake pipeline. The abort case supplied
+`stream_aborted`, then raised `CancelledError`; the route caught the
+cancellation and returned after the event. Thus the runtime evidence is
+route-level serialization, not runtime execution of `StructuredResponsePipeline`
+or a real client disconnect.
+
+The source path establishes that `truncated` is an intermediate warning in
+the actual pipeline: audit, `evidence_manifest`, and `phase_complete` follow.
+The actual cancellation handler yields `stream_aborted` and re-raises
+`CancelledError`. Neither source path was executed with a real provider.
+
+**Cross-surface finding:** the current `chatService` allowlist contains
+neither `abstention` nor `clarification`. The client ignores unknown event
+types; after EOF, its `phase_complete` guard rejects either route sequence as
+an incomplete stream. This is a source-traced incompatibility corroborated by
+the synthetic route outputs, not a Playwright/FastAPI integration result.
+`truncated` and `stream_aborted` are explicitly rejected by the client when
+seen. No backend or frontend behavior was changed; the normative terminal
+contract remains a human technical decision.
+
+## P17 — Repeatable synthetic route regression (B1-R)
+
+Added `tests/audit/test_b1_route_repeatability.py`. It runs the real
+`POST /api/chat/query` route in an isolated child process from a temporary CWD
+with a minimal allowlist environment. The app is imported under fail-fast file,
+SQLite, network, process, thread and filesystem guards; startup is replaced
+with a fail-fast sentinel, and HTTPX `ASGITransport` does not enter FastAPI
+lifespan.
+
+Ten scenarios ran three times each (30 synthetic requests): success, error,
+abstention, clarification, truncation, synthetic abort/cancellation, EOF
+without terminal, duplicate terminal, error after tokens, and partial abrupt
+generator exhaustion. All normalized event traces matched per scenario;
+HTTP status was 200, content type was `text/event-stream`, and each response
+closed. There were zero guard violations, protected-data accesses, real
+provider calls, external calls, real `AppContainer` constructions, or
+normal-lifespan runs. Backend resolution, context preparation, pipeline, and
+persistence/memory hooks remained synthetic or no-op. The event loop's local
+Unix self-pipe is allowed; outbound/network sockets and network operations are
+denied.
+
+Nine negative probes verified fail-fast rejection of protected-file reads,
+SQLite, outbound socket creation, subprocess creation, project writes, real
+container construction, normal startup, thread start, and provider
+construction. Sixteen verifier mutation cases altered run counts, trace,
+status, close, exception, guard, side-effect and route-reachability evidence;
+each was rejected. The artifact verifier runs as a separate process and has no
+TALOS application imports.
+
+The synthetic `stream_aborted` case raises `CancelledError` from the fake
+pipeline. The abrupt-close case is fake generator exhaustion after partial
+output; neither simulates a real client disconnect. The frontend consumer is
+source-traced only because no unit-test runner exists for `chatService` and
+Playwright remains frozen. B1-R therefore supplies repeatable backend route
+evidence only. The independent verifier returned `TECHNICAL PASS`; no human
+technical ACCEPT/REWORK is required for this gate. A-PRE-0 is eligible as a
+separate next task. No SSE semantics were adjudicated and F6 is not closed.
+
+## P18 — A-PRE-0 and perimeter reconciliation
+
+The perimeter classifies `tests/audit` as `required`; the current working tree
+has 456 `test_*.py` modules in 25 suites: 440 required, 13
+qualification-required, 2 optional overrides and 1 support-only. The
+historical 446 count came from the `99bd754` perimeter snapshot:
+446 executable test modules plus `tests/utils/test_registry.py`, a
+`support-only` helper. Four executable modules were added between that
+snapshot and `b12e340`. The exact paths and interpretation are recorded in
+[`TEST_CERTIFICATION_PERIMETER.md`](./TEST_CERTIFICATION_PERIMETER.md).
+
+[`A_PRE_0_BASELINE_SPEC.md`](./A_PRE_0_BASELINE_SPEC.md) specifies identity,
+perimeter, dependencies/runtime, artifact policy, output schema and PRE→POST
+comparability. CPython 3.10.21 with uv 0.12.20 resolved and installed 61
+packages in a temporary external venv; `uv pip check` and dependency imports
+passed. This establishes dependency-set viability only, not TALOS imports,
+collection or test results. `scripts/test.sh` would select the existing Python
+3.12 `.venv`, so the eventual gate invokes Python 3.10 directly. The lock
+shared with E5 remains unchanged.
+
+The opt-in [`scripts/apre_harness.py`](../scripts/apre_harness.py) connects
+bubblewrap isolation, syscall tracing, the quality-gate collector,
+`result.json` emission and an independent verifier. Bubblewrap fixtures
+confirm read-only snapshot/system mounts, writable external scratch, a PID
+isolated `/proc`, blocked network and permitted synthetic SQLite/process
+operations. Six harness fixtures join 14 reporter and 6 observer fixtures;
+all 26 focused tests pass. The builder emits the complete schema from collector
+data and evidence artifacts, but forces global `ERROR` if syscall observation
+is incomplete; its synthetic tracer preflight blocks the release-gate launch
+unless tracing is attached and complete. This host refuses strace attachment with
+`PTRACE_TRACEME: Operation not permitted`; the trace is therefore not
+qualified, and no `result.json` from TALOS was generated. An external clean
+overlay snapshot was regenerated after the harness and the hidden-parent
+perimeter-discovery correction; its object store passes `git fsck`.
+
+A-PRE-0 remains `REVIEW REQUIRED / NOT READY FOR A-PRE-1`. No TALOS release
+suite, import, or collection was run; A-PRE-1 remains
+`PENDING / NOT AUTHORIZED`. E5/Qwen, protected production data and blind pool
+remain unchanged and outside execution. Actual effect adjudication belongs to
+the authorized baseline run; requiring it before the first run would be
+circular.
 
 ## Remaining work
 

@@ -112,7 +112,23 @@ def create_app() -> FastAPI:
         query arrives before warmup completes it pays the synchronous load cost
         (pre-existing behavior). Only the first query after boot benefits.
         """
+        import os
         import threading
+        from study_engine.config import settings
+
+        # CP126: Disable warmup if explicitly turned off via settings, env var, or mock/test container
+        if not getattr(settings, "enable_retrieval_warmup", True):
+            logger.info("Warmup de retrieval desactivado por configuración (TALOS_ENABLE_WARMUP=0)")
+            return
+        if os.getenv("TALOS_ENABLE_WARMUP", "1") == "0":
+            logger.info("Warmup de retrieval desactivado por variable de entorno TALOS_ENABLE_WARMUP=0")
+            return
+        if getattr(container, "use_mock", False):
+            logger.info("Warmup de retrieval desactivado para contenedor mock")
+            return
+        if os.getenv("PYTEST_CURRENT_TEST"):
+            logger.info("Warmup de retrieval desactivado en entorno de pruebas pytest")
+            return
 
         def _warm() -> None:
             t0 = time.perf_counter()

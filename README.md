@@ -63,6 +63,10 @@ no instales encima del `.venv` existente durante esa verificación.
 
 Nomenclatura de fases (evitar confundir Golden Set con red team): [`PHASES.md`](PHASES.md).
 
+Mapa maestro de estado y camino restante (actualizado al 2026-10-01;
+integra el checkpoint CP073):
+[`docs/PLAN_MAESTRO_CIERRE_TALOS.md`](docs/PLAN_MAESTRO_CIERRE_TALOS.md).
+
 Consultar el directorio [`docs/`](docs/) para especificaciones completas:
 - [`docs/01-SPEC-V1.0.md`](docs/01-SPEC-V1.0.md): Especificación técnica V1.0.
 - [`docs/02-ADVERSARIAL-AUDIT.md`](docs/02-ADVERSARIAL-AUDIT.md): Auditoría adversarial.

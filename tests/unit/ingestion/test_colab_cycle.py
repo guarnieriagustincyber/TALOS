@@ -54,7 +54,7 @@ def colab_env(tmp_path):
     ]
     store.store_ingestion_bundle(rec, [doc], chunks, notebook_id="nb1")
 
-    vstore = SQLiteVectorStore(vdb)
+    vstore = SQLiteVectorStore(vdb, read_only=False)
     vstore.save_records([
         VectorRecord(
             chunk_id="c_done", notebook_id="nb1", source_id="src1",

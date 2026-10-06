@@ -372,6 +372,12 @@ _LAST_EPISTEMIC_PACK: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 # cerrar el loop de evaluación.
 _KC_TURN_STREAKS: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
+from study_engine.context.c5_trust import (
+    EpistemicTrustStatus,
+    evaluate_epistemic_trust,
+    evaluate_conversational_rescue_compatibility,
+)
+
 # Session Digest (Fase 5.4): la directiva de la sesión anterior se inyecta
 # UNA sola vez por history_key (primer turno de la sesión).
 _DIGEST_SHOWN: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
@@ -390,6 +396,13 @@ class EpistemicContextPack:
         reference_disclaimer: Optional[str] = None,
         resolved_item: Optional[Any] = None,
         clarification_message: Optional[str] = None,
+        trust_status: Optional[EpistemicTrustStatus] = None,
+        is_sufficient: Optional[bool] = None,
+        is_conflicting: bool = False,
+        conflict_details: Optional[str] = None,
+        missing_critical_terms: Optional[List[str]] = None,
+        coverage_ratio: float = 0.0,
+        max_relevance: float = 0.0,
     ):
         self.formatted_context = formatted_context
         self.citations = citations
@@ -399,6 +412,32 @@ class EpistemicContextPack:
         self.reference_disclaimer = reference_disclaimer
         self.resolved_item = resolved_item
         self.clarification_message = clarification_message
+        self.is_conflicting = is_conflicting
+        self.conflict_details = conflict_details
+        self.missing_critical_terms = missing_critical_terms or []
+        self.coverage_ratio = coverage_ratio
+        self.max_relevance = max_relevance
+
+        if abstained:
+            self.is_sufficient = False
+            self.trust_status = trust_status or (
+                EpistemicTrustStatus.RETRIEVAL_FAILURE
+                if abstention_reason == "RETRIEVAL_FAILURE"
+                else EpistemicTrustStatus.NO_EVIDENCE
+            )
+        else:
+            if is_sufficient is not None:
+                self.is_sufficient = is_sufficient
+            else:
+                self.is_sufficient = bool(chunks)
+            if trust_status is not None:
+                self.trust_status = trust_status
+            else:
+                self.trust_status = (
+                    EpistemicTrustStatus.SUFFICIENT_EVIDENCE
+                    if self.is_sufficient
+                    else EpistemicTrustStatus.NO_EVIDENCE
+                )
 
 
 class OfflineKnowledgeBackend:
@@ -426,10 +465,16 @@ class OfflineKnowledgeBackend:
         results: List[Any] = []
         if self.store is not None:
             try:
+                allowed_srcs = sorted(_source_ids_for_notebook(self.store, notebook_id))
+                if not allowed_srcs:
+                    return (
+                        f"TALOS se abstiene de responder: No se encontraron fuentes autorizadas en el cuaderno '{notebook_id}' "
+                        f"para fundamentar una respuesta sobre '{query}'."
+                    )
                 if hasattr(self.store, "search_hybrid"):
-                    results = self.store.search_hybrid(query, notebook_id=notebook_id, limit=5)
+                    results = self.store.search_hybrid(query, notebook_id=notebook_id, limit=5, source_ids=allowed_srcs)
                 elif hasattr(self.store, "search"):
-                    results = self.store.search(query, notebook_id=notebook_id, limit=5)
+                    results = self.store.search(query, notebook_id=notebook_id, limit=5, source_ids=allowed_srcs)
             except Exception as e:
                 logger.warning("Error en búsqueda de OfflineKnowledgeBackend: %s", e)
                 results = []
@@ -756,7 +801,25 @@ def _source_ids_for_notebook(store: Any, notebook_id: str) -> set[str]:
             "SELECT source_id FROM notebook_sources WHERE notebook_id = ? ORDER BY source_id;",
             (notebook_id,),
         )
-        return {row[0] for row in cursor.fetchall()}
+        tech_sources = {row[0] for row in cursor.fetchall()}
+
+    manifest_path = getattr(store, "l3_manifest_path", None)
+    from pathlib import Path
+    if not isinstance(manifest_path, (str, Path)):
+        manifest_path = None
+
+    if manifest_path is None:
+        db_path_str = str(getattr(getattr(store, "engine", None), "db_path", ""))
+        if "data/web_state/knowledge_store.db" in db_path_str:
+            from study_engine.contracts.l3_manifest import DEFAULT_MANIFEST_PATH
+            manifest_path = DEFAULT_MANIFEST_PATH
+
+
+    if manifest_path is not None:
+        from study_engine.contracts.l3_manifest import get_l3_authorized_sources
+        return tech_sources.intersection(get_l3_authorized_sources(notebook_id, manifest_path=manifest_path))
+
+    return tech_sources
 
 
 def _search_chapter_summaries_for_scope(
@@ -796,7 +859,7 @@ def _authorized_sources_for_scope(
     target_notebook_id: str,
     global_folder_id: Optional[str],
 ) -> set[str]:
-    """Resolve the source allowlist only from explicit notebook-source links."""
+    """Resolve the source allowlist from explicit notebook-source links intersected with L3 authorization manifest."""
     if target_notebook_id == GLOBAL_SCOPE_ID:
         if not global_folder_id:
             raise ValueError("Global retrieval requires its resolved folder scope")
@@ -806,15 +869,10 @@ def _authorized_sources_for_scope(
     if not notebook_ids:
         return set()
 
-    placeholders = ", ".join("?" for _ in notebook_ids)
-    with store.engine.transaction() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT DISTINCT source_id FROM notebook_sources "
-            f"WHERE notebook_id IN ({placeholders}) ORDER BY source_id;",
-            tuple(notebook_ids),
-        )
-        return {row[0] for row in cursor.fetchall()}
+    effective_sources: set[str] = set()
+    for nb_id in notebook_ids:
+        effective_sources.update(_source_ids_for_notebook(store, nb_id))
+    return effective_sources
 
 
 def _filter_requested_sources(
@@ -842,6 +900,7 @@ def _assemble_epistemic_context(
     active_sources: Optional[List[str]] = None,
     granularity_decision: Optional[Any] = None,
     global_folder_id: Optional[str] = None,
+    original_user_query: Optional[str] = None,
 ) -> Tuple[Optional[EpistemicContextPack], list]:
     """Search knowledge store and build formatted citations and chunks with SectionExpander (Ola 5)."""
     try:
@@ -911,6 +970,8 @@ def _assemble_epistemic_context(
                 chunks=[],
                 abstained=True,
                 abstention_reason="SCOPE_AUTHORIZATION_UNAVAILABLE",
+                trust_status=EpistemicTrustStatus.NO_AUTHORIZED_EVIDENCE,
+                is_sufficient=False,
             ), []
 
         retrieval_source_ids = _filter_requested_sources(
@@ -930,6 +991,8 @@ def _assemble_epistemic_context(
                     if active_sources is not None
                     else "NO_AUTHORIZED_SOURCES_IN_SCOPE"
                 ),
+                trust_status=EpistemicTrustStatus.NO_AUTHORIZED_EVIDENCE,
+                is_sufficient=False,
             ), []
 
         search_results = []
@@ -945,6 +1008,8 @@ def _assemble_epistemic_context(
                     abstention_reason="QUERY_OUT_OF_SCOPE",
                     reference_disclaimer=reference_disclaimer,
                     resolved_item=resolved_item,
+                    trust_status=EpistemicTrustStatus.NO_EVIDENCE,
+                    is_sufficient=False,
                 ), []
             if stmt_chunks:
                 for rank, chk in enumerate(stmt_chunks):
@@ -1185,6 +1250,8 @@ def _assemble_epistemic_context(
                     abstention_reason="QUERY_OUT_OF_SCOPE",
                     reference_disclaimer=reference_disclaimer,
                     resolved_item=resolved_item,
+                    trust_status=EpistemicTrustStatus.NO_EVIDENCE,
+                    is_sufficient=False,
                 ), []
             search_results = filtered_results
 
@@ -1200,6 +1267,7 @@ def _assemble_epistemic_context(
                 expanded_chunks, expanded_context_text = expander.expand_results(
                     seed_results=search_results[:6] if is_debug_q else search_results,
                     source_meta_cache=src_meta_cache,
+                    allowed_source_ids=retrieval_source_ids,
                 )
                 if expanded_chunks and hasattr(store, "content_registry") and store.content_registry:
                     sol_ids = store.content_registry.get_solution_chunk_ids()
@@ -1275,10 +1343,56 @@ def _assemble_epistemic_context(
                 abstention_reason="QUERY_OUT_OF_SCOPE",
                 reference_disclaimer=reference_disclaimer,
                 resolved_item=resolved_item,
+                trust_status=EpistemicTrustStatus.NO_EVIDENCE,
+                is_sufficient=False,
+            ), []
+
+        # Evaluación pre-LLM del C5 Trust Gate (Sufficiency, Coverage, Conflict, Relevance)
+        eval_query = original_user_query or search_query
+        trust_eval = evaluate_epistemic_trust(
+            eval_query,
+            raw_chunks,
+            resolved_content_item=resolved_item,
+            has_reference_disclaimer=bool(reference_disclaimer),
+        )
+        if trust_eval.abstained:
+            return EpistemicContextPack(
+                formatted_context="",
+                citations=[],
+                chunks=[],
+                abstained=True,
+                abstention_reason=trust_eval.abstention_reason or "QUERY_OUT_OF_SCOPE",
+                reference_disclaimer=reference_disclaimer,
+                resolved_item=resolved_item,
+                trust_status=trust_eval.status,
+                is_sufficient=False,
+                missing_critical_terms=trust_eval.missing_critical_terms,
+                coverage_ratio=trust_eval.coverage_ratio,
+                max_relevance=trust_eval.max_relevance,
             ), []
 
         if citations_formatted:
-            final_formatted = expanded_context_text if expanded_context_text else "\n\n".join(citations_formatted)
+            from study_engine.context.c3_budget import (
+                BUDGET_PRIMARY_EVIDENCE_TOKENS,
+                BUDGET_SECONDARY_EVIDENCE_TOKENS,
+                prune_evidence_text_deterministically,
+            )
+            raw_fallback = "\n\n".join(citations_formatted)
+            max_ev_tokens = BUDGET_PRIMARY_EVIDENCE_TOKENS + BUDGET_SECONDARY_EVIDENCE_TOKENS
+            bounded_fallback, _ = prune_evidence_text_deterministically(raw_fallback, max_tokens=max_ev_tokens)
+            base_formatted = expanded_context_text if expanded_context_text else bounded_fallback
+
+            # Si se detecta divergencia entre fuentes autorizadas (D_C5_3 & Addendum 3), explicitar el conflicto
+            if trust_eval.is_conflicting:
+                conflict_banner = (
+                    "=== EVIDENCIA CONFLICTIVA ENTRE FUENTES AUTORIZADAS ===\n"
+                    f"{trust_eval.conflict_details or 'Discrepancia detectada entre fuentes autorizadas.'}\n"
+                    "El tutor debe explicitar y contrastar las posturas discrepantes sin asumir consenso falso.\n\n"
+                )
+                final_formatted = conflict_banner + base_formatted
+            else:
+                final_formatted = base_formatted
+
             pack = EpistemicContextPack(
                 formatted_context=final_formatted,
                 citations=search_results,
@@ -1286,14 +1400,29 @@ def _assemble_epistemic_context(
                 abstained=False,
                 reference_disclaimer=reference_disclaimer,
                 resolved_item=resolved_item,
+                trust_status=trust_eval.status,
+                is_sufficient=trust_eval.is_sufficient,
+                is_conflicting=trust_eval.is_conflicting,
+                conflict_details=trust_eval.conflict_details,
+                missing_critical_terms=trust_eval.missing_critical_terms,
+                coverage_ratio=trust_eval.coverage_ratio,
+                max_relevance=trust_eval.max_relevance,
             )
+
             setattr(pack, "expanded_chunks", expanded_chunks)
             setattr(pack, "expanded_context_text", expanded_context_text)
             return pack, raw_chunks
     except Exception as ctx_err:
         logger.warning("Advertencia al ensamblar evidencias epistémicas: %s", ctx_err, exc_info=True)
-
-    return None, []
+        return EpistemicContextPack(
+            formatted_context="",
+            citations=[],
+            chunks=[],
+            abstained=True,
+            abstention_reason="RETRIEVAL_FAILURE",
+            trust_status=EpistemicTrustStatus.RETRIEVAL_FAILURE,
+            is_sufficient=False,
+        ), []
 
 
 def _update_curriculum_progress(
@@ -1816,6 +1945,8 @@ def _prepare_chat_context(
             clarification_message=(
                 f"{detail} Indicame el tema o pegá el fragmento al que te referís."
             ),
+            trust_status=EpistemicTrustStatus.PARTIAL_EVIDENCE,
+            is_sufficient=False,
         )
         raw_chunks = []
     elif _is_non_curricular_intent(retrieval_query, kcs_list):
@@ -1828,6 +1959,8 @@ def _prepare_chat_context(
                 "Consulta fuera del ámbito curricular (opinión, ficción, actualidad o vida cotidiana). "
                 "TALOS está acotado a la bibliografía del roadmap; planteá la pregunta en términos del programa."
             ),
+            trust_status=EpistemicTrustStatus.NO_AUTHORIZED_EVIDENCE,
+            is_sufficient=False,
         )
         raw_chunks: List[Any] = []
     else:
@@ -1844,6 +1977,7 @@ def _prepare_chat_context(
             active_sources=request.active_sources,
             granularity_decision=granularity_decision,
             global_folder_id=target_folder_id if global_scope else None,
+            original_user_query=clean_p,
         )
 
         # Máquina de estados conversacional con inercia epistémica (CAL §3.2 Multi-Turn)
@@ -1856,7 +1990,8 @@ def _prepare_chat_context(
 
         # Rescate epistémico para consultas de seguimiento / deícticas en contexto conversacional:
         # Si la consulta es de seguimiento (o conv_state en AMBIGUOUS_FOLLOWUP / ACTIVE_TECHNICAL_THREAD)
-        # y el retrieval devolvió 0 fragmentos nuevos, reusar el pack epistémico verificado del turno previo.
+        # y el retrieval devolvió 0 fragmentos nuevos, reusar el pack epistémico verificado del turno previo
+        # ÚNICAMENTE si existe compatibilidad temática verificable (D_C5_6 & Addendum 5).
         should_abst, abst_reason = should_abstain(conv_state, raw_chunks, has_fallback_pack=has_fallback_pack)
         if (
             (getattr(context_pack, "abstained", False) or len(raw_chunks) == 0)
@@ -1866,16 +2001,38 @@ def _prepare_chat_context(
         ):
             last_pack_tuple = _LAST_EPISTEMIC_PACK.get(epistemic_key)
             if last_pack_tuple:
-                logger.info(
-                    "Recuperando context_pack previo para continuidad conversacional (%s, estado=%s)",
-                    epistemic_key, conv_state.value
-                )
                 prev_pack, prev_chunks = last_pack_tuple
-                context_pack = prev_pack
-                raw_chunks = list(prev_chunks)
+                is_compat, compat_msg = evaluate_conversational_rescue_compatibility(
+                    new_query=clean_p,
+                    previous_context_pack=prev_pack,
+                    previous_chunks=prev_chunks,
+                )
+                if is_compat:
+                    logger.info(
+                        "Recuperando context_pack previo para continuidad conversacional (%s, estado=%s): %s",
+                        epistemic_key, conv_state.value, compat_msg
+                    )
+                    context_pack = prev_pack
+                    raw_chunks = list(prev_chunks)
+                else:
+                    logger.info(
+                        "Rescate conversacional rechazado por incompatibilidad temática (%s): %s",
+                        epistemic_key, compat_msg
+                    )
+                    if context_pack is None or not getattr(context_pack, "abstained", False):
+                        context_pack = EpistemicContextPack(
+                            formatted_context="",
+                            citations=[],
+                            chunks=[],
+                            abstained=True,
+                            abstention_reason="QUERY_OUT_OF_SCOPE",
+                            trust_status=EpistemicTrustStatus.NO_EVIDENCE,
+                            is_sufficient=False,
+                        )
+                    raw_chunks = []
 
-        # Si el context_pack es válido y tiene fragmentos, actualizar la caché del último pack epistémico
-        if context_pack and not getattr(context_pack, "abstained", False) and raw_chunks:
+        # Si el context_pack es válido, suficiente y tiene fragmentos, actualizar la caché del último pack epistémico
+        if context_pack and not getattr(context_pack, "abstained", False) and getattr(context_pack, "is_sufficient", False) and raw_chunks:
             _LAST_EPISTEMIC_PACK[epistemic_key] = (context_pack, raw_chunks)
 
     # El pipeline SIEMPRE necesita un contrato (SocraticGuard, get_phase);
@@ -2206,18 +2363,12 @@ async def chat_query(
 
     async def sse_generator() -> AsyncGenerator[str, None]:
         try:
-            # Enmienda E5: Si context_pack indica abstención por falta de fuentes canónicas,
-            # emitir evidence_manifest indicando abstención y luego evento 'abstention' sin invocar al LLM.
-            # Nota: Si el backend es OfflinePedagogicalBackend (típico en pruebas offline del oráculo socrático),
-            # permitimos que complete para emitir sus respuestas curriculares autorizadas u honestas.
-            from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
-            is_offline_oracle = isinstance(llm_backend, OfflinePedagogicalBackend)
-            if context_pack is not None and getattr(context_pack, "abstained", False) and not is_offline_oracle:
-                # COMMIT 1 (fix/memory): las declaraciones meta del estudiante
-                # ("prefiero analogías de...") no pueden morir en el gate de
-                # abstención: persistimos memoria aunque el contenido abstenga.
-                # process_turn_memories solo lee la query del usuario para
-                # preferencias/patrones; no depende de chunks recuperados.
+            # C5 Universal Trust Gate (Fail-Closed Absoluto - D_C5_4 & D_C5_5 & Addendum 2)
+            is_sufficient = getattr(context_pack, "is_sufficient", False) if context_pack is not None else False
+            is_abstained = getattr(context_pack, "abstained", True) if context_pack is not None else True
+            trust_status = getattr(context_pack, "trust_status", EpistemicTrustStatus.NO_EVIDENCE) if context_pack is not None else EpistemicTrustStatus.RETRIEVAL_FAILURE
+
+            if context_pack is None or is_abstained or not is_sufficient:
                 _trigger_background_memory_extraction(
                     container=container,
                     student_id=CANONICAL_STUDENT_ID,
@@ -2229,8 +2380,10 @@ async def chat_query(
                     notebook_id=target_notebook_id,
                 )
 
-                reason = getattr(context_pack, "abstention_reason", "QUERY_OUT_OF_SCOPE")
-                clarification_message = getattr(context_pack, "clarification_message", None)
+                reason = getattr(context_pack, "abstention_reason", None) or (
+                    "RETRIEVAL_FAILURE" if (context_pack is None or trust_status == EpistemicTrustStatus.RETRIEVAL_FAILURE) else "QUERY_OUT_OF_SCOPE"
+                )
+                clarification_message = getattr(context_pack, "clarification_message", None) if context_pack is not None else None
                 abstention_decision = getattr(pipeline, "_last_abstention_decision", None)
                 if abstention_decision and getattr(abstention_decision, "abstention_reason", None):
                     reason = getattr(abstention_decision, "abstention_reason")
@@ -2242,22 +2395,30 @@ async def chat_query(
                         "facet_coverage": {},
                         "abstained": True,
                         "abstention_reason": reason,
+                        "trust_status": trust_status.value if hasattr(trust_status, "value") else str(trust_status),
                     },
                 }
                 yield f"data: {json.dumps(manifest_payload)}\n\n"
 
+                is_retrieval_err = (context_pack is None or trust_status == EpistemicTrustStatus.RETRIEVAL_FAILURE or reason == "RETRIEVAL_FAILURE")
+                event_name = "error" if is_retrieval_err else ("clarification" if clarification_message else "abstention")
                 abstention_payload = {
-                    "event_type": "clarification" if clarification_message else "abstention",
+                    "event_type": event_name,
                     "payload": {
                         "phase": request.requested_phase or "conceptual",
                         "abstained": True,
-                        "reason": clarification_message or (
-                            reason if reason and reason != "QUERY_OUT_OF_SCOPE" else
-                            "TALOS se abstiene de responder: No se hallaron evidencias curriculares "
-                            "verificables en las fuentes canónicas del cuaderno para fundamentar esta consulta."
+                        "reason": (
+                            "TALOS falló de forma segura (fail-closed): Ocurrió un error técnico al recuperar evidencias canónicas."
+                            if is_retrieval_err
+                            else (clarification_message or (
+                                reason if reason and reason != "QUERY_OUT_OF_SCOPE" else
+                                "TALOS se abstiene de responder: No se hallaron evidencias curriculares "
+                                "verificables en las fuentes canónicas del cuaderno para fundamentar esta consulta."
+                            ))
                         ),
-                        "suggested_action": "Consultá el catálogo de fuentes del cuaderno o reformulá la pregunta con términos del programa.",
+                        "suggested_action": "Reintentá la consulta en unos instantes o consultá el catálogo del cuaderno." if is_retrieval_err else "Consultá el catálogo de fuentes del cuaderno o reformulá la pregunta con términos del programa.",
                         "abstention_code": reason,
+                        "trust_status": trust_status.value if hasattr(trust_status, "value") else str(trust_status),
                         "notebook_id": target_notebook_id,
                     },
                 }

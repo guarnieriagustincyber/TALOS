@@ -46,7 +46,7 @@ def setup_environment(tmp_path: Path):
     ]
     store.store_ingestion_bundle(rec, docs, chunks, notebook_id="nb-so")
 
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
     provider = MockEmbeddingProvider(dimensions=384)
     index_notebook_chunks(store, vec_store, provider, "nb-so")
 

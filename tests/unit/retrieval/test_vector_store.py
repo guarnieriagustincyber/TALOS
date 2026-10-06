@@ -39,7 +39,7 @@ def test_vector_record_validation():
 
 def test_sqlite_vector_store_crud(tmp_path: Path):
     db_file = tmp_path / "test_vec.db"
-    store = SQLiteVectorStore(db_file)
+    store = SQLiteVectorStore(db_file, read_only=False)
     assert isinstance(store, VectorStore)
 
     rec1 = VectorRecord(

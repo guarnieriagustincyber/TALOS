@@ -218,7 +218,7 @@ class RelevanceCalibrationBenchmark:
             )
 
             # 2. Vector indexing for all ingested documents
-            vstore = SQLiteVectorStore(db_path=vec_path)
+            vstore = SQLiteVectorStore(db_path=vec_path, read_only=False)
             docs = store.list_documents()
             all_chunks = []
             for doc in docs:

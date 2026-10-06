@@ -38,7 +38,7 @@ def populated_store(tmp_path: Path) -> KnowledgeStore:
 
 
 def test_index_notebook_chunks_success(populated_store: KnowledgeStore, tmp_path: Path):
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
     prov = MockEmbeddingProvider(dimensions=384)
 
     indexed = index_notebook_chunks(populated_store, vec_store, prov, "nb-so")
@@ -54,7 +54,7 @@ def test_index_notebook_chunks_success(populated_store: KnowledgeStore, tmp_path
 
 
 def test_index_notebook_chunks_non_existent_notebook(populated_store: KnowledgeStore, tmp_path: Path):
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
     prov = MockEmbeddingProvider(dimensions=384)
 
     with pytest.raises(NotebookNotFoundError):
@@ -63,7 +63,7 @@ def test_index_notebook_chunks_non_existent_notebook(populated_store: KnowledgeS
 
 def test_index_notebook_chunks_empty_notebook(populated_store: KnowledgeStore, tmp_path: Path):
     populated_store.create_notebook(Notebook(id="nb-empty", name="Empty"))
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
     prov = MockEmbeddingProvider(dimensions=384)
 
     indexed = index_notebook_chunks(populated_store, vec_store, prov, "nb-empty")
@@ -71,7 +71,7 @@ def test_index_notebook_chunks_empty_notebook(populated_store: KnowledgeStore, t
 
 
 def test_index_notebook_chunks_dimension_mismatch(populated_store: KnowledgeStore, tmp_path: Path):
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
 
     class BadDimProvider(MockEmbeddingProvider):
         def embed_passages(self, texts):
@@ -82,7 +82,7 @@ def test_index_notebook_chunks_dimension_mismatch(populated_store: KnowledgeStor
         index_notebook_chunks(populated_store, vec_store, bad_prov, "nb-so")
 
 def test_index_notebook_chunks_vector_count_mismatch(populated_store: KnowledgeStore, tmp_path: Path):
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
 
     class BadCountProvider(MockEmbeddingProvider):
         def embed_passages(self, texts):

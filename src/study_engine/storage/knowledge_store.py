@@ -760,7 +760,7 @@ class KnowledgeStore:
                     ]
                     for cp in candidate_paths:
                         if cp.exists():
-                            v_store = SQLiteVectorStore(cp)
+                            v_store = SQLiteVectorStore(cp, read_only=True)
                             self._vector_store = v_store
                             break
                 except Exception as ex:

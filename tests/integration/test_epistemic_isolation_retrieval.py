@@ -58,7 +58,7 @@ def curriculum_registry() -> CurriculumRegistry:
 def retrieval_service(populated_store: KnowledgeStore, tmp_path: Path) -> RetrievalService:
     """Fixture providing RetrievalService backed by HybridRetriever with DeterministicHashEmbedder."""
     lexical = LexicalRetriever(populated_store)
-    vector_store = SQLiteVectorStore(db_path=tmp_path / "test_vectors.db")
+    vector_store = SQLiteVectorStore(db_path=tmp_path / "test_vectors.db", read_only=False)
 
     embedder = DeterministicHashEmbedder(dimensions=128)
 

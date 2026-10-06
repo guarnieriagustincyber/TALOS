@@ -105,9 +105,24 @@ class AppContainer:
         use_mock: bool = False,
     ) -> None:
         self.repo_root = (repo_root or Path.cwd()).resolve()
-        self.working_dir = working_dir or (self.repo_root / "data" / "web_state")
-        self.working_dir.mkdir(parents=True, exist_ok=True)
         self.use_mock = use_mock
+        self._temp_working_dir: Optional[Any] = None
+
+        if working_dir is not None:
+            self.working_dir = Path(working_dir)
+        elif self.use_mock:
+            import tempfile
+            self._temp_working_dir = tempfile.TemporaryDirectory(prefix="talos_mock_state_")
+            self.working_dir = Path(self._temp_working_dir.name)
+        elif os.getenv("PYTEST_CURRENT_TEST"):
+            raise RuntimeError(
+                "AppContainer cannot default to production data/web_state during tests. "
+                "Provide an explicit working_dir or use_mock=True."
+            )
+        else:
+            self.working_dir = self.repo_root / "data" / "web_state"
+
+        self.working_dir.mkdir(parents=True, exist_ok=True)
 
         self._load_dotenv()
         self._init_core_pipeline()
@@ -141,6 +156,8 @@ class AppContainer:
         self.ledger: EvidenceLedger = self.context["ledger"]
         self.curriculum_registry: CurriculumRegistry = self.context["registry"]
         self.knowledge_store = self.context["store"]
+        if not self.use_mock:
+            self.knowledge_store.l3_manifest_path = self.repo_root / "config" / "l3_authorization_manifest.json"
 
         from study_engine.config import settings
         from study_engine.retrieval.fabric import RetrievalFabricLite

@@ -1477,6 +1477,25 @@ class StructuredResponsePipeline:
             except Exception:
                 pass
 
+        # Chokepoint 2: Terminal stream guard
+        from study_engine.context.c3_budget import (
+            EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            ContextBudgetExceededError,
+            estimate_payload_tokens,
+        )
+
+        tokens_before_stream = estimate_payload_tokens(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            context=context,
+        )
+        if tokens_before_stream > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+            raise ContextBudgetExceededError(
+                f"C3 hard ceiling violated at _stream_tokens chokepoint: {tokens_before_stream} > {EFFECTIVE_CONTEXT_CEILING_TOKENS}",
+                estimated_tokens=tokens_before_stream,
+                effective_ceiling=EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            )
+
         # 1. Native async streaming support if present
         if hasattr(self.llm, "stream") and callable(getattr(self.llm, "stream")):
             stream_fn = self.llm.stream
@@ -1522,7 +1541,16 @@ class StructuredResponsePipeline:
             prompt_hash=p_hash,
         )
 
+        bundle_tokens = estimate_payload_tokens(prompt_bundle=prompt_bundle)
+        if bundle_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+            raise ContextBudgetExceededError(
+                f"C3 hard ceiling violated at prompt_bundle chokepoint: {bundle_tokens} > {EFFECTIVE_CONTEXT_CEILING_TOKENS}",
+                estimated_tokens=bundle_tokens,
+                effective_ceiling=EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            )
+
         if hasattr(self.llm, "complete"):
+
             try:
                 completion = await asyncio.wait_for(
                     asyncio.to_thread(self.llm.complete, prompt_bundle),
@@ -1586,23 +1614,36 @@ class StructuredResponsePipeline:
         phase = self.get_phase(target_phase_id)
         self.guard.reset()
 
-        # Enmienda E5 & E25: Si el context_pack indica abstención por falta de fuentes canónicas,
-        # emitir evento 'abstention' inmediatamente como PRIMER y ÚNICO evento sin phase_start ni invocar al LLM.
-        # Nota: Si el backend es OfflinePedagogicalBackend, permitimos que proceda para emitir su respuesta offline.
-        from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
-        is_offline_oracle = isinstance(self.llm, OfflinePedagogicalBackend)
-        if context_pack is not None and getattr(context_pack, "abstained", False) and not is_offline_oracle:
-            yield StreamEvent(
-                event_type="abstention",
-                payload={
-                    "phase": phase.phase_id,
-                    "abstained": True,
-                    "reason": "TALOS se abstiene de responder: No hay evidencia verificada en las fuentes canónicas del cuaderno para fundamentar esta consulta.",
-                    "suggested_action": "Consultá el catálogo de fuentes del cuaderno o reformulá la pregunta con términos del programa.",
-                    "abstention_code": getattr(context_pack, "abstention_reason", "QUERY_OUT_OF_SCOPE"),
-                },
-            )
-            return
+        # C5 Universal Trust Gate (Fail-Closed Absoluto - D_C5_4 & D_C5_5 & Addendum 2)
+        # Si context_pack está presente y contiene abstención, insuficiencia o fallo de retrieval:
+        # NUNCA invocar a ningún backend (cloud, local, fallback u offline). Cero bypass.
+        if context_pack is not None:
+            is_sufficient = getattr(context_pack, "is_sufficient", False)
+            is_abstained = getattr(context_pack, "abstained", True)
+            if is_abstained or not is_sufficient:
+                trust_status = getattr(context_pack, "trust_status", None)
+                reason_code = getattr(context_pack, "abstention_reason", "NO_EVIDENCE")
+                is_retrieval_fail = (
+                    trust_status == "RETRIEVAL_FAILURE"
+                    or (hasattr(trust_status, "value") and trust_status.value == "RETRIEVAL_FAILURE")
+                    or reason_code == "RETRIEVAL_FAILURE"
+                )
+                yield StreamEvent(
+                    event_type="error" if is_retrieval_fail else "abstention",
+                    payload={
+                        "phase": phase.phase_id,
+                        "abstained": True,
+                        "reason": (
+                            "TALOS falló de forma segura (fail-closed): Ocurrió un error técnico al recuperar evidencias canónicas."
+                            if is_retrieval_fail
+                            else "TALOS se abstiene de responder: No hay evidencia suficiente en las fuentes canónicas del cuaderno para fundamentar esta consulta."
+                        ),
+                        "suggested_action": "Reintentá la consulta o consultá el catálogo de fuentes del cuaderno.",
+                        "abstention_code": reason_code,
+                        "error_code": "RETRIEVAL_FAILURE" if is_retrieval_fail else None,
+                    },
+                )
+                return
 
         response_intent = resolve_response_intent(user_query, pedagogical_mode)
         active_mode = response_intent.mode
@@ -1677,6 +1718,142 @@ class StructuredResponsePipeline:
             context_mode=context_mode,
         )
 
+        # Chokepoint 1: C3 Context Budget Enforcement (Gate B Assurance Criterion C3)
+        from study_engine.context.c3_budget import (
+            EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            enforce_c3_budget,
+            estimate_payload_tokens,
+        )
+
+        initial_payload_tokens = estimate_payload_tokens(
+            system_prompt=system_prompt,
+            user_prompt=phase_user_prompt,
+        )
+
+        if initial_payload_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+            ev_text = getattr(context_pack, "formatted_context", None)
+            if ev_text is None:
+                ev_text = getattr(context_pack, "formatted_text", "")
+
+            retained, report = enforce_c3_budget(
+                system_prompt=system_prompt,
+                user_query=user_query,
+                evidence_text=ev_text,
+                history_turns=recent_turns,
+                bkt_directive=bkt_directive,
+                style_directive=style_directive,
+                memory_directive=cognitive_profile_block,
+            )
+
+            if report.fail_closed:
+                logger.error(
+                    "[Pipeline] C3 Hard Context Ceiling Violated (FAIL-CLOSED): %s",
+                    report.error_message,
+                )
+                yield StreamEvent(
+                    event_type="error",
+                    payload={
+                        "error_code": "CONTEXT_BUDGET_EXCEEDED",
+                        "phase": phase.phase_id,
+                        "message": report.error_message,
+                        "estimated_tokens": report.final_estimated_tokens,
+                        "effective_ceiling": report.effective_ceiling_tokens,
+                        "pruning_actions": report.pruning_actions,
+                    },
+                )
+                return
+
+            # Re-assemble using retained components
+            system_prompt = retained.get("system_prompt", system_prompt)
+            pruned_pack = context_pack
+            if context_pack is not None:
+                import copy
+                pruned_pack = copy.copy(context_pack)
+                if hasattr(pruned_pack, "formatted_context"):
+                    pruned_pack.formatted_context = retained.get("evidence_text", "")
+                if hasattr(pruned_pack, "formatted_text"):
+                    pruned_pack.formatted_text = retained.get("evidence_text", "")
+
+            phase_user_prompt = self.build_phase_prompt(
+                phase=phase,
+                user_query=user_query,
+                context_pack=pruned_pack,
+                pedagogical_mode=active_mode,
+                bkt_directive=retained.get("bkt_directive"),
+                style_directive=retained.get("style_directive"),
+                recent_turns=retained.get("history_turns"),
+                metacognitive_profile=metacognitive_profile,
+                cognitive_profile_block=retained.get("memory_directive"),
+                context_mode=context_mode,
+            )
+
+            recheck_tokens = estimate_payload_tokens(system_prompt, phase_user_prompt)
+            if recheck_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS and pruned_pack is not None:
+                # Calibrate evidence to the exact available budget given the real prompt template overhead
+                from study_engine.context.c3_budget import prune_evidence_text_deterministically
+                import copy
+
+                empty_pack = copy.copy(pruned_pack)
+                if hasattr(empty_pack, "formatted_context"):
+                    empty_pack.formatted_context = ""
+                if hasattr(empty_pack, "formatted_text"):
+                    empty_pack.formatted_text = ""
+
+                prompt_without_ev = self.build_phase_prompt(
+                    phase=phase,
+                    user_query=user_query,
+                    context_pack=empty_pack,
+                    pedagogical_mode=active_mode,
+                    bkt_directive=retained.get("bkt_directive"),
+                    style_directive=retained.get("style_directive"),
+                    recent_turns=retained.get("history_turns"),
+                    metacognitive_profile=metacognitive_profile,
+                    cognitive_profile_block=retained.get("memory_directive"),
+                    context_mode=context_mode,
+                )
+                overhead_tokens = estimate_payload_tokens(system_prompt, prompt_without_ev)
+                target_ev_tokens = max(100, EFFECTIVE_CONTEXT_CEILING_TOKENS - overhead_tokens - 10)
+                raw_ev = getattr(pruned_pack, "formatted_context", None) or getattr(pruned_pack, "formatted_text", "")
+                calibrated_ev, _ = prune_evidence_text_deterministically(raw_ev, max_tokens=target_ev_tokens)
+
+                if hasattr(pruned_pack, "formatted_context"):
+                    pruned_pack.formatted_context = calibrated_ev
+                if hasattr(pruned_pack, "formatted_text"):
+                    pruned_pack.formatted_text = calibrated_ev
+
+                phase_user_prompt = self.build_phase_prompt(
+                    phase=phase,
+                    user_query=user_query,
+                    context_pack=pruned_pack,
+                    pedagogical_mode=active_mode,
+                    bkt_directive=retained.get("bkt_directive"),
+                    style_directive=retained.get("style_directive"),
+                    recent_turns=retained.get("history_turns"),
+                    metacognitive_profile=metacognitive_profile,
+                    cognitive_profile_block=retained.get("memory_directive"),
+                    context_mode=context_mode,
+                )
+                recheck_tokens = estimate_payload_tokens(system_prompt, phase_user_prompt)
+
+            if recheck_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+                logger.error(
+                    "[Pipeline] C3 Post-pruning recheck failed (%d > %d tokens). Aborting fail-closed.",
+                    recheck_tokens,
+                    EFFECTIVE_CONTEXT_CEILING_TOKENS,
+                )
+                yield StreamEvent(
+                    event_type="error",
+                    payload={
+                        "error_code": "CONTEXT_BUDGET_EXCEEDED",
+                        "phase": phase.phase_id,
+                        "message": f"Post-pruning prompt ({recheck_tokens} tokens) exceeds C3 effective ceiling ({EFFECTIVE_CONTEXT_CEILING_TOKENS}).",
+                        "estimated_tokens": recheck_tokens,
+                        "effective_ceiling": EFFECTIVE_CONTEXT_CEILING_TOKENS,
+                    },
+                )
+                return
+
+
         yield StreamEvent(
             event_type="phase_start",
             payload={
@@ -1686,6 +1863,7 @@ class StructuredResponsePipeline:
                 "pedagogical_mode": active_mode,
             },
         )
+
 
         accumulated_text = ""
         token_count = 0

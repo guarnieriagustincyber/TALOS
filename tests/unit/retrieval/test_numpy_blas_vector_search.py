@@ -17,7 +17,7 @@ def test_numpy_blas_vector_search_ordering():
     store.initialize()
     store.create_notebook(Notebook(id="nb_test_blas", name="BLAS Test"))
 
-    v_store = SQLiteVectorStore(":memory:")
+    v_store = SQLiteVectorStore(":memory:", read_only=False)
     emb = MockEmbeddingProvider(dimensions=128)
 
     # Ingest mock chunks into store
@@ -59,7 +59,7 @@ def test_numpy_blas_performance_scale():
     store.initialize()
     store.create_notebook(Notebook(id="nb_scale", name="Scale Test"))
 
-    v_store = SQLiteVectorStore(":memory:")
+    v_store = SQLiteVectorStore(":memory:", read_only=False)
     rng = np.random.default_rng(42)
 
     # 1000 vectors of 1024 dimensions (matching Qwen3-Embedding-0.6B)

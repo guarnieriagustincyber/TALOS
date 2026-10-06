@@ -210,7 +210,7 @@ def sync_vectors(
         kcon.close()
 
     # Asegurar inicialización de schema e índices en el vector store
-    vstore = SQLiteVectorStore(vector_db)
+    vstore = SQLiteVectorStore(vector_db, read_only=False)
     vstore.close()
 
     vcon = sqlite3.connect(str(vector_db))

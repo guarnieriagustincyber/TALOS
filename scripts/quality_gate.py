@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import tempfile
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
@@ -91,7 +92,7 @@ def validate_perimeter(repo_root: Path, manifest_path: Path) -> Perimeter:
         for path in tests_root.rglob("test_*.py")
         if not any(
             part.startswith(".") or part == "__pycache__"
-            for part in path.parts
+            for part in path.relative_to(tests_root).parts
         )
     )
     if not discovered_files:
@@ -219,6 +220,11 @@ class SuiteResults:
         self.collected: dict[str, int] = defaultdict(int)
         self.outcomes: dict[str, dict[str, str]] = defaultdict(dict)
         self.collection_failures: dict[str, int] = defaultdict(int)
+        self.durations: dict[str, float] = defaultdict(float)
+        self.skip_reasons: dict[str, list[str]] = defaultdict(list)
+        self.errors: dict[str, list[str]] = defaultdict(list)
+        self.warnings: dict[str, list[str]] = defaultdict(list)
+        self.global_warnings: list[str] = []
 
     def suite_for_nodeid(self, nodeid: str) -> str:
         module_path = nodeid.split("::", 1)[0]
@@ -237,30 +243,196 @@ class SuiteResults:
 
     def pytest_runtest_logreport(self, report: Any) -> None:
         suite_path = self.suite_for_nodeid(report.nodeid)
+        self.durations[suite_path] += float(report.duration)
         if report.when == "call":
             self.outcomes[suite_path][report.nodeid] = report.outcome
         elif report.failed:
             self.outcomes[suite_path][report.nodeid] = "failed"
         elif report.skipped and report.nodeid not in self.outcomes[suite_path]:
             self.outcomes[suite_path][report.nodeid] = "skipped"
+        if report.skipped:
+            reason = str(report.longrepr)
+            if reason not in self.skip_reasons[suite_path]:
+                self.skip_reasons[suite_path].append(reason)
+        elif report.failed:
+            error = str(report.longrepr)
+            if error not in self.errors[suite_path]:
+                self.errors[suite_path].append(error)
 
     def pytest_collectreport(self, report: Any) -> None:
         if report.failed:
             suite_path = self.suite_for_nodeid(report.nodeid)
             self.collection_failures[suite_path] += 1
+            self.errors[suite_path].append(str(report.longrepr))
+
+    def pytest_warning_recorded(
+        self,
+        warning_message: Warning,
+        when: str,
+        nodeid: str,
+        location: tuple[str, int, str] | None,
+    ) -> None:
+        del when, location
+        message = str(warning_message.message)
+        if nodeid:
+            suite_path = self.suite_for_nodeid(nodeid)
+            if message not in self.warnings[suite_path]:
+                self.warnings[suite_path].append(message)
+        elif message not in self.global_warnings:
+            self.global_warnings.append(message)
 
     def counts(self, suite_path: str) -> dict[str, int]:
         outcomes = self.outcomes[suite_path].values()
         return {
             "collected": self.collected[suite_path],
             "passed": sum(outcome == "passed" for outcome in outcomes),
-            "failed": sum(outcome == "failed" for outcome in outcomes)
-            + self.collection_failures[suite_path],
+            "failed": sum(outcome == "failed" for outcome in outcomes),
             "skipped": sum(outcome == "skipped" for outcome in outcomes),
+            "collection_errors": self.collection_failures[suite_path],
         }
 
+    def collector_payload(
+        self,
+        perimeter: Perimeter,
+        profile: str,
+        exit_code: int,
+    ) -> dict[str, Any]:
+        suite_rows = []
+        totals = {
+            "collected": 0,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 0,
+            "collection_errors": 0,
+        }
+        for suite in perimeter.suites:
+            if suite.classification == "support-only":
+                suite_rows.append(
+                    {
+                        "path": suite.path,
+                        "classification": suite.classification,
+                        "status": "SKIP",
+                        "collected": 0,
+                        "passed": 0,
+                        "failed": 0,
+                        "skipped": 0,
+                        "collection_errors": 0,
+                        "skip_reasons": [suite.reason],
+                        "duration_seconds": 0.0,
+                        "warnings": [],
+                        "errors": [],
+                    }
+                )
+                continue
 
-def run_gate(profile: str, perimeter: Perimeter) -> int:
+            counts = self.counts(suite.path)
+            active = suite.classification == "required" or (
+                profile == "release"
+                and suite.classification == "qualification-required"
+            )
+            if not active:
+                status = "SKIP"
+                skip_reasons = ["excluded by selected profile"]
+                errors = []
+            elif counts["collection_errors"]:
+                status = "ERROR"
+                skip_reasons = self.skip_reasons[suite.path]
+                errors = self.errors[suite.path]
+            elif counts["failed"]:
+                status = "FAIL"
+                skip_reasons = self.skip_reasons[suite.path]
+                errors = self.errors[suite.path]
+            elif counts["collected"] == 0:
+                status = "ERROR"
+                skip_reasons = self.skip_reasons[suite.path]
+                errors = ["active suite collected no tests"]
+            elif counts["skipped"] and suite.classification == "required":
+                status = "FAIL"
+                skip_reasons = self.skip_reasons[suite.path]
+                errors = ["required suite contains unapproved skips"]
+            elif counts["skipped"]:
+                status = "WARNING"
+                skip_reasons = self.skip_reasons[suite.path]
+                errors = []
+            else:
+                status = "PASS"
+                skip_reasons = self.skip_reasons[suite.path]
+                errors = []
+
+            suite_rows.append(
+                {
+                    "path": suite.path,
+                    "classification": suite.classification,
+                    "status": status,
+                    **counts,
+                    "skip_reasons": skip_reasons,
+                    "duration_seconds": self.durations[suite.path],
+                    "warnings": self.warnings[suite.path],
+                    "errors": errors,
+                }
+            )
+            if active:
+                for field, count in counts.items():
+                    totals[field] += count
+
+        return {
+            "schema_version": 1,
+            "profile": profile,
+            "pytest_exit_code": int(exit_code),
+            "collections": totals,
+            "suites": suite_rows,
+            "optional_modules": [
+                {
+                    "path": path,
+                    "status": "SKIP",
+                    "reason": reason,
+                }
+                for path, reason in sorted(perimeter.optional_modules.items())
+            ],
+            "warnings": self.global_warnings
+            + [
+                warning
+                for suite_warnings in self.warnings.values()
+                for warning in suite_warnings
+                if warning not in self.global_warnings
+            ],
+        }
+
+    def write_collector(
+        self, output_path: Path, payload: dict[str, Any]
+    ) -> None:
+        output = output_path.resolve()
+        if output.is_relative_to(REPOSITORY_ROOT.resolve()):
+            raise ValueError("collector output must be outside the repository")
+        output.parent.mkdir(parents=True, exist_ok=True)
+        encoded = json.dumps(
+            payload, ensure_ascii=False, indent=2, sort_keys=True
+        )
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=output.parent,
+            prefix=f".{output.name}.",
+            delete=False,
+        ) as stream:
+            temporary_path = Path(stream.name)
+            stream.write(encoded + "\n")
+            stream.flush()
+        try:
+            temporary_path.replace(output)
+        finally:
+            if temporary_path.exists():
+                temporary_path.unlink()
+
+
+def run_gate(
+    profile: str,
+    perimeter: Perimeter,
+    *,
+    effects_output: Path | None = None,
+    scratch_root: Path | None = None,
+    collector_output: Path | None = None,
+) -> int:
     import pytest
 
     active_suites = [
@@ -286,12 +458,44 @@ def run_gate(profile: str, perimeter: Perimeter) -> int:
         pytest_args.extend(["--ignore", module_path])
 
     results = SuiteResults(suite_paths)
+    plugins: list[Any] = [results]
+    observer = None
+    if (
+        collector_output is not None
+        and collector_output.resolve().is_relative_to(
+            REPOSITORY_ROOT.resolve()
+        )
+    ):
+        raise ValueError("collector output must be outside the repository")
+    if effects_output is not None:
+        if scratch_root is None:
+            raise ValueError(
+                "an explicit external scratch root is required for "
+                "effects observation"
+            )
+        if effects_output.resolve().is_relative_to(REPOSITORY_ROOT.resolve()):
+            raise ValueError("effects output must be outside the repository")
+        from scripts.apre_effects import EffectObserver
+
+        observer = EffectObserver(REPOSITORY_ROOT, scratch_root)
+        observer.install()
+        plugins.append(observer)
+
     previous_directory = Path.cwd()
     os.chdir(REPOSITORY_ROOT)
+    exit_code = pytest.ExitCode.INTERNAL_ERROR
     try:
-        exit_code = pytest.main(pytest_args, plugins=[results])
+        exit_code = pytest.main(pytest_args, plugins=plugins)
     finally:
         os.chdir(previous_directory)
+        if observer is not None:
+            observer.close()
+            observer.write_report(effects_output)
+        if collector_output is not None:
+            results.write_collector(
+                collector_output,
+                results.collector_payload(perimeter, profile, int(exit_code)),
+            )
 
     print("\n" + "=" * 72)
     print(f"TEST PERIMETER REPORT — PROFILE: {profile.upper()}")
@@ -345,7 +549,59 @@ def main(argv: list[str] | None = None) -> int:
             "controlled qualification suites"
         ),
     )
+    parser.add_argument(
+        "--apre-effects-output",
+        type=Path,
+        help=(
+            "write Python audit-hook events to an external JSON artifact; "
+            "this is not complete syscall or sterility proof"
+        ),
+    )
+    parser.add_argument(
+        "--apre-scratch-root",
+        type=Path,
+        help="existing writable temporary directory outside the repository",
+    )
+    parser.add_argument(
+        "--apre-collector-output",
+        type=Path,
+        help="write collected per-suite results to an external JSON artifact",
+    )
     args = parser.parse_args(argv)
+    environment_options = {
+        "apre_effects_output": "TALOS_APRE_EFFECTS_OUTPUT",
+        "apre_scratch_root": "TALOS_APRE_SCRATCH_ROOT",
+        "apre_collector_output": "TALOS_APRE_COLLECTOR_OUTPUT",
+    }
+    for argument, variable in environment_options.items():
+        environment_value = os.environ.get(variable)
+        if environment_value is None:
+            continue
+        if not environment_value.strip():
+            parser.error(f"{variable} must not be empty")
+        environment_path = Path(environment_value)
+        argument_path = getattr(args, argument)
+        if argument_path is not None and argument_path.resolve() != (
+            environment_path.resolve()
+        ):
+            parser.error(
+                f"--{argument.replace('_', '-')} conflicts with {variable}"
+            )
+        setattr(args, argument, argument_path or environment_path)
+
+    if (args.apre_effects_output is None) != (args.apre_scratch_root is None):
+        parser.error(
+            "--apre-effects-output and --apre-scratch-root must be "
+            "used together"
+        )
+    if args.apre_collector_output is not None and (
+        args.apre_effects_output is None
+    ):
+        parser.error("--apre-collector-output requires effects observation")
+    if args.apre_effects_output is not None and args.profile != "release":
+        parser.error(
+            "A-PRE observation is defined only for the release profile"
+        )
 
     sys.path[:0] = [
         str(REPOSITORY_ROOT),
@@ -376,7 +632,13 @@ def main(argv: list[str] | None = None) -> int:
         "support-only helpers."
     )
     print("Protected manifest trust root: OK.")
-    return run_gate(args.profile, perimeter)
+    return run_gate(
+        args.profile,
+        perimeter,
+        effects_output=args.apre_effects_output,
+        scratch_root=args.apre_scratch_root,
+        collector_output=args.apre_collector_output,
+    )
 
 
 if __name__ == "__main__":

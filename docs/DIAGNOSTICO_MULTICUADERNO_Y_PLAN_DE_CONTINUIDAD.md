@@ -6,6 +6,10 @@
 de mejora pedagógica contra el código y definir las correcciones necesarias
 antes de avanzar.
 
+Para estado integrado actualizado al 2026-09-30 y secuencia completa de cierre,
+consultar el [Plan maestro de estabilización y cierre de TALOS](./PLAN_MAESTRO_CIERRE_TALOS.md).
+Este diagnóstico conserva la evidencia detallada de perfiles y sus gates.
+
 ## 1. Dictamen ejecutivo
 
 La dirección general es correcta: TALOS ya tiene conceptos de cuaderno,

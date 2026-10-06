@@ -2,6 +2,11 @@
   "schema_version": 1,
   "suites": [
     {
+      "path": "tests/audit",
+      "classification": "required",
+      "reason": "Synthetic audit boundary regressions and independent B1-R artifact-verifier contracts."
+    },
+    {
       "path": "tests/adversarial",
       "classification": "required",
       "reason": "Deterministic adversarial and abuse-resistance regressions."

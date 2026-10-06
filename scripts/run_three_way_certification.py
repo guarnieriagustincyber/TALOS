@@ -114,7 +114,7 @@ def setup_benchmark_environment(
     ]
     store.save_chunks(chunks)
 
-    vec_store = SQLiteVectorStore(vec_db_path)
+    vec_store = SQLiteVectorStore(vec_db_path, read_only=False)
     index_notebook_chunks(store, vec_store, provider, "fadena-so")
     index_notebook_chunks(store, vec_store, provider, "fadena-prog")
 

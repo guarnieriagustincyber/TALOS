@@ -43,7 +43,7 @@ def colab_test_env(tmp_path_factory):
 
     contract = load_contract()
 
-    vstore = SQLiteVectorStore(vdb)
+    vstore = SQLiteVectorStore(vdb, read_only=False)
     vstore.save_records([
         VectorRecord(
             chunk_id="c_done",

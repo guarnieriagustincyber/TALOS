@@ -39,6 +39,7 @@ from study_engine.retrieval.oracle import (
 from study_engine.retrieval.query_rewriter import QueryRewriter
 from study_engine.retrieval.service import RetrievalService
 from study_engine.retrieval.vector_store import (
+    ReadOnlyVectorStoreError,
     SQLiteVectorStore,
     VectorRecord,
     VectorStore,
@@ -67,6 +68,7 @@ __all__ = [
     "OracleValidationError",
     "QueryEvaluationResult",
     "QwenPrefixFormatter",
+    "ReadOnlyVectorStoreError",
     "ReciprocalRankFusion",
     "RetrievalService",
     "SentenceTransformerEmbeddingProvider",

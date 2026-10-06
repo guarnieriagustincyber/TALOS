@@ -57,15 +57,48 @@ class VectorStore(Protocol):
         ...
 
 
+class ReadOnlyVectorStoreError(RuntimeError):
+    """Raised when a mutating operation is attempted on a read-only SQLiteVectorStore."""
+    pass
+
+
 class SQLiteVectorStore:
     """Proportional SQLite vector store using raw binary BLOBs."""
 
-    def __init__(self, db_path: Union[str, Path] = ":memory:") -> None:
+    def __init__(
+        self,
+        db_path: Union[str, Path] = ":memory:",
+        read_only: bool = True,
+    ) -> None:
         self.db_path = str(db_path)
-        self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
-        self._conn.execute("PRAGMA journal_mode = WAL;")
-        self._conn.execute("PRAGMA synchronous = NORMAL;")
-        self._initialize_schema()
+        self.read_only = bool(read_only)
+
+        if self.read_only:
+            if self.db_path == ":memory:":
+                raise ValueError("Cannot open an in-memory vector store in read-only mode.")
+            path = Path(self.db_path)
+            if not path.exists():
+                raise FileNotFoundError(f"Vector store database not found: {self.db_path}")
+
+            abs_path = path.resolve()
+            uri = f"file:{abs_path.as_posix()}?mode=ro"
+            self._conn = sqlite3.connect(uri, uri=True, check_same_thread=False)
+
+            # Fail-closed check: verify schema has 'chunk_embeddings'
+            cursor = self._conn.cursor()
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='chunk_embeddings';"
+            )
+            if not cursor.fetchone():
+                self._conn.close()
+                raise RuntimeError(
+                    f"Database at {self.db_path} does not contain required table 'chunk_embeddings'"
+                )
+        else:
+            self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self._conn.execute("PRAGMA journal_mode = WAL;")
+            self._conn.execute("PRAGMA synchronous = NORMAL;")
+            self._initialize_schema()
 
         # Caché LRU de matrices por (notebook_id, provider_id, model_id).
         # Máximo 2 cuadernos en memoria simultáneamente (evita fugas multi-GB).
@@ -73,6 +106,10 @@ class SQLiteVectorStore:
         self._matrix_lock = threading.Lock()
 
     def _initialize_schema(self) -> None:
+        if self.read_only:
+            raise ReadOnlyVectorStoreError(
+                "Cannot initialize schema on a read-only SQLiteVectorStore."
+            )
         # PK compuesta (chunk_id, notebook_id): una misma fuente puede pertenecer
         # a múltiples notebooks, y cada chunk debe ser recuperable semánticamente
         # en todos ellos sin colisiones de clave.
@@ -105,6 +142,10 @@ class SQLiteVectorStore:
 
     def save_records(self, records: List[VectorRecord]) -> int:
         """Atomically insert or replace a batch of vector records."""
+        if self.read_only:
+            raise ReadOnlyVectorStoreError(
+                "Cannot save records to a read-only SQLiteVectorStore."
+            )
         if not records:
             return 0
 
@@ -265,6 +306,10 @@ class SQLiteVectorStore:
 
     def delete_by_notebook(self, notebook_id: str) -> int:
         """Delete all vectors belonging to a notebook."""
+        if self.read_only:
+            raise ReadOnlyVectorStoreError(
+                "Cannot delete records from a read-only SQLiteVectorStore."
+            )
         cursor = self._conn.cursor()
         cursor.execute(
             "DELETE FROM chunk_embeddings WHERE notebook_id = ?;",
@@ -275,6 +320,10 @@ class SQLiteVectorStore:
 
     def delete_by_source(self, source_id: str) -> int:
         """Delete all vectors belonging to a source."""
+        if self.read_only:
+            raise ReadOnlyVectorStoreError(
+                "Cannot delete records from a read-only SQLiteVectorStore."
+            )
         cursor = self._conn.cursor()
         cursor.execute(
             "DELETE FROM chunk_embeddings WHERE source_id = ?;",
@@ -299,3 +348,11 @@ class SQLiteVectorStore:
     def close(self) -> None:
         """Close SQLite database connection."""
         self._conn.close()
+
+
+__all__ = [
+    "VectorRecord",
+    "VectorStore",
+    "SQLiteVectorStore",
+    "ReadOnlyVectorStoreError",
+]
