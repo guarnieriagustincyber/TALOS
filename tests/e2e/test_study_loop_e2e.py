@@ -482,17 +482,19 @@ def test_e2e_08_bkt_boundary_isolation(isolated_e2e_env: Tuple[TestClient, AppCo
     assert post_eval.p_L == pytest.approx(eval_json["p_L"], abs=0.0001)
 
 
-def test_e2e_09_historical_test_drift_resolution(isolated_e2e_env: Tuple[TestClient, AppContainer, Path]) -> None:
-    """E2E-09: Historical Test Drift Verification (C5 Trust Gate Abstention on ungrounded practice).
+def test_e2e_09_certified_practice_dispatch(isolated_e2e_env: Tuple[TestClient, AppContainer, Path]) -> None:
+    """E2E-09: A qualified exercise for the requested topic dispatches deterministically.
     
-    Validates the resolution of the historical test:
-    tests/integration/test_web_api.py::test_socratic_practice_dispatch_endpoint
-    
-    Verifies that under the certified C5 Trust Gate, sending '/practicar punteros' in fadena-lenguajes
-    abstains fail-closed (abstained=True) because there is insufficient curricular evidence,
-    rather than hallucinating practice without grounding.
+    The exercise registry contains a QUALIFIABLE pointer exercise sourced from
+    the Fadena programming material; this is not a generic retrieval response.
     """
-    client, _, _ = isolated_e2e_env
+    client, container, _ = isolated_e2e_env
+    assert any(
+        exercise.is_presentable()
+        and exercise.kc_id == "aritmetica_punteros"
+        and exercise.source_id == "src_fadena_prog_punteros"
+        for exercise in container.exercise_store.list_all()
+    )
 
     res = client.post(
         "/api/chat/query",
@@ -507,15 +509,13 @@ def test_e2e_09_historical_test_drift_resolution(isolated_e2e_env: Tuple[TestCli
     lines = [l.strip() for l in res.text.split("\n") if l.startswith("data: ")]
     events = [json.loads(l[6:]) for l in lines]
 
-    # Verify fail-closed abstention
-    manifest = events[0]
-    assert manifest["event_type"] == "evidence_manifest"
-    assert manifest["payload"]["abstained"] is True
-    assert manifest["payload"]["trust_status"] in ("NO_EVIDENCE", "RELATED_INSUFFICIENT", "NO_AUTHORIZED_EVIDENCE")
-
-    abst = events[1]
-    assert abst["event_type"] in ("abstention", "clarification")
-    assert abst["payload"]["abstained"] is True
-    # Zero hallucinated practice tokens
+    assert [event["event_type"] for event in events] == [
+        "evidence_manifest",
+        "exercise_proposal",
+        "phase_complete",
+    ]
+    assert events[0]["payload"]["abstained"] is False
+    assert events[1]["payload"]["kc_id"] == "aritmetica_punteros"
+    assert events[2]["payload"]["status"] == "EXERCISE_PROPOSED"
     tokens = [e["payload"]["token"] for e in events if e.get("event_type") == "phase_token"]
-    assert len(tokens) == 0, "Historical expectation of generating ungrounded practice violated C5"
+    assert len(tokens) == 0, "Certified practice dispatch must not use generic response tokens"

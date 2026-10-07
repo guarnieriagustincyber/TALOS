@@ -255,8 +255,8 @@ def test_multi_turn_conversational_flow(api_client: TestClient) -> None:
     assert "phase_complete" in event_types2
 
 
-def test_socratic_practice_request_abstains_without_evidence(api_client: TestClient) -> None:
-    """Verify unsupported practice requests terminate as pedagogical abstentions."""
+def test_socratic_practice_request_dispatches_certified_exercise(api_client: TestClient) -> None:
+    """Verify a valid practice topic resolves to a certified exercise proposal."""
     import json
     res = api_client.post(
         "/api/chat/query",
@@ -270,13 +270,157 @@ def test_socratic_practice_request_abstains_without_evidence(api_client: TestCli
     assert res.status_code == 200
     lines = [l.strip() for l in res.text.split("\n") if l.startswith("data: ")]
     events = [json.loads(l[6:]) for l in lines]
-    assert [event["event_type"] for event in events] == [
+    assert [event["event_type"] for event in events[:3]] == [
+        "evidence_manifest",
+        "exercise_proposal",
+        "phase_complete",
+    ]
+    assert events[0]["payload"]["abstained"] is False
+    assert events[1]["payload"]["kc_id"] == "aritmetica_punteros"
+    assert events[2]["payload"]["status"] == "EXERCISE_PROPOSED"
+
+
+def test_socratic_practice_request_abstains_for_unmatched_topic(api_client: TestClient) -> None:
+    """Verify unmatched practice topics fail closed instead of falling back to an arbitrary exercise."""
+    import json
+    res = api_client.post(
+        "/api/chat/query",
+        json={
+            "prompt": "/practicar tema_no_existente_zzzz",
+            "scope_type": "notebook",
+            "scope_id": "fadena-lenguajes",
+            "session_id": "sess-test-practice-dispatch-miss",
+        },
+    )
+    assert res.status_code == 200
+    lines = [l.strip() for l in res.text.split("\n") if l.startswith("data: ")]
+    events = [json.loads(l[6:]) for l in lines]
+    assert [event["event_type"] for event in events[:2]] == [
         "evidence_manifest",
         "abstention",
     ]
     assert events[0]["payload"]["abstained"] is True
     assert events[1]["payload"]["abstained"] is True
     assert events[1]["payload"]["abstention_code"] == "QUERY_OUT_OF_SCOPE"
+
+
+def test_practice_dispatch_never_calls_generic_llm_for_unqualified_requests(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify practice dispatch filters unqualified exercises before generic generation."""
+    import json
+    from unittest.mock import MagicMock
+
+    from study_engine.pedagogy.exercise_contracts import (
+        ExerciseCandidate,
+        ExerciseType,
+        ExerciseVerificationStatus,
+    )
+    from study_engine.pedagogy.exercise_store import ExerciseStore
+    import study_engine.web.dependencies as web_dependencies
+
+    container = AppContainer(working_dir=tmp_path / "state", use_mock=True)
+    exercise_store = ExerciseStore(storage_path=tmp_path / "exercises.json")
+    exercise_store.add_exercise(
+        ExerciseCandidate(
+            exercise_id="ex-pointers-qualified",
+            source_id="src-test",
+            source_location="p.1",
+            source_hash="0" * 64,
+            extractor_version="test",
+            extraction_method="test",
+            verification_status=ExerciseVerificationStatus.QUALIFIABLE,
+            verified_by="test-authority",
+            verification_timestamp=None,
+            content_hash="1" * 64,
+            kc_id="aritmetica_punteros",
+            prompt="Ejercicio de aritmética de punteros",
+            exercise_type=ExerciseType.NUMERIC,
+            expected_answer="8",
+        ),
+        persist=False,
+    )
+    exercise_store.add_exercise(
+        ExerciseCandidate(
+            exercise_id="ex-pointers-unverified",
+            source_id="src-test",
+            source_location="p.2",
+            source_hash="2" * 64,
+            extractor_version="test",
+            extraction_method="test",
+            verification_status=ExerciseVerificationStatus.UNVERIFIED,
+            verified_by=None,
+            verification_timestamp=None,
+            content_hash="3" * 64,
+            kc_id="tema_no_autorizado",
+            prompt="Ejercicio no autorizado",
+            exercise_type=ExerciseType.NUMERIC,
+            expected_answer="0",
+        ),
+        persist=False,
+    )
+    container.exercise_store = exercise_store
+    generic_backend = MagicMock(spec=["stream", "complete"])
+    container.llm_backend = generic_backend
+
+    monkeypatch.setattr(web_dependencies, "_container", container)
+    app = create_app()
+    with TestClient(app) as client:
+        for prompt in (
+            "/practicar tema_no_existente_zzzz",
+            "/practicar tema_no_autorizado",
+        ):
+            response = client.post(
+                "/api/chat/query",
+                json={
+                    "prompt": prompt,
+                    "scope_type": "notebook",
+                    "scope_id": "fadena-lenguajes",
+                    "session_id": f"sess-{prompt.rsplit(' ', 1)[-1]}",
+                },
+            )
+            assert response.status_code == 200
+            assert response.text.endswith("\n\n")
+            lines = [
+                line[6:]
+                for line in response.text.splitlines()
+                if line.startswith("data: ")
+            ]
+            events = [json.loads(line) for line in lines]
+            assert [event["event_type"] for event in events] == [
+                "evidence_manifest",
+                "abstention",
+            ]
+            assert events[0]["payload"]["abstained"] is True
+            assert events[1]["payload"]["abstained"] is True
+            assert sum(event["event_type"] == "phase_token" for event in events) == 0
+            assert sum(event["event_type"] == "phase_complete" for event in events) == 0
+
+        generic_backend.stream.assert_not_called()
+        generic_backend.complete.assert_not_called()
+
+        positive = client.post(
+            "/api/chat/query",
+            json={
+                "prompt": "/practicar punteros",
+                "scope_type": "notebook",
+                "scope_id": "fadena-lenguajes",
+                "session_id": "sess-practice-positive",
+            },
+        )
+        assert positive.status_code == 200
+        positive_events = [
+            json.loads(line[6:])
+            for line in positive.text.splitlines()
+            if line.startswith("data: ")
+        ]
+        assert [event["event_type"] for event in positive_events] == [
+            "evidence_manifest",
+            "exercise_proposal",
+            "phase_complete",
+        ]
+        assert positive_events[1]["payload"]["exercise_id"] == "ex-pointers-qualified"
 
 
 def test_practice_evaluate_endpoint(api_client: TestClient) -> None:

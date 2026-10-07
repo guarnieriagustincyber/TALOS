@@ -632,14 +632,14 @@ class OfflineKnowledgeBackend:
                     all_qual = [ex for ex in exercise_store.list_all() if ex.is_presentable()]
                     if target_topic:
                         norm_t = target_topic.lower().strip()
-                        # Buscar por coincidencia con kc_id o prompt
                         matches = [
                             ex for ex in all_qual
-                            if norm_t in ex.kc_id.lower() or norm_t in ex.prompt.lower()
+                            if (ex.kc_id and norm_t in ex.kc_id.lower())
+                            or (ex.prompt and norm_t in ex.prompt.lower())
                         ]
                         if matches:
                             exercise = matches[0]
-                    if not exercise and all_qual:
+                    elif all_qual:
                         exercise = all_qual[0]
 
                 if exercise:
@@ -2215,6 +2215,50 @@ async def chat_query(
         )
     if not request.session_id:
         request.session_id = f"chat-{uuid4().hex}"
+
+    from study_engine.pedagogy.command_parser import CommandType, parse_student_command
+    command = parse_student_command(raw_prompt)
+    if command is not None and command.command_type == CommandType.DAME_UN_EJERCICIO:
+        from study_engine.pedagogy.exercise_store import ExerciseStore
+        exercise_store = getattr(container, "exercise_store", None)
+        if exercise_store is None:
+            exercise_store = ExerciseStore()
+
+        exercise = None
+        if exercise_store is not None:
+            all_qual = [ex for ex in exercise_store.list_all() if ex.is_presentable()]
+            target_topic = (command.target_arg or "").strip()
+            if target_topic:
+                norm_t = target_topic.lower().strip()
+                matches = [
+                    ex for ex in all_qual
+                    if (ex.kc_id and norm_t in ex.kc_id.lower())
+                    or (ex.prompt and norm_t in ex.prompt.lower())
+                ]
+                if matches:
+                    exercise = matches[0]
+            elif all_qual:
+                exercise = all_qual[0]
+
+        async def exercise_dispatch_stream() -> AsyncGenerator[str, None]:
+            if exercise is None:
+                yield f"data: {json.dumps({'event_type': 'evidence_manifest', 'payload': {'citations': [], 'facet_coverage': {}, 'abstained': True, 'abstention_reason': 'QUERY_OUT_OF_SCOPE', 'trust_status': 'NO_EVIDENCE'}})}\n\n"
+                yield f"data: {json.dumps({'event_type': 'abstention', 'payload': {'phase': request.requested_phase or 'conceptual', 'abstained': True, 'reason': 'TALOS se abstiene de responder: No existe una práctica certificada y autorizada para este tema.', 'suggested_action': 'Consultá el catálogo de fuentes del cuaderno o reformulá la pregunta con términos del programa.', 'abstention_code': 'QUERY_OUT_OF_SCOPE', 'trust_status': 'NO_EVIDENCE', 'notebook_id': request.scope_id or request.scope_id}})}\n\n"
+                return
+
+            proposal_payload = {
+                'exercise_id': exercise.exercise_id,
+                'kc_id': exercise.kc_id,
+                'title': (exercise.prompt or '')[:80],
+                'prompt': exercise.prompt,
+                'type': getattr(exercise.exercise_type, 'value', str(exercise.exercise_type)),
+                'options': list(exercise.options) if exercise.options else None,
+            }
+            yield f"data: {json.dumps({'event_type': 'evidence_manifest', 'payload': {'citations': [], 'facet_coverage': {'exercise': exercise.kc_id}, 'abstained': False, 'trust_status': 'SUFFICIENT_EVIDENCE'}})}\n\n"
+            yield f"data: {json.dumps({'event_type': 'exercise_proposal', 'payload': proposal_payload})}\n\n"
+            yield f"data: {json.dumps({'event_type': 'phase_complete', 'payload': {'completed_phase': request.requested_phase or 'conceptual', 'status': 'EXERCISE_PROPOSED', 'exercise_id': exercise.exercise_id}})}\n\n"
+
+        return StreamingResponse(exercise_dispatch_stream())
 
     # Pre-flight DataSanitizer check for Accidental PII / Credentials (Ola 5, Fase 5.1)
     from study_engine.security.data_sanitizer import DataSanitizer
