@@ -25,6 +25,7 @@ export interface ChatQueryUiModel {
   facet_coverage?: Record<string, 'SUFFICIENT' | 'PARTIAL' | 'MISSING'>;
   abstained?: boolean;
   abstention_reason?: string | null;
+  clarification_requested?: boolean;
   bkt_context?: SseBktContext;
   mermaid_diagram?: string | null;
   processing_ms: number;
@@ -103,9 +104,13 @@ interface SseEventPayload {
 const SSE_EVENT_TYPES = [
   'phase_start',
   'phase_token',
+  'guard_blocked',
+  'truncated',
+  'audit_verdict',
   'evidence_manifest',
   'phase_complete',
-  'truncated',
+  'abstention',
+  'clarification',
   'error',
   'citation_audit',
   'exercise_proposal',
@@ -130,26 +135,35 @@ class SseResponseError extends Error {
   }
 }
 
-function parseSseEvent(raw: string): SseEvent | null {
+function parseSseEvent(raw: string): SseEvent {
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
   } catch {
-    return null;
+    throw new SseResponseError('La respuesta SSE contiene un payload de datos inválido.');
   }
 
-  if (typeof parsed !== 'object' || parsed === null || !('event_type' in parsed)) return null;
+  if (typeof parsed !== 'object' || parsed === null || !('event_type' in parsed)) {
+    throw new SseResponseError('La respuesta SSE contiene un evento con formato inválido.');
+  }
   const candidate = parsed as { event_type?: unknown; payload?: unknown };
-  if (typeof candidate.event_type !== 'string' || !isSseEventType(candidate.event_type)) {
-    return null;
+  if (typeof candidate.event_type !== 'string') {
+    throw new SseResponseError('La respuesta SSE contiene un evento con formato inválido.');
+  }
+  if (!isSseEventType(candidate.event_type)) {
+    throw new SseResponseError('La respuesta SSE contiene un tipo de evento no reconocido.');
+  }
+  if (
+    candidate.payload !== undefined &&
+    (typeof candidate.payload !== 'object' || candidate.payload === null || Array.isArray(candidate.payload))
+  ) {
+    throw new SseResponseError('La respuesta SSE contiene un evento con formato inválido.');
   }
 
   const payload = candidate.payload;
   return {
     event_type: candidate.event_type,
-    payload: typeof payload === 'object' && payload !== null
-      ? payload as SseEventPayload
-      : undefined,
+    payload: payload as SseEventPayload | undefined,
   };
 }
 
@@ -228,12 +242,14 @@ export const chatService = {
       let fullText = '';
       let done = false;
       let buffer = '';
-      let lastPhaseCompleted = false;
+      let phaseCompleted = false;
+      let terminalOutcome: 'abstention' | 'clarification' | null = null;
 
       let capturedCitations: Citation[] = [];
       let capturedFacetCoverage: Record<string, 'SUFFICIENT' | 'PARTIAL' | 'MISSING'> = {};
       let capturedAbstained: boolean = false;
       let capturedAbstentionReason: string | null = null;
+      let capturedClarificationRequested = false;
       let capturedBktContext: SseBktContext | undefined;
 
       try {
@@ -243,19 +259,38 @@ export const chatService = {
             done = streamDone;
             if (value) {
               buffer += decoder.decode(value, { stream: true });
+            }
+            if (streamDone) {
+              buffer += decoder.decode();
+            }
+            if (value) {
               const lines = buffer.split('\n');
               buffer = lines.pop() || '';
               for (const line of lines) {
                 const trimmed = line.trim();
-                if (trimmed.startsWith('data: ')) {
-                  const eventData = parseSseEvent(trimmed.slice(6));
-                  if (!eventData) continue;
+                if (trimmed.startsWith('data:')) {
+                  const eventData = parseSseEvent(trimmed.slice(5).replace(/^ /, ''));
                   const eventPayload = eventData.payload;
 
+                  if (terminalOutcome) {
+                    throw new SseResponseError(
+                      'La respuesta SSE incluyó eventos después de su resultado terminal.'
+                    );
+                  }
+                  if (phaseCompleted && eventData.event_type === 'phase_complete') {
+                    throw new SseResponseError(
+                      'La respuesta SSE incluyó más de un cierre de fase.'
+                    );
+                  }
+                  if (phaseCompleted) {
+                    throw new SseResponseError(
+                      'La respuesta SSE incluyó un evento no permitido después del cierre de fase.'
+                    );
+                  }
+
                   if (eventData.event_type === 'phase_start') {
-                    lastPhaseCompleted = false;
+                    phaseCompleted = false;
                   } else if (eventData.event_type === 'phase_token') {
-                    lastPhaseCompleted = false;
                     fullText += eventPayload?.token || '';
                     onProgress?.(fullText);
                   } else if (eventData.event_type === 'evidence_manifest') {
@@ -301,13 +336,38 @@ export const chatService = {
                       capturedAbstentionReason = eventPayload.abstention_reason;
                     }
                   } else if (eventData.event_type === 'phase_complete') {
-                    lastPhaseCompleted = true;
+                    phaseCompleted = true;
                     if (eventPayload?.decision?.message && !fullText) {
                       fullText = eventPayload.decision.message;
                     }
                     if (eventPayload?.bkt_context) {
                       capturedBktContext = normalizeBktContext(eventPayload.bkt_context);
                     }
+                  } else if (
+                    eventData.event_type === 'abstention' ||
+                    eventData.event_type === 'clarification'
+                  ) {
+                    const outcomePayload = eventPayload || {};
+                    const reason = outcomePayload.reason;
+                    if (typeof reason !== 'string' || !reason.trim()) {
+                      throw new SseResponseError(
+                        eventData.event_type === 'clarification'
+                          ? 'TALOS solicitó una aclaración, pero no proporcionó el mensaje necesario.'
+                          : 'TALOS se abstuvo de responder, pero no proporcionó el motivo.'
+                      );
+                    }
+                    fullText = reason;
+                    capturedAbstained = typeof outcomePayload.abstained === 'boolean'
+                      ? outcomePayload.abstained
+                      : eventData.event_type === 'abstention';
+                    capturedClarificationRequested = eventData.event_type === 'clarification';
+                    if (
+                      !capturedAbstentionReason &&
+                      typeof outcomePayload.abstention_code === 'string'
+                    ) {
+                      capturedAbstentionReason = outcomePayload.abstention_code;
+                    }
+                    terminalOutcome = eventData.event_type;
                   } else if (eventData.event_type === 'truncated') {
                     const message = eventPayload?.message;
                     throw new SseResponseError(
@@ -316,13 +376,18 @@ export const chatService = {
                         : 'La respuesta quedó truncada antes de completarse.'
                     );
                   } else if (eventData.event_type === 'error') {
-                    const errorMessage = eventPayload?.message || eventPayload?.detail || eventPayload?.error;
+                    const errorMessage = eventPayload?.message ||
+                      eventPayload?.detail ||
+                      eventPayload?.reason ||
+                      eventPayload?.error;
                     throw new SseResponseError(typeof errorMessage === 'string' && errorMessage.trim()
                       ? errorMessage
                       : 'Ocurrió un error en el servidor.');
                   } else if (
                     eventData.event_type === 'citation_audit' ||
-                    eventData.event_type === 'exercise_proposal'
+                    eventData.event_type === 'exercise_proposal' ||
+                    eventData.event_type === 'guard_blocked' ||
+                    eventData.event_type === 'audit_verdict'
                   ) {
                     console.debug(`Evento SSE ${eventData.event_type}:`, eventPayload);
                   } else if (eventData.event_type === 'stream_aborted') {
@@ -342,14 +407,6 @@ export const chatService = {
             if (externalSignal?.aborted) {
               throw new QueryAbortedError('Consulta abortada por el usuario');
             }
-            // If the stream was interrupted (e.g. abort, client disconnect, connection close)
-            // but we already captured text, exit the loop cleanly rather than failing the message
-            if (readErr?.name === 'AbortError' || String(readErr?.message).includes('aborted')) {
-              break;
-            }
-            if (fullText.trim()) {
-              break;
-            }
             throw readErr;
           }
         }
@@ -357,9 +414,15 @@ export const chatService = {
         clearTimeout(timeoutId);
       }
 
-      if (!lastPhaseCompleted) {
+      if (buffer.trimStart().startsWith('data:')) {
         throw new SseResponseError(
-          'La respuesta SSE terminó antes de completarse.'
+          'El stream SSE terminó con un evento de datos incompleto.'
+        );
+      }
+
+      if (!terminalOutcome && !phaseCompleted) {
+        throw new SseResponseError(
+          'La respuesta SSE terminó sin un resultado terminal válido.'
         );
       }
 
@@ -370,6 +433,7 @@ export const chatService = {
         facet_coverage: capturedFacetCoverage,
         abstained: capturedAbstained,
         abstention_reason: capturedAbstentionReason,
+        clarification_requested: capturedClarificationRequested,
         bkt_context: capturedBktContext,
         mermaid_diagram: null,
         processing_ms: Math.round(t1 - t0),

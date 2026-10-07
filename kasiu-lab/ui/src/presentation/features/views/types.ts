@@ -74,6 +74,7 @@ export interface Message {
   facetCoverage?: Record<string, "SUFFICIENT" | "PARTIAL" | "MISSING">;
   abstained?: boolean;
   abstentionReason?: string | null;
+  clarificationRequested?: boolean;
   bktContext?: BktContext;
   claims?: ClaimItemDto[];
   edited?: boolean;

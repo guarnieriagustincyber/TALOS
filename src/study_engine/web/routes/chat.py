@@ -2725,7 +2725,12 @@ async def chat_query(
             logger.warning("Fallo en generación streaming de chat: %s", e, exc_info=True)
             err_payload = {
                 "event_type": "error",
-                "payload": {"message": f"Error interno en respuesta pedagógica: {str(e)}"},
+                "payload": {
+                    "reason": (
+                        "TALOS no pudo completar la respuesta por un error técnico. "
+                        "Reintentá la consulta."
+                    )
+                },
             }
             yield f"data: {json.dumps(err_payload)}\n\n"
 

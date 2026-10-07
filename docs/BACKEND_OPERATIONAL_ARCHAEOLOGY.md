@@ -35,35 +35,45 @@ slice is feasible, but its first harness must avoid constructing
 | Provider/pipeline | `_resolve_chat_backend()` at [`chat.py:674`](../src/study_engine/web/routes/chat.py#L674) selects the container backend; the handler constructs `StructuredResponsePipeline` at [line 2196](../src/study_engine/web/routes/chat.py#L2196) and streams its events. | Provider network/model work occurs when generation is invoked. Container configuration reads environment-derived provider keys; non-mock mode can configure external providers. | A route-only B1 must inject a fake backend/pipeline. A later core test can use the real `StructuredResponsePipeline` with a deterministic fake backend, without invoking a provider. |
 | Persistence/state | The route stores conversation/phase/protected-assessment state in module-global `TTLCache`s. On completion it calls `_update_curriculum_progress` and `_trigger_background_memory_extraction` at [`chat.py:2513`](../src/study_engine/web/routes/chat.py#L2513). | Curriculum progress writes student storage. Memory extraction can schedule an async task and persist cognitive/pedagogical memory. | B1 must replace these side-effect hooks and use unique synthetic session/scope IDs. Test the persistence helpers separately against temporary stores in a later layer. |
 
-## Static SSE contract discrepancy
+## SSE contract: current source and consumer behavior
 
-The pipeline defines `phase_start`, `phase_token`, `guard_blocked`,
-`audit_verdict`, `evidence_manifest`, `phase_complete`, `stream_aborted`,
-`error`, `abstention`, and `truncated` in
-[`structured_pipeline.py`](../src/study_engine/pedagogy/structured_pipeline.py#L26).
-The chat route also directly emits `clarification`.
+The backend emits JSON objects in `data:` frames with an `event_type` and
+optional object `payload`. The pipeline event vocabulary includes
+`phase_start`, `phase_token`, `guard_blocked`, `audit_verdict`,
+`evidence_manifest`, `phase_complete`, `stream_aborted`, `error`, `abstention`,
+and `truncated`; the route also emits `clarification`, `citation_audit`, and
+`exercise_proposal`.
 
-Two abstention paths end without `phase_complete`:
+Current route ordering is significant. During a normal pipeline completion,
+the route performs its phase-completion bookkeeping and may emit an
+`exercise_proposal` immediately before it serializes the pipeline's
+`phase_complete` event ([`chat.py`](../src/study_engine/web/routes/chat.py#L2550),
+[`chat.py`](../src/study_engine/web/routes/chat.py#L2717), and the final yield
+at [`chat.py`](../src/study_engine/web/routes/chat.py#L2736)). Thus the actual
+wire order is `exercise_proposal → phase_complete`; the proposal is not
+post-terminal. The UI parser accepts that order and rejects every event after
+`phase_complete`, including another proposal or a duplicate phase completion.
+Success requires a completed phase followed by clean EOF.
 
-- The route-level abstention branch emits `evidence_manifest` followed by
-  `abstention` or `clarification`, then returns
-  ([`chat.py:2239`](../src/study_engine/web/routes/chat.py#L2239)).
-- `StructuredResponsePipeline` documents and emits `abstention` as its first
-  and only event when its context pack requires abstention
-  ([`structured_pipeline.py:1589`](../src/study_engine/pedagogy/structured_pipeline.py#L1589)).
+Route-level `abstention` and `clarification` are separate successful terminal
+outcomes: the route emits `evidence_manifest`, then the outcome event, and
+closes without `phase_complete` ([`chat.py`](../src/study_engine/web/routes/chat.py#L2392)).
+The consumer accepts these outcomes only when they carry a non-empty public
+reason. They remain distinguishable in the returned UI model.
+`truncated`, `error`, and `stream_aborted` are failures, including when they
+occur after `phase_complete`; they cannot be converted into success by a later
+close event.
 
-The current React parser allowlist in
-[`chatService.ts:103`](../kasiu-lab/ui/src/services/chatService.ts#L103)
-does not include `abstention` or `clarification`. In addition, its recent
-fail-closed guard rejects an SSE EOF without `phase_complete`. **Static
-implication:** those legitimate backend abstention/clarification responses will
-be surfaced as an incomplete-stream error by the current React client, rather
-than as the backend's intended abstention. This is a likely contract/UX
-incompatibility, not runtime evidence; it was not exercised against FastAPI.
-
-Do not expand Playwright now. Carry this as an explicit case in the first
-backend SSE contract test and make a deliberate decision about terminal
-abstention semantics before changing either side.
+The consumer parses actual `chatService.ts` logic: malformed JSON in a `data:`
+frame, an unknown `event_type`, or a malformed event/payload shape fails closed
+with a safe error. SSE comments and non-data framing fields such as `event:`,
+`id:`, and `retry:` are ignored rather than parsed as JSON. EOF without a
+terminal outcome, including an incomplete trailing `data:` frame, is rejected.
+These parser and response-state behaviors have focused tests in
+[`chatService.test.js`](../kasiu-lab/ui/tests/chatService.test.js); the route
+serialization has endpoint tests in
+[`test_chat_sse_endpoint.py`](../tests/pedagogy/test_chat_sse_endpoint.py).
+They do not establish real-provider, browser-to-FastAPI, or production behavior.
 
 ## B1 readiness and recommended boundary
 
@@ -189,12 +199,11 @@ actual pipeline emits `truncated` before its later completion events and
 yields `stream_aborted` before re-raising cancellation; neither real pipeline
 path was run.
 
-The current `chatService` event allowlist does not include `abstention` or
-`clarification`; it therefore ignores those event types and its EOF guard
-rejects the stream because no `phase_complete` was seen. This is now a
-route/client contract mismatch supported by route execution plus source
-tracing, but no backend or UI change is made here. Keep Playwright frozen
-until the terminal contract is explicitly adjudicated.
+The UI parser now recognizes both outcomes and validates response termination.
+The earlier statement in this B1-B snapshot that the consumer ignores them is
+historical and superseded by the current-contract section above. The synthetic
+route observations in this section remain limited to their original tested
+scope and do not demonstrate browser/FastAPI integration.
 
 ## B1-R — Repeatable synthetic regression
 

@@ -219,8 +219,132 @@ def test_chat_query_fv2_e2e_abstention(client_with_setup):
             payload["abstention_reason"]
             == "El corpus carece de respaldo verificable para responder sobre física cuántica."
         )
+        assert [event["event_type"] for event in events] == [
+            "evidence_manifest",
+            "abstention",
+        ]
+        assert (
+            events[-1]["payload"]["reason"]
+            == "El corpus carece de respaldo verificable para responder sobre física cuántica."
+        )
     finally:
         container.last_abstention_decision = None
+
+
+def test_chat_query_sse_clarification_is_a_terminal_pedagogical_outcome(
+    client_with_setup, monkeypatch
+):
+    client, container, _, _ = client_with_setup
+    from study_engine.web.routes import chat as chat_route
+
+    original_prepare = chat_route._prepare_chat_context
+    clarification = "¿Podés indicar qué concepto del tema querés revisar?"
+
+    def prepare_context_with_clarification(**kwargs):
+        prepared = list(original_prepare(**kwargs))
+        prepared[2] = chat_route.EpistemicContextPack(
+            formatted_context="",
+            citations=[],
+            chunks=[],
+            abstained=True,
+            abstention_reason="NEEDS_CLARIFICATION",
+            clarification_message=clarification,
+        )
+        prepared[3] = []
+        return tuple(prepared)
+
+    monkeypatch.setattr(
+        chat_route, "_prepare_chat_context", prepare_context_with_clarification
+    )
+    response = client.post(
+        "/api/chat/query",
+        json={
+            "prompt": "No entiendo esto",
+            "scope_type": "notebook",
+            "scope_id": "nb_prog_1",
+            "requested_phase": "conceptual",
+        },
+    )
+
+    events = [
+        json.loads(line[6:])
+        for line in response.text.splitlines()
+        if line.startswith("data: ")
+    ]
+    assert response.status_code == 200
+    assert [event["event_type"] for event in events] == [
+        "evidence_manifest",
+        "clarification",
+    ]
+    assert events[-1]["payload"]["abstained"] is True
+    assert events[-1]["payload"]["abstention_code"] == "NEEDS_CLARIFICATION"
+    assert events[-1]["payload"]["reason"] == clarification
+    assert not any(event["event_type"] == "phase_complete" for event in events)
+
+
+def test_chat_query_sse_error_does_not_expose_exception_details(
+    client_with_setup, monkeypatch
+):
+    client, container, _, _ = client_with_setup
+    from study_engine.web.routes import chat as chat_route
+
+    original_prepare = chat_route._prepare_chat_context
+    chunks = [
+        {
+            "id": "E1",
+            "chunk_text": "Material curricular de prueba.",
+            "source_id": "src_sse_error_test",
+            "source_title": "Material curricular de prueba",
+            "page_start": 1,
+            "score": 0.95,
+        }
+    ]
+
+    def prepare_sufficient_context(**kwargs):
+        prepared = list(original_prepare(**kwargs))
+        prepared[2] = chat_route.EpistemicContextPack(
+            formatted_context="[E1] Material curricular de prueba.",
+            citations=["[E1] Material curricular de prueba, pág. 1"],
+            chunks=chunks,
+            is_sufficient=True,
+        )
+        prepared[3] = chunks
+        return tuple(prepared)
+
+    class FailingPipeline:
+        def __init__(self, **_kwargs):
+            pass
+
+        async def generate_phased_response(self, **_kwargs):
+            raise RuntimeError("secret_backend_detail")
+            yield
+
+    monkeypatch.setattr(chat_route, "_prepare_chat_context", prepare_sufficient_context)
+    monkeypatch.setattr(chat_route, "StructuredResponsePipeline", FailingPipeline)
+    response = client.post(
+        "/api/chat/query",
+        json={
+            "prompt": "Explicá el concepto de prueba.",
+            "scope_type": "notebook",
+            "scope_id": "nb_prog_1",
+            "requested_phase": "conceptual",
+        },
+    )
+
+    events = [
+        json.loads(line[6:])
+        for line in response.text.splitlines()
+        if line.startswith("data: ")
+    ]
+    assert response.status_code == 200
+    assert [event["event_type"] for event in events] == ["error"]
+    assert events[0]["payload"] == {
+        "reason": (
+            "TALOS no pudo completar la respuesta por un error técnico. "
+            "Reintentá la consulta."
+        )
+    }
+    assert "secret_backend_detail" not in response.text
 
 
 def test_chat_query_root_global_greeting(client_with_setup):

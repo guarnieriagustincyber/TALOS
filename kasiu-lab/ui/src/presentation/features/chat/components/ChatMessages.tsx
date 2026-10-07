@@ -42,6 +42,17 @@ export const AbstentionBanner: React.FC<{ reason?: string | null }> = ({ reason 
   </div>
 );
 
+const ClarificationBanner: React.FC = () => (
+  <div className="mt-4 p-3.5 rounded-xl bg-sky-950/20 border border-sky-400/20 text-sky-100/90 font-mono text-xs">
+    <span className="font-semibold uppercase tracking-wider text-[10px] text-sky-300 block">
+      Aclaración necesaria
+    </span>
+    <p className="mt-1 text-white/75 text-xs leading-relaxed">
+      El tutor necesita un dato adicional antes de responder; precisá tu consulta para continuar.
+    </p>
+  </div>
+);
+
 export const FacetCoverageBar: React.FC<{ coverage?: Record<string, "SUFFICIENT" | "PARTIAL" | "MISSING"> }> = ({ coverage }) => {
   if (!coverage || Object.keys(coverage).length === 0) return null;
   const entries = Object.entries(coverage);
@@ -862,7 +873,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                               {msg.bktContext.fallback && <span className="text-zinc-400">↩ fallback</span>}
                             </div>
                           )}
-                          {msg.abstained && <AbstentionBanner reason={msg.abstentionReason} />}
+                          {msg.clarificationRequested ? (
+                            <ClarificationBanner />
+                          ) : msg.abstained ? (
+                            <AbstentionBanner reason={msg.abstentionReason} />
+                          ) : null}
                           {msg.facetCoverage && <FacetCoverageBar coverage={msg.facetCoverage} />}
                           {msg.claims && msg.claims.length > 0 && (
                             <div className="mt-3.5 p-3 rounded-[14px] bg-black/40 border border-white/[0.08] space-y-2 font-mono">

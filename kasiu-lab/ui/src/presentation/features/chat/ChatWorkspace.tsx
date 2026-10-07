@@ -973,6 +973,7 @@ export const ChatWorkspace: React.FC = () => {
           facetCoverage: apiResponse.facet_coverage,
           abstained: apiResponse.abstained,
           abstentionReason: apiResponse.abstention_reason,
+          clarificationRequested: apiResponse.clarification_requested,
           bktContext: apiResponse.bkt_context,
         },
       ]);
