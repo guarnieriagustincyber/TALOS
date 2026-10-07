@@ -376,6 +376,7 @@ from study_engine.context.c5_trust import (
     EpistemicTrustStatus,
     evaluate_epistemic_trust,
     evaluate_conversational_rescue_compatibility,
+    extract_critical_query_terms,
 )
 
 # Session Digest (Fase 5.4): la directiva de la sesión anterior se inyecta
@@ -2002,10 +2003,31 @@ def _prepare_chat_context(
             last_pack_tuple = _LAST_EPISTEMIC_PACK.get(epistemic_key)
             if last_pack_tuple:
                 prev_pack, prev_chunks = last_pack_tuple
+                followup_match = re_followup.search(clean_p)
+                followup_residue = re_followup.sub(" ", clean_p) if followup_match else None
+                topic_terms = (
+                    extract_critical_query_terms(followup_residue)
+                    if followup_residue is not None
+                    else None
+                )
+                contextual_query = (
+                    retrieval_query
+                    if reference_resolution.status == "unique" and topic_terms == []
+                    else None
+                )
+                topic_query = (
+                    " ".join(followup_residue.split())
+                    if followup_residue is not None
+                    else None
+                )
+                if topic_terms == [] and contextual_query is None:
+                    topic_query = clean_p
                 is_compat, compat_msg = evaluate_conversational_rescue_compatibility(
                     new_query=clean_p,
                     previous_context_pack=prev_pack,
                     previous_chunks=prev_chunks,
+                    contextual_query=contextual_query,
+                    topic_query=topic_query,
                 )
                 if is_compat:
                     logger.info(

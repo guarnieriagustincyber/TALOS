@@ -290,6 +290,9 @@ def evaluate_conversational_rescue_compatibility(
     new_query: str,
     previous_context_pack: Any,
     previous_chunks: Sequence[Any],
+    *,
+    contextual_query: Optional[str] = None,
+    topic_query: Optional[str] = None,
 ) -> Tuple[bool, Optional[str]]:
     """Verifica la compatibilidad temática entre la nueva consulta y el contexto previo (D_C5_6).
     
@@ -306,11 +309,13 @@ def evaluate_conversational_rescue_compatibility(
     if has_explicit_topic_change(q):
         return False, "Quiebre explícito de tema detectado."
 
-    critical_new = extract_critical_query_terms(q)
+    critical_new = extract_critical_query_terms(topic_query if topic_query is not None else q)
+    has_topic_terms = bool(critical_new)
 
     # 2. Consulta puramente deíctica o sin nuevos sustantivos
     if not critical_new:
-        return True, "Continuidad deíctica pura sin nuevos términos temáticos."
+        if contextual_query is None:
+            return True, "Continuidad deíctica pura sin nuevos términos temáticos."
 
     # 3. Extraer vocabulario del contexto previo
     prev_text_parts = []
@@ -330,15 +335,24 @@ def evaluate_conversational_rescue_compatibility(
 
     # 4. Medir solapamiento
     overlap_count = 0
-    for term in critical_new:
+    terms_to_compare = critical_new
+    if not terms_to_compare and contextual_query:
+        terms_to_compare = extract_critical_query_terms(contextual_query)
+
+    for term in terms_to_compare:
         norm_t = normalize_term(term)
         if norm_t in prev_tokens or term.lower() in prev_combined or _BILINGUAL_MAP.get(norm_t) in prev_tokens:
             overlap_count += 1
 
-    overlap_ratio = overlap_count / len(critical_new)
+    if not terms_to_compare:
+        return False, "La consulta contextual no contiene términos que permitan validar el antecedente."
+
+    overlap_ratio = overlap_count / len(terms_to_compare)
 
     if overlap_count == 0:
-        return False, f"Incompatibilidad temática total: 0/{len(critical_new)} términos solapan con contexto previo."
+        return False, f"Incompatibilidad temática total: 0/{len(terms_to_compare)} términos solapan con contexto previo."
+    if topic_query is not None and has_topic_terms and overlap_count < len(critical_new):
+        return False, "La consulta de seguimiento introduce términos temáticos que no están respaldados por el contexto previo."
 
     return True, f"Compatibilidad temática verificada (solapamiento={overlap_ratio:.2f})."
 

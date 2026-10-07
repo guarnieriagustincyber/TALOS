@@ -249,6 +249,12 @@ def test_repeated_followups_and_client_turns_and_rescue_pack():
         session_id=session_id,
         recent_turns=recent_turns,
     )
+    from study_engine.retrieval.query_rewriter import QueryRewriter
+
+    rewritten_query = QueryRewriter().rewrite_contextual(req.prompt, recent_turns)
+    assert "swap" in rewritten_query.lower()
+    assert "puntero" in rewritten_query.lower()
+
     resolver = ScopeResolver(mock_store)
 
     resolved_scope, contract, context_pack, raw_chunks, folder_decision, context_mode, bkt_directive, style_result, conv_payload, matched_kc_id, bkt_meta = _prepare_chat_context(
@@ -268,6 +274,28 @@ def test_repeated_followups_and_client_turns_and_rescue_pack():
     assert getattr(context_pack, "abstained", False) is False
     assert len(raw_chunks) > 0
     assert raw_chunks[0]["id"] == "E1"
+
+    unrelated_pack = EpistemicContextPack(
+        formatted_context="[1] Fotosíntesis y clorofila...",
+        citations=[MagicMock()],
+        chunks=[{"id": "E2", "chunk_text": "Fotosíntesis y clorofila"}],
+        abstained=False,
+    )
+    _LAST_EPISTEMIC_PACK[evidence_key] = (
+        unrelated_pack,
+        [{"id": "E2", "chunk_text": "Fotosíntesis y clorofila"}],
+    )
+    _, _, rejected_pack, rejected_chunks, *_ = _prepare_chat_context(
+        store=mock_store,
+        resolver=resolver,
+        container=mock_container,
+        prompt_text=req.prompt,
+        request=req,
+        target_scope_type="notebook",
+        target_scope_id="fase0-soc",
+    )
+    assert getattr(rejected_pack, "abstained", False) is True
+    assert rejected_chunks == []
 
 
 def test_deictic_misconception_followup_rescues_epistemic_pack():

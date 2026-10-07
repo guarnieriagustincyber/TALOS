@@ -35,6 +35,21 @@ def test_contextual_reference_reports_missing_history():
     assert result.status == "missing"
 
 
+def test_contextual_rewrite_uses_prior_topic_not_repeated_followup():
+    query = "podes detallarme mas?"
+    turns = [
+        {"role": "user", "content": "¿Cómo se implementa el swap con punteros en C?"},
+        {"role": "assistant", "content": "El swap con punteros intercambia los valores en memoria..."},
+        {"role": "user", "content": query},
+        {"role": "assistant", "content": "Ampliando el concepto de swap..."},
+    ]
+
+    rewritten = QueryRewriter().rewrite_contextual(query, turns)
+
+    assert rewritten.lower().startswith("cómo implementa swap con punteros")
+    assert "detallarme" in rewritten.lower()
+
+
 @pytest.fixture
 def rewriter():
     return QueryRewriter()

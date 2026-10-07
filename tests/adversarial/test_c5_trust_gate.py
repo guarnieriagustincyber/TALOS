@@ -721,3 +721,35 @@ def test_conversational_rescue_pure_deictic():
     chunks = [{"content": "Paginación y MMU"}]
     is_compat, msg = evaluate_conversational_rescue_compatibility("¿y eso por qué ocurre ahí?", MockPack(), chunks)
     assert is_compat is True
+
+
+def test_conversational_rescue_generic_followup_uses_resolved_context():
+    class MockPack:
+        formatted_context = "Punteros en C y operación swap."
+
+    chunks = [{"content": "Punteros y swap"}]
+    is_compat, _ = evaluate_conversational_rescue_compatibility(
+        "podes detallarme mas?",
+        MockPack(),
+        chunks,
+        contextual_query="¿Cómo se implementa el swap con punteros en C? podes detallarme mas?",
+        topic_query="mas?",
+    )
+
+    assert is_compat is True
+
+
+def test_conversational_rescue_rejects_new_topic_in_generic_followup():
+    class MockPack:
+        formatted_context = "Punteros en C y operación swap."
+
+    chunks = [{"content": "Punteros y swap"}]
+    is_compat, _ = evaluate_conversational_rescue_compatibility(
+        "podes detallarme mas sobre fotosíntesis?",
+        MockPack(),
+        chunks,
+        contextual_query="¿Cómo se implementa el swap con punteros en C? podes detallarme mas sobre fotosíntesis?",
+        topic_query="mas sobre fotosíntesis?",
+    )
+
+    assert is_compat is False
