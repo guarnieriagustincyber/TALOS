@@ -37,6 +37,11 @@
       "reason": "Public schemas, boundaries, and architectural contracts."
     },
     {
+      "path": "tests/e2e",
+      "classification": "qualification-required",
+      "reason": "Deterministic offline study-loop tests use local SQLite databases as read-only sources and isolated temporary copies."
+    },
+    {
       "path": "tests/experiments",
       "classification": "required",
       "reason": "Hermetic experiment fixture and protocol regressions; generated/live evaluations are outside this suite."
@@ -50,6 +55,11 @@
       "path": "tests/integration",
       "classification": "required",
       "reason": "Hermetic integration tests are required; only the separately listed network/live modules are optional."
+    },
+    {
+      "path": "tests/isolation",
+      "classification": "qualification-required",
+      "reason": "Isolation checks fingerprint the local production vector database and write only to isolated temporary stores."
     },
     {
       "path": "tests/llm",

@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 import scripts.quality_gate as quality_gate
-from scripts.quality_gate import PerimeterError, validate_perimeter
+from scripts.quality_gate import Perimeter, PerimeterError, Suite, validate_perimeter
 
 
 def test_repository_test_perimeter_matches_discovered_suites() -> None:
@@ -15,7 +16,7 @@ def test_repository_test_perimeter_matches_discovered_suites() -> None:
         repo_root / "config" / "test_perimeter.json",
     )
 
-    assert len(perimeter.suites) == 24
+    assert len(perimeter.suites) == 27
     discovered_modules = {
         path.relative_to(repo_root).as_posix()
         for path in (repo_root / "tests").rglob("test_*.py")
@@ -44,6 +45,16 @@ def test_repository_test_perimeter_matches_discovered_suites() -> None:
         perimeter.module_classifications["tests/utils/test_registry.py"]
         == "support-only"
     )
+    assert (
+        perimeter.module_classifications["tests/e2e/test_study_loop_e2e.py"]
+        == "qualification-required"
+    )
+    assert (
+        perimeter.module_classifications[
+            "tests/isolation/test_vector_store_isolation.py"
+        ]
+        == "qualification-required"
+    )
     assert perimeter.optional_modules == {
         "tests/integration/test_llm_latency.py": (
             "Requires live network access; run separately with a recorded "
@@ -55,6 +66,73 @@ def test_repository_test_perimeter_matches_discovered_suites() -> None:
             "live-model evaluation."
         ),
     }
+
+
+@pytest.mark.parametrize(
+    "classification",
+    ["required", "qualification-required"],
+)
+def test_gate_fails_when_an_active_suite_skips(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    classification: str,
+) -> None:
+    suite = Suite(
+        path="tests/sample",
+        classification=classification,
+        reason="Synthetic gate status test.",
+        modules=("tests/sample/test_skipped.py",),
+    )
+    perimeter = Perimeter(
+        suites=(suite,),
+        optional_modules={},
+        module_classifications={
+            "tests/sample/test_skipped.py": classification,
+        },
+    )
+    reports = []
+
+    def fake_pytest_main(args: list[str], plugins: list[object]) -> pytest.ExitCode:
+        del args
+        results = next(
+            plugin
+            for plugin in plugins
+            if isinstance(plugin, quality_gate.SuiteResults)
+        )
+        reports.append(results)
+        results.pytest_collection_finish(
+            SimpleNamespace(
+                items=[
+                    SimpleNamespace(
+                        nodeid="tests/sample/test_skipped.py::test_skipped"
+                    )
+                ]
+            )
+        )
+        results.pytest_runtest_logreport(
+            SimpleNamespace(
+                nodeid="tests/sample/test_skipped.py::test_skipped",
+                when="call",
+                duration=0.01,
+                outcome="skipped",
+                failed=False,
+                skipped=True,
+                longrepr="intentionally skipped",
+            )
+        )
+        return pytest.ExitCode.OK
+
+    monkeypatch.setattr(quality_gate, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr(pytest, "main", fake_pytest_main)
+
+    assert quality_gate.run_gate("release", perimeter) == 1
+    assert reports[0].collector_payload(perimeter, "release", 0)["suites"][0][
+        "status"
+    ] == "FAIL"
+    output = capsys.readouterr().out
+    assert "tests=1 passed=0 skipped=1 failed=0" in output
+    assert "RESULT: TEST GATE FAIL" in output
 
 
 def test_unclassified_test_suite_is_rejected(tmp_path: Path) -> None:

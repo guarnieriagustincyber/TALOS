@@ -346,14 +346,10 @@ class SuiteResults:
                 status = "ERROR"
                 skip_reasons = self.skip_reasons[suite.path]
                 errors = ["active suite collected no tests"]
-            elif counts["skipped"] and suite.classification == "required":
+            elif counts["skipped"]:
                 status = "FAIL"
                 skip_reasons = self.skip_reasons[suite.path]
-                errors = ["required suite contains unapproved skips"]
-            elif counts["skipped"]:
-                status = "WARNING"
-                skip_reasons = self.skip_reasons[suite.path]
-                errors = []
+                errors = ["active suite contains skipped tests"]
             else:
                 status = "PASS"
                 skip_reasons = self.skip_reasons[suite.path]
@@ -514,7 +510,10 @@ def run_gate(
         counts = results.counts(suite.path)
         status = (
             "PASS"
-            if counts["failed"] == 0 and counts["collected"] > 0
+            if counts["failed"] == 0
+            and counts["collection_errors"] == 0
+            and counts["skipped"] == 0
+            and counts["collected"] > 0
             else "FAIL"
         )
         print(
