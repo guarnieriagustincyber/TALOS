@@ -214,15 +214,31 @@ def test_pipeline_build_phase_prompt_with_conversational_query():
     assert "hasta 400 palabras" in prompt
 
 
-def test_offline_structured_command_abstains_honestly():
+@pytest.fixture
+def isolated_offline_container(web_state_test_copy, monkeypatch):
+    from study_engine.web import dependencies
+    from study_engine.web.dependencies import AppContainer
+    from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
+
+    repo_root = Path(__file__).resolve().parents[2]
+    monkeypatch.setattr(AppContainer, "_load_dotenv", lambda self: None)
+    container = AppContainer(
+        repo_root=repo_root,
+        working_dir=web_state_test_copy,
+        use_mock=True,
+    )
+    container.llm_backend = OfflinePedagogicalBackend()
+    monkeypatch.setattr(dependencies, "_container", container)
+    return container
+
+
+def test_offline_structured_command_without_sufficient_evidence_abstains_before_backend(
+    isolated_offline_container,
+):
     import json
     from fastapi.testclient import TestClient
     from study_engine.web.app import app
-    from study_engine.web.dependencies import get_container
-    from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
 
-    cont = get_container()
-    cont.llm_backend = OfflinePedagogicalBackend()
     client = TestClient(app)
 
     res = client.post(
@@ -236,24 +252,20 @@ def test_offline_structured_command_abstains_honestly():
     assert res.status_code == 200
     lines = [l for l in res.text.split("\n") if l.startswith("data: ")]
     events = [json.loads(l[6:]) for l in lines]
-    tokens = "".join(
-        [e["payload"]["token"] for e in events if e["event_type"] == "phase_token"]
-    )
-    assert (
-        "No puedo generar una respuesta estructurada sin el motor de IA activo"
-        in tokens
-    )
+    assert [event["event_type"] for event in events] == [
+        "evidence_manifest",
+        "abstention",
+    ]
+    assert events[0]["payload"]["abstained"] is True
+    assert events[0]["payload"]["trust_status"] == "RELATED_INSUFFICIENT"
+    assert events[1]["payload"]["abstention_code"] == "QUERY_OUT_OF_SCOPE"
 
 
-def test_offline_out_of_corpus_abstains_honestly():
+def test_offline_out_of_corpus_abstains_honestly(isolated_offline_container):
     import json
     from fastapi.testclient import TestClient
     from study_engine.web.app import app
-    from study_engine.web.dependencies import get_container
-    from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
 
-    cont = get_container()
-    cont.llm_backend = OfflinePedagogicalBackend()
     client = TestClient(app)
 
     res = client.post(
