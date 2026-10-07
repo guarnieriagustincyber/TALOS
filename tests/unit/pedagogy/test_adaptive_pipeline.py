@@ -886,6 +886,17 @@ def test_prerequisite_reinforcement_triggers_when_unmet():
 def test_offline_knowledge_backend_pure_retrieval():
     """Verify that OfflineKnowledgeBackend retrieves real corpus chunks and formats by role (Fix S4.3)."""
     mock_store = MagicMock()
+    authorized_source_ids = {
+        "src_tanenbaum_os_modernos",
+        "src_silberschatz_so",
+        "src_stallings_os_internals",
+    }
+    mock_conn = MagicMock()
+    mock_conn.cursor.return_value.fetchall.return_value = [
+        (source_id,) for source_id in sorted(authorized_source_ids)
+    ]
+    mock_store.engine.db_path = ":memory:"
+    mock_store.engine.transaction.return_value.__enter__.return_value = mock_conn
 
     # Create mock search results representing pedagogical, formal, and technical sources
     mock_chunks = [
@@ -924,11 +935,26 @@ def test_offline_knowledge_backend_pure_retrieval():
         ),
     ]
 
-    mock_store.search_hybrid.return_value = mock_chunks
+    def search_authorized_chunks(
+        query,
+        *,
+        notebook_id,
+        limit,
+        source_ids,
+    ):
+        assert notebook_id == "fadena-so2"
+        assert limit == 5
+        assert set(source_ids) == authorized_source_ids
+        return [
+            chunk for chunk in mock_chunks if chunk.source_id in source_ids
+        ][:limit]
+
+    mock_store.search_hybrid.side_effect = search_authorized_chunks
 
     backend = OfflineKnowledgeBackend(knowledge_store=mock_store)
     response_text = backend.generate_response(query="planificación de procesos", notebook_id="fadena-so2")
 
+    mock_store.search_hybrid.assert_called_once()
     # Verificaciones
     assert "### 1. Intuición Conceptual y Analogía" in response_text
     assert "src_tanenbaum_os_modernos" in response_text
