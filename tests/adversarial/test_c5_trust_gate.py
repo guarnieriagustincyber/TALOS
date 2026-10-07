@@ -711,6 +711,23 @@ def test_c5_accepts_original_ampersand_intent_with_canonical_evidence():
     assert canonical_evaluation.is_sufficient is True
 
 
+def test_c5_uses_contextual_resolution_for_deictic_followup():
+    """C5 debe evaluar la intención resuelta del seguimiento, no solo la referencia literal."""
+    query = "¿Y cómo uso el ampersand ahí?"
+    contextual_query = "operador de direccion ampersand punteros memoria direccion de variable"
+    chunks = [
+        {
+            "chunk_text": "El operador de dirección & permite obtener la dirección de memoria de una variable.",
+            "relevance_score": 0.9,
+        }
+    ]
+
+    evaluation = evaluate_epistemic_trust(query, chunks, contextual_query=contextual_query)
+
+    assert evaluation.is_sufficient is True
+    assert evaluation.abstained is False
+
+
 def test_c5_rejects_rewrite_context_that_does_not_cover_original_intent():
     query = "¿Y cómo uso el ampersand ahí?"
     from study_engine.retrieval.query_rewriter import QueryRewriter
@@ -749,6 +766,21 @@ def test_conversational_rescue_same_topic():
 
     chunks = [{"content": "Paginación y MMU"}]
     is_compat, msg = evaluate_conversational_rescue_compatibility("¿y qué pasa con las páginas?", MockPack(), chunks)
+    assert is_compat is True
+
+
+def test_conversational_rescue_partial_overlap_keeps_same_thread():
+    """Un seguimiento aclaratorio con anclaje temático debe continuar dentro del mismo hilo."""
+    class MockPack:
+        formatted_context = "Layout de memoria: Text, Data, BSS, Heap, Stack Frame, Return Address, Frame Pointer."
+
+    chunks = [{"chunk_text": "Stack Frame metadatos"}]
+    is_compat, _ = evaluate_conversational_rescue_compatibility(
+        "no logre entender porque es la integridad de los metadatos",
+        MockPack(),
+        chunks,
+        topic_query="no logre entender porque es la integridad de los metadatos",
+    )
     assert is_compat is True
 
 

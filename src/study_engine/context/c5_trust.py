@@ -66,6 +66,9 @@ class EpistemicTrustEvaluation:
 # Narrow, deterministic terminology equivalences for explicit user concepts.
 _C5_TERM_EQUIVALENTS: Dict[str, Tuple[Tuple[str, ...], ...]] = {
     "ampersand": (("operador", "direccion"), ("obtener", "direccion", "memoria")),
+    "pointer": (("operador", "direccion"), ("direccion", "memoria"), ("memoria", "variable")),
+    "address": (("operador", "direccion"), ("direccion", "memoria")),
+    "memory": (("direccion", "memoria"), ("operador", "direccion")),
 }
 
 # Palabras de encuadre pedagógico o metadatos de cátedra
@@ -373,8 +376,13 @@ def evaluate_conversational_rescue_compatibility(
 
     if overlap_count == 0:
         return False, f"Incompatibilidad temática total: 0/{len(terms_to_compare)} términos solapan con contexto previo."
+
+    # En un seguimiento deíctico/clarificador, una consulta puede introducir
+    # términos complementarios sin cambiar el tema de fondo. La compatibilidad
+    # debe basarse en anclaje temático, no en cobertura total de cada palabra
+    # nueva del turno.
     if topic_query is not None and has_topic_terms and overlap_count < len(critical_new):
-        return False, "La consulta de seguimiento introduce términos temáticos que no están respaldados por el contexto previo."
+        return True, f"Compatibilidad temática verificada con expansión de concepto (solapamiento={overlap_ratio:.2f})."
 
     return True, f"Compatibilidad temática verificada (solapamiento={overlap_ratio:.2f})."
 
@@ -389,13 +397,17 @@ def evaluate_epistemic_trust(
     scope_error_reason: Optional[str] = None,
     resolved_content_item: Optional[Any] = None,
     has_reference_disclaimer: bool = False,
+    contextual_query: Optional[str] = None,
 ) -> EpistemicTrustEvaluation:
     """Frontera central de evaluación epistémica pre-LLM (C5 Trust Gate).
-    
-    Determina si existe evidencia autorizada y suficiente antes de habilitar
-    cualquier respuesta fundamentada.
+
+    Cuando la consulta actual depende del contexto anterior, ``contextual_query``
+    representa la intención resuelta y autorizada de esa continuidad; el C5 no
+    debe evaluar la cadena literal original si esa cadena es solo un anclaje
+    deíctico sin la intención que la hace técnicamente significativa.
     """
-    critical_terms = extract_critical_query_terms(query)
+    effective_query = contextual_query or query
+    critical_terms = extract_critical_query_terms(effective_query)
 
     # 1. Retrieval Failure (Fail-Closed Absoluto - D_C5_4)
     if retrieval_failed:
@@ -458,8 +470,29 @@ def evaluate_epistemic_trust(
     max_rel = max(scores) if scores else 0.0
 
     # 5. Sufficiency Gate & Coverage Guard (D_C5_2 & OC-1..OC-5)
-    # RELATED != SUFFICIENT
-    critical_terms = extract_critical_query_terms(query)
+    # RELATED != SUFFICIENT.
+    base_critical_terms = extract_critical_query_terms(query)
+    contextual_critical_terms = extract_critical_query_terms(contextual_query) if contextual_query else base_critical_terms
+    if contextual_query and contextual_query.strip() != query.strip() and base_critical_terms and contextual_critical_terms:
+        normalized_base = {normalize_term(term) for term in base_critical_terms}
+        normalized_context = {normalize_term(term) for term in contextual_critical_terms}
+        if not (normalized_base & normalized_context):
+            coverage_ratio, missing_terms = evaluate_term_coverage(base_critical_terms, raw_chunks)
+            logger.info(
+                "C5 contextual mismatch: query='%s', contextual='%s', base_terms=%s, missing=%s, cov=%.2f",
+                query, contextual_query, base_critical_terms, missing_terms, coverage_ratio
+            )
+            return EpistemicTrustEvaluation(
+                status=EpistemicTrustStatus.RELATED_INSUFFICIENT,
+                is_sufficient=False,
+                abstained=True,
+                abstention_reason="QUERY_OUT_OF_SCOPE",
+                coverage_ratio=coverage_ratio,
+                missing_critical_terms=missing_terms,
+                max_relevance=max_rel,
+            )
+
+    critical_terms = contextual_critical_terms or base_critical_terms
     coverage_ratio, missing_terms = evaluate_term_coverage(critical_terms, raw_chunks)
 
     # Regla determinística de suficiencia
@@ -487,7 +520,7 @@ def evaluate_epistemic_trust(
         if is_substantive_miss:
             logger.info(
                 "C5 Sufficiency Gate Miss: query='%s', critical=%s, missing=%s, cov=%.2f",
-                query, critical_terms, missing_terms, coverage_ratio
+                effective_query, critical_terms, missing_terms, coverage_ratio
             )
             return EpistemicTrustEvaluation(
                 status=EpistemicTrustStatus.RELATED_INSUFFICIENT,
@@ -500,7 +533,7 @@ def evaluate_epistemic_trust(
             )
 
     # 6. Conflict Detection (D_C5_3 & Addendum 3)
-    is_conflicting, conflict_details = detect_evidence_conflicts(raw_chunks, query)
+    is_conflicting, conflict_details = detect_evidence_conflicts(raw_chunks, effective_query)
     if is_conflicting:
         return EpistemicTrustEvaluation(
             status=EpistemicTrustStatus.CONFLICTING_EVIDENCE,
