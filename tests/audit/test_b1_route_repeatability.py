@@ -33,8 +33,10 @@ def test_synthetic_chat_route_is_repeatable_and_sterile(
     repo_root = Path(__file__).resolve().parents[2]
     child_cwd = tmp_path / "cwd"
     child_home = tmp_path / "home"
+    child_tmp = tmp_path / "tmp"
     child_cwd.mkdir()
     child_home.mkdir()
+    child_tmp.mkdir()
 
     child_env = {
         key: os.environ[key]
@@ -44,6 +46,7 @@ def test_synthetic_chat_route_is_repeatable_and_sterile(
     child_env.update(
         {
             "HOME": str(child_home),
+            "TMPDIR": str(child_tmp),
             "PYTHONPATH": os.pathsep.join(
                 (str(repo_root / "src"), str(repo_root))
             ),
@@ -68,42 +71,41 @@ def test_synthetic_chat_route_is_repeatable_and_sterile(
         check=False,
         timeout=120,
     )
-    if completed.returncode != 0:
-        pytest_message = (
-            "B1-R subprocess failed.\n"
-            f"stdout:\n{completed.stdout}\n"
-            f"stderr:\n{completed.stderr}"
-        )
-        raise AssertionError(pytest_message)
-        verifier = subprocess.run(
-            [
-                sys.executable,
-                "-B",
-                str(repo_root / "scripts/verify_b1r_artifact.py"),
-                "--contract",
-                str(repo_root / "tests/audit/b1r_contract.json"),
-                "--report",
-                str(report_path),
-            ],
-            cwd=child_cwd,
-            env=child_env,
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=30,
-        )
-        assert verifier.returncode == 0, (
-            "Independent B1-R verifier failed.\n"
-            f"stdout:\n{verifier.stdout}\n"
-            f"stderr:\n{verifier.stderr}"
-        )
-        assert json.loads(verifier.stdout) == {
-            "status": "TECHNICAL PASS",
-            "findings": [],
-        }
-        assert (
-            _git_status(repo_root) == repo_status_before
-        ), "B1-R changed repository state."
+    assert completed.returncode == 0, (
+        "B1-R subprocess failed.\n"
+        f"stdout:\n{completed.stdout}\n"
+        f"stderr:\n{completed.stderr}"
+    )
+    assert report_path.is_file(), "B1-R worker did not produce its report."
+    verifier = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            str(repo_root / "scripts/verify_b1r_artifact.py"),
+            "--contract",
+            str(repo_root / "tests/audit/b1r_contract.json"),
+            "--report",
+            str(report_path),
+        ],
+        cwd=child_cwd,
+        env=child_env,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert verifier.returncode == 0, (
+        "Independent B1-R verifier failed.\n"
+        f"stdout:\n{verifier.stdout}\n"
+        f"stderr:\n{verifier.stderr}"
+    )
+    assert json.loads(verifier.stdout) == {
+        "status": "TECHNICAL PASS",
+        "findings": [],
+    }
+    assert (
+        _git_status(repo_root) == repo_status_before
+    ), "B1-R changed repository state."
 
 
 def _git_status(repo_root: Path) -> str:
@@ -140,6 +142,9 @@ def _run_worker(repo_root: Path, report_path: Path) -> None:
     from study_engine.hierarchy.scope_resolver import ResolvedScope, ScopeType
 
     project_root = repo_root.resolve()
+    worker_temp_dir = PathClass(os_module.environ["TMPDIR"]).resolve()
+    if not worker_temp_dir.is_dir():
+        raise AssertionError("B1-R private temporary directory is unavailable.")
     contract_bytes = (
         project_root / "tests/audit/b1r_contract.json"
     ).read_bytes()
@@ -261,6 +266,14 @@ def _run_worker(repo_root: Path, report_path: Path) -> None:
             "os.unlink",
             "os.utime",
         }:
+            path = _as_path(args[0]) if args else None
+            if (
+                event in {"os.remove", "os.unlink"}
+                and path is not None
+                and path.parent == worker_temp_dir
+                and path.is_file()
+            ):
+                return
             _reject("filesystem-mutation", event)
 
     def _deny_external(name: str):
@@ -289,6 +302,11 @@ def _run_worker(repo_root: Path, report_path: Path) -> None:
             _reject("external-call", "socket.socket")
 
     sys_module.addaudithook(_audit)
+    import tempfile
+
+    tempfile.tempdir = None
+    if PathClass(tempfile.gettempdir()).resolve() != worker_temp_dir:
+        raise AssertionError("B1-R did not use its private temporary directory.")
     socket.socket = GuardedSocket
     socket.create_connection = _deny_external("socket.create_connection")
     socket.getaddrinfo = _deny_external("socket.getaddrinfo")
@@ -407,6 +425,7 @@ def _run_worker(repo_root: Path, report_path: Path) -> None:
         is_clarification = case_id == "clarification"
         context_pack = SimpleNamespace(
             abstained=is_abstention or is_clarification,
+            is_sufficient=not (is_abstention or is_clarification),
             abstention_reason="SYNTHETIC_OUT_OF_SCOPE",
             clarification_message=(
                 "Synthetic clarification required."
@@ -473,6 +492,9 @@ def _run_worker(repo_root: Path, report_path: Path) -> None:
             "w",
             encoding="utf-8",
         ),
+        "filesystem_mutation_outside_temp": lambda: os_module.remove(
+            PathClass.cwd() / "b1r-prohibited-delete.tmp"
+        ),
         "app_container_construction": lambda: dependencies.AppContainer(
             use_mock=True
         ),
@@ -486,6 +508,7 @@ def _run_worker(repo_root: Path, report_path: Path) -> None:
         "outbound_socket": "external-call",
         "subprocess_creation": "process",
         "project_write": "project-write",
+        "filesystem_mutation_outside_temp": "filesystem-mutation",
         "app_container_construction": "real-container",
         "normal_startup": "normal-lifespan",
         "thread_start": "external-call",

@@ -97,6 +97,7 @@
     "outbound_socket": "external-call",
     "subprocess_creation": "process",
     "project_write": "project-write",
+    "filesystem_mutation_outside_temp": "filesystem-mutation",
     "app_container_construction": "real-container",
     "normal_startup": "normal-lifespan",
     "thread_start": "external-call",
