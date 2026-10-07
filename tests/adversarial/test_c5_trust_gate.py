@@ -688,6 +688,56 @@ def test_invariant_i8_post_stream_audit_not_pre_llm_trust_gate():
     assert eval_res.is_sufficient is False
 
 
+def test_c5_accepts_original_ampersand_intent_with_canonical_evidence():
+    query = "¿Y cómo uso el ampersand ahí?"
+    chunks = [
+        {
+            "chunk_text": "El operador de dirección permite obtener la dirección de memoria de una variable.",
+            "relevance_score": 0.9,
+        }
+    ]
+
+    evaluation = evaluate_epistemic_trust(query, chunks)
+
+    assert extract_critical_query_terms(query) == ["ampersand"]
+    assert evaluation.is_sufficient is True
+    assert evaluation.abstained is False
+    assert evaluation.coverage_ratio == 1.0
+
+    canonical_evaluation = evaluate_epistemic_trust(
+        "operador de dirección para obtener la dirección de memoria",
+        chunks,
+    )
+    assert canonical_evaluation.is_sufficient is True
+
+
+def test_c5_rejects_rewrite_context_that_does_not_cover_original_intent():
+    query = "¿Y cómo uso el ampersand ahí?"
+    from study_engine.retrieval.query_rewriter import QueryRewriter
+
+    contextual_query = QueryRewriter().rewrite_contextual(
+        query,
+        [
+            {"role": "user", "content": "¿Cómo intercambio dos variables con swap?"},
+            {"role": "assistant", "content": "Swap intercambia los valores usando punteros."},
+        ],
+    )
+    assert "swap" in contextual_query.lower()
+
+    chunks = [
+        {
+            "chunk_text": "El swap intercambia los valores de dos variables mediante punteros.",
+            "relevance_score": 0.9,
+        }
+    ]
+
+    evaluation = evaluate_epistemic_trust(query, chunks)
+
+    assert evaluation.is_sufficient is False
+    assert evaluation.abstained is True
+    assert evaluation.missing_critical_terms == ["ampersand"]
+
+
 # ==============================================================================
 # 4. PRUEBAS DE RESCATE CONVERSACIONAL Y CONTINUIDAD (D_C5_6)
 # ==============================================================================

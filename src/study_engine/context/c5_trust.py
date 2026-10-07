@@ -63,6 +63,11 @@ class EpistemicTrustEvaluation:
     max_relevance: float = 0.0
 
 
+# Narrow, deterministic terminology equivalences for explicit user concepts.
+_C5_TERM_EQUIVALENTS: Dict[str, Tuple[Tuple[str, ...], ...]] = {
+    "ampersand": (("operador", "direccion"), ("obtener", "direccion", "memoria")),
+}
+
 # Palabras de encuadre pedagógico o metadatos de cátedra
 _PEDAGOGICAL_FRAME_WORDS: Set[str] = {
     "explicame", "explica", "explicar", "decime", "dime", "dame", "contame",
@@ -72,7 +77,7 @@ _PEDAGOGICAL_FRAME_WORDS: Set[str] = {
     "exactamente", "especificamente", "detalle", "sistema", "sistemas",
     "operativo", "operativos", "computacion", "materia", "catedra", "programa",
     "pasa", "pasar", "ocurre", "ocurrir", "sucede", "suceder", "anda", "andar",
-    "sirve", "servir", "usa", "usar", "queda", "quedar", "hace", "hacer",
+    "sirve", "servir", "usa", "uso", "usar", "queda", "quedar", "hace", "hacer",
     "ahi", "aca", "alla", "alli", "esto", "eso", "aquello", "aquel", "aquella",
     "anterior", "coso", "ese", "esa", "dijiste",
     # Verbos y conectores de solicitud o consigna
@@ -218,6 +223,13 @@ def evaluate_term_coverage(
         if es_target and (es_target in chunk_norm_set or es_target in combined):
             covered_count += 1
             continue
+        equivalents = _C5_TERM_EQUIVALENTS.get(norm_t, ())
+        if any(
+            all(normalize_term(equivalent) in chunk_norm_set for equivalent in alternative)
+            for alternative in equivalents
+        ):
+            covered_count += 1
+            continue
         # 3. Match de substring para números, porcentajes o códigos
         if term.lower() in combined or term.lower().replace(" ", "") in clean_combined_flat:
             covered_count += 1
@@ -341,7 +353,17 @@ def evaluate_conversational_rescue_compatibility(
 
     for term in terms_to_compare:
         norm_t = normalize_term(term)
-        if norm_t in prev_tokens or term.lower() in prev_combined or _BILINGUAL_MAP.get(norm_t) in prev_tokens:
+        equivalents = _C5_TERM_EQUIVALENTS.get(norm_t, ())
+        has_equivalent = any(
+            all(normalize_term(equivalent) in prev_tokens for equivalent in alternative)
+            for alternative in equivalents
+        )
+        if (
+            norm_t in prev_tokens
+            or term.lower() in prev_combined
+            or _BILINGUAL_MAP.get(norm_t) in prev_tokens
+            or has_equivalent
+        ):
             overlap_count += 1
 
     if not terms_to_compare:
