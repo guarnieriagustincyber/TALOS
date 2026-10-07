@@ -6,10 +6,10 @@ from study_engine.web.dependencies import AppContainer
 from study_engine.web.routes.chat import _assemble_epistemic_context
 
 
-def test_assemble_epistemic_context_supports_30_chunks_and_diversity(
+def test_assemble_epistemic_context_respects_search_limit_and_preserves_source_mix(
     web_state_test_copy,
 ):
-    # Setup mock store returning 30 search results across 3 sources
+    # This test covers assembly and preservation of source metadata, not ranking diversity.
     mock_store = MagicMock()
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
@@ -20,8 +20,9 @@ def test_assemble_epistemic_context_supports_30_chunks_and_diversity(
     ]
     mock_conn.cursor.return_value = mock_cursor
     mock_store.engine.transaction.return_value.__enter__.return_value = mock_conn
+    mock_store.engine.db_path = ":memory:"
 
-    # 30 simulated chunks from 3 sources
+    # The retrieval mock provides more candidates than the request limit.
     results = []
     sources = ["src_tanenbaum", "src_silberschatz", "src_stallings"]
     for i in range(30):
@@ -32,14 +33,24 @@ def test_assemble_epistemic_context_supports_30_chunks_and_diversity(
                 document_id=f"doc_{i}",
                 source_id=src,
                 score=0.95 - (i * 0.01),
-                snippet=f"Snippet for chunk {i}",
-                content=f"Detailed textbook explanation for chunk {i} discussing synchronization.",
+                snippet=f"Snippet for synchronization between processes, chunk {i}",
+                content=(
+                    f"Detailed textbook explanation of synchronization between "
+                    f"processes for chunk {i}."
+                ),
                 index=i,
                 page_start=10 + i,
                 page_end=11 + i,
             )
         )
-    mock_store.search_hybrid.return_value = results
+    def search_hybrid(query, *, notebook_id, limit, min_sources, source_ids):
+        assert notebook_id == "fadena-so2"
+        assert limit == 15
+        assert min_sources == 3
+        assert set(source_ids) == set(sources)
+        return results[:limit]
+
+    mock_store.search_hybrid.side_effect = search_hybrid
 
     container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     pack, raw_chunks = _assemble_epistemic_context(
@@ -50,8 +61,8 @@ def test_assemble_epistemic_context_supports_30_chunks_and_diversity(
     )
 
     assert pack is not None
-    assert len(raw_chunks) == 30
-    assert len(pack.chunks) == 30
+    assert len(raw_chunks) == 15
+    assert len(pack.chunks) == 15
 
     # Verify multi-source representation in the 30 chunks
     sources_in_chunks = {c["source_id"] for c in raw_chunks}
@@ -60,5 +71,5 @@ def test_assemble_epistemic_context_supports_30_chunks_and_diversity(
     assert "src_silberschatz" in sources_in_chunks
     assert "src_stallings" in sources_in_chunks
 
-    # Verify formatted context has 30 citations
-    assert "[30] [E30]" in pack.formatted_context
+    assert len({c["id"] for c in raw_chunks}) == 15
+    assert "[15] [E15]" in pack.formatted_context
