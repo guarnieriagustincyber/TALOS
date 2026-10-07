@@ -106,6 +106,7 @@ class AppContainer:
     ) -> None:
         self.repo_root = (repo_root or Path.cwd()).resolve()
         self.use_mock = use_mock
+        self._uses_isolated_working_dir = working_dir is not None or self.use_mock
         self._temp_working_dir: Optional[Any] = None
 
         if working_dir is not None:
@@ -556,6 +557,7 @@ class AppContainer:
         from study_engine.pedagogy.dialogue_state import DialogueStateTracker
         from study_engine.pedagogy.dialogue_engine import DialogueEngine
         from study_engine.session.study_session_orchestrator import StudySessionOrchestrator
+        from study_engine.session.session_store import SessionStore
         from study_engine.session.progression_policy import ProgressionPolicy
         from study_engine.session.opening_brief_builder import OpeningBriefBuilder
 
@@ -570,12 +572,18 @@ class AppContainer:
 
         self.progression_policy = ProgressionPolicy()
         self.opening_brief_builder = OpeningBriefBuilder(self.progression_policy)
+        session_store = (
+            SessionStore(self.working_dir / "sessions.db")
+            if self._uses_isolated_working_dir
+            else None
+        )
         self.study_session_orchestrator = StudySessionOrchestrator(
             notebook_registry=self.notebook_registry,
             pedagogical_orchestrator=self.pedagogical_orchestrator,
             student_storage=self.student_storage,
             progression_policy=self.progression_policy,
             opening_brief_builder=self.opening_brief_builder,
+            session_store=session_store,
         )
 
     def _seed_curriculum_tree(self, store: Any, reg: Any) -> None:

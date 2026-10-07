@@ -34,13 +34,31 @@ from study_engine.web.dependencies import AppContainer
 
 
 @pytest.fixture
-def test_container(tmp_path: Path):
+def test_container(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """Instancia container de prueba con componentes soberanos."""
     existing_db = Path("data/web_state/knowledge_store.db")
     if existing_db.exists():
         import shutil
         shutil.copy2(existing_db, tmp_path / "knowledge_store.db")
+
+    from study_engine.session import study_session_orchestrator as session_orchestrator_module
+    from study_engine.session.session_store import SessionStore
+
+    orchestrator_class = session_orchestrator_module.StudySessionOrchestrator
+    session_db = tmp_path / "sessions.db"
+
+    def create_isolated_orchestrator(**kwargs):
+        if "session_store" not in kwargs:
+            kwargs["session_store"] = SessionStore(session_db)
+        return orchestrator_class(**kwargs)
+
+    monkeypatch.setattr(
+        session_orchestrator_module,
+        "StudySessionOrchestrator",
+        create_isolated_orchestrator,
+    )
     container = AppContainer(working_dir=tmp_path, use_mock=True)
+    assert container.study_session_orchestrator.session_store.db_path == session_db
     return container
 
 
