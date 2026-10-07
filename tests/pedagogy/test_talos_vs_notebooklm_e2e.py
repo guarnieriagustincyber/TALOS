@@ -376,13 +376,12 @@ def test_deictic_misconception_followup_rescues_epistemic_pack():
     assert raw_chunks[0]["id"] == "E363"
 
 
-def test_p3_debug_crash_sse_e2e_streaming(web_state_test_copy):
-    """Test 8: P3 Crash Query runs through full Web SSE pipeline with mock container, verifying clean stream without disclaimer."""
+def test_p3_debug_query_abstains_without_sufficient_evidence_sse(web_state_test_copy):
+    """A debug query without sufficient evidence terminates as a pedagogical abstention."""
     import json
     from fastapi.testclient import TestClient
     from study_engine.web.app import create_app
     from study_engine.web.dependencies import AppContainer, set_container
-    from study_engine.web.routes.chat import FALLBACK_DISCLAIMER
 
     app = create_app()
     container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
@@ -401,24 +400,17 @@ def test_p3_debug_crash_sse_e2e_streaming(web_state_test_copy):
     assert response.status_code == 200
     lines = [line.strip() for line in response.text.split("\n") if line.startswith("data: ")]
     events = [json.loads(line[6:]) for line in lines]
-    tokens = [
-        e["payload"].get("token", "")
-        for e in events
-        if e.get("event_type") == "phase_token"
+    assert [event["event_type"] for event in events] == [
+        "evidence_manifest",
+        "abstention",
     ]
-    full_text = "".join(tokens)
-    complete_events = [e for e in events if e.get("event_type") == "phase_complete"]
-    assert len(complete_events) == 1
-    complete_payload = complete_events[0]["payload"]
-
-    # 1. FALLBACK_DISCLAIMER must NEVER be emitted in visible stream
-    assert FALLBACK_DISCLAIMER not in full_text
-
-    # 2. Complete payload must track fallback_disclaimer
-    assert "fallback_disclaimer" in complete_payload
-
-    # 3. Tokens must have streamed
-    assert len(tokens) > 0
+    assert events[0]["payload"]["abstained"] is True
+    assert events[0]["payload"]["trust_status"] == "RELATED_INSUFFICIENT"
+    assert events[1]["payload"]["abstention_code"] == "QUERY_OUT_OF_SCOPE"
+    assert not any(
+        event["event_type"] in {"phase_start", "phase_token", "phase_complete", "error"}
+        for event in events
+    )
 
 
 def test_continuation_guard_resume_truncated_turn():
