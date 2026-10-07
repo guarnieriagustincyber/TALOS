@@ -255,8 +255,8 @@ def test_multi_turn_conversational_flow(api_client: TestClient) -> None:
     assert "phase_complete" in event_types2
 
 
-def test_socratic_practice_dispatch_endpoint(api_client: TestClient) -> None:
-    """Verify /api/chat/query dispatches certified practice task via /practicar (Equivalente E19)."""
+def test_socratic_practice_request_abstains_without_evidence(api_client: TestClient) -> None:
+    """Verify unsupported practice requests terminate as pedagogical abstentions."""
     import json
     res = api_client.post(
         "/api/chat/query",
@@ -270,8 +270,13 @@ def test_socratic_practice_dispatch_endpoint(api_client: TestClient) -> None:
     assert res.status_code == 200
     lines = [l.strip() for l in res.text.split("\n") if l.startswith("data: ")]
     events = [json.loads(l[6:]) for l in lines]
-    tokens = "".join([e["payload"]["token"] for e in events if e["event_type"] == "phase_token"])
-    assert len(tokens) > 0
+    assert [event["event_type"] for event in events] == [
+        "evidence_manifest",
+        "abstention",
+    ]
+    assert events[0]["payload"]["abstained"] is True
+    assert events[1]["payload"]["abstained"] is True
+    assert events[1]["payload"]["abstention_code"] == "QUERY_OUT_OF_SCOPE"
 
 
 def test_practice_evaluate_endpoint(api_client: TestClient) -> None:
