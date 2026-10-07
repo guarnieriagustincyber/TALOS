@@ -22,6 +22,7 @@ from study_engine.pedagogy.structured_pipeline import (
     classify_pedagogical_intent,
     extract_requested_structural_components,
 )
+from study_engine.contracts.search import SearchResult
 
 
 def test_explicit_complete_code_request_preserves_requested_c_solution():
@@ -115,8 +116,8 @@ def test_citation_sanitization_enmienda_e_ux1():
     assert any("364" in c for c in buffer.stripped_citations)
 
 
-def test_conversational_followup_contextual_retrieval():
-    """Test 5: Follow-up query ('podes detallarme mas?') inherits context from prior turn."""
+def test_conversational_followup_abstains_on_insufficient_retrieval_result():
+    """A generic follow-up must not pass C5 on a merely topical search result."""
     from study_engine.web.routes.chat import (
         _prepare_chat_context,
         ChatQueryRequest,
@@ -143,7 +144,17 @@ def test_conversational_followup_contextual_retrieval():
         "content": "Punteros y memoria en C",
         "score": 0.95,
     }
-    mock_sr = MagicMock(content="Punteros y memoria en C", score=0.95, source_id="src_kr_c", chunk_id="c1", page_start=94, page_end=94)
+    mock_sr = SearchResult(
+        chunk_id="c1",
+        document_id="doc_kr_c",
+        source_id="src_kr_c",
+        score=0.95,
+        snippet="Punteros y memoria en C",
+        content="Punteros y memoria en C",
+        index=0,
+        page_start=94,
+        page_end=94,
+    )
     mock_store.search_hybrid.return_value = [mock_sr]
     mock_store.get_pedagogical_contract.return_value = FASE0_CONTRACT
     mock_store.get_notebook.return_value = MagicMock(folder_id="roadmap_fase0")
@@ -181,9 +192,12 @@ def test_conversational_followup_contextual_retrieval():
         target_scope_id="fase0-soc",
     )
 
-    # Must NOT abstain with QUERY_OUT_OF_SCOPE
-    assert getattr(context_pack, "abstained", False) is False
-    # Verified that search_hybrid received the previous topic context
+    assert getattr(context_pack, "abstained", False) is True
+    assert getattr(context_pack.trust_status, "value", context_pack.trust_status) == "RELATED_INSUFFICIENT"
+    assert context_pack.abstention_reason == "QUERY_OUT_OF_SCOPE"
+    assert raw_chunks == []
+
+    # Retrieval uses the prior topic, but the short result is not sufficient for C5.
     call_args = mock_store.search_hybrid.call_args[1]
     assert "char *s" in call_args["query"] or "strcpy" in call_args["query"]
 
