@@ -63,9 +63,22 @@ no instales encima del `.venv` existente durante esa verificación.
 
 Nomenclatura de fases (evitar confundir Golden Set con red team): [`PHASES.md`](PHASES.md).
 
-Mapa maestro de estado y camino restante (actualizado al 2026-10-01;
-integra el checkpoint CP073):
+Mapa integral de navegación V1 → V1.5 → corpus/Colab → V2 y destinos de
+herramientas: [`docs/TALOS_ROADMAP_V1_V1_5_V2.md`](docs/TALOS_ROADMAP_V1_V1_5_V2.md).
+Es un índice de dependencias, no reemplaza la autoridad operativa V1 ni la
+metodológica V1.5.
+
+Mapa operativo único de estado y camino restante (actualizado al 2026-10-07):
 [`docs/PLAN_MAESTRO_CIERRE_TALOS.md`](docs/PLAN_MAESTRO_CIERRE_TALOS.md).
+El mapa declara `V1 = BASELINE / CONTROL CERRADO`, `V1.5 = ACTIVE ROADMAP`,
+`P0 = COMPLETE`, `P1 = READY / NOT_STARTED`, `P2/P3 = DEFERRED` e ingesta
+Colab congelada hasta P3. `ACTIVE ROADMAP` no significa que P1 haya comenzado
+ni autoriza por sí solo cambios de runtime.
+
+[`docs/ROADMAP_V1_5_MASTER.md`](docs/ROADMAP_V1_5_MASTER.md) conserva la
+metodología y evidencia histórica de las líneas experimentales V1.5; no
+reemplaza la secuencia operativa P0–P3 del mapa maestro. `PHASES.md` es un
+glosario y no define un orden operativo alternativo.
 
 Consultar el directorio [`docs/`](docs/) para especificaciones completas:
 - [`docs/01-SPEC-V1.0.md`](docs/01-SPEC-V1.0.md): Especificación técnica V1.0.

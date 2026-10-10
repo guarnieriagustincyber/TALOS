@@ -3,19 +3,26 @@
 
 **Documento Canónico de Arquitectura, Metodología y Hoja de Ruta V1.5**  
 **Proyecto:** TALOS (Tutor Adaptativo de Lógica y Operaciones de Seguridad)  
-**Fecha:** 2026-10-05  
-**Estado:** CANÓNICO / NORMATIVO / HOJA DE RUTA CONSOLIDADA  
-**Línea Base V1:** V1 CLOSED (Certificada en CP127 / `reports/V1_RELEASE_CERTIFICATION.md`)  
-**Estado de Implementación V1.5:** NOT STARTED (0 líneas de código implementadas)  
-**Integridad de Producción:** `DATABASE_CHANGES = 0` | `V1_RUNTIME_MODIFIED = FALSE`  
+- **Fecha de evidencia experimental:** 2026-10-05
+- **Aclaración de precedencia documental:** 2026-10-07
+- **Estado:** CANÓNICO PARA METODOLOGÍA Y EVIDENCIA EXPERIMENTAL; NO ES EL MAPA DE ESTADO OPERATIVO
+- **Línea Base V1:** V1 CLOSED (Certificada en CP127 / `reports/V1_RELEASE_CERTIFICATION.md`)
+- **Estado operativo vigente:** V1.5 `ACTIVE ROADMAP`; P1 `READY / NOT_STARTED`, según [`docs/PLAN_MAESTRO_CIERRE_TALOS.md`](PLAN_MAESTRO_CIERRE_TALOS.md)
+- **Integridad de Producción:** último estado reportado al 2026-10-05: `DATABASE_CHANGES = 0` | `V1_RUNTIME_MODIFIED = FALSE`; no se revalida con esta aclaración documental.
 
 ---
 
 ## 0. Objetivo y Regla Fundamental
 
-El propósito de este documento es consolidar formalmente en el repositorio la hoja de ruta integral de evolución de TALOS posterior al cierre definitivo de V1.
+Este documento preserva la arquitectura, metodología, criterios experimentales
+y evidencia de las líneas V1.5. El mapa operativo único para el estado actual
+y la secuencia inmediata es
+[`docs/PLAN_MAESTRO_CIERRE_TALOS.md`](PLAN_MAESTRO_CIERRE_TALOS.md).
+Las etapas P0–P3 de ese mapa no son sinónimos de las fases metodológicas 1–4
+descritas aquí.
 
-Esta directiva **NO autoriza la implementación de nuevas funcionalidades**. Fija con precisión matemática y disciplinar:
+Esta directiva **no constituye una autorización general para implementar**.
+Fija dentro de su jurisdicción metodológica:
 * Qué problemas aborda V1.5 y en qué secuencia estricta.
 * Qué subproblemas y experimentos componen cada fase.
 * Qué dependencias directas y cruzadas condicionan la evolución.
@@ -788,9 +795,12 @@ graph TD
 
 ---
 
-## 13. Secuencia y Prioridad de Ejecución
+## 13. Secuencia metodológica de investigación V1.5
 
-El orden de trabajo mandatario en V1.5 es:
+La siguiente secuencia ordena las líneas de investigación y sus gates de
+promoción. **No reemplaza el orden operativo P0–P3 ni decide qué trabajo de
+ingeniería es el siguiente.** Para el estado inmediato, consultar el mapa
+maestro operativo enlazado en §0.
 
 ```text
 PRIORIDAD 1: FASE 1 — EVIDENCE RETRIEVAL
@@ -814,11 +824,17 @@ PRIORIDAD 4: FASE 4 — VISUAL EXPLANATIONS
 
 ## 14. Mandato Final de No Implementación
 
-> **Esta directiva establece de forma exclusiva la hoja de ruta, las fronteras, los contratos y la metodología de TALOS V1.5.**  
-> **No se implementa ninguna funcionalidad, no se modifica el runtime de V1, no se alteran las bases de datos de producción y no se inician experimentos como consecuencia directa de este documento.**  
-> La activación de cualquier fase o experimento posterior requerirá una directiva específica de trabajo (*Task Directive*) encuadrada en este marco maestro.
+> **Esta directiva establece la metodología, fronteras, contratos y criterios
+> experimentales de TALOS V1.5; no es la fuente exclusiva del estado operativo
+> actual.**
+>
+> **Este documento, por sí solo, no autoriza implementación, modificación del
+> runtime de V1, cambios de bases productivas ni nuevos experimentos.** Una
+> tarea concreta requiere scope, precondiciones, aislamiento y autorización
+> propios, además de respetar la secuencia del mapa operativo vigente.
 
 ```text
-V1.5 ROADMAP = DEFINED
-V1.5 IMPLEMENTATION = NOT STARTED
+V1.5 METHODOLOGY = PRESERVED
+OPERATIONAL ROADMAP = docs/PLAN_MAESTRO_CIERRE_TALOS.md
+P1 = READY / NOT_STARTED (as of 2026-10-07)
 ```

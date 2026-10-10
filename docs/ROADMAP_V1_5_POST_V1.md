@@ -8,8 +8,12 @@
 **Dependencias Metodológicas:** `CP120_STATUS = CLOSED`, `CP121_STATUS = CLOSED`, `CP122_FINAL = PASS`  
 **Decisión Arquitectónica Formal:** `ARCHITECTURAL_DECISION = DEFERRED_POST_V1`  
 **Integridad de Producción:** `PRODUCTION_STATUS = UNCHANGED` | `DATABASE_CHANGES = 0`  
-**Release Target Activo:** `CURRENT_RELEASE_TARGET = V1`  
-**Documento Maestro V1.5:** [ROADMAP_V1_5_MASTER.md](file:///media/agustin/Laboratorio/study-engie/docs/ROADMAP_V1_5_MASTER.md)
+
+**Baseline/release conservado:** `V1` (sin nueva decisión de release)
+
+**Documento metodológico V1.5:** [ROADMAP_V1_5_MASTER.md](./ROADMAP_V1_5_MASTER.md)
+
+**Mapa operativo vigente:** [PLAN_MAESTRO_CIERRE_TALOS.md](./PLAN_MAESTRO_CIERRE_TALOS.md)
 
 ---
 
@@ -18,11 +22,17 @@
 > [!NOTE]
 > ### Vinculación con la Hoja de Ruta Maestra V1.5
 > Para la planificación secuencial, matriz de experimentos y dependencias, y protocolo de promoción técnica de V1.5 (Fases 1 a 4: Evidence Retrieval → Pedagogía → Student Evaluation → Visual Explanations), consultar el documento maestro canónico:
-> **[docs/ROADMAP_V1_5_MASTER.md](file:///media/agustin/Laboratorio/study-engie/docs/ROADMAP_V1_5_MASTER.md)**.
+> **[docs/ROADMAP_V1_5_MASTER.md](./ROADMAP_V1_5_MASTER.md)**.
+> El estado operativo inmediato es `P0=COMPLETE`, `P1=READY/NOT_STARTED`,
+> `P2/P3=DEFERRED`; consultar el [mapa maestro operativo](./PLAN_MAESTRO_CIERRE_TALOS.md).
+> Este documento y el roadmap experimental preservan arquitectura e historia:
+> ninguno sustituye la precedencia operativa vigente.
 > 
 > El presente documento (`ROADMAP_V1_5_POST_V1.md`) preserva el inventario histórico detallado de investigación, componentes desacoplados y backlog de arquitectura originado en los checkpoints CP114–CP122 y CP127.
 
-> **V1.5 no representa una implementación parcialmente realizada ni una obligación de incorporar todas las líneas listadas. Representa el espacio de investigación, validación y posibles mejoras posteriores a V1.**
+> **V1.5 es una hoja de ruta activa de trabajo posterior a V1, no una obligación
+> de incorporar todas las líneas listadas ni una autorización general de
+> implementación. Su secuencia operativa vigente está en el mapa maestro.**
 
 Este documento constituye el punto de referencia para preservar de manera durable todo el conocimiento, hallazgos empíricos, componentes desconectados y líneas de investigación que han sido deliberadamente diferidas fuera del camino crítico de TALOS V1.
 
@@ -33,8 +43,8 @@ Este documento constituye el punto de referencia para preservar de manera durabl
 4. **Cero Nuevos Experimentos:** No se reabren experimentos (CP120, CP121, CP122), no se generan nuevos datasets ni heurísticas, y no se autorizan migraciones de corpus o embeddings.
 5. **Frontera Nítida:**
    ```text
-   V1 = Camino crítico activo hacia el release
-   V1.5 / Post-V1 = Backlog de investigación, optimización e implementación futura
+   V1 = BASELINE / CONTROL CERRADO
+   V1.5 = ACTIVE ROADMAP; el estado de las tareas se rige por el mapa operativo
    ```
 
 ---

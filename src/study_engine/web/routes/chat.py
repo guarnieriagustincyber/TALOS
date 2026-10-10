@@ -1348,13 +1348,18 @@ def _assemble_epistemic_context(
                 is_sufficient=False,
             ), []
 
-        # Evaluación pre-LLM del C5 Trust Gate (Sufficiency, Coverage, Conflict, Relevance)
+        # Evaluación pre-LLM del C5 Trust Gate (Sufficiency, Coverage, Conflict, Relevance).
+        # Cuando la consulta actual lleva anclaje deíctico/contextual, C5 debe
+        # valorar la intención resuelta por el rewrite contextual, no la cadena
+        # literal del turno anterior. Esto preserva fail-closed y evita un false
+        # negative de continuidad técnica.
         eval_query = original_user_query or search_query
         trust_eval = evaluate_epistemic_trust(
             eval_query,
             raw_chunks,
             resolved_content_item=resolved_item,
             has_reference_disclaimer=bool(reference_disclaimer),
+            contextual_query=search_query,
         )
         if trust_eval.abstained:
             return EpistemicContextPack(

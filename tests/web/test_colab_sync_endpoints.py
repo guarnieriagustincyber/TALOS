@@ -15,15 +15,19 @@ from study_engine.retrieval.vector_store import SQLiteVectorStore, VectorRecord
 from study_engine.storage.knowledge_store import KnowledgeStore
 from study_engine.web.app import create_app
 from study_engine.web.dependencies import AppContainer, set_container
+from study_engine.web.routes import ingestion
 
 
 def _unit_vector(dim: int = 1024) -> list:
     return [1.0 / (dim ** 0.5)] * dim
 
 
-@pytest.fixture(scope="module")
-def colab_test_env(tmp_path_factory):
-    tmp_dir = tmp_path_factory.mktemp("colab_web_test_dir")
+@pytest.fixture
+def colab_test_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    tmp_dir = tmp_path
+    colab_output_dir = tmp_dir / "colab"
+    colab_output_dir.mkdir()
+    monkeypatch.setattr(ingestion, "DEFAULT_COLAB_DIR", colab_output_dir)
     kdb = tmp_dir / "knowledge_store.db"
     vdb = tmp_dir / "vector_store.db"
 
@@ -83,7 +87,8 @@ def test_colab_status_endpoint(colab_test_env):
 
 def test_colab_export_endpoint(colab_test_env):
     """POST /api/ingestion/colab/export generates pending file without crashing."""
-    client, _, _, _ = colab_test_env
+    client, tmp_dir, _, _ = colab_test_env
+    assert ingestion.DEFAULT_COLAB_DIR == tmp_dir / "colab"
     res = client.post("/api/ingestion/colab/export?upload_to_gdrive=false")
     assert res.status_code == 200
     data = res.json()
@@ -91,6 +96,7 @@ def test_colab_export_endpoint(colab_test_env):
     assert data["count"] == 1
     assert data["filename"] is not None
     assert data["download_url"] is not None
+    assert (tmp_dir / "colab" / data["filename"]).is_file()
 
     dl_res = client.get(data["download_url"])
     assert dl_res.status_code == 200
@@ -106,7 +112,8 @@ def test_colab_download_not_found(colab_test_env):
 
 def test_colab_upload_vectors_flow(colab_test_env):
     """POST /api/ingestion/colab/upload-vectors accepts .jsonl and updates vector store."""
-    client, _, _, _ = colab_test_env
+    client, tmp_dir, _, _ = colab_test_env
+    assert ingestion.DEFAULT_COLAB_DIR == tmp_dir / "colab"
     contract = load_contract()
 
     # Vector payload matching talos-vectors-v1 schema with authoritative contract
@@ -141,6 +148,7 @@ def test_colab_upload_vectors_flow(colab_test_env):
     assert res_data["status"] == "ok"
     assert res_data["synced"] == 1
     assert res_data["pending_remaining"] == 0
+    assert (tmp_dir / "colab" / res_data["file_used"]).is_file()
 
     # Verify pending count dropped to 0
     status_res = client.get("/api/ingestion/colab/status")

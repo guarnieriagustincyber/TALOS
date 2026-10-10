@@ -8,33 +8,30 @@ Enables local file-based workflow:
 """
 
 import json
-import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
-
-ADMIN_SECRET_TOKEN = os.getenv("TALOS_ADMIN_TOKEN", "talos-admin-secret-dev")
-
-
-def _check_admin_token(x_admin_token: Optional[str]) -> None:
-    if not x_admin_token or x_admin_token != ADMIN_SECRET_TOKEN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Acceso denegado: se requiere header X-Admin-Token válido para inspeccionar el oráculo.",
-        )
 
 from study_engine.pedagogy.auditors import (
     ExerciseAuditReport,
     get_auditor_for_notebook,
 )
 from study_engine.pedagogy.submission_reader import SubmissionReader
+from study_engine.web.admin_auth import require_admin_token
 from study_engine.web.dependencies import AppContainer, get_container
 
 router = APIRouter(prefix="/api/student/exercises", tags=["Student Exercises"])
 
 BASE_SUBMISSIONS_DIR = Path("data/student_submissions").resolve()
 REPORTS_DIR = BASE_SUBMISSIONS_DIR / ".reports"
+
+
+def _check_admin_token(x_admin_token: Optional[str]) -> None:
+    require_admin_token(
+        x_admin_token,
+        forbidden_detail="Acceso denegado: se requiere header X-Admin-Token válido para inspeccionar el oráculo.",
+    )
 
 
 class ExerciseSummaryDto(BaseModel):
@@ -70,6 +67,25 @@ class ExerciseDetailDto(BaseModel):
 
 class VerifyExerciseRequest(BaseModel):
     custom_path: Optional[str] = None
+
+
+def _resolve_submission_path(candidate: Path) -> Path:
+    """Resolve a candidate canonically and enforce the submissions root boundary."""
+    submissions_root = BASE_SUBMISSIONS_DIR.resolve()
+    try:
+        resolved_path = candidate.resolve()
+    except (OSError, RuntimeError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ruta de entrega inválida.",
+        ) from exc
+
+    if not resolved_path.is_relative_to(submissions_root):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="La ruta de entrega debe permanecer dentro del directorio autorizado.",
+        )
+    return resolved_path
 
 
 def _get_template_for_notebook(notebook_id: str) -> Tuple[str, str]:
@@ -360,9 +376,10 @@ def verify_exercise(
 ) -> Dict[str, Any]:
     """Audit local student exercise file from disk and update BKT cognitive state."""
     if req and req.custom_path:
-        target_path = Path(req.custom_path)
+        target_path = _resolve_submission_path(Path(req.custom_path))
     else:
-        target_path = _find_submission_file(exercise_id)
+        found_path = _find_submission_file(exercise_id)
+        target_path = _resolve_submission_path(found_path) if found_path else None
 
     if not target_path or not target_path.exists():
         expected_path = target_path or (BASE_SUBMISSIONS_DIR / f"{exercise_id}.md")
@@ -433,4 +450,3 @@ def init_exercise_template(
         file_path.write_text(content, encoding="utf-8")
 
     return get_exercise_detail(exercise_id, nb_id)
-

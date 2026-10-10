@@ -19,13 +19,12 @@ Verified Contracts & Principles:
 - E2E-09: Historical Test Drift Verification (C5 Trust Gate Abstention on ungrounded practice)
 """
 
-import hashlib
 import json
 from pathlib import Path
-import shutil
 import sqlite3
 from typing import Any, AsyncGenerator, Generator, Tuple
 import pytest
+from study_engine.diagnostics.gate2_snapshots import backup_read_only_database
 from fastapi.testclient import TestClient
 
 from study_engine.generation.prompts import PromptBundle
@@ -36,15 +35,6 @@ import study_engine.web.app as web_app
 from study_engine.web.app import create_app
 from study_engine.web.dependencies import AppContainer, set_container
 import study_engine.web.routes.chat as chat_module
-
-
-def _sha256(path: Path) -> str:
-    """Compute SHA-256 digest of a file."""
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
 
 
 class FailingProviderBackend(ProviderBackend):
@@ -58,29 +48,23 @@ class FailingProviderBackend(ProviderBackend):
 
 
 class DummyVectorStore:
-    """Zero-overhead dummy vector store to completely eliminate disk access to production vector_store.db."""
+    """Zero-overhead vector store that keeps E2E retrieval on the test workspace."""
 
     def get_vector_matrix(self, notebook_id: str) -> Tuple[list, Any]:
         return [], None
 
 
 @pytest.fixture
-def isolated_e2e_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Generator[Tuple[TestClient, AppContainer, Path], None, None]:
-    """Provide a 100% isolated test environment with temporary copy of production SQLite DBs."""
-    repo_root = Path(__file__).resolve().parents[2]
-    prod_knowledge = repo_root / "data" / "web_state" / "knowledge_store.db"
-    prod_student = repo_root / "data" / "web_state" / "student_state.db"
-    prod_vector = repo_root / "data" / "web_state" / "vector_store.db"
-
-    # Record baseline hashes of production databases
-    h_know_before = _sha256(prod_knowledge)
-    h_vec_before = _sha256(prod_vector)
-
-    # Isolated copies in tmp_path
+def isolated_e2e_env(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    web_state_test_copy: Path,
+) -> Generator[Tuple[TestClient, AppContainer, Path], None, None]:
+    """Use per-test writable copies derived from the sealed gate snapshot."""
     tmp_knowledge = tmp_path / "knowledge_store.db"
     tmp_student = tmp_path / "student_state.db"
-    shutil.copy2(prod_knowledge, tmp_knowledge)
-    shutil.copy2(prod_student, tmp_student)
+    backup_read_only_database(web_state_test_copy / "knowledge_store.db", tmp_knowledge)
+    backup_read_only_database(web_state_test_copy / "student_state.db", tmp_student)
 
     # Disable background vector warmup in app.py to prevent any background disk touch
     monkeypatch.setattr(web_app, "_warmup_notebooks", lambda s: [])
@@ -101,12 +85,6 @@ def isolated_e2e_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Generat
 
     with TestClient(app) as client:
         yield client, container, tmp_path
-
-    # Assert physical integrity of production databases after test run
-    h_know_after = _sha256(prod_knowledge)
-    h_vec_after = _sha256(prod_vector)
-    assert h_know_before == h_know_after, "FATAL: Production knowledge_store.db was modified during test!"
-    assert h_vec_before == h_vec_after, "FATAL: Production vector_store.db was modified during test!"
 
 
 # ---------------------------------------------------------------------------

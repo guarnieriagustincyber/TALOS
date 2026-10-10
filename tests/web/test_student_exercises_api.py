@@ -5,11 +5,14 @@ from fastapi.testclient import TestClient
 import pytest
 
 from study_engine.web.app import create_app
+from study_engine.web.dependencies import AppContainer, get_container, set_container
 
 client = TestClient(create_app())
 
 
 def test_list_and_verify_student_exercise_flow(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    set_container(AppContainer(working_dir=tmp_path / "state", use_mock=True))
+
     # Point BASE_SUBMISSIONS_DIR to tmp_path
     submissions_dir = tmp_path / "student_submissions"
     submissions_dir.mkdir()
@@ -117,3 +120,34 @@ assert es_octeto_valido(-1) == False
     assert init_data["file_exists"] is True
     assert (submissions_dir / "fase0-soc" / "tramo1" / "ej_nuevo_init.md").exists()
 
+
+@pytest.mark.parametrize("path_kind", ["parent", "absolute", "symlink"])
+def test_verify_rejects_custom_path_outside_submissions(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    path_kind: str,
+) -> None:
+    from study_engine.web.routes import student_exercises
+
+    submissions_dir = tmp_path / "student_submissions"
+    submissions_dir.mkdir()
+    outside_file = tmp_path / "outside.md"
+    outside_file.write_text("synthetic external submission", encoding="utf-8")
+    monkeypatch.setattr(student_exercises, "BASE_SUBMISSIONS_DIR", submissions_dir)
+
+    if path_kind == "parent":
+        candidate = submissions_dir / ".." / "outside.md"
+    elif path_kind == "absolute":
+        candidate = outside_file
+    else:
+        candidate = submissions_dir / "submission-link.md"
+        candidate.symlink_to(outside_file)
+
+    app = create_app()
+    app.dependency_overrides[get_container] = lambda: None
+    response = TestClient(app).post(
+        "/api/student/exercises/synthetic/verify",
+        json={"custom_path": str(candidate)},
+    )
+
+    assert response.status_code == 403

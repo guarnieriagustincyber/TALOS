@@ -412,6 +412,8 @@ def test_p3_debug_query_abstains_without_sufficient_evidence_sse(web_state_test_
         },
     )
     assert response.status_code == 200
+    assert "text/event-stream" in response.headers["content-type"]
+    assert response.text.endswith("\n\n")
     lines = [line.strip() for line in response.text.split("\n") if line.startswith("data: ")]
     events = [json.loads(line[6:]) for line in lines]
     assert [event["event_type"] for event in events] == [
@@ -421,6 +423,9 @@ def test_p3_debug_query_abstains_without_sufficient_evidence_sse(web_state_test_
     assert events[0]["payload"]["abstained"] is True
     assert events[0]["payload"]["trust_status"] == "RELATED_INSUFFICIENT"
     assert events[1]["payload"]["abstention_code"] == "QUERY_OUT_OF_SCOPE"
+    assert sum(event["event_type"] == "phase_token" for event in events) == 0
+    assert sum(event["event_type"] == "phase_complete" for event in events) == 0
+    assert sum(event["event_type"] == "error" for event in events) == 0
     assert not any(
         event["event_type"] in {"phase_start", "phase_token", "phase_complete", "error"}
         for event in events

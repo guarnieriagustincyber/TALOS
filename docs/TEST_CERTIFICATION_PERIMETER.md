@@ -179,3 +179,48 @@ sidecars WAL/SHM de `data/web_state/knowledge_store.db`; el hash del archivo
 principal de conocimiento permaneció igual. El gate no queda validado como
 seguro ni reproducible hasta investigar y aislar este efecto. Esta observación
 es un baseline bloqueado, no un resultado de release ni una certificación.
+
+## Frontera de snapshots para fixtures con datos protegidos
+
+Las fixtures `web_state_test_copy` y `knowledge_store_test_copy` ya no leen
+`data/web_state/` directamente. Requieren un artifact sellado y provenanceado
+en `TALOS_TEST_SNAPSHOT_ROOT`, junto con el fingerprint completo del manifiesto
+(`TALOS_TEST_SNAPSHOT_MANIFEST_SHA256`), scope, run, gate y policy identities.
+Si falta un campo, el snapshot no es fresco, el manifiesto no coincide o el
+artifact fue alterado, la fixture falla cerrada. Pytest recibe una copia
+writable por ejecución; nunca recibe la ruta del capture ni la del snapshot
+sellado a través de estas fixtures. El teardown vuelve a verificar el artifact.
+
+La preparación presupone un capture externo producido como snapshot de
+filesystem atómico, de solo lectura, con `capture-attestation.json` completo.
+La attestation debe identificar `capture_id`, `capture_method`,
+`consistency`, `created_at` con zona horaria, `read_only`, `scope` y
+`source_identity`; se exige `atomic_filesystem_snapshot`, consistencia
+`atomic` y `read_only=true`.
+El preparador copia como conjunto cada `.db` y los sidecars presentes
+(`-wal`, `-shm`, `-journal`), valida SQLite sobre una copia desechable, genera
+el manifiesto y sella el artifact. No conecta SQLite a la fuente del capture.
+El digest de la attestation debe obtenerse y transmitirse por el canal
+autorizado separado; no se debe calcular y confiar en un digest no autenticado
+del mismo directorio. La vigencia se cuenta desde la fecha de la captura, no
+desde el empaquetado del artifact.
+
+La interfaz de preparación es `scripts/prepare_test_snapshot.py`. Requiere
+`--capture-root`, `--artifact-root`, `--attestation-sha256`, `--scope`,
+`--run-id`, `--gate-id`, `--policy-id`, `--freshness-seconds` y un argumento
+`--database IDENTITY=FILENAME.db` por cada base requerida. La salida identifica
+el artifact y el digest del manifiesto que debe fijarse en el entorno de pytest.
+La preparación real no forma parte de pytest y no debe apuntar a las rutas live
+de `data/student/` o `data/web_state/`.
+
+Las fixtures exigen que el entorno de pytest fije
+`TALOS_TEST_SNAPSHOT_ROOT`, `TALOS_TEST_SNAPSHOT_MANIFEST_SHA256`,
+`TALOS_TEST_SNAPSHOT_SCOPE`, `TALOS_TEST_RUN_ID`, `TALOS_TEST_GATE_ID` y
+`TALOS_TEST_POLICY_ID`. No hay valores por defecto ni fallback a los datos live.
+
+Esta frontera de fixtures no constituye por sí sola un sandbox del proceso:
+el runner actual no prepara/monta el snapshot ni demuestra que el proceso
+pytest carezca de acceso a otras rutas protegidas. Por tanto, no acredita aún
+la exclusión global de esas fuentes ni autoriza B06 o el release gate. Esa
+propiedad requiere aislamiento del proceso/runner fuera del alcance de esta
+implementación.

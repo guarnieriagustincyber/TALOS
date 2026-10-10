@@ -37,12 +37,11 @@ from study_engine.web.dependencies import AppContainer
 
 
 @pytest.fixture
-def test_container(tmp_path: Path):
+def test_container(tmp_path: Path, knowledge_store_test_copy):
     """Instancia container de prueba con componentes soberanos."""
-    existing_db = Path("data/web_state/knowledge_store.db")
-    if existing_db.exists():
+    if knowledge_store_test_copy is not None:
         import shutil
-        shutil.copy2(existing_db, tmp_path / "knowledge_store.db")
+        shutil.copy2(knowledge_store_test_copy, tmp_path / "knowledge_store.db")
     container = AppContainer(working_dir=tmp_path, use_mock=True)
     return container
 

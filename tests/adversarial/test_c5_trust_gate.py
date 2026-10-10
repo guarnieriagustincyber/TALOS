@@ -115,8 +115,12 @@ def pipeline(test_contract, mock_backend):
 
 
 @pytest.fixture
-def store():
-    return KnowledgeStore("data/web_state/knowledge_store.db")
+def store(knowledge_store_test_copy):
+    if knowledge_store_test_copy is None:
+        raise FileNotFoundError(
+            "Required knowledge-store test snapshot could not be created."
+        )
+    return KnowledgeStore(knowledge_store_test_copy)
 
 
 # ==============================================================================

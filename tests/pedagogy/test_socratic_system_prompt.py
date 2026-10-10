@@ -216,8 +216,9 @@ def test_pipeline_build_phase_prompt_with_conversational_query():
 
 @pytest.fixture
 def isolated_offline_container(web_state_test_copy, monkeypatch):
+    from study_engine.web import app as web_app
     from study_engine.web import dependencies
-    from study_engine.web.dependencies import AppContainer
+    from study_engine.web.dependencies import AppContainer, set_container
     from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
 
     repo_root = Path(__file__).resolve().parents[2]
@@ -228,16 +229,41 @@ def isolated_offline_container(web_state_test_copy, monkeypatch):
         use_mock=True,
     )
     container.llm_backend = OfflinePedagogicalBackend()
-    monkeypatch.setattr(dependencies, "_container", container)
-    return container
+    set_container(container)
+    web_app.app.dependency_overrides[dependencies.get_container] = lambda: container
+    try:
+        yield container
+    finally:
+        web_app.app.dependency_overrides.pop(dependencies.get_container, None)
 
 
 def test_offline_structured_command_without_sufficient_evidence_abstains_before_backend(
     isolated_offline_container,
+    monkeypatch,
 ):
     import json
     from fastapi.testclient import TestClient
     from study_engine.web.app import app
+    from study_engine.web.routes.chat import EpistemicContextPack, EpistemicTrustStatus
+
+    def _forced_abstention(*args, **kwargs):
+        return (
+            EpistemicContextPack(
+                formatted_context="",
+                citations=[],
+                chunks=[],
+                abstained=True,
+                abstention_reason="QUERY_OUT_OF_SCOPE",
+                trust_status=EpistemicTrustStatus.RELATED_INSUFFICIENT,
+                is_sufficient=False,
+            ),
+            [],
+        )
+
+    monkeypatch.setattr(
+        "study_engine.web.routes.chat._assemble_epistemic_context",
+        _forced_abstention,
+    )
 
     client = TestClient(app)
 

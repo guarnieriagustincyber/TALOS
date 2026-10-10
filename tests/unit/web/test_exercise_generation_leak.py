@@ -10,12 +10,18 @@ Contrato:
 """
 
 from fastapi.testclient import TestClient
+import pytest
 
 from study_engine.pedagogy.generated_registry import GeneratedExerciseRegistry
 from study_engine.student.bkt_tracker import BKTTracker
 from study_engine.student.storage import StudentStorage
 from study_engine.web.app import create_app
 from study_engine.web.dependencies import AppContainer, set_container
+
+
+@pytest.fixture(autouse=True)
+def synthetic_admin_token(monkeypatch):
+    monkeypatch.setenv("TALOS_ADMIN_TOKEN", "synthetic-admin-token-for-focused-tests-012345")
 
 
 def test_generation_endpoints_do_not_leak_oracle(tmp_path):
@@ -215,7 +221,7 @@ def test_generation_endpoints_authenticated_oracle_inspection_a4(tmp_path):
         r_auth = client.post(
             f"{url}?include_oracle=true",
             json=body,
-            headers={"X-Admin-Token": "talos-admin-secret-dev"},
+            headers={"X-Admin-Token": "synthetic-admin-token-for-focused-tests-012345"},
         )
         assert r_auth.status_code == 201
         data = r_auth.json()
@@ -241,7 +247,7 @@ def test_multikc_bkt_updates_all_kcs_and_records_attempt_a5(tmp_path):
     r_gen = client.post(
         "/api/student/exercises/generate/multi-kc?include_oracle=true",
         json={"kc_ids": [kc1, kc2]},
-        headers={"X-Admin-Token": "talos-admin-secret-dev"},
+        headers={"X-Admin-Token": "synthetic-admin-token-for-focused-tests-012345"},
     )
     assert r_gen.status_code == 201
     ex = r_gen.json()
@@ -284,7 +290,7 @@ def test_trace_x86_generation_and_evaluation(tmp_path):
     r_gen = client.post(
         "/api/student/exercises/generate/trace?include_oracle=true",
         json={"kc_id": "arquitectura_computadores", "arch": "x86"},
-        headers={"X-Admin-Token": "talos-admin-secret-dev"},
+        headers={"X-Admin-Token": "synthetic-admin-token-for-focused-tests-012345"},
     )
     assert r_gen.status_code == 201
     ex = r_gen.json()
@@ -304,4 +310,3 @@ def test_trace_x86_generation_and_evaluation(tmp_path):
     res = r_eval.json()
     assert res["status"] == "GRADED"
     assert res["is_correct"] is True
-

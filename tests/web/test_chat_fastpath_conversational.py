@@ -151,12 +151,11 @@ class TestFastPathDetector:
 
 
 @pytest.fixture(scope="module")
-def client_with_fastpath(tmp_path_factory):
+def client_with_fastpath(tmp_path_factory, knowledge_store_test_copy):
     tmp_dir = tmp_path_factory.mktemp("chat_fastpath_test")
-    existing_db = Path("data/web_state/knowledge_store.db")
-    if existing_db.exists():
+    if knowledge_store_test_copy is not None:
         import shutil
-        shutil.copy2(existing_db, tmp_dir / "knowledge_store.db")
+        shutil.copy2(knowledge_store_test_copy, tmp_dir / "knowledge_store.db")
 
     app = create_app()
     container = AppContainer(working_dir=tmp_dir, use_mock=True)

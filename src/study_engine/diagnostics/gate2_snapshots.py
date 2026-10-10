@@ -22,19 +22,29 @@ def _hash_file(path: Path) -> str:
     return f"sha256:{digest.hexdigest()}"
 
 
-def _backup_read_only(source: Path, destination: Path) -> None:
+def backup_read_only_database(source: Path, destination: Path) -> None:
+    """Copy a SQLite database to a writable destination using a read-only source."""
+    source = Path(source).resolve()
+    destination = Path(destination).resolve()
+    if source == destination:
+        raise Gate2SnapshotError("SQLite source and snapshot must differ")
     if not source.is_file():
         raise Gate2SnapshotError(f"SQLite source does not exist: {source}")
-    source_uri = f"file:{source.resolve()}?mode=ro"
-    source_connection = sqlite3.connect(source_uri, uri=True)
-    destination_connection = sqlite3.connect(destination)
+    source_connection = None
+    destination_connection = None
     try:
+        source_connection = sqlite3.connect(
+            f"{source.as_uri()}?mode=ro", uri=True
+        )
+        destination_connection = sqlite3.connect(destination)
         source_connection.backup(destination_connection)
     except sqlite3.Error as exc:
         raise Gate2SnapshotError(f"Cannot snapshot {source}: {exc}") from exc
     finally:
-        destination_connection.close()
-        source_connection.close()
+        if destination_connection is not None:
+            destination_connection.close()
+        if source_connection is not None:
+            source_connection.close()
 
 
 def create_snapshots(
@@ -59,8 +69,8 @@ def create_snapshots(
     try:
         knowledge_copy = directory / "knowledge_store.db"
         vector_copy = directory / "vector_store.db"
-        _backup_read_only(knowledge_db, knowledge_copy)
-        _backup_read_only(vector_db, vector_copy)
+        backup_read_only_database(knowledge_db, knowledge_copy)
+        backup_read_only_database(vector_db, vector_copy)
         manifest = {
             "sources": {
                 "knowledge_db": {
