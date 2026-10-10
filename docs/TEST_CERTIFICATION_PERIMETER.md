@@ -183,13 +183,15 @@ es un baseline bloqueado, no un resultado de release ni una certificación.
 ## Frontera de snapshots para fixtures con datos protegidos
 
 Las fixtures `web_state_test_copy` y `knowledge_store_test_copy` ya no leen
-`data/web_state/` directamente. Requieren un artifact sellado y provenanceado
-en `TALOS_TEST_SNAPSHOT_ROOT`, junto con el fingerprint completo del manifiesto
-(`TALOS_TEST_SNAPSHOT_MANIFEST_SHA256`), scope, run, gate y policy identities.
-Si falta un campo, el snapshot no es fresco, el manifiesto no coincide o el
-artifact fue alterado, la fixture falla cerrada. Pytest recibe una copia
-writable por ejecución; nunca recibe la ruta del capture ni la del snapshot
-sellado a través de estas fixtures. El teardown vuelve a verificar el artifact.
+`data/web_state/` directamente. El runner host requiere un artifact sellado y
+provenanceado en `TALOS_TEST_SNAPSHOT_ROOT`, junto con el fingerprint completo
+del manifiesto (`TALOS_TEST_SNAPSHOT_MANIFEST_SHA256`), scope, run, gate y
+policy identities. Si falta un campo, el snapshot no es fresco, el manifiesto
+no coincide o el artifact fue alterado, la preparación falla cerrada. Antes de
+lanzar pytest, el host valida el artifact y materializa una copia writable por
+ejecución. El proceso pytest recibe solo esa copia; no recibe rutas del capture
+ni del snapshot sellado. El host vuelve a verificar el artifact después de que
+termine el proceso.
 
 La preparación presupone un capture externo producido como snapshot de
 filesystem atómico, de solo lectura, con `capture-attestation.json` completo.
@@ -205,22 +207,122 @@ autorizado separado; no se debe calcular y confiar en un digest no autenticado
 del mismo directorio. La vigencia se cuenta desde la fecha de la captura, no
 desde el empaquetado del artifact.
 
+### Política local versionada de captura quiesced
+
+Para la ejecución local delegada de B06 se admite adicionalmente la policy
+`talos.b06.quiesced-consistency.v1`, declarada en el perfil de captura de
+`config/test_perimeter.json`. Esta policy no redefine
+`atomic_filesystem_snapshot`: registra el método distinto
+`quiesced_file_copy` y `consistency=quiesced`. Solo se acepta bajo esa policy
+explícita, con run/gate/policy enlazados, inventario de archivos capturados,
+verificación de ausencia de handles abiertos antes y después de la copia y
+huellas de fuentes iguales antes y después.
+
+En esta policy, `read_only=true` significa exclusivamente que el proceso de
+captura no escribe en los archivos fuente; no afirma que el ciclo de vida
+normal de una aplicación nunca haya escrito o checkpoint-eado sus bases antes
+de la ventana de captura. El digest de la attestation se calcula y registra
+por separado como control local de integridad y trazabilidad. No es
+autenticación criptográfica independiente, ni una attestation de tercero, ni
+prueba de verdad de los datos. La policy no habilita una vía de fallback: el
+validador conserva separados los formatos atómico y quiesced y falla cerrado
+ante combinaciones de método, consistencia o policy no aprobadas.
+
+`scripts/capture_quiesced_test_sources.py` limita esta captura a las tres
+fuentes B06 bajo `data/web_state/`. Falla si encuentra handles abiertos, no
+puede inspeccionarlos, detecta cambios durante la ventana o no puede preservar
+los bytes y el inventario. La captura queda fuera del repositorio y se valida
+mediante `scripts/prepare_test_snapshot.py`; SQLite solo se abre en copias
+desechables del payload.
+
 La interfaz de preparación es `scripts/prepare_test_snapshot.py`. Requiere
 `--capture-root`, `--artifact-root`, `--attestation-sha256`, `--scope`,
 `--run-id`, `--gate-id`, `--policy-id`, `--freshness-seconds` y un argumento
-`--database IDENTITY=FILENAME.db` por cada base requerida. La salida identifica
-el artifact y el digest del manifiesto que debe fijarse en el entorno de pytest.
-La preparación real no forma parte de pytest y no debe apuntar a las rutas live
-de `data/student/` o `data/web_state/`.
+`--database IDENTITY=FILENAME.db` por cada base requerida. La salida identifica el artifact y el digest del manifiesto que debe fijarse en
+el entorno del runner. La preparación real no forma parte de pytest y no debe
+apuntar a las rutas live de `data/student/` o `data/web_state/`.
 
-Las fixtures exigen que el entorno de pytest fije
+Para una invocación directa de pytest, las fixtures exigen
 `TALOS_TEST_SNAPSHOT_ROOT`, `TALOS_TEST_SNAPSHOT_MANIFEST_SHA256`,
 `TALOS_TEST_SNAPSHOT_SCOPE`, `TALOS_TEST_RUN_ID`, `TALOS_TEST_GATE_ID` y
-`TALOS_TEST_POLICY_ID`. No hay valores por defecto ni fallback a los datos live.
+`TALOS_TEST_POLICY_ID`; no hay fallback a datos live. Bajo `scripts/test.sh`,
+esas credenciales de provenance se consumen en el host y el proceso pytest
+recibe únicamente `TALOS_TEST_WORKSPACE_ROOT` e identidad del workspace
+prederivado.
 
-Esta frontera de fixtures no constituye por sí sola un sandbox del proceso:
-el runner actual no prepara/monta el snapshot ni demuestra que el proceso
-pytest carezca de acceso a otras rutas protegidas. Por tanto, no acredita aún
-la exclusión global de esas fuentes ni autoriza B06 o el release gate. Esa
-propiedad requiere aislamiento del proceso/runner fuera del alcance de esta
-implementación.
+## Frontera de proceso del Quality Gate
+
+`scripts/quality_gate.py` actúa como supervisor. Valida el perímetro y la raíz
+de confianza, requiere snapshot/provenance, deriva el workspace antes de pytest
+y lanza un proceso hijo mediante `bubblewrap` (`bwrap`) con
+`--unshare-all`. El worker debe acreditar PID, mount y network namespaces
+distintos a los del supervisor; si falta `bwrap`, falla la inicialización o no
+se produce esa evidencia, el gate queda bloqueado y pytest no se ejecuta.
+
+Dentro del namespace, el checkout se monta read-only. Los directorios
+protegidos (`data/student`, `data/web_state`, `data/student_submissions`,
+`student` y `web_state`) se sustituyen por directorios vacíos read-only; los
+archivos SQLite encontrados fuera de ellos quedan sustituidos por archivos
+temporales sin permisos de lectura/escritura. También se cubren los hard links
+visibles fuera de esos directorios que apunten a archivos protegidos, mediante
+comparación de identidad de filesystem antes de iniciar pytest. `.env` se
+sustituye por un archivo vacío; `.git` y `.venv` no se exponen desde el
+checkout.
+El snapshot sellado y las rutas fuente del host no se montan. Solo el workspace
+derivado, `/tmp` efímero y, si se configura A-PRE, un scratch dedicado bajo
+`/tmp` son writable. La red se mantiene en un namespace separado. stdout,
+stderr, exit code y artefactos A-PRE solicitados vuelven al supervisor.
+
+La fixture de Quality Gate valida el receipt del workspace y no intenta abrir
+el snapshot. El supervisor verifica el artifact antes y después del worker.
+El mecanismo es fail-closed: no ofrece ejecución pytest in-process como
+fallback. Cambios a esta lista de paths protegidos requieren actualizar la
+política del runner y los tests sintéticos.
+
+La cobertura del mecanismo se comprueba con pruebas sintéticas que verifican
+open/read/write, SQLite, WAL/SHM, symlink/path traversal, acceso permitido al
+derivado y propagación del exit code. Estas pruebas no ejecutan B06, B10 ni el
+release gate. Su resultado no equivale a certificación del gate ni a una
+autorización para ejecutar pruebas sobre fuentes protegidas.
+
+### Ejecución focal B06
+
+El runner admite un modo focal separado del gate completo, actualmente
+allowlisted solo para
+`tests/pedagogy/test_talos_vs_notebooklm_e2e.py::test_p3_debug_query_abstains_without_sufficient_evidence_sse`.
+Se solicita con `scripts/test.sh --focal-nodeid <nodeid> --execution-receipt
+<ruta-externa-nueva>`. El runner exige `profile=release`, valida el snapshot
+sellado, deriva el workspace y mantiene el mismo worker `bubblewrap`; el
+selector no permite elegir otros tests ni evita las comprobaciones del
+perímetro. Pytest debe recolectar exactamente ese nodeid o el worker falla
+antes de ejecutar tests.
+
+Para este modo, `TALOS_TEST_RUN_ID` debe ser un UUIDv4 canónico, único por
+intento y coincidente con el run del snapshot. El contrato de snapshot v2 exige
+que el scope sea el perfil canónico `b06-snapshot-v1` declarado en este
+perímetro. El perfil fija las identidades lógicas de las tres bases requeridas,
+la política de inventario explícito de WAL/SHM/journal (presente o ausente),
+las restricciones de fixture y los recursos externos del checkout que pueden
+afectar B06.
+
+El binding incluye el digest del perfil, snapshot y attestation, el nodeid
+allowlisted, una identidad de runtime Python/pytest y un
+`effective_execution_manifest` versionado. Este manifest se calcula sobre el
+filesystem que verá el worker (no sobre Git): incluye contenido regular
+execution-relevant, incluidos cambios staged/unstaged y archivos untracked;
+excluye `.git`, entornos virtuales, caches y logs declarados por el perfil. Su
+serialización JSON canónica ordena las entradas por ruta y su digest SHA-256
+cubre el manifest completo. El worker vuelve a calcularlo dentro de `bubblewrap`
+y bloquea ante cualquier diferencia. El fingerprint del perímetro y el commit
+se conservan como provenance/compatibilidad, no como identidad sustitutiva del
+contenido efectivo.
+
+El receipt externo v2 conserva el binding y el manifest referenciado dentro de
+él, sus digests, scope profile, snapshot, runtime, nodeid, resultado,
+comprobación exactly-one y evidencia de namespaces. Permite reconstruir qué
+datos, scope, código y runtime quedaron asociados a un intento; no demuestra
+verdad del resultado, autoridad normativa de `gate_id`/`policy_id`, aislamiento
+global ni elegibilidad de release. `release` sigue siendo sólo el perfil
+operativo. La attestation identifica la captura externa y su autoridad depende
+del caller y del canal confiable separado para su digest. Completar este
+contrato no prepara un snapshot, no ejecuta B06 y no certifica P1.2.

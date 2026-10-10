@@ -20,6 +20,9 @@ y la secuencia inmediata es
 [`docs/PLAN_MAESTRO_CIERRE_TALOS.md`](PLAN_MAESTRO_CIERRE_TALOS.md).
 Las etapas P0–P3 de ese mapa no son sinónimos de las fases metodológicas 1–4
 descritas aquí.
+Para la navegación transversal entre cierre V1, fases V1.5, corpus/Colab y
+destinos de herramientas, consultar el [mapa integral TALOS](./TALOS_ROADMAP_V1_V1_5_V2.md).
+Ese mapa no altera los criterios ni los estados adjudicados en este documento.
 
 Esta directiva **no constituye una autorización general para implementar**.
 Fija dentro de su jurisdicción metodológica:

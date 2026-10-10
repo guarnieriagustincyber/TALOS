@@ -6,6 +6,14 @@
 **Estado**: OFICIAL / NORMATIVO (Corregido tras CP106.1)  
 **Referencia de Transición**: CP104, CP105, CP106, CP106.1  
 
+> **Mapa integral de navegación:** este documento relaciona V1, V1.5, el
+> trabajo futuro del corpus y los destinos de herramientas. No sustituye los
+> documentos que gobiernan estado y criterios: el
+> [plan operativo de cierre V1](./PLAN_MAESTRO_CIERRE_TALOS.md) gobierna P0–P3;
+> el [master metodológico V1.5](./ROADMAP_V1_5_MASTER.md) gobierna sus fases
+> experimentales. Los estados resumidos en §8 son una vista fechada con sus
+> límites de evidencia, no una nueva fuente de certificación.
+
 ---
 
 ## 0. Resumen Ejecutivo y Propósito
@@ -39,6 +47,156 @@ Este documento establece la arquitectura oficial, los límites conceptuales y op
 ### Regla Fundamental de Frontera
 > **V1.5 no reemplaza a V1. V2 no reemplaza a V1. V1 permanece siempre como el núcleo epistemológico y pedagógico del sistema.**
 > Ninguna etapa posterior se implementa sobre un baseline anterior cuyo aseguramiento de calidad (*assurance*) permanezca ambiguo o incompleto.
+
+## 8. Mapa integral de trabajo y estado observado
+
+**Corte documental:** 2026-10-09. Esta sección integra referencias y estados
+existentes; no modifica criterios de aceptación, cierres certificados ni
+autoriza las etapas listadas.
+
+### 8.1 Autoridad y precedencia
+
+| Dominio | Documento que gobierna | Límite de este mapa |
+|---|---|---|
+| Estado operativo, orden y cierre de V1 | [PLAN_MAESTRO_CIERRE_TALOS.md](./PLAN_MAESTRO_CIERRE_TALOS.md) | No reemplaza sus adjudicaciones ni sus criterios. |
+| Metodología, evidencia y promotion gates de V1.5 | [ROADMAP_V1_5_MASTER.md](./ROADMAP_V1_5_MASTER.md) | No promueve candidatos ni autoriza implementación. |
+| Frontera de versiones V1/V1.5/V2 | Este documento y sus antecedentes | No confiere autoridad sobre los mapas operativos o metodológicos. |
+| Perímetro del quality gate | [TEST_CERTIFICATION_PERIMETER.md](./TEST_CERTIFICATION_PERIMETER.md) | No se altera mediante esta hoja de ruta. |
+
+Si dos fuentes discrepan, conservar la discrepancia con fecha y scope; no
+resolverla mediante esta síntesis.
+
+### 8.2 Tramo A — Cierre técnico V1
+
+| Etapa | Estado para este mapa | Condición / dependencia | Evidencia y autoridad |
+|---|---|---|---|
+| V1 baseline | `BASELINE / CONTROL CERRADO` reportado | Preservar como control; este mapa no emite nueva certificación. | [PLAN_MAESTRO_CIERRE_TALOS.md](./PLAN_MAESTRO_CIERRE_TALOS.md) y los artefactos CP127 que ese plan cita. |
+| P1.1 — terminal SSE | `COMPLETE` reportado | Preservar su cierre; no reabrir por esta integración. | Plan operativo V1, tabla P1. |
+| P1.2 — quality gate | `BLOCKED — SNAPSHOT PROVENANCE` en la observación del 2026-10-09; el fallo funcional histórico sigue sin causa adjudicada | La ejecución canónica observada terminó con `exit 2` antes de pytest porque faltaban las seis variables de procedencia del snapshot. Esto no es un resultado funcional PASS/FAIL de suites ni resuelve el fallo histórico. | [TEST_CERTIFICATION_PERIMETER.md](./TEST_CERTIFICATION_PERIMETER.md), [config/test_perimeter.json](../config/test_perimeter.json), [scripts/quality_gate.py](../scripts/quality_gate.py). La salida del 2026-10-09 fue observada en la sesión y no se encontró un informe de ejecución persistido. |
+| P1.3 — Python/runtime | `NOT_STARTED` | Mantener detenida hasta que P1.2 alcance su criterio de salida bajo el plan operativo. | [PLAN_MAESTRO_CIERRE_TALOS.md](./PLAN_MAESTRO_CIERRE_TALOS.md), tabla P1. |
+| P1.4 — API | `NOT_STARTED` | Respetar las dependencias documentadas del plan. | Plan operativo V1, tabla P1. |
+| P1.5 — E2E acotado | `NOT_STARTED` | El plan exige P1.1–P1.4, fixtures/datos, credenciales, proveedor, aislamiento y autorización explícitos. | Plan operativo V1, tabla P1. |
+| P1.6 — estado pedagógico | `NOT_STARTED` | Respetar el orden P1 y no modificar StudentState real sin autorización y evidencia aplicables. | Plan operativo V1, tabla P1. |
+| P2 | `DEFERRED` | Depende del cierre y aceptación de P1 conforme al plan operativo. | Plan operativo V1, sección P2/P3. |
+| P3 | `DEFERRED` | Revalidación final y adjudicación; no equivale a release automático. | Plan operativo V1, sección P2/P3. |
+
+**Discrepancia temporal que debe permanecer visible:** el plan operativo
+conserva el resumen histórico `1 failed, 3100 passed, 190 warnings` y describe
+un fallo pedagógico; el intento canónico observado el 2026-10-09 quedó
+bloqueado antes de pytest por ausencia de provenance. Son observaciones
+distintas. La segunda no demuestra que el fallo histórico se haya resuelto.
+README y el master V1.5 contienen además estados fechados anteriores
+(`P1 = READY / NOT_STARTED`, corte 2026-10-07). Este mapa no reescribe esas
+fuentes: requiere que el dueño operativo reconcilie sus etiquetas en el
+documento de autoridad cuando corresponda.
+
+#### Bloqueo P1.2 y siguiente acción
+
+El perfil B06 exige el scope `talos.b06.snapshot.v1` y las identidades
+`knowledge_store=knowledge_store.db`, `vector_store=vector_store.db` y
+`student_state=student_state.db`, además de registrar la presencia o ausencia
+de `-wal`, `-shm` y `-journal` para cada base. La interfaz
+[prepare_test_snapshot.py](../scripts/prepare_test_snapshot.py) consume una
+captura externa ya obtenida; no la produce.
+
+La siguiente acción operativa es resolver con un operador autorizado la fuente
+de estado, el mecanismo externo de captura atómica y read-only, y la autoridad
+que entregará por canal independiente el digest de `capture-attestation.json`.
+No fabricar ni inferir hashes, attestations o identidades. Si la captura exige
+detener escritores, obtener autorización específica antes de realizar esa
+acción. Hasta resolverlo, no ejecutar `scripts/test.sh` ni pytest; P1.3 y las
+etapas que dependen de P1.2 permanecen detenidas.
+
+### 8.3 Tramo B — Fases canónicas V1.5
+
+La secuencia metodológica es **Evidence Retrieval → Pedagogy → Student
+Evaluation → Visual Explanations**. Los criterios completos, gates y
+evidencias requeridas permanecen en [ROADMAP_V1_5_MASTER.md](./ROADMAP_V1_5_MASTER.md);
+esta tabla no crea otros.
+
+| Fase | Objetivo y estado | Entrada y dependencias | Criterio de aceptación, evidencia y promoción |
+|---|---|---|---|
+| 1 — Evidence / Retrieval | Fuente, corpus, retrieval y evidencia. `CLOSED`; `PHASE_1_PROMOTABLE=FALSE`; `PROMOTION=NOT_AUTHORIZED`; C0 retenido, según CP147. | Evidencia de fuente y baseline bajo el protocolo de fases 1A–1E del master. | Cierre documentado de subfases y adjudicación 1E; el cierre no equivale a promoción. Evidencia: CP131–CP147 y artefactos vinculados en la [sección 5](./ROADMAP_V1_5_MASTER.md). El gate 1E no autorizó promoción; no iniciar Fase 2. |
+| 2 — Pedagogy / Explanation Quality | Medir calidad de intervención pedagógica. `BLOCKED / NOT_AUTHORIZED` según CP147. | Entrada condicionada a la secuencia metodológica y a promoción autorizada de Fase 1; esa condición no está satisfecha. | Benchmark contra V1, evidencia de retención/comprensión, cumplimiento C1–C5 y pacto socrático, y latencia al primer token ≤1.5 s; ver [sección 6 y gate 6G](./ROADMAP_V1_5_MASTER.md). No comenzar mientras siga bloqueada. |
+| 3 — Student Evaluation | Diagnóstico confiable del aprendizaje. Fase definida; ejecución/estado actual no confirmado por la evidencia consultada. | Posterior a Fase 2; no adelantar sobre una fase previa no autorizada. | Evidencia de desempeño frente a oráculo experto, tasas de falsos positivos/negativos, robustez y determinismo; gate de promoción en [sección 7E](./ROADMAP_V1_5_MASTER.md). La fuente consultada no prueba entrada ni promoción de esta fase. |
+| 4 — Visual Explanations | Medir valor pedagógico de representaciones visuales. Fase definida; ejecución/estado actual no confirmado por la evidencia consultada. | Posterior a Fase 3, según secuencia metodológica. | Comparación controlada texto vs. texto+visual y evidencia de corrección, comprensión/retención y carga cognitiva; promoción solo donde exista beneficio medible, según [sección 8D](./ROADMAP_V1_5_MASTER.md). La fuente consultada no prueba entrada ni promoción de esta fase. |
+
+La Fase 1 incluye subfases 1A–1E y un cierre global reportado. Se preserva ese
+cierre; `PROMOTION=NOT_AUTHORIZED` no se convierte en promoción. El
+Ingestion Intelligence Lab y sus probes son una línea distinta: el master
+registra Probe-1 cerrado con exit gate fallido y Probe-2 no iniciado/prohibido.
+No los confundir con el cierre o autorización de las cuatro fases.
+
+### 8.4 Tramo C — Corpus e ingesta en Google Colab
+
+**Frontera operativa indicada por esta hoja de ruta:** la ingesta documental
+autorizada se ejecutará en Google Colab; la máquina local se reserva para
+auditar artefactos, analizar resultados y evaluar recuperación conforme a sus
+contratos. Esta declaración de destino no levanta el freeze vigente.
+
+La reconstrucción y promoción del corpus siguen `FROZEN UNTIL P3` según el
+plan operativo. Cuando exista autorización específica, la secuencia prevista
+es: auditar pipeline y artefactos → diseñar piloto controlado en Colab →
+comparar contra baseline → auditar localmente los resultados → evaluar
+recuperación, provenance y utilidad pedagógica → registrar limitaciones y
+decisión → solicitar autorización separada para promover o sustituir corpus.
+
+Las dimensiones 384, 1024 y 2560 observadas en auditorías anteriores son un
+riesgo a revalidar contra contratos y evidencia vigentes, no la afirmación de
+un defecto activo ni una selección de embedding.
+
+### 8.5 Tramo D — Herramientas y destino
+
+Estas asignaciones son **destinos de evaluación**, no adopciones ni
+dependencias aprobadas:
+
+| Herramienta / familia | Destino de evaluación | Límite |
+|---|---|---|
+| Laya | Candidata auxiliar para TALOS | No autoridad de evidencia, StudentState, BKT/SM-2, rúbricas ni gates; integración no autorizada. |
+| OpenClaw | Investigación de orquestación para TALOS V2 | Fuera de V1/V1.5 runtime; no instalar ni integrar por esta hoja de ruta. |
+| OpenQodex | Asistencia de desarrollo en VS Code | No es componente del producto; toda revisión respeta scope y permisos existentes. |
+| Vela 2.0 / vLLM-SR | Candidata de investigación para el pipeline de Colab | Capacidades y ajuste al caso por verificar; no adoptar por anticipado. |
+| Hyper-Extract | Candidata de investigación para extracción estructurada y relaciones/provenance en Colab | Capacidad no adjudicada; no establecer como dependencia. |
+| CocoIndex Code | Candidata de investigación para búsqueda del código del pipeline en Colab | Adecuación no verificada; no crear una fuente de verdad paralela. |
+
+No se seleccionan herramientas, se instalan dependencias ni se transfieren
+datos a servicios externos como parte de la planificación.
+
+### 8.6 Tramo E — Validación y adopción
+
+Toda futura adopción debe conservar la secuencia de evidencia del documento
+metodológico: problema concreto → baseline reproducible → experimento aislado
+→ métricas y criterios previamente definidos → comparación → costes y riesgos
+→ compatibilidad contractual → revisión de regresiones → decisión documentada
+→ autorización de integración. El principio se mantiene:
+
+> **El modelo propone → TALOS valida → TALOS decide.**
+
+La ruta integral de referencia es: **cerrar V1 según su plan operativo →
+continuar V1.5 según sus gates metodológicos → levantar autorizadamente el
+freeze del corpus y validar en Colab → evaluar herramientas en sus destinos →
+integrar solo mejoras demostradas y aprobadas → investigar V2 en su propia
+frontera**. Es una relación de dependencias, no una autorización para ejecutar
+las etapas.
+
+## 9. Fuentes de estado y límites de evidencia
+
+- [PLAN_MAESTRO_CIERRE_TALOS.md](./PLAN_MAESTRO_CIERRE_TALOS.md): estado
+  operativo P0–P3 y dependencias V1.
+- [ROADMAP_V1_5_MASTER.md](./ROADMAP_V1_5_MASTER.md): fases, metodología,
+  criterios experimentales y decisiones de promoción V1.5.
+- [TEST_CERTIFICATION_PERIMETER.md](./TEST_CERTIFICATION_PERIMETER.md):
+  procedimiento y límites del quality gate.
+- [Checkpoint 147](../checkpoints/147-fase-1-sintesis-global-y-cierre-canonico.md):
+  cierre de Fase 1 y no autorización de promoción/Fase 2.
+- [Checkpoint 154](../checkpoints/154-p1-2-b06-capture-strategy-checkpoint.md):
+  bloqueo de captura B06 y gaps de evidencia.
+
+La existencia de un estado en esta tabla no equivale a una verificación nueva.
+Los informes históricos conservan el alcance y limitaciones de su ejecución;
+las observaciones no persistidas se identifican como tales. Cualquier
+contradicción de autoridad, alcance o temporalidad debe mantenerse visible y
+adjudicarse por el documento propietario, no por inferencia de este mapa.
 
 ---
 
