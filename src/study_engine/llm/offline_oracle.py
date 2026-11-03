@@ -80,7 +80,7 @@ class OfflinePedagogicalBackend(ProviderBackend):
         # 1. Saludos y bienvenida conversacional (Regla: cero saludos, directo al estado)
         if any(w in q for w in ("hola", "buen dia", "buenos dias", "buenas", "que tal", "saludos", "arrancamos", "empezamos")):
             text = (
-                "Entorno de estudio socrático TALOS activo conforme a las fuentes autorizadas del plan curricular [E1].\n\n"
+                "Entorno de estudio socrático TALOS activo conforme a las fuentes autorizadas del plan curricular.\n\n"
                 "Podés consultar el temario del cuaderno, solicitar una explicación conceptual, "
                 "o comenzar a trabajar sobre los puntos de la unidad actual.\n\n"
                 "¿Qué concepto de la unidad querés analizar primero?"
@@ -89,7 +89,7 @@ class OfflinePedagogicalBackend(ProviderBackend):
         # 2. Consultas sobre temario, plan de estudio o Tramo 5
         elif any(w in q for w in ("temario", "plan de estudio", "tramo 5", "unidad 5", "que vemos hoy", "contenido", "programa")):
             text = (
-                "### Plan de Estudio · Tramo 5: Punteros y Gestión de Memoria Contigua [E1]\n\n"
+                "### Plan de Estudio · Tramo 5: Punteros y Gestión de Memoria Contigua\n\n"
                 "En esta etapa consolidamos el control a bajo nivel del espacio de direccionamiento de la memoria RAM:\n\n"
                 "1. **Aritmética de Punteros (`aritmetica_punteros`)**:\n"
                 "   - *Concepto clave:* Los punteros no son simples enteros; son tipos tipados cuya aritmética escala según el tamaño del tipo base (`sizeof(T)`).\n"
@@ -104,7 +104,7 @@ class OfflinePedagogicalBackend(ProviderBackend):
         # 3. Punteros y Memoria
         elif any(w in q for w in ("puntero", "aritmetica", "desreferencia", "direccion", "memoria", "heap", "stack")):
             text = (
-                "### Aritmética de Punteros y Desplazamiento Físico en Memoria [E1]\n\n"
+                "### Aritmética de Punteros y Desplazamiento Físico en Memoria\n\n"
                 "Un **puntero** es una variable que almacena la dirección de memoria de otro objeto. "
                 "La aritmética de punteros se rige por la regla de escala del tipo base:\n\n"
                 "$$\\text{Dirección resultante} = \\text{Base} + (i \\times \\text{sizeof}(T))$$\n\n"
@@ -117,7 +117,7 @@ class OfflinePedagogicalBackend(ProviderBackend):
         # 4. Telecomunicaciones / Redes (FADENA)
         elif any(w in q for w in ("teleco", "transmision", "datos", "tcp", "handshake", "osi", "ancho de banda")):
             text = (
-                "### Fundamentos de Transmisión de Datos y Modelos de Red [E1]\n\n"
+                "### Fundamentos de Transmisión de Datos y Modelos de Red\n\n"
                 "Conforme al programa oficial de **Infraestructura de Telecomunicaciones (FADENA 2025)**:\n\n"
                 "* **Transmisión de Datos (`teleco_transmision_datos`):** El transporte de señales analógicas o digitales a través de un canal guiado o no guiado, sujeto a atenuación, distorsión y ruido térmico (Teorema de Nyquist y Ley de Shannon-Hartley).\n"
                 "* **Modelo en Capas:** Desacopla la señalización física (Capa 1) del control de acceso al medio (Capa 2) y el enrutamiento lógico (Capa 3).\n"
@@ -128,26 +128,26 @@ class OfflinePedagogicalBackend(ProviderBackend):
         elif any(w in q for w in ("variable", "tipo", "declarar")):
             text = (
                 "En programación, una **variable** es una posición en memoria identificada por un nombre simbólico "
-                "que almacena un valor mutable durante la ejecución [E1]. Posee un tipo de dato inmutable que fija su tamaño "
+                "que almacena un valor mutable durante la ejecución. Posee un tipo de dato inmutable que fija su tamaño "
                 "y las operaciones válidas permitidas por el sistema de tipos."
             )
         elif any(w in q for w in ("control", "if", "else", "bucle", "while", "for")):
             text = (
-                "Las **estructuras de control** dirigen el flujo de las instrucciones [E1]:\n"
+                "Las **estructuras de control** dirigen el flujo de las instrucciones:\n"
                 "1. **Secuenciales:** Ejecución top-down paso a paso.\n"
                 "2. **Selectivas (if/else):** Bifurcación condicional basada en evaluaciones booleanas (se aconseja el *Bouncer Pattern* / *Guard Clauses* para evitar anidamientos).\n"
                 "3. **Iterativas (while, for):** Repetición de un bloque de código sujeta a una condición de permanencia e invariante de corte."
             )
         elif any(w in q for w in ("funcion", "funciones", "modular")):
             text = (
-                "Una **función** es una unidad modular reutilizable que encapsula una computación específica (Principio de Responsabilidad Única) [E1]. "
+                "Una **función** es una unidad modular reutilizable que encapsula una computación específica (Principio de Responsabilidad Única). "
                 "Cada invocación crea un *Stack Frame* independiente en la pila de llamadas, preservando el estado local y los parámetros formales."
             )
 
         # 6. Fallback guiado
         else:
             text = (
-                "Conforme a las fuentes autorizadas de tu plan curricular [E1], el concepto consultado está vinculado al "
+                "Conforme a las fuentes autorizadas de tu plan curricular, el concepto consultado está vinculado al "
                 "orden temático de tu cuaderno activo. Podés consultar el mapa de progreso, solicitar ejercicios prácticos "
                 "o pedir la fundamentación teórica de cualquiera de los KCs asignados.\n\n"
                 "¿Querés que profundicemos en algún aspecto específico del temario?"

@@ -288,11 +288,15 @@ class QueryRewriter:
         # 1. Extraer el contexto sustantivo de turnos previos
         substantive_tokens: List[str] = []
         user_prompts: List[str] = []
+        current_query_fingerprint = " ".join(re.findall(r"\w+", query.casefold()))
         for t in reversed(turns):
             content = (t.get("content") or "").strip()
             if not content:
                 continue
             if t.get("role") == "user":
+                fingerprint = " ".join(re.findall(r"\w+", content.casefold()))
+                if fingerprint == current_query_fingerprint:
+                    continue
                 if not has_deictic_markers(content) and len(content.split()) >= 3:
                     user_prompts.append(content)
             elif t.get("role") == "assistant":

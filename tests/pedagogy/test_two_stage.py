@@ -181,7 +181,17 @@ def test_s44_post_validation() -> None:
     report = audit_generation_payload(
         mock_auditor,
         generated_text=prose,
-        context_chunks=[{"citation_id": "E1", "content": "Un puntero contiene memoria."}],
+        context_chunks=[
+            {
+                "citation_id": "E1",
+                "chunk_id": "synthetic-chunk-1",
+                "document_id": "synthetic-document-1",
+                "source_id": "synthetic-source-1",
+                "source_title": "Synthetic source",
+                "content": "Un puntero contiene memoria.",
+                "trust_level": "canonical",
+            }
+        ],
         query="Punteros",
         notebook_id="fase0-soc",
     )

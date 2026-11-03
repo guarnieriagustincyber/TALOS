@@ -1,0 +1,4 @@
+[tool.vulture]
+paths = ["src/study_engine", "scripts"]
+exclude = ["**/static/**", "**/templates/**"]
+min_confidence = 80

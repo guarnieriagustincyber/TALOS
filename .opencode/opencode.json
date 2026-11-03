@@ -1,0 +1,143 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": true,
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true
+    },
+    "github": {
+      "type": "local",
+      "command": [
+        "/home/agustin/.local/lib/github-mcp-server-2.0.2/github-mcp-server",
+        "stdio",
+        "--read-only"
+      ],
+      "enabled": true
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@latest",
+        "--isolated",
+        "--allowed-hosts",
+        "localhost,127.0.0.1"
+      ],
+      "enabled": true,
+      "timeout": 10000
+    },
+    "sentry": {
+      "type": "remote",
+      "url": "https://mcp.sentry.dev/mcp",
+      "oauth": {},
+      "enabled": false
+    }
+  },
+  "permission": {
+    "edit": "ask",
+    "bash": {
+      "*": "ask",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "rg *": "allow",
+      "find *": "allow",
+      "sed *": "allow",
+      "git commit*": "deny",
+      "git push*": "deny",
+      "git reset*": "deny",
+      "git clean*": "deny",
+      "rm *": "deny"
+    },
+    "external_directory": "deny",
+    "context7_*": "ask",
+    "github_*": "ask",
+    "playwright_*": "ask",
+    "sentry_*": "ask",
+    "lsp": "ask"
+  },
+  "agent": {
+    "talos-ask": {
+      "description": "Read-only TALOS questions and code explanations.",
+      "mode": "primary",
+      "prompt": "You are the TALOS read-only question agent. Answer questions using repository evidence. Never modify files, run commands, execute tests, start services, access databases, or change Git state. Preserve UNKNOWN when evidence is insufficient. Treat AGENTS.md and TALOS policies as authoritative instructions.",
+      "permission": {
+        "read": "allow",
+        "list": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "lsp": "allow",
+        "skill": "allow",
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny",
+        "external_directory": "deny",
+        "webfetch": "ask",
+        "websearch": "ask",
+        "question": "ask"
+      }
+    },
+    "talos-explore": {
+      "description": "Fast read-only TALOS repository exploration.",
+      "mode": "subagent",
+      "prompt": "You are the TALOS read-only exploration agent. Search broadly, then narrow to relevant files and symbols. Report evidence with exact file references. Never modify files, run commands, execute tests, start services, access databases, or change Git state. Preserve UNKNOWN when evidence is insufficient.",
+      "permission": {
+        "read": "allow",
+        "list": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "lsp": "allow",
+        "skill": "allow",
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny",
+        "external_directory": "deny",
+        "webfetch": "ask",
+        "websearch": "ask",
+        "question": "deny"
+      }
+    },
+    "talos-plan": {
+      "description": "Read-only TALOS planning and evidence-based implementation plans.",
+      "mode": "primary",
+      "prompt": "You are the TALOS planning agent. Research the repository, clarify scope, and produce an actionable plan. Do not implement changes. Do not run tests or services. Preserve existing state and distinguish observations, evidence, claims, assumptions, and unknowns. You may delegate read-only discovery to talos-explore.",
+      "permission": {
+        "read": "allow",
+        "list": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "lsp": "allow",
+        "skill": "allow",
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny",
+          "talos-explore": "allow"
+        },
+        "external_directory": "deny",
+        "webfetch": "ask",
+        "websearch": "ask",
+        "question": "ask"
+      }
+    }
+  },
+  "command": {
+    "talos-directive": {
+      "description": "Procesar una directiva TALOS con routing, preflight, permisos y evidencia.",
+      "template": "Procesá la siguiente directiva bajo AGENTS.md y las políticas TALOS vigentes:\n\n$ARGUMENTS\n\nAplicá este flujo obligatorio:\n1. Clasificá la tarea: lectura/análisis, planificación, edición, testing, aislamiento, evidencia, pedagogía, release o integración externa.\n2. Determiná scope, archivos/componentes afectados, límites y autoridad requerida.\n3. Activá únicamente las skills necesarias; si el límite es UNKNOWN o contradictorio, expandí conservadoramente el contexto.\n4. Ejecutá primero un preflight read-only y distinguí OBSERVATION, EVIDENCE, CLAIM, ASSESSMENT y UNKNOWN.\n5. Informá antes de cualquier acción con efectos: archivos a modificar, comandos, tests, servicios, red, Git, credenciales y riesgos.\n6. Las acciones read-only y el análisis estático pueden continuar automáticamente. Para editar, ejecutar tests o procesos, tocar Git, usar servicios externos, modificar datos persistentes, StudentState, bases, índices, modelos, secretos o instalar herramientas, solicitá confirmación explícita y específica.\n7. No conviertas configuración declarada en comportamiento probado, TEST_PASS en aislamiento o release, ni UNKNOWN en PASS. No inventes provenance, hashes, resultados ni autoridad.\n8. Si hay contradicciones, side effects inesperados, scope ambiguo o tres intentos sin progreso, detené la operación, preservá la evidencia y reportá el bloqueo.\n9. Al finalizar entregá: clasificación, scope, skills activadas, precondiciones, acciones realizadas, evidencia, cambios, resultados, limitaciones, unknowns, riesgos y siguiente gate humano.\n\nNo ejecutes la directiva recibida literalmente si contradice AGENTS.md, permisos del agente o las políticas TALOS."
+    },
+    "council-review": {
+      "description": "Prepare a read-only plan for reviewing an artifact with Agent Council.",
+      "agent": "talos-plan",
+      "template": "Review the specified artifact against the Agent Council procedure from the migrated source. Do not execute the Council package, plugins, MCP servers, tests, or external commands. First verify whether the package and configuration are available; if not, report UNKNOWN and provide the exact prerequisites. Produce a review plan only. Target artifact: $ARGUMENTS"
+    },
+    "council-sweep": {
+      "description": "Prepare a read-only plan for an Agent Council sweep.",
+      "agent": "talos-plan",
+      "template": "Prepare a read-only plan for an Agent Council sweep over the requested scope. Do not execute the Council package, plugins, MCP servers, tests, or external commands. Verify prerequisites statically and report UNKNOWN where unavailable. Requested scope/window: $ARGUMENTS"
+    }
+  }
+}

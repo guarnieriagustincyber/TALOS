@@ -16,6 +16,8 @@ Decomposes cross-curricular user queries across sovereign notebooks using:
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
+import re
+import unicodedata
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -225,11 +227,16 @@ class FederatedQueryPlanner:
 
     def _detect_topics(self, query_text: str) -> List[str]:
         """Deterministic topic detection based on registered notebook authorities."""
-        clean = query_text.lower()
+        def normalize(text: str) -> str:
+            plain = "".join(c for c in unicodedata.normalize("NFKD", text.casefold()) if not unicodedata.combining(c))
+            return re.sub(r"[\W_]+", " ", plain).strip()
+
+        clean = f" {normalize(query_text)} "
         detected: List[str] = []
         for nb in self.notebook_registry.list_notebooks():
             for topic in nb.authority_matrix_ref.keys():
-                if topic in clean and topic not in detected:
+                normalized_topic = normalize(topic)
+                if normalized_topic and f" {normalized_topic} " in clean and topic not in detected:
                     detected.append(topic)
         return detected
 

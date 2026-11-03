@@ -45,6 +45,10 @@ class E5PrefixFormatter:
         return f"passage: {clean}"
 
 
+QWEN_EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-0.6B"
+QWEN_EMBEDDING_REVISION = "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3"
+
+
 @runtime_checkable
 class EmbeddingProvider(Protocol):
     """Protocol defining the embedding generation contract."""
@@ -168,13 +172,19 @@ class SentenceTransformerEmbeddingProvider:
 
     def __init__(
         self,
-        model_name_or_path: str = "Qwen/Qwen3-Embedding-0.6B",
+        model_name_or_path: str = QWEN_EMBEDDING_MODEL,
         dimensions: int = 1024,
         device: Union[str, None] = None,
         batch_size: int = 128,
         provider_id: str = "sentence_transformers",
+        revision: Optional[str] = None,
     ) -> None:
         self._model_name = model_name_or_path
+        self._revision = revision or (
+            QWEN_EMBEDDING_REVISION
+            if model_name_or_path == QWEN_EMBEDDING_MODEL
+            else None
+        )
         self._dimensions = dimensions
         self._device = device
         self._batch_size = batch_size
@@ -193,7 +203,8 @@ class SentenceTransformerEmbeddingProvider:
             self._model = SentenceTransformer(
                 self._model_name,
                 device=self._device,
-                trust_remote_code=True,
+                revision=self._revision,
+                trust_remote_code=False,
             )
         return self._model
 
@@ -268,6 +279,15 @@ class LocalONNXEmbeddingProvider:
                 f"Tokenizer file not found: {self._tokenizer_path}"
             )
 
+        def file_digest(path: Path) -> str:
+            digest = hashlib.sha256()
+            with path.open("rb") as source:
+                for block in iter(lambda: source.read(1024 * 1024), b""):
+                    digest.update(block)
+            return digest.hexdigest()
+
+        before = (file_digest(self._model_path), file_digest(self._tokenizer_path))
+
         try:
             import numpy as np
             import onnxruntime as ort  # type: ignore[import-untyped]
@@ -294,6 +314,10 @@ class LocalONNXEmbeddingProvider:
             sess_options=opts,
             providers=["CPUExecutionProvider"],
         )
+        after = (file_digest(self._model_path), file_digest(self._tokenizer_path))
+        if before != after:
+            raise RuntimeError("ONNX embedding assets changed during initialization")
+        self._asset_digests = after
 
     @property
     def provider_id(self) -> str:

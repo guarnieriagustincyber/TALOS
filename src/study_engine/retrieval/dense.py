@@ -20,6 +20,7 @@ from study_engine.retrieval.vector_store import (
     VectorRecord,
     VectorStore,
 )
+from study_engine.retrieval.vector_identity import vector_space_id
 from study_engine.storage.knowledge_store import KnowledgeStore
 
 
@@ -66,6 +67,10 @@ class DenseRetriever:
         if not self.store.contains_notebook(request.notebook_id):
             raise NotebookNotFoundError(request.notebook_id)
 
+        expected_space = vector_space_id(self.embedding_provider)
+        if expected_space is None:
+            raise DenseRetrievalError("Query embedding space identity is UNKNOWN")
+
         # 1. T_query_embedding
         t_emb_start = time.perf_counter()
         query_vector = self.embedding_provider.embed_query(request.query)
@@ -108,6 +113,24 @@ class DenseRetriever:
                 items=[],
                 diagnostics=diagnostics,
             )
+
+        linked_source_ids = {
+            s.source_id for s in self.store.list_notebook_sources(request.notebook_id)
+        }
+        for rec in records:
+            if rec.space_id != expected_space:
+                raise DenseRetrievalError("Stored embedding space is incompatible or UNKNOWN")
+            if (rec.provider_id != self.embedding_provider.provider_id
+                    or rec.model_id != self.embedding_provider.model_id):
+                raise DenseRetrievalError("Stored provider or model identity is incompatible")
+            if rec.notebook_id != request.notebook_id or rec.source_id not in linked_source_ids:
+                raise DenseRetrievalError("Vector belongs to another notebook or source")
+            if rec.dimensions != len(query_vector) or len(rec.vector) != len(query_vector):
+                raise EmbeddingDimensionMismatchError("Stored vector dimension mismatch")
+            if not self.store.chunks.contains(rec.chunk_id):
+                raise DenseRetrievalError("Vector references a missing chunk")
+            if self.store.get_chunk(rec.chunk_id).source_id != rec.source_id:
+                raise DenseRetrievalError("Vector source does not match the referenced chunk")
 
         # 3. T_similarity: Pure cosine similarity computation
         t_sim_start = time.perf_counter()
@@ -160,11 +183,6 @@ class DenseRetriever:
         # 5. T_hydration & Multi-layer Isolation Checks
         t_hyd_start = time.perf_counter()
         items: List[ScoredCandidate] = []
-
-        linked_source_ids = {
-            s.source_id
-            for s in self.store.list_notebook_sources(request.notebook_id)
-        }
 
         for sim_score, rec in filtered_scored:
             if len(items) >= request.top_k:

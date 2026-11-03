@@ -57,7 +57,8 @@ def _conn(storage: Any):
     conn = storage._get_connection()
     conn.execute(_DDL)
     conn.execute(_ACTIVITY_DDL)
-    conn.commit()
+    if not getattr(storage._thread_local, "transaction_depth", 0):
+        conn.commit()
     return conn
 
 
@@ -74,7 +75,7 @@ def record_kc_attempt(
         return
     now = datetime.now(timezone.utc).isoformat()
     conn = _conn(storage)
-    with conn:
+    with storage.transaction() as conn:
         conn.execute(
             """
             INSERT INTO session_kc_activity
@@ -146,7 +147,7 @@ def generate_session_digest(
 def save_digest(storage: Any, student_id: str, session_id: str, digest: Dict[str, Any]) -> None:
     now = datetime.now(timezone.utc).isoformat()
     conn = _conn(storage)
-    with conn:
+    with storage.transaction() as conn:
         conn.execute(
             """
             INSERT INTO session_digests (student_id, session_id, digest_json, updated_at)

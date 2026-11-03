@@ -2,6 +2,11 @@
   "schema_version": 1,
   "suites": [
     {
+      "path": "tests/audit",
+      "classification": "required",
+      "reason": "Synthetic audit boundary regressions and independent B1-R artifact-verifier contracts."
+    },
+    {
       "path": "tests/adversarial",
       "classification": "required",
       "reason": "Deterministic adversarial and abuse-resistance regressions."
@@ -32,6 +37,11 @@
       "reason": "Public schemas, boundaries, and architectural contracts."
     },
     {
+      "path": "tests/e2e",
+      "classification": "qualification-required",
+      "reason": "Deterministic offline study-loop tests use local SQLite databases as read-only sources and isolated temporary copies."
+    },
+    {
       "path": "tests/experiments",
       "classification": "required",
       "reason": "Hermetic experiment fixture and protocol regressions; generated/live evaluations are outside this suite."
@@ -45,6 +55,11 @@
       "path": "tests/integration",
       "classification": "required",
       "reason": "Hermetic integration tests are required; only the separately listed network/live modules are optional."
+    },
+    {
+      "path": "tests/isolation",
+      "classification": "qualification-required",
+      "reason": "Isolation checks fingerprint the local production vector database and write only to isolated temporary stores."
     },
     {
       "path": "tests/llm",
@@ -133,5 +148,105 @@
       "classification": "optional",
       "reason": "Requires KASIU_LIVE_TESTS=1 and GEMINI_API_KEY; run separately as a live-model evaluation."
     }
-  ]
+  ],
+  "informative_tests": [
+    {
+      "nodeid": "tests/performance/test_latency_disaggregated.py::test_sqlite_query_latency_p95_under_50ms",
+      "reason": "Local sequential SQLite microbenchmark; report as a regression signal without making it a release SLO gate."
+    }
+  ],
+  "focal_execution_profiles": {
+    "b06-snapshot-v1": {
+      "profile_version": 1,
+      "scope": "talos.b06.snapshot.v1",
+      "capture_contracts": {
+        "talos.b06.quiesced-consistency.v1": {
+          "capture_method": "quiesced_file_copy",
+          "consistency": "quiesced",
+          "attestation_authority": "project-delegated-local-executor",
+          "authentication_model": "local_integrity_only",
+          "read_only_semantics": "capture_copy_does_not_write_source_files",
+          "quiescence": {
+            "mode": "no_open_handles",
+            "verification": "lsof_before_and_after_copy",
+            "source_stability": "source_file_fingerprints_match_before_and_after"
+          }
+        }
+      },
+      "nodeid": "tests/pedagogy/test_talos_vs_notebooklm_e2e.py::test_p3_debug_query_abstains_without_sufficient_evidence_sse",
+      "required_logical_inputs": {
+        "knowledge_store": "knowledge_store.db",
+        "vector_store": "vector_store.db",
+        "student_state": "student_state.db"
+      },
+      "required_snapshot_payload": {
+        "sidecar_suffixes": [
+          "-wal",
+          "-shm",
+          "-journal"
+        ],
+        "sidecar_policy": "record_absent_or_present_for_each_database"
+      },
+      "external_execution_resources": [
+        "data/benchmark/sources",
+        "data/curriculum",
+        "data/dictionaries/iso_c_posix_symbols.json",
+        "data/config/retrieval_config.json",
+        "data/experiments/study_loop_v1/study_loop_oracle.json",
+        "data/experiments/study_loop_v1/study_loop_replay.json"
+      ],
+      "effective_execution_paths": [
+        "config",
+        "data/benchmark/sources",
+        "data/curriculum",
+        "data/dictionaries/iso_c_posix_symbols.json",
+        "data/config/retrieval_config.json",
+        "data/experiments/study_loop_v1/study_loop_oracle.json",
+        "data/experiments/study_loop_v1/study_loop_replay.json",
+        "pyproject.toml",
+        "requirements.lock",
+        "requirements.txt",
+        "setup.cfg",
+        "scripts/experiments/run_study_loop_v1.py",
+        "scripts/ingest_corpus.py",
+        "scripts/capture_quiesced_test_sources.py",
+        "scripts/prepare_test_snapshot.py",
+        "scripts/quality_gate.py",
+        "scripts/quality_gate_isolation.py",
+        "scripts/test.sh",
+        "src/study_engine",
+        "tests/conftest.py",
+        "tests/pedagogy/test_talos_vs_notebooklm_e2e.py"
+      ],
+      "excluded_path_components": [
+        ".git",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".venv",
+        "__pycache__",
+        "logs",
+        "tmp"
+      ],
+      "fixture_constraints": {
+        "fixture": "web_state_test_copy",
+        "working_directory": "derived_snapshot_only",
+        "use_mock": true,
+        "database_identities": [
+          "knowledge_store",
+          "vector_store",
+          "student_state"
+        ]
+      },
+      "b06_synthetic_exception": {
+        "nodeid": "tests/pedagogy/test_talos_vs_notebooklm_e2e.py::test_p3_debug_query_abstains_without_sufficient_evidence_sse",
+        "fixture": "b06_synthetic_state",
+        "working_directory": "captured_workspace_sibling/b06-synthetic",
+        "data_origin": "SYNTHETIC",
+        "dataset_id": "b06-debug-related-v1",
+        "captured_inputs": "provenance_only",
+        "legacy_compatibility": "CAPTURED_VECTOR_SCHEMA_COMPATIBILITY_UNVERIFIED"
+      }
+    }
+  }
 }

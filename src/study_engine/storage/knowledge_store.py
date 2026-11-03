@@ -269,7 +269,7 @@ class KnowledgeStore:
         """Check if notebook exists in storage."""
         if not notebook_id:
             return False
-        with self.engine.transaction() as conn:
+        with self.engine.transaction(mode="DEFERRED") as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT 1 FROM notebooks WHERE id = ?;", (notebook_id,))
             return cursor.fetchone() is not None
@@ -596,7 +596,7 @@ class KnowledgeStore:
                 limit,
             )
 
-            with self.engine.transaction() as conn:
+            with self.engine.transaction(mode="DEFERRED") as conn:
                 cursor = conn.cursor()
                 cursor.execute(sql, params)
                 rows = cursor.fetchall()
@@ -616,7 +616,7 @@ class KnowledgeStore:
                         *source_filter_params,
                         fallback_limit,
                     )
-                    with self.engine.transaction() as conn:
+                    with self.engine.transaction(mode="DEFERRED") as conn:
                         cursor = conn.cursor()
                         cursor.execute(sql, fallback_params)
                         fallback_rows = cursor.fetchall()
@@ -744,85 +744,46 @@ class KnowledgeStore:
         if source_ids is not None and not clean_source_ids:
             return []
 
-        # Resolve vector store
-        v_store = vector_store
-        if v_store is None:
-            if hasattr(self, "_vector_store") and self._vector_store:
-                v_store = self._vector_store
-            else:
-                try:
-                    from study_engine.retrieval.vector_store import SQLiteVectorStore
-                    candidate_paths = [
-                        Path("data/web_state/vector_store.db"),
-                        Path("data/benchmark/db/benchmark_vectors.db"),
-                        Path(__file__).resolve().parents[3] / "data/web_state/vector_store.db",
-                        Path(__file__).resolve().parents[3] / "data/benchmark/db/benchmark_vectors.db",
-                    ]
-                    for cp in candidate_paths:
-                        if cp.exists():
-                            v_store = SQLiteVectorStore(cp)
-                            self._vector_store = v_store
-                            break
-                except Exception as ex:
-                    logger.debug("VectorStore resolution: %s", ex)
-                    v_store = None
-
-        # Si el almacén de vectores no tiene vectores para este cuaderno,
-        # NO cargar el modelo ONNX ni calcular embeddings en RAM innecesariamente.
-        # FTS5 (SQLite puro) resolverá la búsqueda en ~6ms con 0 RAM extra.
-        if v_store is not None and hasattr(v_store, "get_vector_matrix"):
-            chunk_ids, matrix = v_store.get_vector_matrix(notebook_id)
-            if len(chunk_ids) == 0 or matrix is None or matrix.size == 0:
-                return []
-        else:
+        # No discovery by CWD or benchmark paths: dense requires an explicitly
+        # attached store and embedder. Lexical search remains available.
+        v_store = vector_store or getattr(self, "_vector_store", None)
+        emb = embedder or getattr(self, "_embedder", None)
+        if v_store is None or not hasattr(v_store, "list_space_ids"):
+            self._vector_search_status = "VECTOR_DISABLED"
+            return []
+        try:
+            stored_spaces = v_store.list_space_ids(notebook_id)
+        except Exception as exc:
+            logger.warning("Vector identity lookup failed: %s", exc)
+            self._vector_search_status = "UNKNOWN"
+            return []
+        if not stored_spaces:
+            self._vector_search_status = "NO_VECTORS"
             return []
 
-        # Resolve embedder solo si hay vectores que comparar
-        emb = embedder
-        if emb is None:
-            if hasattr(self, "_embedder") and self._embedder:
-                emb = self._embedder
-            else:
-                try:
-                    import sentence_transformers  # noqa: F401
-                    from study_engine.retrieval.embedding import SentenceTransformerEmbeddingProvider
-                    emb = SentenceTransformerEmbeddingProvider()
-                    self._embedder = emb
-                except Exception as ex_st:
-                    logger.debug("SentenceTransformerEmbeddingProvider resolution: %s", ex_st)
-                    emb = None
-
-                if emb is None:
-                    try:
-                        from study_engine.retrieval.embedding import LocalONNXEmbeddingProvider
-                        repo_root = Path(__file__).resolve().parents[3]
-                        candidate_models = [
-                            Path("models/multilingual-e5-small/onnx/model.onnx"),
-                            repo_root / "models/multilingual-e5-small/onnx/model.onnx",
-                        ]
-                        for mp in candidate_models:
-                            tp = mp.parent / "tokenizer.json"
-                            if mp.exists() and tp.exists():
-                                emb = LocalONNXEmbeddingProvider(model_path=mp, tokenizer_path=tp, num_threads=4)
-                                self._embedder = emb
-                                break
-                    except Exception as ex_onnx:
-                        logger.debug("LocalONNXEmbeddingProvider resolution: %s", ex_onnx)
-                        emb = None
-
-                if emb is None:
-                    try:
-                        from study_engine.retrieval.embedding import DeterministicHashEmbedder
-                        dim = 1024
-                        if matrix is not None and hasattr(matrix, "shape") and len(matrix.shape) > 1 and matrix.shape[1] > 0:
-                            dim = matrix.shape[1]
-                        emb = DeterministicHashEmbedder(dimensions=dim)
-                        self._embedder = emb
-                    except Exception as ex:
-                        logger.debug("DeterministicHashEmbedder resolution: %s", ex)
-                        emb = None
-
-        if not emb:
+        from study_engine.retrieval.vector_identity import vector_space_id
+        expected_space = vector_space_id(emb) if emb is not None else None
+        if expected_space is None:
+            self._vector_search_status = "UNKNOWN"
+            return []
+        if expected_space not in stored_spaces:
+            self._vector_search_status = (
+                "UNKNOWN" if None in stored_spaces else "INCOMPATIBLE"
+            )
+            return []
+        try:
+            chunk_ids, matrix = v_store.get_vector_matrix(
+                notebook_id,
+                provider_id=emb.provider_id,
+                model_id=emb.model_id,
+                space_id=expected_space,
+            )
+        except Exception as exc:
+            logger.warning("Compatible vector load failed: %s", exc)
+            self._vector_search_status = "UNKNOWN"
+            return []
+        if not chunk_ids or matrix is None or matrix.size == 0:
+            self._vector_search_status = "NO_COMPATIBLE_VECTORS"
             return []
 
         try:
@@ -832,48 +793,43 @@ class KnowledgeStore:
             if q_norm > 0:
                 q_arr /= q_norm
 
-            if len(chunk_ids) == 0 or matrix is None or matrix.size == 0:
-                # Fallback to get_by_notebook if get_vector_matrix returned empty or wasn't available
-                records = v_store.get_by_notebook(notebook_id)
-                valid_recs = [rec for rec in records if len(rec.vector) == len(q_vec)]
-                if not valid_recs:
-                    return []
-                chunk_ids = [r.chunk_id for r in valid_recs]
-                matrix = np.array([r.vector for r in valid_recs], dtype=np.float32)
-
             if matrix.size == 0 or matrix.shape[1] != len(q_vec):
+                self._vector_search_status = "INCOMPATIBLE"
                 return []
 
-            allowed_indices: Optional[List[int]] = None
+            source_clause = ""
+            params: List[str] = [notebook_id]
             if source_ids is not None:
                 placeholders = ", ".join("?" for _ in clean_source_ids)
-                with self.engine.transaction() as conn:
-                    cursor = conn.cursor()
-                    cursor.execute(
-                        "SELECT c.id FROM chunks c "
-                        "JOIN notebook_sources ns ON ns.source_id = c.source_id "
-                        f"WHERE ns.notebook_id = ? AND c.source_id IN ({placeholders});",
-                        (notebook_id, *clean_source_ids),
-                    )
-                    allowed_chunk_ids = {row[0] for row in cursor.fetchall()}
-                allowed_indices = [
-                    index for index, chunk_id in enumerate(chunk_ids)
-                    if chunk_id in allowed_chunk_ids
-                ]
-                if not allowed_indices:
-                    return []
+                source_clause = f" AND c.source_id IN ({placeholders})"
+                params.extend(clean_source_ids)
+            with self.engine.transaction() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT c.id FROM chunks c "
+                    "JOIN notebook_sources ns ON ns.source_id = c.source_id "
+                    f"WHERE ns.notebook_id = ?{source_clause};",
+                    tuple(params),
+                )
+                allowed_chunk_ids = {row[0] for row in cursor.fetchall()}
+            allowed_indices = [
+                index for index, chunk_id in enumerate(chunk_ids)
+                if chunk_id in allowed_chunk_ids
+            ]
+            if not allowed_indices:
+                self._vector_search_status = "NO_SCOPED_VECTORS"
+                return []
 
+            # Scope the matrix *before* any dot product; a notebook match alone
+            # does not authorize unrelated sources in the same vector DB.
+            matrix = matrix[allowed_indices]
+            chunk_ids = [chunk_ids[index] for index in allowed_indices]
             norms = np.linalg.norm(matrix, axis=1, keepdims=True)
             norms = np.clip(norms, a_min=1e-9, a_max=None)
             norm_matrix = matrix / norms
 
             sims = np.dot(norm_matrix, q_arr)
-            if allowed_indices is None:
-                top_k_indices = np.argsort(sims)[::-1][:limit]
-            else:
-                scoped_scores = sims[allowed_indices]
-                scoped_order = np.argsort(scoped_scores)[::-1][:limit]
-                top_k_indices = [allowed_indices[index] for index in scoped_order]
+            top_k_indices = np.argsort(sims)[::-1][:limit]
 
             results: List[SearchResult] = []
             for idx in top_k_indices:
@@ -899,9 +855,11 @@ class KnowledgeStore:
                             page_end=chunk.page_end,
                         )
                     )
+            self._vector_search_status = "COMPATIBLE"
             return results
         except Exception as e:
             logger.warning("Vector search fallback exception: %s", e)
+            self._vector_search_status = "UNKNOWN"
             return []
 
     def reciprocal_rank_fusion(
@@ -1295,36 +1253,10 @@ class KnowledgeStore:
                         )
                     fts_hits = cursor.fetchall()
 
+        # chapter_vectors has no persisted embedding-space identity. Its dense
+        # stream is UNKNOWN and cannot be compared with a query by dimension.
+        # Keep the chapter lexical stream until T08 can provide trusted metadata.
         vector_hits: List[Tuple[str, float]] = []
-        q_emb = self._get_embedding(query)
-        if q_emb:
-            q_vec = np.array(q_emb, dtype=np.float32)
-            q_norm = float(np.linalg.norm(q_vec))
-            if q_norm > 1e-9:
-                with self.engine.transaction() as conn:
-                    cursor = conn.cursor()
-                    if notebook_id:
-                        cursor.execute(
-                            "SELECT id, dimensions, vector FROM chapter_vectors WHERE notebook_id = ?;",
-                            (notebook_id,),
-                        )
-                    else:
-                        cursor.execute("SELECT id, dimensions, vector FROM chapter_vectors;")
-                    rows = cursor.fetchall()
-
-                scores = []
-                for cid, dims, vblob in rows:
-                    try:
-                        v = struct.unpack(f"{dims}f", vblob)
-                        arr = np.array(v, dtype=np.float32)
-                        dot = float(np.dot(q_vec, arr))
-                        norm = float(np.linalg.norm(arr))
-                        sim = dot / (q_norm * norm) if norm > 1e-9 else 0.0
-                        scores.append((cid, sim))
-                    except Exception as e_vec:
-                        logger.debug("Vector unpack error for chapter %s: %s", cid, e_vec)
-                scores.sort(key=lambda x: x[1], reverse=True)
-                vector_hits = scores[: max(limit * 2, 10)]
 
         rrf_scores: Dict[str, float] = {}
         for rank_idx, (cid, _) in enumerate(fts_hits):

@@ -44,6 +44,10 @@ class ProviderCompletion(BaseContract):
         default=False,
         description="True if generator explicitly signaled abstention",
     )
+    finish_reason: Optional[str] = Field(
+        default=None,
+        description="Provider-reported termination reason; None means unreported",
+    )
 
 
 @runtime_checkable

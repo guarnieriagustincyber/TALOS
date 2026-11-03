@@ -150,7 +150,7 @@ class GeneratedExerciseRegistry:
     def get(self, exercise_id: str) -> Optional[Dict[str, Any]]:
         conn = self.storage._get_connection()
         row = conn.execute(
-            "SELECT exercise_id, kind, kc_ids_json, prompt, oracle_json, difficulty, created_at "
+            "SELECT exercise_id, kind, kc_ids_json, prompt, oracle_json, difficulty, created_at, source "
             "FROM generated_exercises WHERE exercise_id = ?;",
             (exercise_id,),
         ).fetchone()
@@ -163,7 +163,7 @@ class GeneratedExerciseRegistry:
             "prompt": row[3],
             "oracle": json.loads(row[4]),
             "difficulty": row[5],
-            "source": "generated",
+            "source": row[7],
             "created_at": row[6],
         }
 

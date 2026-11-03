@@ -312,7 +312,7 @@ class SQLiteLexicalIndex:
             limit,
         )
 
-        with self.engine.transaction() as conn:
+        with self.engine.transaction(mode="DEFERRED") as conn:
             cursor = conn.cursor()
             cursor.execute(sql, params)
             rows = cursor.fetchall()
@@ -329,7 +329,7 @@ class SQLiteLexicalIndex:
                     clean_doc_id,
                     limit,
                 )
-                with self.engine.transaction() as conn:
+                with self.engine.transaction(mode="DEFERRED") as conn:
                     cursor = conn.cursor()
                     cursor.execute(sql, fallback_params)
                     rows = cursor.fetchall()

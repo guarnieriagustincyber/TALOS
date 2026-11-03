@@ -3,11 +3,17 @@
 import json
 import logging
 from fastapi.testclient import TestClient
+import pytest
 
 from study_engine.config import CANONICAL_STUDENT_ID
 from study_engine.student.storage import StudentStorage
 from study_engine.web.app import create_app
 from study_engine.web.dependencies import AppContainer, set_container
+
+
+@pytest.fixture(autouse=True)
+def synthetic_admin_token(monkeypatch):
+    monkeypatch.setenv("TALOS_ADMIN_TOKEN", "synthetic-admin-token-for-focused-tests-012345")
 
 
 def test_endpoint_requires_admin_token_403_and_200(tmp_path):
@@ -29,7 +35,10 @@ def test_endpoint_requires_admin_token_403_and_200(tmp_path):
     assert r_bad_auth.status_code == 403
 
     # 3. Con token válido: 200 OK
-    r_auth = client.get(url, headers={"X-Admin-Token": "talos-admin-secret-dev"})
+    r_auth = client.get(
+        url,
+        headers={"X-Admin-Token": "synthetic-admin-token-for-focused-tests-012345"},
+    )
     assert r_auth.status_code == 200
     data = r_auth.json()
     assert data["student_id"] == CANONICAL_STUDENT_ID
@@ -38,6 +47,20 @@ def test_endpoint_requires_admin_token_403_and_200(tmp_path):
     assert "evasion_kcs" in data
     assert "overconfident_kcs" in data
     assert "scaffolding_directive_preview" in data
+
+
+def test_metacognitive_endpoint_fails_closed_without_secure_configuration(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    app = create_app()
+    container = AppContainer(working_dir=tmp_path, use_mock=True)
+    set_container(container)
+    monkeypatch.delenv("TALOS_ADMIN_TOKEN", raising=False)
+
+    response = TestClient(app).get("/api/student/metacognitive-profile")
+
+    assert response.status_code == 503
 
 
 def test_chat_priority_struggle_over_metacognitive(tmp_path):

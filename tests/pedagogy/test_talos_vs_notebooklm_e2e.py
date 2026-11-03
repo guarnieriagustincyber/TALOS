@@ -22,6 +22,7 @@ from study_engine.pedagogy.structured_pipeline import (
     classify_pedagogical_intent,
     extract_requested_structural_components,
 )
+from study_engine.contracts.search import SearchResult
 
 
 def test_explicit_complete_code_request_preserves_requested_c_solution():
@@ -115,8 +116,8 @@ def test_citation_sanitization_enmienda_e_ux1():
     assert any("364" in c for c in buffer.stripped_citations)
 
 
-def test_conversational_followup_contextual_retrieval():
-    """Test 5: Follow-up query ('podes detallarme mas?') inherits context from prior turn."""
+def test_conversational_followup_abstains_on_insufficient_retrieval_result():
+    """A generic follow-up must not pass C5 on a merely topical search result."""
     from study_engine.web.routes.chat import (
         _prepare_chat_context,
         ChatQueryRequest,
@@ -143,7 +144,17 @@ def test_conversational_followup_contextual_retrieval():
         "content": "Punteros y memoria en C",
         "score": 0.95,
     }
-    mock_sr = MagicMock(content="Punteros y memoria en C", score=0.95, source_id="src_kr_c", chunk_id="c1", page_start=94, page_end=94)
+    mock_sr = SearchResult(
+        chunk_id="c1",
+        document_id="doc_kr_c",
+        source_id="src_kr_c",
+        score=0.95,
+        snippet="Punteros y memoria en C",
+        content="Punteros y memoria en C",
+        index=0,
+        page_start=94,
+        page_end=94,
+    )
     mock_store.search_hybrid.return_value = [mock_sr]
     mock_store.get_pedagogical_contract.return_value = FASE0_CONTRACT
     mock_store.get_notebook.return_value = MagicMock(folder_id="roadmap_fase0")
@@ -181,9 +192,12 @@ def test_conversational_followup_contextual_retrieval():
         target_scope_id="fase0-soc",
     )
 
-    # Must NOT abstain with QUERY_OUT_OF_SCOPE
-    assert getattr(context_pack, "abstained", False) is False
-    # Verified that search_hybrid received the previous topic context
+    assert getattr(context_pack, "abstained", False) is True
+    assert getattr(context_pack.trust_status, "value", context_pack.trust_status) == "RELATED_INSUFFICIENT"
+    assert context_pack.abstention_reason == "QUERY_OUT_OF_SCOPE"
+    assert raw_chunks == []
+
+    # Retrieval uses the prior topic, but the short result is not sufficient for C5.
     call_args = mock_store.search_hybrid.call_args[1]
     assert "char *s" in call_args["query"] or "strcpy" in call_args["query"]
 
@@ -249,6 +263,12 @@ def test_repeated_followups_and_client_turns_and_rescue_pack():
         session_id=session_id,
         recent_turns=recent_turns,
     )
+    from study_engine.retrieval.query_rewriter import QueryRewriter
+
+    rewritten_query = QueryRewriter().rewrite_contextual(req.prompt, recent_turns)
+    assert "swap" in rewritten_query.lower()
+    assert "puntero" in rewritten_query.lower()
+
     resolver = ScopeResolver(mock_store)
 
     resolved_scope, contract, context_pack, raw_chunks, folder_decision, context_mode, bkt_directive, style_result, conv_payload, matched_kc_id, bkt_meta = _prepare_chat_context(
@@ -268,6 +288,28 @@ def test_repeated_followups_and_client_turns_and_rescue_pack():
     assert getattr(context_pack, "abstained", False) is False
     assert len(raw_chunks) > 0
     assert raw_chunks[0]["id"] == "E1"
+
+    unrelated_pack = EpistemicContextPack(
+        formatted_context="[1] Fotosíntesis y clorofila...",
+        citations=[MagicMock()],
+        chunks=[{"id": "E2", "chunk_text": "Fotosíntesis y clorofila"}],
+        abstained=False,
+    )
+    _LAST_EPISTEMIC_PACK[evidence_key] = (
+        unrelated_pack,
+        [{"id": "E2", "chunk_text": "Fotosíntesis y clorofila"}],
+    )
+    _, _, rejected_pack, rejected_chunks, *_ = _prepare_chat_context(
+        store=mock_store,
+        resolver=resolver,
+        container=mock_container,
+        prompt_text=req.prompt,
+        request=req,
+        target_scope_type="notebook",
+        target_scope_id="fase0-soc",
+    )
+    assert getattr(rejected_pack, "abstained", False) is True
+    assert rejected_chunks == []
 
 
 def test_deictic_misconception_followup_rescues_epistemic_pack():
@@ -348,20 +390,34 @@ def test_deictic_misconception_followup_rescues_epistemic_pack():
     assert raw_chunks[0]["id"] == "E363"
 
 
-def test_p3_debug_crash_sse_e2e_streaming(web_state_test_copy):
-    """Test 8: P3 Crash Query runs through full Web SSE pipeline with mock container, verifying clean stream without disclaimer."""
+def test_p3_debug_query_abstains_without_sufficient_evidence_sse(b06_synthetic_state):
+    """A debug query without sufficient evidence terminates as a pedagogical abstention."""
     import json
     from fastapi.testclient import TestClient
     from study_engine.web.app import create_app
     from study_engine.web.dependencies import AppContainer, set_container
-    from study_engine.web.routes.chat import FALLBACK_DISCLAIMER
+    from study_engine.web.local_access import configure_local_access
 
     app = create_app()
-    container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
+    configure_local_access(app, perimeter_enabled=True)
+    container = AppContainer(working_dir=b06_synthetic_state, use_mock=True)
     set_container(container)
-    client = TestClient(app)
+    client = TestClient(app, base_url="http://127.0.0.1:8000", client=("127.0.0.1", 50000))
 
     query = 'char *s; strcpy(s, "hola mundo"); ¿Por qué crashea con Segmentation Fault si el puntero s ya está declarado? ¿No se solucionaría de forma defensiva simplemente agregando un if (s == NULL) antes del strcpy?'
+    assert container.use_mock is True
+    assert {s.source_id for s in container.knowledge_store.list_notebook_sources("fase0-soc")} == {
+        "b06-synthetic-pointers"
+    }
+    from study_engine.retrieval.embedding import DeterministicHashEmbedder
+    from study_engine.retrieval.vector_identity import vector_space_id
+    assert container.context["vstore"].list_space_ids("fase0-soc") == {
+        vector_space_id(DeterministicHashEmbedder(dimensions=128))
+    }
+    denied = client.post("/api/chat/query", headers={"host": "b06.invalid"}, json={
+        "query": query, "notebook_id": "fase0-soc", "requested_phase": "conceptual",
+    })
+    assert denied.status_code == 403
     response = client.post(
         "/api/chat/query",
         json={
@@ -371,26 +427,24 @@ def test_p3_debug_crash_sse_e2e_streaming(web_state_test_copy):
         },
     )
     assert response.status_code == 200
+    assert "text/event-stream" in response.headers["content-type"]
+    assert response.text.endswith("\n\n")
     lines = [line.strip() for line in response.text.split("\n") if line.startswith("data: ")]
     events = [json.loads(line[6:]) for line in lines]
-    tokens = [
-        e["payload"].get("token", "")
-        for e in events
-        if e.get("event_type") == "phase_token"
+    assert [event["event_type"] for event in events] == [
+        "evidence_manifest",
+        "abstention",
     ]
-    full_text = "".join(tokens)
-    complete_events = [e for e in events if e.get("event_type") == "phase_complete"]
-    assert len(complete_events) == 1
-    complete_payload = complete_events[0]["payload"]
-
-    # 1. FALLBACK_DISCLAIMER must NEVER be emitted in visible stream
-    assert FALLBACK_DISCLAIMER not in full_text
-
-    # 2. Complete payload must track fallback_disclaimer
-    assert "fallback_disclaimer" in complete_payload
-
-    # 3. Tokens must have streamed
-    assert len(tokens) > 0
+    assert events[0]["payload"]["abstained"] is True
+    assert events[0]["payload"]["trust_status"] == "RELATED_INSUFFICIENT"
+    assert events[1]["payload"]["abstention_code"] == "QUERY_OUT_OF_SCOPE"
+    assert sum(event["event_type"] == "phase_token" for event in events) == 0
+    assert sum(event["event_type"] == "phase_complete" for event in events) == 0
+    assert sum(event["event_type"] == "error" for event in events) == 0
+    assert not any(
+        event["event_type"] in {"phase_start", "phase_token", "phase_complete", "error"}
+        for event in events
+    )
 
 
 def test_continuation_guard_resume_truncated_turn():

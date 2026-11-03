@@ -13,6 +13,10 @@ Contrato:
 import logging
 
 from study_engine.pedagogy.citation_validator import CitationValidator
+from study_engine.pedagogy.structured_pipeline import (
+    _citation_document_id,
+    _citation_page_metadata,
+)
 
 CHUNKS = [
     {"id": "E1", "citation_id": "E1", "chunk_text": "a"},
@@ -54,3 +58,29 @@ def test_texto_sin_citas_intacto_e_idempotente():
     text = "Respuesta sin referencias."
     corrected, invalid = v.validate_and_rewrite(text, CHUNKS)
     assert corrected == text and invalid == []
+
+
+def test_citation_page_metadata_does_not_invent_page_one():
+    assert _citation_page_metadata({"source_id": "synthetic-source"}) == {
+        "page": None,
+        "page_start": None,
+        "page_end": None,
+    }
+
+
+def test_citation_page_metadata_preserves_explicit_chunk_and_unit_locations():
+    assert _citation_page_metadata({"page_start": 7, "page_end": 9}) == {
+        "page": 7,
+        "page_start": 7,
+        "page_end": 9,
+    }
+    assert _citation_page_metadata({}, type("EvidenceUnit", (), {"page_start": 11, "page_end": 12})()) == {
+        "page": 11,
+        "page_start": 11,
+        "page_end": 12,
+    }
+
+
+def test_citation_document_identity_is_preserved_without_a_fallback_value():
+    assert _citation_document_id({"document_id": "document-synthetic-7"}) == "document-synthetic-7"
+    assert _citation_document_id({"chunk_id": "chunk-without-document"}) is None

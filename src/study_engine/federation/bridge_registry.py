@@ -150,11 +150,18 @@ class BridgeRegistry:
         """
         bridge = self.find_bridge(source_nb, target_nb, now=now)
         if not bridge:
+            with self._lock:
+                expired = any(
+                    self.is_bridge_expired(b, now=now) and (
+                        (b.source_notebook == source_nb.strip() and b.target_notebook == target_nb.strip())
+                        or (b.direction == "bidirectional" and b.source_notebook == target_nb.strip() and b.target_notebook == source_nb.strip())
+                    ) for b in self._bridges.values()
+                )
             self._record_event(
                 event_type="UNAUTHORIZED_BRIDGE_ATTEMPT",
                 details={"source": source_nb, "target": target_nb, "topic": topic},
             )
-            return False, "Bridge not found or expired in allow-list", None
+            return False, "Bridge expired in allow-list" if expired else "Bridge not found in allow-list", None
 
         clean_topic = topic.lower().strip()
         if clean_topic not in bridge.topic_allowlist:

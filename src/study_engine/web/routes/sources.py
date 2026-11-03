@@ -19,9 +19,6 @@ STORAGE_DIR = BASE_DIR / "storage"
 SOURCES_DIR = STORAGE_DIR / "sources"
 COVERS_DIR = STORAGE_DIR / "covers"
 
-SOURCES_DIR.mkdir(parents=True, exist_ok=True)
-COVERS_DIR.mkdir(parents=True, exist_ok=True)
-
 HASH_REGEX = re.compile(r"^[a-fA-F0-9]{64}$")
 
 
@@ -77,6 +74,9 @@ async def upload_source(file: UploadFile = File(...)) -> Dict[str, Any]:
         )
 
     try:
+        # Filesystem effects belong to the upload operation, never module import.
+        SOURCES_DIR.mkdir(parents=True, exist_ok=True)
+        COVERS_DIR.mkdir(parents=True, exist_ok=True)
         doc_hash, final_pdf = await save_and_hash_uploaded_pdf(file, SOURCES_DIR)
         page_count, cover_path = extract_pdf_cover(final_pdf, COVERS_DIR, doc_hash)
 
@@ -407,5 +407,4 @@ def open_in_system_viewer(payload: OpenLocalPayload) -> Dict[str, str]:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Fallo invocando visor local del sistema operativo.",
         )
-
 

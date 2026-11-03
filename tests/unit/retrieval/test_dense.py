@@ -14,13 +14,14 @@ from study_engine.contracts.retrieval import (
     RetrievalStrategy,
 )
 from study_engine.retrieval.base import BaseRetriever
-from study_engine.retrieval.dense import DenseRetriever
+from study_engine.retrieval.dense import DenseRetriever, DenseRetrievalError
 from study_engine.retrieval.embedding import (
     EmbeddingDimensionMismatchError,
     MockEmbeddingProvider,
 )
 from study_engine.retrieval.indexer import index_notebook_chunks
 from study_engine.retrieval.vector_store import SQLiteVectorStore, VectorRecord
+from study_engine.retrieval.vector_identity import vector_space_id
 
 from study_engine.storage.knowledge_store import KnowledgeStore
 
@@ -46,7 +47,7 @@ def setup_environment(tmp_path: Path):
     ]
     store.store_ingestion_bundle(rec, docs, chunks, notebook_id="nb-so")
 
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
     provider = MockEmbeddingProvider(dimensions=384)
     index_notebook_chunks(store, vec_store, provider, "nb-so")
 
@@ -125,7 +126,7 @@ def test_dense_retriever_dimension_mismatch(setup_environment):
     bad_retriever = DenseRetriever(store, vec_store, bad_prov)
 
     req = RetrievalRequest(query="test", notebook_id="nb-so", top_k=5)
-    with pytest.raises(EmbeddingDimensionMismatchError):
+    with pytest.raises(DenseRetrievalError, match="incompatible"):
         bad_retriever.retrieve(req)
 
 def test_dense_retriever_rejects_invalid_request_type(setup_environment):
@@ -137,11 +138,9 @@ def test_dense_retriever_rejects_invalid_request_type(setup_environment):
 def test_dense_retriever_query_dimension_mismatch(setup_environment):
     store, vec_store, provider, retriever = setup_environment
 
-    class BadQueryProvider(MockEmbeddingProvider):
-        def embed_query(self, query):
-            return [0.1] * 10  # 10 instead of 384
-
-    bad_retriever = DenseRetriever(store, vec_store, BadQueryProvider(dimensions=384))
+    bad_provider = MockEmbeddingProvider(dimensions=384)
+    bad_provider.embed_query = lambda _query: [0.1] * 10  # malformed output
+    bad_retriever = DenseRetriever(store, vec_store, bad_provider)
     req = RetrievalRequest(query="test", notebook_id="nb-so", top_k=5)
     with pytest.raises(EmbeddingDimensionMismatchError):
         bad_retriever.retrieve(req)
@@ -194,6 +193,7 @@ def test_dense_retriever_zero_vector_similarity(setup_environment):
         model_id=provider.model_id,
         dimensions=provider.dimensions,
         vector=[0.0] * provider.dimensions,
+        space_id=vector_space_id(provider),
     )
     vec_store.save_records([zero_rec])
 
@@ -203,4 +203,3 @@ def test_dense_retriever_zero_vector_similarity(setup_environment):
     c1_candidate = next(c for c in resp.items if c.chunk_id == "c1")
     # Zero vector cosine similarity evaluates to 0.0
     assert c1_candidate.score == 0.0
-

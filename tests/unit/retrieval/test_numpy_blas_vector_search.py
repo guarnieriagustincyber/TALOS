@@ -8,6 +8,7 @@ from study_engine.contracts.notebook import Notebook
 from study_engine.contracts.search import SearchResult
 from study_engine.retrieval.embedding import LocalONNXEmbeddingProvider, MockEmbeddingProvider
 from study_engine.retrieval.vector_store import SQLiteVectorStore, VectorRecord
+from study_engine.retrieval.vector_identity import vector_space_id
 from study_engine.storage.knowledge_store import KnowledgeStore
 
 
@@ -17,7 +18,7 @@ def test_numpy_blas_vector_search_ordering():
     store.initialize()
     store.create_notebook(Notebook(id="nb_test_blas", name="BLAS Test"))
 
-    v_store = SQLiteVectorStore(":memory:")
+    v_store = SQLiteVectorStore(":memory:", read_only=False)
     emb = MockEmbeddingProvider(dimensions=128)
 
     # Ingest mock chunks into store
@@ -42,8 +43,8 @@ def test_numpy_blas_vector_search_ordering():
     other_vec = emb.embed_query("Completely unrelated content")
 
     v_store.save_records([
-        VectorRecord(chunk_id="c_target", notebook_id="nb_test_blas", source_id="src_1", provider_id="mock", model_id="mock", dimensions=128, vector=q_vec),
-        VectorRecord(chunk_id="c_other", notebook_id="nb_test_blas", source_id="src_1", provider_id="mock", model_id="mock", dimensions=128, vector=other_vec),
+        VectorRecord(chunk_id="c_target", notebook_id="nb_test_blas", source_id="src_1", provider_id=emb.provider_id, model_id=emb.model_id, dimensions=128, vector=q_vec, space_id=vector_space_id(emb)),
+        VectorRecord(chunk_id="c_other", notebook_id="nb_test_blas", source_id="src_1", provider_id=emb.provider_id, model_id=emb.model_id, dimensions=128, vector=other_vec, space_id=vector_space_id(emb)),
     ])
 
     results = store.vector_search("Exact target match", "nb_test_blas", limit=10, vector_store=v_store, embedder=emb)
@@ -59,7 +60,7 @@ def test_numpy_blas_performance_scale():
     store.initialize()
     store.create_notebook(Notebook(id="nb_scale", name="Scale Test"))
 
-    v_store = SQLiteVectorStore(":memory:")
+    v_store = SQLiteVectorStore(":memory:", read_only=False)
     rng = np.random.default_rng(42)
 
     # 1000 vectors of 1024 dimensions (matching Qwen3-Embedding-0.6B)

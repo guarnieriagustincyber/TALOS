@@ -4,7 +4,7 @@ INVARIANTS:
 1. Process Group Isolation: Processes are spawned with start_new_session=True.
 2. Group Termination: Timeouts kill the entire process group via os.killpg.
 3. Graceful Escalation: SIGTERM followed by 2.0s grace period before SIGKILL.
-4. Clean I/O Separation: DEVNULL used when no stdin payload is provided.
+4. Clean I/O Separation: PIPE with immediate close used when no stdin payload.
 """
 
 from dataclasses import dataclass
@@ -53,81 +53,108 @@ def run_managed_process_group(
     Returns:
         ProcessRunOutcome with returncode, timing, streams, and reason.
     """
-    if stdin_payload is not None:
-        stdin_mode = subprocess.PIPE
-    else:
-        stdin_mode = subprocess.DEVNULL
+    # Use PIPE for stdin in all cases; close write end immediately when no payload.
+    # Avoids subprocess.DEVNULL which requires /dev/null in sandbox device namespace.
+    stdin_read_fd = None
+    stdin_write_fd = None
+    p = None
+    try:
+        if stdin_payload is not None:
+            stdin_mode = subprocess.PIPE
+        else:
+            # Create a pipe; we'll close the write end immediately after Popen
+            # to give the child immediate EOF without requiring /dev/null.
+            r_fd, w_fd = os.pipe()
+            stdin_mode = r_fd
+            stdin_write_fd = w_fd
 
-    t_start = time.perf_counter()
+        t_start = time.perf_counter()
 
-    p = subprocess.Popen(
-        cmd,
-        cwd=cwd,
-        env=env,
-        stdin=stdin_mode,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        start_new_session=True,
-    )
-
-    pgid = os.getpgid(p.pid)
-    timed_out = False
-
-    # Start I/O streaming in background thread
-    streams_holder: list[CapturedStreams] = []
-
-    def _stream_worker() -> None:
-        captured = capture_subprocess_streams(
-            process=p,
-            max_output_bytes=max_output_bytes,
-            stdin_payload=stdin_payload,
+        p = subprocess.Popen(
+            cmd,
+            cwd=cwd,
+            env=env,
+            stdin=stdin_mode,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            start_new_session=True,
         )
-        streams_holder.append(captured)
 
-    import threading
+        # Close the write end of stdin pipe immediately if we created one.
+        # This gives the child immediate EOF on stdin without needing /dev/null.
+        if stdin_write_fd is not None:
+            try:
+                os.close(stdin_write_fd)
+                stdin_write_fd = None
+            except OSError:
+                pass
 
-    io_thread = threading.Thread(target=_stream_worker, daemon=True)
-    io_thread.start()
+        pgid = os.getpgid(p.pid)
+        timed_out = False
 
-    # Monitor timeout
-    deadline = t_start + timeout_seconds
-    while True:
-        ret = p.poll()
-        if ret is not None:
-            break
-        now = time.perf_counter()
-        if now >= deadline:
-            timed_out = True
-            break
-        # Fine-grained sleep
-        time.sleep(0.05)
+        # Start I/O streaming in background thread
+        streams_holder: list[CapturedStreams] = []
 
-    if timed_out:
-        # 1. Send SIGTERM to entire process group
-        try:
-            os.killpg(pgid, signal.SIGTERM)
-        except (ProcessLookupError, PermissionError):
-            pass
+        def _stream_worker() -> None:
+            captured = capture_subprocess_streams(
+                process=p,
+                max_output_bytes=max_output_bytes,
+                stdin_payload=stdin_payload,
+            )
+            streams_holder.append(captured)
 
-        # 2. Wait grace period (up to 2.0s)
-        grace_deadline = time.perf_counter() + 2.0
-        while time.perf_counter() < grace_deadline:
-            if p.poll() is not None:
+        import threading
+
+        io_thread = threading.Thread(target=_stream_worker, daemon=True)
+        io_thread.start()
+
+        # Monitor timeout
+        deadline = t_start + timeout_seconds
+        while True:
+            ret = p.poll()
+            if ret is not None:
                 break
+            now = time.perf_counter()
+            if now >= deadline:
+                timed_out = True
+                break
+            # Fine-grained sleep
             time.sleep(0.05)
 
-        # 3. If still alive, escalate to SIGKILL
-        if p.poll() is None:
+        if timed_out:
+            # 1. Send SIGTERM to entire process group
             try:
-                os.killpg(pgid, signal.SIGKILL)
+                os.killpg(pgid, signal.SIGTERM)
             except (ProcessLookupError, PermissionError):
                 pass
-            p.wait()
 
-    t_end = time.perf_counter()
-    duration_ms = (t_end - t_start) * 1000.0
+            # 2. Wait grace period (up to 2.0s)
+            grace_deadline = time.perf_counter() + 2.0
+            while time.perf_counter() < grace_deadline:
+                if p.poll() is not None:
+                    break
+                time.sleep(0.05)
 
-    io_thread.join(timeout=3.0)
+            # 3. If still alive, escalate to SIGKILL
+            if p.poll() is None:
+                try:
+                    os.killpg(pgid, signal.SIGKILL)
+                except (ProcessLookupError, PermissionError):
+                    pass
+                p.wait()
+
+    finally:
+        t_end = time.perf_counter()
+        duration_ms = (t_end - t_start) * 1000.0
+
+        io_thread.join(timeout=3.0)
+
+        # Close the read end of stdin pipe if we created one.
+        if stdin_mode != subprocess.PIPE and isinstance(stdin_mode, int):
+            try:
+                os.close(stdin_mode)
+            except OSError:
+                pass
 
     if streams_holder:
         streams = streams_holder[0]

@@ -36,6 +36,7 @@ class Episode:
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     idempotency_keys_consumed: FrozenSet[str] = field(default_factory=frozenset)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    session_id: Optional[str] = None
 
     def transition_to(
         self,
@@ -72,6 +73,7 @@ class Episode:
             created_at=self.created_at,
             idempotency_keys_consumed=frozenset(keys),
             metadata=dict(self.metadata),
+            session_id=self.session_id,
         )
 
     def is_key_consumed(self, idempotency_key: str) -> bool:

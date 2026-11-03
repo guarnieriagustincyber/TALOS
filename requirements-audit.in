@@ -1,0 +1,3 @@
+radon>=6.0,<7
+vulture>=2.14,<3
+playwright>=1.55,<2

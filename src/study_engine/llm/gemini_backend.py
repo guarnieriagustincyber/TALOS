@@ -224,6 +224,7 @@ class GeminiBackend(ProviderBackend):
             tokens_used=tokens_used,
             model=returned_model,
             generator_abstained=False,
+            finish_reason=choice.get("finish_reason"),
         )
 
     async def stream(
@@ -299,4 +300,3 @@ class GeminiBackend(ProviderBackend):
                             yield content_piece
                     except json.JSONDecodeError:
                         continue
-

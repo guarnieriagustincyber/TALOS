@@ -34,6 +34,7 @@ DEFAULT_BKT_PARAMS = {
     "p_T": 0.3,   # Transition probability (learning on this step)
     "p_G": 0.25,  # Default guess probability (4-option multiple choice)
     "p_S": 0.1,   # Slip probability (knowing but making an error)
+    "strict_no_learn_on_incorrect": True,  # T07: learning only on correct evidence
 }
 
 BKT_PARAMS_PATH = Path(__file__).resolve().parents[3] / "config" / "bkt_params.json"
@@ -202,7 +203,7 @@ class BKTTracker:
             # Modo estricto (config/bkt_params.json): un intento INCORRECTO
             # nunca sube P(L) por "haber intentado" — el aprendizaje por
             # transición (p_T) solo se aplica cuando la evidencia es positiva.
-            strict = bool(self.params.get("strict_no_learn_on_incorrect", False))
+            strict = bool(self.params.get("strict_no_learn_on_incorrect", True))
             if strict and not obs_correct:
                 p_L_next = p_L_obs
             else:

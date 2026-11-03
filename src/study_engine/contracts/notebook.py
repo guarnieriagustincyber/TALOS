@@ -10,6 +10,8 @@ from pydantic import Field
 
 from study_engine.contracts.base import BaseContract
 
+GLOBAL_SCOPE_ID = "__global__"
+
 
 class Notebook(BaseContract):
     """Independent domain study notebook or knowledge base."""

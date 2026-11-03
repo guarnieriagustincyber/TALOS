@@ -63,6 +63,8 @@ from study_engine.session.contracts import (
     SessionResultStatus,
 )
 from study_engine.session.orchestrator import SessionOrchestrator
+from study_engine.session.ports import SQLiteTurnReceiptStore, TurnReceiptStore
+from study_engine.session.session_store import SessionStore
 from study_engine.session.study_loop import StudyLoopController
 from study_engine.state.ledger import EvidenceLedger
 from study_engine.state.ledger_contracts import IdempotentReplayError, LedgerIntegrityStatus
@@ -139,6 +141,11 @@ def build_cybersecurity_policy() -> AssessmentPolicy:
     )
 
 
+def _should_ingest_benchmark_corpus(*, allowed: bool, source_count: int) -> bool:
+    """Whether the runner may read benchmark sources for automatic ingestion."""
+    return allowed and source_count == 0
+
+
 class StudyLoopExperimentRunner:
     """Authoritative experiment orchestrator for Hito 7 Real Study Loop V1."""
 
@@ -147,8 +154,12 @@ class StudyLoopExperimentRunner:
         repo_root: Path,
         oracle_path: Optional[Path] = None,
         working_dir: Optional[Path] = None,
+        allow_benchmark_ingestion: bool = True,
+        receipt_store: Optional[TurnReceiptStore] = None,
     ) -> None:
         self.repo_root = repo_root
+        self.allow_benchmark_ingestion = allow_benchmark_ingestion
+        self.receipt_store = receipt_store
         self.oracle_path = oracle_path or (
             repo_root / "data" / "experiments" / "study_loop_v1" / "study_loop_oracle.json"
         )
@@ -176,7 +187,10 @@ class StudyLoopExperimentRunner:
         # 1. Ingest benchmark PDFs into KnowledgeStore (idempotent: skip if already ingested)
         store = KnowledgeStore(db_path=db_path)
         store.initialize()
-        if not store.sources.list_all():
+        if _should_ingest_benchmark_corpus(
+            allowed=self.allow_benchmark_ingestion,
+            source_count=len(store.sources.list_all()),
+        ):
             sources_dir = self.repo_root / "data" / "benchmark" / "sources"
             ingest_benchmark_corpus(
                 store=store,
@@ -186,7 +200,7 @@ class StudyLoopExperimentRunner:
 
 
         # 2. Vector indexing for dense retrieval
-        vstore = SQLiteVectorStore(db_path=vec_path)
+        vstore = SQLiteVectorStore(db_path=vec_path, read_only=False)
         embedder = DeterministicHashEmbedder(dimensions=128)
         pointer_chunks = store.chunks.list_by_document("prog_punteros.pdf")
         records: List[VectorRecord] = []
@@ -251,12 +265,16 @@ class StudyLoopExperimentRunner:
             student_id=student_id,
         )
 
+        receipt_store = self.receipt_store or SQLiteTurnReceiptStore(
+            SessionStore(work_path / "sessions.db")
+        )
         orch = SessionOrchestrator(
             session_id=session_id,
             student_id=student_id,
             roadmap=roadmap,
             policy=policy,
             ledger=ledger,
+            receipt_store=receipt_store,
             retrieval_port=retrieval_adapter,
             tutor_port=tutor_adapter,
             audit_port=audit_adapter,

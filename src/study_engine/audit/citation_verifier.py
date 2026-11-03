@@ -137,8 +137,8 @@ class CitationVerifier:
             tag = cite.citation_id
             rec = manifest.records.get(tag)
             if rec is not None:
-                trust = getattr(rec, "trust_level", "canonical")
-                if trust == "unverified":
+                trust = getattr(rec, "trust_level", None)
+                if trust != "canonical":
                     unverified_sources.append(f"{tag} ({rec.source_id})")
 
         if unverified_sources:

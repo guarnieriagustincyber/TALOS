@@ -192,10 +192,13 @@ def test_closed_enums():
         ClaimType.PEDAGOGICAL,
         ClaimType.QUESTION,
         ClaimType.CONVERSATIONAL,
+        ClaimType.STRUCTURAL,
         ClaimType.UNCLASSIFIED,
     }
     assert set(ClaimSupportVerdict) == {
         ClaimSupportVerdict.ENTAILED,
+        ClaimSupportVerdict.PARTIALLY_SUPPORTED,
+        ClaimSupportVerdict.UNSUPPORTED_GENERALIZATION,
         ClaimSupportVerdict.CONTRADICTED,
         ClaimSupportVerdict.NOT_ENTAILED,
         ClaimSupportVerdict.UNASSESSED,

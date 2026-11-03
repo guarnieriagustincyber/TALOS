@@ -39,6 +39,7 @@ class ContextCompiler:
         seed_results: List[SearchResult],
         *,
         source_meta_cache: Optional[Dict[str, Dict[str, str]]] = None,
+        allowed_source_ids: Optional[Any] = None,
         session_state: Optional[Dict[str, Any]] = None,
         current_kc: Optional[str] = None,
         previous_errors: Optional[List[str]] = None,
@@ -49,6 +50,9 @@ class ContextCompiler:
         Invariant INV-W5-1 / E25: If seed_results is empty or 0 chunks are found,
         triggers the physical pre-LLM abstention gate (0 network calls).
         """
+        if allowed_source_ids is not None:
+            seed_results = [res for res in seed_results if getattr(res, "source_id", None) in allowed_source_ids]
+
         # Physical Pre-LLM Abstention Gate (E25, INV-W5-1)
         if not seed_results:
             logger.info("[PRE-LLM GATE] 0 chunks in active sources. Physical abstention triggered.")
@@ -70,6 +74,7 @@ class ContextCompiler:
             expanded_chunks, formatted_text = self.expander.expand_results(
                 seed_results=seed_results,
                 source_meta_cache=meta_cache,
+                allowed_source_ids=allowed_source_ids,
             )
         else:
             expanded_chunks = []

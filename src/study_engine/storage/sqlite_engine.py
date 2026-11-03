@@ -4,7 +4,36 @@ from contextlib import contextmanager
 from pathlib import Path
 import sqlite3
 import threading
+from urllib.parse import parse_qs, urlparse, unquote
+from urllib.request import url2pathname
 from typing import Generator, Optional, Union
+
+
+def _normalize_sqlite_db_path(db_path: Union[str, Path]) -> Union[str, Path]:
+    """Normalize SQLite file URIs and sqlite:/// values into a filesystem path."""
+    if isinstance(db_path, Path):
+        return db_path
+
+    value = str(db_path).strip()
+    if not value or value == ":memory:":
+        return ":memory:"
+
+    lowered = value.lower()
+    if lowered in {":memory:", "file::memory:", "file::memory:?cache=shared"}:
+        return ":memory:"
+
+    if lowered.startswith("sqlite://") or lowered.startswith("file:"):
+        parsed = urlparse(value)
+        if parsed.scheme in {"sqlite", "file"}:
+            candidate = parsed.path
+            if not candidate and parsed.netloc:
+                candidate = f"//{parsed.netloc}{parsed.path}"
+            if candidate and candidate not in {":memory:", "/:memory:"}:
+                normalized = url2pathname(unquote(candidate))
+                return Path(normalized)
+            return ":memory:"
+
+    return Path(value)
 
 
 SCHEMA_DDL = """
@@ -253,12 +282,20 @@ class SQLiteStorageEngine:
     SCHEMA_VERSION: int = 6  # v6: chapter_summaries + hierarchical RAG (Fase 3)
 
     def __init__(self, db_path: Union[str, Path] = ":memory:"):
-        self.db_path = Path(db_path) if db_path != ":memory:" else ":memory:"
+        normalized = _normalize_sqlite_db_path(db_path)
+        self.db_path = normalized if normalized != ":memory:" else ":memory:"
         self._is_memory = self.db_path == ":memory:"
+        self._read_only_uri: Optional[str] = None
+        if isinstance(db_path, str) and db_path.strip().startswith("file:") and not self._is_memory:
+            modes = parse_qs(urlparse(db_path.strip()).query).get("mode", [])
+            if "ro" in modes:
+                if modes != ["ro"]:
+                    raise ValueError("Ambiguous SQLite read-only URI mode")
+                self._read_only_uri = db_path.strip()
         self._mem_conn: Optional[sqlite3.Connection] = None
         self._thread_local = threading.local()
 
-        if not self._is_memory and isinstance(self.db_path, Path):
+        if not self._is_memory and not self._read_only_uri and isinstance(self.db_path, Path):
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
     def connect(self) -> sqlite3.Connection:
@@ -290,12 +327,17 @@ class SQLiteStorageEngine:
                 self._thread_local.persistent_conn = None
 
         if persistent is None:
-            conn = sqlite3.connect(str(self.db_path), check_same_thread=False, timeout=30.0)
+            conn = sqlite3.connect(
+                self._read_only_uri or str(self.db_path),
+                uri=self._read_only_uri is not None,
+                check_same_thread=False, timeout=30.0,
+            )
             conn.execute("PRAGMA foreign_keys = ON;")
             conn.execute("PRAGMA recursive_triggers = ON;")
             conn.execute("PRAGMA busy_timeout = 30000;")
-            conn.execute("PRAGMA journal_mode = WAL;")
-            conn.execute("PRAGMA synchronous = NORMAL;")
+            if self._read_only_uri is None:
+                conn.execute("PRAGMA journal_mode = WAL;")
+                conn.execute("PRAGMA synchronous = NORMAL;")
             self._thread_local.persistent_conn = conn
             persistent = conn
         return persistent

@@ -36,6 +36,7 @@ def audit_generation_payload(
     notebook_id: str,
     provider_id: str = "talos-llm",
     prompt_hash: Optional[str] = None,
+    request_id: Optional[str] = None,
 ) -> ForensicAuditReport:
     """Adapter satisfying Enmienda E3: builds verified GenerationRequest and GenerationResponse.
 
@@ -44,32 +45,66 @@ def audit_generation_payload(
     manifest_records = {}
     packaged_units = []
 
-    for i, chk in enumerate(context_chunks):
-        if isinstance(chk, dict):
-            c_id = chk.get("citation_id") or chk.get("id") or f"E{i+1}"
-            chunk_id = chk.get("chunk_id") or f"chunk_{i+1}"
-            doc_id = chk.get("document_id") or f"doc_{i+1}"
-            src_id = chk.get("source_id") or "src_canonical"
-            src_title = chk.get("source_title") or src_id
-            author = chk.get("author") or ""
-            p_start = chk.get("page_start") or chk.get("page") or 1
-            p_end = chk.get("page_end") or p_start
-            content = chk.get("chunk_text") or chk.get("content") or ""
-        else:
-            c_id = getattr(chk, "citation_id", getattr(chk, "id", f"E{i+1}"))
-            chunk_id = getattr(chk, "chunk_id", f"chunk_{i+1}")
-            doc_id = getattr(chk, "document_id", f"doc_{i+1}")
-            src_id = getattr(chk, "source_id", "src_canonical")
-            src_title = getattr(chk, "source_title", src_id)
-            author = getattr(chk, "author", "")
-            p_start = getattr(chk, "page_start", getattr(chk, "page", 1)) or 1
-            p_end = getattr(chk, "page_end", p_start) or p_start
-            content = getattr(chk, "chunk_text", getattr(chk, "content", ""))
+    if not context_chunks:
+        raise ValueError("At least one evidence chunk is required for forensic audit.")
 
+    for i, chk in enumerate(context_chunks):
+        def get_value(key: str, default: Any = None) -> Any:
+            if isinstance(chk, dict):
+                return chk.get(key, default)
+            return getattr(chk, key, default)
+
+        c_id = get_value("citation_id") or get_value("id") or f"E{i+1}"
+        chunk_id = get_value("chunk_id")
+        doc_id = get_value("document_id")
+        src_id = get_value("source_id")
+        src_title = get_value("source_title")
+        missing_fields = [
+            name
+            for name, value in (
+                ("chunk_id", chunk_id),
+                ("document_id", doc_id),
+                ("source_id", src_id),
+                ("source_title", src_title),
+            )
+            if not isinstance(value, str) or not value.strip()
+        ]
+        if missing_fields:
+            raise ValueError(
+                f"context_chunks[{i}] is missing provenance fields: {', '.join(missing_fields)}."
+            )
+
+        content = get_value("chunk_text") or get_value("content") or ""
+        if not isinstance(content, str) or not content.strip():
+            raise ValueError(f"context_chunks[{i}] has no usable evidence content.")
         content_clean = content.strip()
-        if not content_clean:
-            content_clean = f"Contenido verificado para {src_id}"
-        c_hash = hashlib.sha256(content_clean.encode("utf-8")).hexdigest()
+        provided_hash = get_value("content_hash")
+        expected_hash = hashlib.sha256(content_clean.encode("utf-8")).hexdigest()
+        if provided_hash is not None:
+            if not isinstance(provided_hash, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", provided_hash.strip()):
+                raise ValueError(f"context_chunks[{i}] has invalid content_hash: {provided_hash!r}.")
+            normalized_hash = provided_hash.strip().lower()
+            if normalized_hash == "0" * 64:
+                raise ValueError(f"context_chunks[{i}] content_hash is a zero placeholder and not evidence.")
+            if normalized_hash != expected_hash:
+                raise ValueError(
+                    f"context_chunks[{i}] content_hash does not match the retrieved content digest."
+                )
+        c_hash = expected_hash
+        author = get_value("author") or ""
+        p_start = get_value("page_start")
+        if p_start is None:
+            p_start = get_value("page")
+        p_end = get_value("page_end")
+        if p_end is None:
+            p_end = p_start
+        trust_level = get_value("trust_level")
+        if not isinstance(trust_level, str) or not trust_level.strip():
+            trust_level = "unverified"
+        elif trust_level not in {"canonical", "unverified"}:
+            raise ValueError(
+                f"context_chunks[{i}] has unsupported trust_level: {trust_level!r}."
+            )
 
         rec = CitationRecord(
             citation_id=c_id,
@@ -78,19 +113,24 @@ def audit_generation_payload(
             source_id=src_id,
             source_title=src_title,
             author=author or None,
-            page_start=int(p_start),
-            page_end=int(p_end),
+            page_start=int(p_start) if p_start is not None else None,
+            page_end=int(p_end) if p_end is not None else None,
             content_hash=c_hash,
-            trust_level="canonical",
+            trust_level=trust_level,
         )
         manifest_records[c_id] = rec
 
         unit = PackagedEvidenceUnit(
             citation=rec,
             content=content_clean,
-            retrieval_score=1.0,
+            # shortcut: adapter receives already-selected chunks from different
+            # callers (chat epistemic context, dialogue ConceptPacket); it cannot
+            # know the retrieval modality, so it must not claim one. Upgrade to
+            # propagate the actual method from annotated chunks when retrieval
+            # starts attaching it.
+            retrieval_score=float(get_value("relevance_score") or 0.0),
             retrieval_rank=i + 1,
-            retrieval_method="hybrid_fts_vector",
+            retrieval_method=str(get_value("retrieval_method") or "adapter_packaged"),
         )
         packaged_units.append(unit)
 
@@ -113,7 +153,9 @@ def audit_generation_payload(
         epistemic_policy="Estricta",
     )
 
-    req_id = f"req_{uuid.uuid4().hex[:8]}"
+    if request_id is not None and (not isinstance(request_id, str) or not request_id.strip()):
+        raise ValueError("request_id must be a non-empty string when supplied")
+    req_id = request_id if request_id is not None else f"req_{uuid.uuid4().hex[:8]}"
     gen_req = GenerationRequest(
         request_id=req_id,
         notebook_id=notebook_id,

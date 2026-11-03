@@ -169,6 +169,7 @@ class FastPathConversationalService:
         self,
         container: Any,
         target_notebook_id: str,
+        student_id: str,
     ) -> Dict[str, str]:
         """Extract lightweight context (notebook name, active KC) in < 1ms."""
         notebook_title = target_notebook_id
@@ -200,9 +201,12 @@ class FastPathConversationalService:
                 from study_engine.student.pedagogical_memory import PedagogicalMemoryTracker
                 tracker = PedagogicalMemoryTracker(container.student_storage)
             if tracker:
-                pedagogical_directive = tracker.format_tutor_directive(limit=3)
+                pedagogical_directive = tracker.format_tutor_directive(
+                    student_id=student_id,
+                    limit=3,
+                )
                 recent_misc = tracker.storage.get_pedagogical_memories(
-                    student_id="default_student",
+                    student_id=student_id,
                     category="misconception",
                     limit=2,
                 )
@@ -215,7 +219,7 @@ class FastPathConversationalService:
             gen = getattr(container, "session_briefing_generator", None)
             if gen and hasattr(gen, "generate_briefing"):
                 session_briefing = gen.generate_briefing(
-                    student_id="default_student",
+                    student_id=student_id,
                     notebook_id=target_notebook_id,
                     student_name="Agustín",
                 )

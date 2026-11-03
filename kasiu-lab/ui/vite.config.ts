@@ -13,6 +13,10 @@ export default defineConfig({
     },
   },
   server: {
+    host: '127.0.0.1',
+    strictPort: true,
+    allowedHosts: ['localhost', '127.0.0.1'],
+    cors: { origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] },
     port: 5173,
     proxy: {
       '/api': {
@@ -27,4 +31,5 @@ export default defineConfig({
       },
     },
   },
+  preview: { host: '127.0.0.1', port: 5173, strictPort: true },
 });

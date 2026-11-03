@@ -1,10 +1,16 @@
 # Suite de fixes y estabilización previa a Fase 7
 
 **Fecha:** 2026-09-28
-**Estado:** punto 0, Gate 1 y protección runtime inicial completados; Gate 2
-con piloto acotado, fixtures adjudicadas e inventario histórico read-only
+**Estado histórico al 2026-09-28:** punto 0, Gate 1 y protección runtime
+inicial completados; Gate 2 con piloto acotado, fixtures adjudicadas e
+inventario histórico read-only
 **Alcance:** armonizar políticas, contratos multi-cuaderno y fiabilidad antes de
 continuar con evaluación pedagógica multi-currículo.
+
+La secuencia y el estado integrados con PED-F0…PED-F7, B0–B1-B, BENCH-G2 y
+E5/Qwen se mantienen en el
+[Plan maestro de estabilización y cierre de TALOS](./PLAN_MAESTRO_CIERRE_TALOS.md).
+Este documento conserva el detalle histórico y operativo de estabilización.
 
 ## Objetivo
 

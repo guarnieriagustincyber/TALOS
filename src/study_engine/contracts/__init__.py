@@ -30,6 +30,19 @@ from study_engine.contracts.ingestion import (
     IngestionResult,
     SourceManifest,
 )
+from study_engine.contracts.multimodal import (
+    CandidateStatus,
+    ChunkMultimodalRelation,
+    ColabPackageManifest,
+    FigureCandidate,
+    FormulaCandidate,
+    MultimodalElement,
+    MultimodalElementType,
+    MultimodalPackage,
+    PageEvidence,
+    RelationType,
+    TableCandidate,
+)
 
 from study_engine.contracts.llm import LLMRequest, LLMResponse
 from study_engine.contracts.notebook import Notebook
@@ -271,4 +284,15 @@ __all__ = [
     "AdmissionResult",
     "SessionProvenanceContext",
     "EvidenceIngestionResult",
+    "CandidateStatus",
+    "ChunkMultimodalRelation",
+    "ColabPackageManifest",
+    "FigureCandidate",
+    "FormulaCandidate",
+    "MultimodalElement",
+    "MultimodalElementType",
+    "MultimodalPackage",
+    "PageEvidence",
+    "RelationType",
+    "TableCandidate",
 ]

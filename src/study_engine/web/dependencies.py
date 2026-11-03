@@ -22,8 +22,30 @@ from datetime import datetime, timezone
 
 # Ensure project root is in sys.path so scripts.* imports resolve in all runtimes
 REPO_ROOT = Path(__file__).resolve().parents[3]
+
+# Límites de recursos del juez NLI (no umbrales epistémicos).
+# Justificación: mediciones M1-01 (2026-10-20, provider gemini-3.5-flash-lite
+# vía OpenAI-compatible): 40.1s / 31.8s / 27.9s por llamada NLI, veredictos
+# SEMANTICOS correctos. Los defaults previos (12s call / 20s budget) producían
+# timeout técnico por claim → DEFERRED_RETRY crónico del auditor S4.4.
+NLI_CALL_TIMEOUT_DEFAULT_S = 60.0
+NLI_AUDIT_BUDGET_DEFAULT_S = 75.0
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+
+
+def _resolve_synthetic_working_dir(path: Path, repo_root: Path) -> Path:
+    """Resolve a synthetic state root; reject relative, symlinked, or in-repo paths."""
+    requested = Path(path)
+    resolved = requested.resolve()
+    if not requested.is_absolute():
+        raise ValueError("Synthetic working_dir must be an absolute path.")
+    if requested.absolute() != resolved:
+        raise ValueError("Synthetic working_dir cannot traverse symlinks.")
+    if resolved.is_relative_to(repo_root.resolve()):
+        raise ValueError("Synthetic working_dir cannot be inside the repository.")
+    return resolved
+
 
 from study_engine.curriculum.registry import CurriculumRegistry
 from study_engine.generation.tutor import StructuredTutor
@@ -103,14 +125,72 @@ class AppContainer:
         repo_root: Optional[Path] = None,
         working_dir: Optional[Path] = None,
         use_mock: bool = False,
+        load_dotenv: Optional[bool] = None,
+        audit_nli_judge: Optional[Any] = None,
+        init_pipeline: bool = True,
     ) -> None:
-        self.repo_root = (repo_root or Path.cwd()).resolve()
-        self.working_dir = working_dir or (self.repo_root / "data" / "web_state")
-        self.working_dir.mkdir(parents=True, exist_ok=True)
+        self.repo_root = (repo_root or REPO_ROOT).resolve()
         self.use_mock = use_mock
+        self._uses_isolated_working_dir = working_dir is not None or self.use_mock
+        self._temp_working_dir: Optional[Any] = None
+        self.load_dotenv = (not self.use_mock) if load_dotenv is None else load_dotenv
+        self._audit_nli_judge = audit_nli_judge
+        if self.use_mock and self.load_dotenv:
+            raise ValueError("Synthetic AppContainer profiles cannot load .env files.")
 
-        self._load_dotenv()
-        self._init_core_pipeline()
+        if working_dir is not None:
+            requested_working_dir = Path(working_dir)
+            resolved_working_dir = requested_working_dir.resolve()
+            if self.use_mock:
+                resolved_working_dir = _resolve_synthetic_working_dir(
+                    requested_working_dir,
+                    self.repo_root,
+                )
+            self.working_dir = resolved_working_dir
+        elif self.use_mock:
+            import tempfile
+            self._temp_working_dir = tempfile.TemporaryDirectory(prefix="talos_mock_state_")
+            self.working_dir = Path(self._temp_working_dir.name)
+        elif os.getenv("PYTEST_CURRENT_TEST"):
+            raise RuntimeError(
+                "AppContainer cannot default to production data/web_state during tests. "
+                "Provide an explicit working_dir or use_mock=True."
+            )
+        else:
+            self.working_dir = self.repo_root / "data" / "web_state"
+
+        self.working_dir.mkdir(parents=True, exist_ok=True)
+
+        from study_engine.session.ports import SQLiteTurnReceiptStore
+        from study_engine.session.session_store import SessionStore
+
+        session_db_path = (
+            self.working_dir / "sessions.db"
+            if self._uses_isolated_working_dir
+            else self.repo_root / "data" / "student" / "sessions.db"
+        )
+        self.session_store = SessionStore(session_db_path)
+
+        if self.load_dotenv:
+            self._load_dotenv()
+        try:
+            self._init_core_pipeline()
+        except BaseException as startup_error:
+            try:
+                self.session_store.close()
+            except BaseException as cleanup_error:
+                BaseException.add_note(
+                    startup_error,
+                    f"SessionStore cleanup failed ({type(cleanup_error).__name__}); closure UNKNOWN",
+                )
+                try:
+                    logger.error("SessionStore cleanup failed during AppContainer construction", exc_info=True)
+                except BaseException as logging_error:
+                    BaseException.add_note(
+                        startup_error,
+                        f"SessionStore cleanup diagnostic unavailable ({type(logging_error).__name__})",
+                    )
+            raise
         self._init_local_routing()
         self._init_llm_subsystems()
         self._init_student_services()
@@ -119,6 +199,8 @@ class AppContainer:
 
     def _load_dotenv(self) -> None:
         """Ensure .env is loaded if present."""
+        if getattr(self, "use_mock", False):
+            return
         env_path = self.repo_root / ".env"
         if env_path.exists():
             for line in env_path.read_text(encoding="utf-8").splitlines():
@@ -132,15 +214,21 @@ class AppContainer:
 
     def _init_core_pipeline(self) -> None:
         """Initialize core pipeline via authoritative runner."""
+        from study_engine.session.ports import SQLiteTurnReceiptStore
+
         runner = StudyLoopExperimentRunner(
             repo_root=self.repo_root,
             working_dir=self.working_dir,
+            allow_benchmark_ingestion=not self.use_mock,
+            receipt_store=SQLiteTurnReceiptStore(self.session_store),
         )
         self.controller, self.context = runner.initialize_pipeline()
         self.orchestrator: SessionOrchestrator = self.controller.orchestrator
         self.ledger: EvidenceLedger = self.context["ledger"]
         self.curriculum_registry: CurriculumRegistry = self.context["registry"]
         self.knowledge_store = self.context["store"]
+        if not self.use_mock:
+            self.knowledge_store.l3_manifest_path = self.repo_root / "config" / "l3_authorization_manifest.json"
 
         from study_engine.config import settings
         from study_engine.retrieval.fabric import RetrievalFabricLite
@@ -172,6 +260,8 @@ class AppContainer:
 
     def _init_local_routing(self) -> None:
         """Configure LocalOrchestrator and SemanticRouter (Fase 5.5 & 5.7)."""
+        if self.knowledge_store is None:
+            return
         from study_engine.tutor.local_orchestrator import LocalOrchestrator
         from study_engine.tutor.semantic_router import SemanticRouter
         from study_engine.hierarchy.scope_resolver import ScopeResolver
@@ -283,7 +373,15 @@ class AppContainer:
                     GeminiBackend(
                         api_key=gemini_key,
                         model_name=gem_model,
-                        timeout_seconds=20.0,
+                        # M1-02 (medición 2026-10-20): los modelos Gemini 3
+                        # razonan por defecto y ese reasoning NO puede
+                        # desactivarse (doc OpenAI-compat; floor medido
+                        # 10.3-19.7s en llamadas triviales). Con 20s la tier-1
+                        # vencía sistemáticamente y cascaba a proveedores más
+                        # débiles (gen 15.9-55.1s). 40s cubre una llamada real
+                        # sin aceptar cascadas evitables. Límite de recursos,
+                        # no umbral epistémico.
+                        timeout_seconds=40.0,
                     ),
                 ))
 
@@ -418,7 +516,11 @@ class AppContainer:
         from study_engine.student.pedagogical_memory import PedagogicalMemoryTracker
         from study_engine.student.memory_extractor import PedagogicalMemoryExtractor
 
-        db_path = ":memory:" if self.use_mock else (self.working_dir / "student_state.db")
+        # Synthetic runtime validation must exercise durable SQLite receipts
+        # without ever falling back to the real StudentStorage path. The
+        # isolated working directory is always temporary or explicitly
+        # supplied under a synthetic profile.
+        db_path = self.working_dir / "student_state.db"
         self.student_storage = StudentStorage(db_path)
 
         # Parámetros BKT configurables (config/bkt_params.json): modo estricto
@@ -494,6 +596,8 @@ class AppContainer:
         """Configure Pedagogical vertical slice services."""
         from study_engine.audit.auditor import ForensicAuditor
         from study_engine.federation.notebook_registry import NotebookRegistry
+        from study_engine.federation.bridge_registry import BridgeRegistry
+        from study_engine.federation.federated_query_planner import FederatedQueryPlanner
         from study_engine.pedagogy.bridge import ObservationBridge
         from study_engine.pedagogy.concept_builder import ConceptPacketBuilder
         from study_engine.pedagogy.evidence_assembler import MultiSourceEvidenceAssembler
@@ -503,11 +607,69 @@ class AppContainer:
 
         self.notebook_registry = NotebookRegistry()
         self._seed_curriculum_tree(self.knowledge_store, self.notebook_registry)
+        self.bridge_registry = BridgeRegistry(
+            allowlist_path=str(self.repo_root / "config" / "bridges.allowlist.json"),
+        )
+        self.federated_query_planner = FederatedQueryPlanner(
+            notebook_registry=self.notebook_registry,
+            bridge_registry=self.bridge_registry,
+        )
         self.evidence_assembler = MultiSourceEvidenceAssembler(knowledge_store=self.knowledge_store)
         self.concept_builder = ConceptPacketBuilder()
-        self.forensic_auditor = ForensicAuditor()
+        from study_engine.audit.nli import GeminiNLIJudge, UnavailableNLIJudge
+
+        judge = self._audit_nli_judge
+        if judge is None and not self.use_mock:
+            # Latencia real del juez Gemini (mediciones M1-01, 2026-10-20):
+            # 40.1s / 31.8s / 27.9s por llamada (p50 ~32s) con veredictos
+            # correctos (ENTAILED / NOT_ENTAILED). Los defaults previos
+            # (12s call / 20s budget) garantizaban timeout técnico en cada
+            # claim → DEFERRED_RETRY crónico. Son límites de recursos, no
+            # umbrales epistémicos: el veredicto sigue siendo del auditor.
+            key = (os.getenv("GEMINI_API_KEY") or "").strip()
+            judge = (
+                GeminiNLIJudge(
+                    GeminiBackend(
+                        api_key=key,
+                        model_name=os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
+                        timeout_seconds=float(
+                            os.getenv(
+                                "TALOS_NLI_CALL_TIMEOUT_S",
+                                str(NLI_CALL_TIMEOUT_DEFAULT_S),
+                            )
+                        ),
+                    )
+                )
+                if key else UnavailableNLIJudge()
+            )
+        # MockNLIJudge remains available only to explicitly synthetic profiles.
+        # Bounded concurrency keeps the atomic (premise, hypothesis) contract
+        # while reducing wall-clock NLI latency; the global budget marks any
+        # remaining claim UNASSESSED (never APPROVED).
+        self.forensic_auditor = ForensicAuditor(
+            nli_judge=judge,
+            nli_max_concurrency=int(os.getenv("TALOS_NLI_MAX_CONCURRENCY", "3")),
+            nli_budget_seconds=float(
+                # Con 3 claims en paralelo y p50 ~32s por llamada, 75s cubre
+                # la ventana sin marcar claims restantes UNASSESSED falsos.
+                os.getenv(
+                    "TALOS_NLI_AUDIT_BUDGET_S",
+                    str(NLI_AUDIT_BUDGET_DEFAULT_S),
+                )
+            ),
+            # M1-02: reutilización idempotente de veredictos NLI válidos
+            # (par byte-idéntico premise+hypothesis bajo el mismo judge).
+            # TALOS_NLI_REUSE_CACHE=0 la deshabilita (fail-closed por default).
+            nli_reuse_cache=os.getenv("TALOS_NLI_REUSE_CACHE", "1").strip().lower()
+            not in ("0", "false", "no", "off"),
+        )
         self.auditor = self.forensic_auditor  # Fix 0.2: Expose auditor alias for chat and dialogue
-        self.exercise_store = ExerciseStore()
+        exercise_store_path = (
+            self.working_dir / "exercises.json"
+            if self._uses_isolated_working_dir
+            else None
+        )
+        self.exercise_store = ExerciseStore(storage_path=exercise_store_path)
         self.mc_grader = MultiChoiceGrader()
         self.exact_grader = ExactMatchGrader()
         self.observation_bridge = ObservationBridge(bkt_tracker=self.bkt_tracker)
@@ -518,6 +680,7 @@ class AppContainer:
             forensic_auditor=self.forensic_auditor,
             exercise_store=self.exercise_store,
             bkt_tracker=self.bkt_tracker,
+            episode_store=self.session_store,
         )
 
         # Fase 5.1: KCs manuales (tabla notebook_kcs) fundidos con el catálogo
@@ -549,6 +712,9 @@ class AppContainer:
             state_tracker=self.dialogue_state_tracker,
             exercise_selector=self.exercise_store,
             forensic_auditor=self.forensic_auditor,
+            # M1-02 (provenance del diálogo): materialización verificable del
+            # contenido citado por chunk_id para la auditoría S4.4.
+            chunk_content_loader=getattr(self.knowledge_store, "get_chunk", None),
         )
 
         self.progression_policy = ProgressionPolicy()
@@ -559,6 +725,7 @@ class AppContainer:
             student_storage=self.student_storage,
             progression_policy=self.progression_policy,
             opening_brief_builder=self.opening_brief_builder,
+            session_store=self.session_store,
         )
 
     def _seed_curriculum_tree(self, store: Any, reg: Any) -> None:

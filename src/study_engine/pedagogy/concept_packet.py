@@ -7,7 +7,7 @@ INVARIANTS:
 3. If evidence is ungrounded or audit fails, ConceptResponse is emitted with status ABSTAINED.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Dict, List, Literal, Optional, Tuple
 
 from study_engine.audit.contracts import AuditVerdict, ForensicAuditReport
@@ -71,9 +71,18 @@ class ConceptResponse:
     admitted_evidence: Tuple[CitationRecord, ...] = field(default_factory=tuple)
 
     def to_dict(self) -> Dict[str, Any]:
+        # Only core/model are audited here; keep other fields in the internal packet for dialogue.
+        public_packet = replace(
+            self.packet,
+            objective="",
+            reasoning_guidance="",
+            formalization=None,
+            implementation_guidance=None,
+            pitfalls=(),
+        ) if self.packet else None
         return {
             "status": self.status,
-            "packet": self.packet.to_dict() if self.packet else None,
+            "packet": public_packet.to_dict() if public_packet else None,
             "abstention_reason": self.abstention_reason,
             "audit_verdict": self.audit_verdict.value if self.audit_verdict else None,
             "admitted_evidence": [c.model_dump() for c in self.admitted_evidence],

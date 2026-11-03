@@ -57,7 +57,9 @@ def test_error_no_sube_p_L_en_modo_estricto(tmp_path):
 
 
 def test_modo_legacy_mantiene_transition_historica(tmp_path):
-    bkt = _tracker(dict(DEFAULT_BKT_PARAMS), tmp_path)  # sin flag strict
+    # Legacy mode: explicitly disable strict mode to test historical transition behavior
+    params = {**DEFAULT_BKT_PARAMS, "strict_no_learn_on_incorrect": False}
+    bkt = _tracker(params, tmp_path)
     p0 = bkt.get_state("kc_y").p_L
     res = bkt.update(
         kc_id="kc_y",
@@ -65,7 +67,7 @@ def test_modo_legacy_mantiene_transition_historica(tmp_path):
         source=ObservationSource.EXACT_CORRECTOR,
         format_type=ExerciseFormat.SYMBOLIC_OPEN,
     )
-    assert res.p_L > p0  # comportamiento histórico documentado
+    assert res.p_L > p0  # comportamiento histórico: transition aplica en incorrecto
 
 
 def test_correcta_mejora_mas_que_incorrecta_en_estricto(tmp_path):

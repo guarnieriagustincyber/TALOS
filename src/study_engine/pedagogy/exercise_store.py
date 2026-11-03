@@ -82,6 +82,32 @@ class ExerciseStore:
         """Fetch exercise by ID."""
         return self._exercises.get(exercise_id)
 
+    def get_evaluable_exercise_by_id(self, exercise_id: str) -> Optional[ExerciseCandidate]:
+        """Resolve a server-certified exercise with a complete grading definition."""
+        exercise = self.get_exercise_by_id(exercise_id)
+        if (
+            not exercise
+            or exercise.exercise_id != exercise_id
+            or not exercise.is_presentable()
+            or not isinstance(exercise.kc_id, str)
+            or not exercise.kc_id.strip()
+            or not isinstance(exercise.expected_answer, str)
+            or not exercise.expected_answer.strip()
+        ):
+            return None
+        if not isinstance(exercise.exercise_type, ExerciseType):
+            return None
+        if exercise.exercise_type == ExerciseType.MC:
+            if (
+                not isinstance(exercise.options, tuple)
+                or len(exercise.options) < 2
+                or any(not isinstance(option, str) or not option.strip() for option in exercise.options)
+            ):
+                return None
+        elif exercise.options:
+            return None
+        return exercise
+
     def add_exercise(self, candidate: ExerciseCandidate, persist: bool = True) -> bool:
         """Register an exercise candidate and optionally persist to disk."""
         self._exercises[candidate.exercise_id] = candidate
@@ -98,4 +124,3 @@ class ExerciseStore:
     def list_all(self) -> List[ExerciseCandidate]:
         """List all stored exercise candidates."""
         return list(self._exercises.values())
-

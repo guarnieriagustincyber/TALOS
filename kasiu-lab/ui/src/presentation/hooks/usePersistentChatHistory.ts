@@ -18,6 +18,11 @@ import { Message } from '../features/views/types';
 const PAGE_SIZE = 10;
 const MAX_STORED_MESSAGES = 500;
 
+// Stored conversation is not an authenticated replay of this process's SSE.
+function withoutAudit(messages: Message[]): Message[] {
+  return messages.map((message) => ({ ...message, audit: undefined }));
+}
+
 function enforceStorageLimit(messages: Message[], maxMessages = MAX_STORED_MESSAGES): Message[] {
   if (messages.length <= maxMessages) return messages;
   return messages.slice(-maxMessages);
@@ -38,7 +43,7 @@ export function usePersistentChatHistory(
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
+            return withoutAudit(parsed);
           }
         }
       }
@@ -57,7 +62,7 @@ export function usePersistentChatHistory(
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setAllMessages(parsed);
+          setAllMessages(withoutAudit(parsed));
           return;
         }
       }
@@ -100,7 +105,7 @@ export function usePersistentChatHistory(
         const updated = typeof updater === 'function' ? updater(prevAll) : updater;
         const trimmed = enforceStorageLimit(updated);
         try {
-          localStorage.setItem(storageKey, JSON.stringify(trimmed));
+          localStorage.setItem(storageKey, JSON.stringify(withoutAudit(trimmed)));
         } catch (e) {
           console.error('[TALOS Chat] Error al escribir en localStorage:', e);
         }
@@ -121,9 +126,9 @@ export function usePersistentChatHistory(
         const index = prevAll.findIndex((m) => m.id === messageId);
         if (index === -1) return prevAll;
         const updated = [...prevAll];
-        updated[index] = { ...updated[index], text: newContent, edited: true };
+        updated[index] = { ...updated[index], text: newContent, edited: true, audit: undefined };
         try {
-          localStorage.setItem(storageKey, JSON.stringify(updated));
+          localStorage.setItem(storageKey, JSON.stringify(withoutAudit(updated)));
         } catch (e) {
           console.error('[TALOS Chat] Error al actualizar edición en localStorage:', e);
         }
@@ -142,7 +147,7 @@ export function usePersistentChatHistory(
         // CASCADE: borrar desde index hasta el final
         const truncated = prevAll.slice(0, index);
         try {
-          localStorage.setItem(storageKey, JSON.stringify(truncated));
+          localStorage.setItem(storageKey, JSON.stringify(withoutAudit(truncated)));
         } catch (e) {
           console.error('[TALOS Chat] Error al actualizar borrado en localStorage:', e);
         }

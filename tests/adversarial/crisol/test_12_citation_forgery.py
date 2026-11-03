@@ -57,7 +57,17 @@ def test_citation_forgery_detected() -> None:
     report = audit_generation_payload(
         MockAuditor(),
         generated_text=forged_text,
-        context_chunks=[{"citation_id": "E1", "content": "Dijkstra propuso semáforos."}],
+        context_chunks=[
+            {
+                "citation_id": "E1",
+                "chunk_id": "synthetic-chunk-1",
+                "document_id": "synthetic-document-1",
+                "source_id": "synthetic-source-1",
+                "source_title": "Synthetic source",
+                "content": "Dijkstra propuso semáforos.",
+                "trust_level": "canonical",
+            }
+        ],
         query="test",
         notebook_id="so2",
     )

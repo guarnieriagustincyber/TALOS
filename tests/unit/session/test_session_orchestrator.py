@@ -1,7 +1,10 @@
 """Unit tests for SessionOrchestrator core engine in Subsystem S5.3."""
 
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Dict, Tuple
+
+import pytest
 
 from study_engine.roadmap.contracts import (
     CurricularRoadmap,
@@ -43,9 +46,13 @@ from study_engine.session.contracts import (
     SessionStatus,
     StudentInput,
     StudentInputType,
+    TurnIdConflictError,
+    TurnOperationInProgressError,
     TurnActionType,
 )
 from study_engine.session.orchestrator import SessionOrchestrator
+from study_engine.session.ports import SQLiteTurnReceiptStore
+from study_engine.session.session_store import SessionStore
 from study_engine.session.ports import (
     AuditPort,
     RetrievalPort,
@@ -223,6 +230,114 @@ def test_session_idempotency_replay_vs_reexecution() -> None:
     assert out2.turn_id == out1.turn_id
     assert out2.content == out1.content
     assert len(ledger._entries) == 1  # Not duplicated!
+
+
+def test_durable_turn_receipt_replays_across_store_reopen_and_scopes_by_session(
+    tmp_path: Path,
+) -> None:
+    roadmap, policy, _ = _make_test_fixtures()
+    ledger_path = tmp_path / "evidence.db"
+    receipt_path = tmp_path / "sessions.db"
+    ledger_one = EvidenceLedger(file_path=ledger_path)
+    receipt_store_one = SQLiteTurnReceiptStore(SessionStore(receipt_path))
+    first_orchestrator = SessionOrchestrator(
+        "session-durable-a", "alice", roadmap, policy,
+        ledger=ledger_one, receipt_store=receipt_store_one,
+    )
+    first_orchestrator.start_session()
+    original_input = StudentInput(
+        input_id="attempt-1",
+        session_id="session-durable-a",
+        turn_index=1,
+        input_type=StudentInputType.ANSWER,
+        content="same synthetic answer",
+        timestamp=datetime.now(timezone.utc),
+    )
+    first_output = first_orchestrator.process_turn(original_input)
+    assert ledger_one.total_entries == 1
+    receipt_store_one.session_store.close()
+
+    ledger_two = EvidenceLedger(file_path=ledger_path)
+    receipt_store_two = SQLiteTurnReceiptStore(SessionStore(receipt_path))
+    restarted = SessionOrchestrator(
+        "session-durable-a", "alice", roadmap, policy,
+        ledger=ledger_two, receipt_store=receipt_store_two,
+    )
+    restarted.start_session()
+    replay = restarted.process_turn(original_input)
+
+    assert replay.model_dump(mode="json") == first_output.model_dump(mode="json")
+    assert ledger_two.total_entries == 1
+    with pytest.raises(TurnIdConflictError):
+        restarted.process_turn(original_input.model_copy(update={"content": "different content"}))
+    assert ledger_two.total_entries == 1
+
+    next_input = original_input.model_copy(
+        update={
+            "input_id": "attempt-2",
+            "turn_index": 2,
+            "timestamp": datetime.now(timezone.utc),
+        }
+    )
+    next_output = restarted.process_turn(next_input)
+    assert next_output.turn_index == 2
+    assert ledger_two.total_entries == 2
+
+    new_session = SessionOrchestrator(
+        "session-durable-b", "alice", roadmap, policy,
+        ledger=ledger_two, receipt_store=receipt_store_two,
+    )
+    new_session.start_session()
+    independent = original_input.model_copy(
+        update={
+            "session_id": "session-durable-b",
+            "content": "different session answer",
+            "timestamp": datetime.now(timezone.utc),
+        }
+    )
+    new_session.process_turn(independent)
+    assert ledger_two.total_entries == 3
+    receipt_store_two.session_store.close()
+
+
+def test_incomplete_durable_operation_fails_closed_without_second_ledger_mutation(
+    tmp_path: Path,
+) -> None:
+    roadmap, policy, _ = _make_test_fixtures()
+    store = SessionStore(tmp_path / "sessions.db")
+    receipts = SQLiteTurnReceiptStore(store)
+    student_input = StudentInput(
+        input_id="attempt-interrupted",
+        session_id="session-interrupted",
+        turn_index=1,
+        input_type=StudentInputType.ANSWER,
+        content="synthetic answer",
+        timestamp=datetime.now(timezone.utc),
+    )
+    from study_engine.session.contracts import compute_canonical_sha256
+
+    assert receipts.begin_operation(
+        student_input.session_id,
+        student_input.input_id,
+        compute_canonical_sha256(student_input),
+    )[0] == "STARTED"
+    store.close()
+
+    ledger = EvidenceLedger(file_path=tmp_path / "evidence.db")
+    restarted_receipts = SQLiteTurnReceiptStore(SessionStore(tmp_path / "sessions.db"))
+    orchestrator = SessionOrchestrator(
+        student_input.session_id,
+        "alice",
+        roadmap,
+        policy,
+        ledger=ledger,
+        receipt_store=restarted_receipts,
+    )
+    orchestrator.start_session()
+    with pytest.raises(TurnOperationInProgressError):
+        orchestrator.process_turn(student_input)
+    assert ledger.total_entries == 0
+    restarted_receipts.session_store.close()
 
 
 def test_session_terminal_command_abort() -> None:
@@ -490,4 +605,3 @@ def test_session_h3_idempotency_replay_from_receipt_store() -> None:
     assert res2.status == res1.status
     assert retrieval.invoked is False  # Retrieved from TurnReceiptStore!
     assert tutor.invoked is False
-

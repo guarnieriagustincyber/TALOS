@@ -250,9 +250,29 @@ def test_evidence_fallback_does_not_cross_notebook_scope(monkeypatch):
     assert "notebook A" not in getattr(context_pack, "formatted_context", "")
 
 
+def test_cached_pack_is_rejected_when_sources_leave_the_current_authorized_scope(monkeypatch):
+    import study_engine.web.routes.chat as chat_route
+    from types import SimpleNamespace
+
+    pack = SimpleNamespace(
+        formatted_context="evidence from revoked source",
+        citations=[SimpleNamespace(source_id="revoked-source")],
+        chunks=[{"source_id": "revoked-source", "chunk_text": "contenido revocado"}],
+    )
+    store = SimpleNamespace()
+    monkeypatch.setattr(chat_route, "_authorized_sources_for_scope", lambda *args, **kwargs: {"still-authorized-source"})
+
+    assert chat_route._is_authorized_reusable_pack(
+        pack,
+        pack.chunks,
+        store=store,
+        target_notebook_id="fase0-soc",
+        global_folder_id=None,
+    ) is False
+
+
 def test_ambiguous_context_reference_fails_closed_with_clarification(monkeypatch):
     from unittest.mock import MagicMock
-
     from study_engine.pedagogy.fase0_seed import FASE0_CONTRACT
 
     store = MagicMock()

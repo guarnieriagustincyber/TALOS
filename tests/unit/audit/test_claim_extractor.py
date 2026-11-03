@@ -77,3 +77,30 @@ def test_claim_extractor_comma_separated_citations_and_lead_in():
     assert claims[0].cited_tags == ()
     assert claims[1].claim_type == ClaimType.FACTUAL
     assert claims[1].cited_tags == ("E1", "E2")
+
+
+def test_claim_extractor_first_person_evidence_absence_is_conversational():
+    """M1-03: 'No tengo evidencia en las fuentes autorizadas...' es meta-enunciado.
+
+    Live 034510Z: la declaración honesta de ausencia de evidencia se clasificaba
+    FACTUAL sin tags y disparaba el fail-closed global (CHECK_FACTUAL_GROUNDING
+    → REJECTED_UNSUPPORTED) de una respuesta correctamente abstencionista.
+    La extensión es acotada: exige la forma explícita de ausencia en primera
+    persona acotada a fuentes/evidencia; el requisito de citas para los hechos
+    del dominio no cambia.
+    """
+    extractor = ClaimExtractor()
+    meta_a = (
+        "No tengo evidencia en las fuentes autorizadas de este cuaderno para "
+        "detallar la fórmula interna completa de la aritmética de punteros."
+    )
+    meta_b = (
+        "No tengo evidencia en las fuentes autorizadas de este cuaderno para "
+        "responder sobre el comportamiento indefinido al acceder fuera de los "
+        "límites de un arreglo en C."
+    )
+    # el requisito de citas de los hechos del dominio sigue intacto:
+    factual = "El operador sizeof(tipo) devuelve el número de bytes del tipo."
+    for s, expect_type in ((meta_a, ClaimType.CONVERSATIONAL), (meta_b, ClaimType.CONVERSATIONAL), (factual, ClaimType.FACTUAL)):
+        (c,) = extractor.extract_claims(s)
+        assert c.claim_type == expect_type, (s, c.claim_type, expect_type)

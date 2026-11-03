@@ -1,0 +1,7 @@
+Operación TALOS PHASE 2 structural recovery — Grupo F1 (2026-10-20T11:57Z approx)
+Acción: movimientos reversibles (mv, no delete) de directorios-accidente de runtime:
+1. ./sqlite:              (596K; creado por paths 'sqlite:...' malformados; sin refs en código)
+2. ./file:data            (8K; creado por paths 'file:data...' malformados; sin refs en código)
+Ambos NO rastreados por git (untracked) antes del movimiento.
+Reversión: mv archive/local-accidents-2026-10-20/<dir> <nombre-original>, desde la raíz del repo.
+Restricción respetada: no se eliminó nada; no se tocaron archivos rastreados ni bases.

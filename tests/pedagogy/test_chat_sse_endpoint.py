@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import sqlite3
 from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
@@ -21,13 +22,12 @@ from study_engine.web.dependencies import AppContainer, set_container
 
 
 @pytest.fixture(scope="module")
-def client_with_setup(tmp_path_factory):
+def client_with_setup(tmp_path_factory, knowledge_store_test_copy):
     tmp_dir = tmp_path_factory.mktemp("chat_sse_test")
-    existing_db = Path("data/web_state/knowledge_store.db")
-    if existing_db.exists():
+    if knowledge_store_test_copy is not None:
         import shutil
 
-        shutil.copy2(existing_db, tmp_dir / "knowledge_store.db")
+        shutil.copy2(knowledge_store_test_copy, tmp_dir / "knowledge_store.db")
     app = create_app()
     container = AppContainer(working_dir=tmp_dir, use_mock=True)
     set_container(container)
@@ -219,8 +219,137 @@ def test_chat_query_fv2_e2e_abstention(client_with_setup):
             payload["abstention_reason"]
             == "El corpus carece de respaldo verificable para responder sobre física cuántica."
         )
+        assert [event["event_type"] for event in events] == [
+            "evidence_manifest",
+            "abstention",
+        ]
+        assert (
+            events[-1]["payload"]["reason"]
+            == "El corpus carece de respaldo verificable para responder sobre física cuántica."
+        )
     finally:
         container.last_abstention_decision = None
+
+
+def test_chat_query_sse_clarification_is_a_terminal_pedagogical_outcome(
+    client_with_setup, monkeypatch
+):
+    client, container, _, _ = client_with_setup
+    from study_engine.web.routes import chat as chat_route
+
+    original_prepare = chat_route._prepare_chat_context
+    clarification = "¿Podés indicar qué concepto del tema querés revisar?"
+
+    def prepare_context_with_clarification(**kwargs):
+        prepared = list(original_prepare(**kwargs))
+        prepared[2] = chat_route.EpistemicContextPack(
+            formatted_context="",
+            citations=[],
+            chunks=[],
+            abstained=True,
+            abstention_reason="NEEDS_CLARIFICATION",
+            clarification_message=clarification,
+        )
+        prepared[3] = []
+        return tuple(prepared)
+
+    monkeypatch.setattr(
+        chat_route, "_prepare_chat_context", prepare_context_with_clarification
+    )
+    response = client.post(
+        "/api/chat/query",
+        json={
+            "prompt": "No entiendo esto",
+            "scope_type": "notebook",
+            "scope_id": "nb_prog_1",
+            "requested_phase": "conceptual",
+        },
+    )
+
+    events = [
+        json.loads(line[6:])
+        for line in response.text.splitlines()
+        if line.startswith("data: ")
+    ]
+    assert response.status_code == 200
+    assert "text/event-stream" in response.headers["content-type"]
+    assert response.text.endswith("\n\n")
+    assert [event["event_type"] for event in events] == [
+        "evidence_manifest",
+        "clarification",
+    ]
+    assert sum(event["event_type"] == "phase_token" for event in events) == 0
+    assert events[-1]["payload"]["abstained"] is True
+    assert events[-1]["payload"]["abstention_code"] == "NEEDS_CLARIFICATION"
+    assert events[-1]["payload"]["reason"] == clarification
+    assert not any(event["event_type"] == "phase_complete" for event in events)
+
+
+def test_chat_query_sse_error_does_not_expose_exception_details(
+    client_with_setup, monkeypatch
+):
+    client, container, _, _ = client_with_setup
+    from study_engine.web.routes import chat as chat_route
+
+    original_prepare = chat_route._prepare_chat_context
+    chunks = [
+        {
+            "id": "E1",
+            "chunk_text": "Material curricular de prueba.",
+            "source_id": "src_sse_error_test",
+            "source_title": "Material curricular de prueba",
+            "page_start": 1,
+            "score": 0.95,
+        }
+    ]
+
+    def prepare_sufficient_context(**kwargs):
+        prepared = list(original_prepare(**kwargs))
+        prepared[2] = chat_route.EpistemicContextPack(
+            formatted_context="[E1] Material curricular de prueba.",
+            citations=["[E1] Material curricular de prueba, pág. 1"],
+            chunks=chunks,
+            is_sufficient=True,
+        )
+        prepared[3] = chunks
+        return tuple(prepared)
+
+    class FailingPipeline:
+        def __init__(self, **_kwargs):
+            pass
+
+        async def generate_phased_response(self, **_kwargs):
+            raise RuntimeError("secret_backend_detail")
+            yield
+
+    monkeypatch.setattr(chat_route, "_prepare_chat_context", prepare_sufficient_context)
+    monkeypatch.setattr(chat_route, "StructuredResponsePipeline", FailingPipeline)
+    response = client.post(
+        "/api/chat/query",
+        json={
+            "prompt": "Explicá el concepto de prueba.",
+            "scope_type": "notebook",
+            "scope_id": "nb_prog_1",
+            "requested_phase": "conceptual",
+        },
+    )
+
+    events = [
+        json.loads(line[6:])
+        for line in response.text.splitlines()
+        if line.startswith("data: ")
+    ]
+    assert response.status_code == 200
+    assert "text/event-stream" in response.headers["content-type"]
+    assert response.text.endswith("\n\n")
+    assert [event["event_type"] for event in events] == ["error"]
+    assert events[0]["payload"] == {
+        "reason": (
+            "TALOS no pudo completar la respuesta por un error técnico. "
+            "Reintentá la consulta."
+        )
+    }
+    assert "secret_backend_detail" not in response.text
 
 
 def test_chat_query_root_global_greeting(client_with_setup):
@@ -740,34 +869,14 @@ def test_chat_sse_retrieves_only_sources_authorized_for_notebook_scope(
 
 
 def test_fadena_std_real_corpus_isolation_on_temporary_database_copy(
-    tmp_path, monkeypatch
+    tmp_path, monkeypatch, knowledge_store_test_copy
 ):
     """Exercise actual fadena-std ACL, retrieval, provenance and SSE on a DB copy."""
-    import sqlite3
-
     from study_engine.web import dependencies as dependencies_module
+    import shutil
 
-    original_db = Path("data/web_state/knowledge_store.db").resolve()
-    if not original_db.is_file():
-        pytest.skip("Local KnowledgeStore database is not available for the pilot.")
-
-    def file_sha256(path):
-        digest = hashlib.sha256()
-        with path.open("rb") as stream:
-            for block in iter(lambda: stream.read(1024 * 1024), b""):
-                digest.update(block)
-        return digest.hexdigest()
-
-    original_hash_before = file_sha256(original_db)
-    original_wal = Path(f"{original_db}-wal")
-    original_wal_hash_before = (
-        file_sha256(original_wal) if original_wal.is_file() else None
-    )
     copied_db = tmp_path / "knowledge_store.db"
-    source_uri = f"file:{original_db.as_posix()}?mode=ro"
-    with sqlite3.connect(source_uri, uri=True) as source_conn:
-        with sqlite3.connect(copied_db) as copy_conn:
-            source_conn.backup(copy_conn)
+    shutil.copy2(knowledge_store_test_copy, copied_db)
 
     with sqlite3.connect(copied_db) as copy_conn:
         assert copy_conn.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
@@ -919,6 +1028,3 @@ def test_fadena_std_real_corpus_isolation_on_temporary_database_copy(
         ).fetchall()
     assert notebook_after == notebook_before
     assert associations_after == associations_before
-    assert file_sha256(original_db) == original_hash_before
-    if original_wal_hash_before is not None:
-        assert file_sha256(original_wal) == original_wal_hash_before

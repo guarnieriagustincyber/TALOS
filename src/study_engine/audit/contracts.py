@@ -47,12 +47,21 @@ class CheckSeverity(str, Enum):
 
 
 class ClaimType(str, Enum):
-    """Structural classification of a segmented claim/sentence."""
+    """Structural classification of a segmented claim/sentence.
+
+    STRUCTURAL denotes a purely presentational element (a section heading used
+    as a label, a divider, a table separator or a line of code that carries no
+    natural-language assertion). Structural elements are *not* claims: they do
+    not require a citation and they do not consume the bounded NLI budget.
+    A heading, bullet or code block that *does* communicate an assertion is
+    classified as FACTUAL and keeps the full grounding requirement.
+    """
 
     FACTUAL = "FACTUAL"
     PEDAGOGICAL = "PEDAGOGICAL"
     QUESTION = "QUESTION"
     CONVERSATIONAL = "CONVERSATIONAL"
+    STRUCTURAL = "STRUCTURAL"
     UNCLASSIFIED = "UNCLASSIFIED"
 
 
@@ -60,6 +69,8 @@ class ClaimSupportVerdict(str, Enum):
     """NLI inference verdict on a single claim against cited chunk."""
 
     ENTAILED = "ENTAILED"
+    PARTIALLY_SUPPORTED = "PARTIALLY_SUPPORTED"
+    UNSUPPORTED_GENERALIZATION = "UNSUPPORTED_GENERALIZATION"
     CONTRADICTED = "CONTRADICTED"
     NOT_ENTAILED = "NOT_ENTAILED"
     UNASSESSED = "UNASSESSED"
@@ -217,6 +228,32 @@ class ForensicAuditReport(BaseContract):
     nli_judge_id: Optional[str] = Field(
         default=None,
         description="Identifier of NLI judge backend if executed",
+    )
+    nli_calls: int = Field(
+        default=0,
+        ge=0,
+        description="Provider semantic-judge calls made during this audit",
+    )
+    nli_cache_hits: int = Field(
+        default=0,
+        ge=0,
+        description="Assessable claims served by exact-input cache reuse",
+    )
+    nli_technical_failures: int = Field(
+        default=0,
+        ge=0,
+        description=(
+            "Semantic-judge calls that failed for technical reasons (provider "
+            "error, timeout, HTTP 429/503).  These are operational failures, "
+            "not evidence conclusions."
+        ),
+    )
+    nli_budget_exhausted: bool = Field(
+        default=False,
+        description=(
+            "True when the bounded semantic budget prevented full evaluation; "
+            "remaining claims stay UNASSESSED."
+        ),
     )
     prompt_hash: Optional[str] = Field(
         default=None,

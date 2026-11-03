@@ -7,7 +7,6 @@ Endpoints:
 """
 
 from collections import defaultdict, deque
-import os
 import threading
 import time
 from typing import Any, Dict, List, Optional
@@ -15,6 +14,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from study_engine.config import settings
+from study_engine.web.admin_auth import require_admin_token
 from study_engine.web.dependencies import AppContainer, get_container
 
 router = APIRouter(prefix="/api/retrieval", tags=["Retrieval"])
@@ -97,12 +97,10 @@ def inspect_fabric(
         )
 
     # 2. X-Admin-Token verification
-    admin_token = os.getenv("TALOS_ADMIN_TOKEN", "talos-admin-secret-dev")
-    if not x_admin_token or x_admin_token != admin_token:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Forbidden: se requiere header X-Admin-Token válido.",
-        )
+    require_admin_token(
+        x_admin_token,
+        forbidden_detail="Forbidden: se requiere header X-Admin-Token válido.",
+    )
 
     fabric = getattr(container, "retrieval_fabric", None)
     if not fabric:

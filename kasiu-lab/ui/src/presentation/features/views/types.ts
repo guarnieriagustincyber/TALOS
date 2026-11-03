@@ -36,6 +36,8 @@ export interface Citation {
   citationId: string;
   sourceId: string | null;
   source_id?: string | null;
+  documentId?: string | null;
+  document_id?: string | null;
   sourceTitle?: string;
   source_title?: string;
   page?: number | null;
@@ -63,7 +65,43 @@ export interface BktContext {
   fallback?: boolean;
 }
 
+export interface ExerciseProposal {
+  exercise_id: string;
+  prompt: string;
+  kc_id?: string | null;
+  title?: string;
+  type?: string | null;
+  options?: string[] | null;
+  [metadata: string]: unknown;
+}
+
+export interface ExerciseEvaluationContext {
+  sessionId: string | null;
+  notebookId: string;
+  episodeId: string | null;
+}
+
+export interface ExerciseAttemptResult {
+  status: "GRADED" | "UNGRADED";
+  is_correct: boolean | null;
+  feedback?: string | null;
+  detail?: string | null;
+  remediation?: string | null;
+  p_L?: number | null;
+  delta_p_L?: number | null;
+  was_idempotent_replay?: boolean;
+}
+
+export interface ExerciseAttemptState {
+  attemptId: string;
+  answer: string;
+  status: "SUBMITTING" | "UNKNOWN" | "INCOMPLETE" | "CONFLICT" | "GRADED" | "UNGRADED";
+  result?: ExerciseAttemptResult;
+  message?: string;
+}
+
 export interface Message {
+  audit?: import('../../../services/auditProjection').MessageAudit;
   id: string;
   sender: "user" | "assistant";
   text: string;
@@ -74,7 +112,13 @@ export interface Message {
   facetCoverage?: Record<string, "SUFFICIENT" | "PARTIAL" | "MISSING">;
   abstained?: boolean;
   abstentionReason?: string | null;
+  clarificationRequested?: boolean;
   bktContext?: BktContext;
+  exerciseProposal?: ExerciseProposal;
+  exerciseEvaluationContext?: ExerciseEvaluationContext;
+  exerciseAttempt?: ExerciseAttemptState;
+  exerciseAttemptHistory?: ExerciseAttemptState[];
+  exerciseEvaluationError?: string;
   claims?: ClaimItemDto[];
   edited?: boolean;
 }
@@ -512,4 +556,3 @@ export interface NotebookSourcesResponseDto {
   total_sources: number;
   sources: NotebookSourceItemDto[];
 }
-

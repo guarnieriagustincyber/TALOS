@@ -88,7 +88,7 @@ def test_first_attempt_cold_start_emits_structured_telemetry(tmp_path, caplog):
     with caplog.at_level(logging.INFO):
         r_eval = client.post(
             "/api/chat/evaluate",
-            json={"exercise_id": ex_id, "user_answer": "buffer overflow"},
+            json={"exercise_id": ex_id, "user_answer": "buffer overflow", "session_id": "session-cold-start", "attempt_id": "cold-start-attempt-1"},
         )
         assert r_eval.status_code == 200
 

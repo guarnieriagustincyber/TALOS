@@ -21,7 +21,7 @@ from study_engine.audit.contracts import (
     ForensicAuditInput,
 )
 from study_engine.audit.auditor import ForensicAuditor
-from study_engine.audit.nli import MockNLIJudge
+from study_engine.audit.nli import MockNLIJudge, UnavailableNLIJudge
 
 
 def _make_auditor_test_input(
@@ -149,6 +149,15 @@ def test_forensic_auditor_nli_unsupported_rejected():
 
     assert report.overall_verdict == AuditVerdict.REJECTED_UNSUPPORTED
     assert report.nli_executed is True
+
+
+def test_unavailable_semantic_assessor_cannot_approve_a_cited_claim():
+    report = ForensicAuditor(nli_judge=UnavailableNLIJudge()).audit(
+        _make_auditor_test_input()
+    )
+    assert report.overall_verdict == AuditVerdict.FLAGGED_UNASSESSED
+    assert report.nli_judge_id == "nli-unavailable-v1"
+    assert report.claim_verifications[0].nli_verdict == ClaimSupportVerdict.UNASSESSED
 
 
 def test_forensic_auditor_judge_error_fails_safe():

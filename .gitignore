@@ -111,3 +111,22 @@ node_modules/
 
 kasiu-lab/ui/bin/tailwindcss
 debug_*.txt
+
+# Transport and temporary staging (Drive/Colab & raw sources)
+drive_upload*/
+corpus_upload/
+fuentes/
+scratch/
+
+# Temporary root markers
+BASELINE
+PHASE_*
+PROMOTION
+
+# TALOS S1 — evidencia local de episodios M1 (preservada fuera de Git) y artefactos generados
+.m1_*/
+.talos-fidelity-review/
+TALOS-COLAB-PILOT-01/
+graphify-out/cache/
+graphify-out/.rebuild.lock
+graphify-out/20*/

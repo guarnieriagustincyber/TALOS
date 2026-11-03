@@ -10,12 +10,18 @@ Contrato:
 """
 
 from fastapi.testclient import TestClient
+import pytest
 
 from study_engine.pedagogy.generated_registry import GeneratedExerciseRegistry
 from study_engine.student.bkt_tracker import BKTTracker
 from study_engine.student.storage import StudentStorage
 from study_engine.web.app import create_app
 from study_engine.web.dependencies import AppContainer, set_container
+
+
+@pytest.fixture(autouse=True)
+def synthetic_admin_token(monkeypatch):
+    monkeypatch.setenv("TALOS_ADMIN_TOKEN", "synthetic-admin-token-for-focused-tests-012345")
 
 
 def test_generation_endpoints_do_not_leak_oracle(tmp_path):
@@ -93,7 +99,7 @@ def test_evaluate_uses_sqlite_persisted_oracle(tmp_path):
     # Calificar con respuesta correcta
     r_eval_good = client.post(
         "/api/chat/evaluate",
-        json={"exercise_id": ex_id, "user_answer": "Es un buffer overflow clásico en strcpy"},
+        json={"exercise_id": ex_id, "user_answer": "Es un buffer overflow clásico en strcpy", "session_id": "session-generated", "attempt_id": "generated-good-1"},
     )
     assert r_eval_good.status_code == 200
     res_good = r_eval_good.json()
@@ -105,7 +111,7 @@ def test_evaluate_uses_sqlite_persisted_oracle(tmp_path):
     # Calificar con respuesta incorrecta
     r_eval_bad = client.post(
         "/api/chat/evaluate",
-        json={"exercise_id": ex_id, "user_answer": "Es un error de compilación de sintaxis"},
+        json={"exercise_id": ex_id, "user_answer": "Es un error de compilación de sintaxis", "session_id": "session-generated", "attempt_id": "generated-bad-1"},
     )
     assert r_eval_bad.status_code == 200
     res_bad = r_eval_bad.json()
@@ -125,7 +131,7 @@ def test_post_restart_unknown_evaluates_ungraded_fail_closed(tmp_path):
 
     r_unknown = client.post(
         "/api/chat/evaluate",
-        json={"exercise_id": "gen_inexistente_9999", "user_answer": "buffer overflow"},
+        json={"exercise_id": "gen_inexistente_9999", "user_answer": "buffer overflow", "session_id": "session-generated", "attempt_id": "generated-missing-1"},
     )
     assert r_unknown.status_code == 200
     data = r_unknown.json()
@@ -171,7 +177,7 @@ def test_post_restart_with_persisted_sqlite_db(tmp_path):
     # Y la evaluación funciona sin problemas
     r_eval = client2.post(
         "/api/chat/evaluate",
-        json={"exercise_id": ex_id, "user_answer": "Es un use after free (CWE-416)"},
+        json={"exercise_id": ex_id, "user_answer": "Es un use after free (CWE-416)", "session_id": "session-generated-2", "attempt_id": "generated-correct-1"},
     )
     assert r_eval.status_code == 200
     res = r_eval.json()
@@ -215,7 +221,7 @@ def test_generation_endpoints_authenticated_oracle_inspection_a4(tmp_path):
         r_auth = client.post(
             f"{url}?include_oracle=true",
             json=body,
-            headers={"X-Admin-Token": "talos-admin-secret-dev"},
+            headers={"X-Admin-Token": "synthetic-admin-token-for-focused-tests-012345"},
         )
         assert r_auth.status_code == 201
         data = r_auth.json()
@@ -223,53 +229,95 @@ def test_generation_endpoints_authenticated_oracle_inspection_a4(tmp_path):
         assert isinstance(data["oracle"], dict)
 
 
-def test_multikc_bkt_updates_all_kcs_and_records_attempt_a5(tmp_path):
-    """Requerimiento A5: actualización de BKT a través de TODOS los kc_ids y persistencia de intento."""
+def test_multikc_keyword_pass_feedsback_without_academic_effects_h2a(tmp_path):
+    """H2-A (autorización propietaria 2026-10-21), sustituye el requisito A5
+    histórico ("BKT a través de TODOS los KCs"): una observación de cobertura
+    léxica multi-KC es FEEDBACK; sin atribución discriminante por criterio/KC
+    no produce efectos académicos individuales (regla de admisibilidad).
+
+    Se conserva del A5: persistencia del intento forense en
+    student_exercise_attempts y respuesta GRADED con is_correct como feedback.
+    """
     app = create_app()
     container = AppContainer(working_dir=tmp_path, use_mock=True)
     db_file = tmp_path / "student_state.db"
     container.student_storage = StudentStorage(db_file)
     container.generated_registry = GeneratedExerciseRegistry(container.student_storage)
     container.bkt_tracker = BKTTracker(container.student_storage)
-    set_container(container)
-    client = TestClient(app)
+    # Sesión persistida real (requisito de /evaluate desde T13a; el fixture
+    # histórico con sesión ficticia quedó UNGRADED — ver patrón de
+    # tests/unit/web/test_exercise_loop.py).
+    from study_engine.federation.notebook_registry import Notebook, NotebookRegistry
 
     kc1 = "punteros"
     kc2 = "memoria"
+    registry = NotebookRegistry(initial_notebooks=[Notebook(
+        notebook_id="notebook-h2a-multikc",
+        name="Notebook sintético H2-A",
+        subject="Admisibilidad",
+        sources=[],
+    )])
+    container.notebook_registry = registry
+    container.pedagogical_orchestrator.notebook_registry = registry
+    container.study_session_orchestrator.notebook_registry = registry
+    container.pedagogical_orchestrator._kc_catalog = {
+        "notebook-h2a-multikc": {
+            "name": "Notebook sintético H2-A",
+            "curriculum_id": "curriculum-h2a-multikc",
+            "kcs": [
+                {"kc_id": kc1, "title": kc1, "unit": 1, "prerequisites": []},
+                {"kc_id": kc2, "title": kc2, "unit": 1, "prerequisites": []},
+            ],
+        },
+    }
+    session_id = container.study_session_orchestrator.open_session(
+        "notebook-h2a-multikc"
+    ).session_id
+    set_container(container)
+    client = TestClient(app)
 
     # Generar multi-kc exercise
     r_gen = client.post(
         "/api/student/exercises/generate/multi-kc?include_oracle=true",
         json={"kc_ids": [kc1, kc2]},
-        headers={"X-Admin-Token": "talos-admin-secret-dev"},
+        headers={"X-Admin-Token": "synthetic-admin-token-for-focused-tests-012345"},
     )
     assert r_gen.status_code == 201
     ex = r_gen.json()
     ex_id = ex["exercise_id"]
 
-    # Verificar que inicialmente no hay intentos
+    # Sin intentos previos y estado académico inicial
     assert not container.student_storage.has_exercise_attempt(ex_id)
     assert container.bkt_tracker.get_state(kc1).attempts == 0
     assert container.bkt_tracker.get_state(kc2).attempts == 0
+    p_l_antes = {
+        kc1: container.bkt_tracker.get_state(kc1).p_L,
+        kc2: container.bkt_tracker.get_state(kc2).p_L,
+    }
 
-    # Calificar respuesta correcta
-    sol = "Reservo la copia con malloc en el heap, verifico null y el caller debe liberar con free"
+    # Respuesta que cubre léxicamente los conceptos requeridos
+    required = ex["oracle"]["required"]
+    accepts = [a for req in required for a in req.get("accept", [])]
+    sol = " ".join(f"Menciono {a} correctamente." for a in accepts)
     r_eval = client.post(
         "/api/chat/evaluate",
-        json={"exercise_id": ex_id, "user_answer": sol},
+        json={"exercise_id": ex_id, "user_answer": sol, "session_id": session_id, "attempt_id": "generated-solution-1"},
     )
     assert r_eval.status_code == 200
     res = r_eval.json()
     assert res["status"] == "GRADED"
-    assert res["is_correct"] is True
+    assert res["is_correct"] is True  # feedback del oráculo conservado
 
-    # A5: Ambos KCs deben haberse actualizado en BKT
-    assert kc1 in res["bkt_updates"]
-    assert kc2 in res["bkt_updates"]
-    assert container.bkt_tracker.get_state(kc1).attempts == 1
-    assert container.bkt_tracker.get_state(kc2).attempts == 1
+    # H2-A: sin efectos académicos — sin distribución multi-KC, sin mutación
+    assert res["bkt_updates"] == {}
+    assert container.bkt_tracker.get_state(kc1).attempts == 0
+    assert container.bkt_tracker.get_state(kc2).attempts == 0
+    assert container.bkt_tracker.get_state(kc1).p_L == p_l_antes[kc1]
+    assert container.bkt_tracker.get_state(kc2).p_L == p_l_antes[kc2]
+    assert res["academic_admission"]["admissible"] is False
+    assert "sin atribución discriminante" in res["academic_admission"]["reason"]
 
-    # A5: Intento forense persistido en SQLite student_exercise_attempts
+    # A5 conservado: intento forense persistido en SQLite student_exercise_attempts
     assert container.student_storage.has_exercise_attempt(ex_id)
 
 
@@ -284,7 +332,7 @@ def test_trace_x86_generation_and_evaluation(tmp_path):
     r_gen = client.post(
         "/api/student/exercises/generate/trace?include_oracle=true",
         json={"kc_id": "arquitectura_computadores", "arch": "x86"},
-        headers={"X-Admin-Token": "talos-admin-secret-dev"},
+        headers={"X-Admin-Token": "synthetic-admin-token-for-focused-tests-012345"},
     )
     assert r_gen.status_code == 201
     ex = r_gen.json()
@@ -298,10 +346,9 @@ def test_trace_x86_generation_and_evaluation(tmp_path):
     # Evaluar vía endpoint
     r_eval = client.post(
         "/api/chat/evaluate",
-        json={"exercise_id": ex["exercise_id"], "user_answer": ans},
+        json={"exercise_id": ex["exercise_id"], "user_answer": ans, "session_id": "session-generated-4", "attempt_id": "generated-answer-1"},
     )
     assert r_eval.status_code == 200
     res = r_eval.json()
     assert res["status"] == "GRADED"
     assert res["is_correct"] is True
-

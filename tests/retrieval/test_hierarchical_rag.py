@@ -462,10 +462,7 @@ def test_router_deterministic():
 
 
 def test_fadena_so2_pilot_retrieval(knowledge_store_test_copy):
-    """Validates that fadena-so2 chapters are indexed in web_state db and retrievable."""
-    if knowledge_store_test_copy is None:
-        pytest.skip("data/web_state/knowledge_store.db not present")
-
+    """Validates that fadena-so2 chapters in the sealed test snapshot are retrievable."""
     store = KnowledgeStore(knowledge_store_test_copy)
     summaries = store.get_chapter_summaries_by_notebook("fadena-so2")
     assert len(summaries) >= 10, f"Expected >= 10 chapters for fadena-so2, got {len(summaries)}"

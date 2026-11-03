@@ -29,8 +29,8 @@ def test_c10_validate_hints_all_rejected_fallback():
     assert len(validated) == 0
     assert all_rejected is True
 
-def test_c6_c11_exact_text_synonyms_and_fuzzy():
-    # E12, E17: Evaluación de 3 capas
+def test_c6_c11_exact_text_synonyms_without_fuzzy_credit():
+    # A1: solo igualdad normalizada y sinónimos canónicos acreditan.
     grader = ExactMatchGrader()
     
     # Capa 1: normalización exacta
@@ -48,12 +48,12 @@ def test_c6_c11_exact_text_synonyms_and_fuzzy():
     assert r3.is_correct is True
     assert r3.normalization_policy == "synonym_match"
 
-    # Capa 3: Fuzzy match (>= 0.85)
+    # Una variante ortográfica no canónica no acredita por similitud.
     r4 = grader.grade("punteross", "punteros")
-    assert r4.is_correct is True
-    assert r4.normalization_policy == "fuzzy_match"
+    assert r4.is_correct is False
+    assert r4.comparison_result == "DIFF('punteross', 'punteros')"
 
-    # Disparidad mayor (< 0.85 y no sinónimo)
+    # Respuesta ajena a la clave y a sus sinónimos.
     r5 = grader.grade("memoria cache", "puntero")
     assert r5.is_correct is False
 

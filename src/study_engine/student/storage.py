@@ -7,11 +7,13 @@ Provides isolated, thread-safe persistence for:
 """
 
 from datetime import datetime, timezone
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import sqlite3
 import threading
 from typing import Any, Dict, List, Optional, Union
+from typing import Iterator
 
 from study_engine.config import CANONICAL_STUDENT_ID
 from study_engine.student.contracts import (
@@ -91,6 +93,28 @@ CREATE TABLE IF NOT EXISTS student_exercise_attempts (
     metadata TEXT
 );
 
+CREATE TABLE IF NOT EXISTS student_operation_receipts (
+    session_id   TEXT NOT NULL,
+    episode_id   TEXT NOT NULL,
+    exercise_id  TEXT NOT NULL,
+    attempt_id   TEXT NOT NULL,
+    request_digest TEXT NOT NULL,
+    result_json  TEXT NOT NULL,
+    status       TEXT NOT NULL DEFAULT 'COMPLETED',
+    created_at   TEXT NOT NULL,
+    PRIMARY KEY (session_id, episode_id, exercise_id, attempt_id)
+);
+
+CREATE TABLE IF NOT EXISTS curriculum_progress (
+    notebook_id TEXT NOT NULL,
+    kc_id TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    evidence_count INTEGER NOT NULL DEFAULT 0,
+    last_updated TEXT NOT NULL,
+    PRIMARY KEY (notebook_id, kc_id)
+);
+CREATE INDEX IF NOT EXISTS idx_curriculum_progress_notebook ON curriculum_progress(notebook_id);
+
 CREATE INDEX IF NOT EXISTS idx_remediation_topic ON remediation_choices(current_topic_id);
 CREATE INDEX IF NOT EXISTS idx_anchor_next_review ON anchor_states(next_review);
 CREATE INDEX IF NOT EXISTS idx_hints_episode ON student_hints(episode_id);
@@ -121,7 +145,7 @@ class StudentStorage:
             self._is_memory = False
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._thread_local = threading.local()
         self._mem_conn: Optional[sqlite3.Connection] = None
         self._init_db()
@@ -140,11 +164,153 @@ class StudentStorage:
             self._thread_local.conn = conn
         return conn
 
+    def close(self) -> None:
+        """Close this thread's SQLite handle so durable state can be reopened cleanly."""
+        with self._lock:
+            conn = getattr(self._thread_local, "conn", None)
+            if conn is not None:
+                conn.close()
+                del self._thread_local.conn
+            if self._mem_conn is not None:
+                self._mem_conn.close()
+                self._mem_conn = None
+
     def _init_db(self) -> None:
         with self._lock:
             conn = self._get_connection()
             with conn:
                 conn.executescript(STUDENT_SCHEMA_DDL)
+            receipt_columns = {
+                row[1]
+                for row in conn.execute("PRAGMA table_info(student_operation_receipts)").fetchall()
+            }
+            if "status" not in receipt_columns:
+                conn.execute(
+                    "ALTER TABLE student_operation_receipts "
+                    "ADD COLUMN status TEXT NOT NULL DEFAULT 'COMPLETED'"
+                )
+            conn.commit()
+
+    @contextmanager
+    def transaction(self) -> Iterator[sqlite3.Connection]:
+        """Provide nested, thread-safe transactions on this storage connection.
+
+        The outer scope obtains SQLite's write reservation; nested storage
+        writes use savepoints and cannot commit the outer operation early.
+        """
+        with self._lock:
+            conn = self._get_connection()
+            depth = getattr(self._thread_local, "transaction_depth", 0)
+            savepoint = f"student_storage_sp_{depth}"
+            if depth == 0:
+                conn.execute("BEGIN IMMEDIATE")
+            else:
+                conn.execute(f"SAVEPOINT {savepoint}")
+            self._thread_local.transaction_depth = depth + 1
+            try:
+                yield conn
+                if depth == 0:
+                    conn.execute("COMMIT")
+                else:
+                    conn.execute(f"RELEASE SAVEPOINT {savepoint}")
+            except Exception:
+                if depth == 0:
+                    conn.execute("ROLLBACK")
+                else:
+                    conn.execute(f"ROLLBACK TO SAVEPOINT {savepoint}")
+                    conn.execute(f"RELEASE SAVEPOINT {savepoint}")
+                raise
+            finally:
+                self._thread_local.transaction_depth = depth
+
+    def get_operation_receipt(
+        self,
+        *,
+        session_id: str,
+        episode_id: str,
+        exercise_id: str,
+        attempt_id: str,
+    ) -> Optional[tuple[str, str]]:
+        conn = self._get_connection()
+        row = conn.execute(
+            """SELECT request_digest, result_json, status FROM student_operation_receipts
+               WHERE session_id=? AND episode_id=? AND exercise_id=? AND attempt_id=?""",
+            (session_id, episode_id, exercise_id, attempt_id),
+        ).fetchone()
+        return (row[0], row[1] if row[2] == "COMPLETED" else "") if row else None
+
+    def begin_operation_receipt(
+        self,
+        *,
+        session_id: str,
+        episode_id: str,
+        exercise_id: str,
+        attempt_id: str,
+        request_digest: str,
+    ) -> tuple[str, Optional[str]]:
+        """Persist an IN_PROGRESS marker before a multi-step operation starts."""
+        now = datetime.now(timezone.utc).isoformat()
+        with self.transaction() as conn:
+            row = conn.execute(
+                """SELECT request_digest, result_json, status
+                   FROM student_operation_receipts
+                   WHERE session_id=? AND episode_id=? AND exercise_id=? AND attempt_id=?""",
+                (session_id, episode_id, exercise_id, attempt_id),
+            ).fetchone()
+            if row is not None:
+                if row[0] != request_digest:
+                    return "CONFLICT", None
+                if row[2] == "COMPLETED":
+                    return "REPLAY", row[1]
+                return "IN_PROGRESS", None
+            conn.execute(
+                """INSERT INTO student_operation_receipts
+                   (session_id, episode_id, exercise_id, attempt_id, request_digest,
+                    result_json, status, created_at)
+                   VALUES (?, ?, ?, ?, ?, '', 'IN_PROGRESS', ?)""",
+                (session_id, episode_id, exercise_id, attempt_id, request_digest, now),
+            )
+        return "STARTED", None
+
+    def complete_operation_receipt(
+        self,
+        *,
+        session_id: str,
+        episode_id: str,
+        exercise_id: str,
+        attempt_id: str,
+        request_digest: str,
+        result_json: str,
+    ) -> None:
+        with self.transaction() as conn:
+            cursor = conn.execute(
+                """UPDATE student_operation_receipts
+                   SET result_json=?, status='COMPLETED'
+                   WHERE session_id=? AND episode_id=? AND exercise_id=?
+                     AND attempt_id=? AND request_digest=? AND status='IN_PROGRESS'""",
+                (result_json, session_id, episode_id, exercise_id, attempt_id, request_digest),
+            )
+            if cursor.rowcount != 1:
+                raise ValueError("No matching in-progress student operation receipt.")
+
+    def store_operation_receipt(
+        self,
+        *,
+        session_id: str,
+        episode_id: str,
+        exercise_id: str,
+        attempt_id: str,
+        request_digest: str,
+        result_json: str,
+    ) -> None:
+        now = datetime.now(timezone.utc).isoformat()
+        with self.transaction() as conn:
+            conn.execute(
+                """INSERT INTO student_operation_receipts
+                   (session_id, episode_id, exercise_id, attempt_id, request_digest, result_json, status, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, 'COMPLETED', ?)""",
+                (session_id, episode_id, exercise_id, attempt_id, request_digest, result_json, now),
+            )
 
     def get_bkt_state(self, kc_id: str) -> Optional[BKTState]:
         """Fetch BKT state for a knowledge component."""
@@ -169,10 +335,8 @@ class StudentStorage:
 
     def save_bkt_state(self, state: BKTState) -> None:
         """Upsert BKT state for a knowledge component."""
-        with self._lock:
-            conn = self._get_connection()
-            with conn:
-                conn.execute(
+        with self.transaction() as conn:
+            conn.execute(
                     """
                     INSERT INTO bkt_states (kc_id, p_L, p_T, p_G, p_S, attempts, last_update)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -193,7 +357,7 @@ class StudentStorage:
                         state.attempts,
                         state.last_update.isoformat(),
                     ),
-                )
+            )
 
     def get_all_bkt_states(self, limit: Optional[int] = None, offset: int = 0) -> Dict[str, BKTState]:
         """Retrieve all tracked BKT states with optional pagination."""
@@ -246,10 +410,8 @@ class StudentStorage:
 
     def save_anchor_state(self, state: AnchorState) -> None:
         """Upsert SM-2 state for a conceptual anchor."""
-        with self._lock:
-            conn = self._get_connection()
-            with conn:
-                conn.execute(
+        with self.transaction() as conn:
+            conn.execute(
                     """
                     INSERT INTO anchor_states (anchor_id, interval, repetitions, EF, next_review, last_quality, updated_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -270,7 +432,7 @@ class StudentStorage:
                         state.last_quality,
                         state.updated_at.isoformat(),
                     ),
-                )
+            )
 
     def get_all_anchor_states(self, limit: Optional[int] = None, offset: int = 0) -> Dict[str, AnchorState]:
         """Fetch all conceptual anchor states with optional pagination."""
@@ -372,9 +534,7 @@ class StudentStorage:
         """Record a socratic hint given to the student for auditability (E15, E18)."""
         import time
         ts = time.time()
-        conn = self._get_connection()
-        with self._lock:
-            with conn:
+        with self.transaction() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
                     """
@@ -434,9 +594,7 @@ class StudentStorage:
     ) -> int:
         """Persist a qualitative pedagogical memory or learning pattern."""
         now_str = datetime.now(timezone.utc).isoformat()
-        conn = self._get_connection()
-        with self._lock:
-            with conn:
+        with self.transaction() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
                     """
@@ -527,9 +685,7 @@ class StudentStorage:
         """Record an attempt made by a student on an exercise (Slice 6.0.5)."""
         now_str = datetime.now(timezone.utc).isoformat()
         meta_json = json.dumps(metadata) if metadata else None
-        conn = self._get_connection()
-        with self._lock:
-            with conn:
+        with self.transaction() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
                     """
@@ -744,4 +900,3 @@ def calculate_autonomy_score(total_attempts: int, total_solutions: int, ratio: f
         return 1.0  # Alta autonomía (nunca pidió solución)
     else:
         return min(1.0, round(ratio / 10.0, 4))  # Escala lineal hasta ratio=10
-

@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from study_engine.web.app import create_app
 from study_engine.web.dependencies import AppContainer, set_container, get_container
+from study_engine.pedagogy.episode_contracts import EpisodePhase
 
 
 @pytest.fixture
@@ -16,9 +17,30 @@ def client_and_container(web_state_test_copy):
         yield client, container
 
 
+def _prepare_synthetic_evaluation(container, kc_id: str, exercise_id: str) -> str:
+    session = container.study_session_orchestrator.open_session(
+        notebook_id="fase0-soc",
+        student_id="agustin",
+    )
+    episode, _ = container.pedagogical_orchestrator.start_episode(
+        notebook_id="fase0-soc",
+        kc_id=kc_id,
+        episode_id="ep_test_session",
+        session_id=session.session_id,
+    )
+    container.pedagogical_orchestrator.save_episode(
+        episode.transition_to(
+            EpisodePhase.EVALUATING,
+            f"step_eval_{exercise_id}",
+        )
+    )
+    return session.session_id
+
+
 def test_live_socratic_evaluation_updates_bkt(client_and_container):
     client, container = client_and_container
     kc = "aritmetica_punteros"
+    session_id = _prepare_synthetic_evaluation(container, kc, "ex_fase0_ptr_01")
 
     # Prior state before answer
     prior_state = container.bkt_tracker.get_state(kc)
@@ -29,6 +51,8 @@ def test_live_socratic_evaluation_updates_bkt(client_and_container):
     payload = {
         "student_response": "1012",
         "exercise_id": "ex_fase0_ptr_01",
+        "session_id": session_id,
+        "attempt_id": "attempt-correct-1",
         "kc_id": kc,
         "is_mc": False,
     }
@@ -56,6 +80,7 @@ def test_client_cannot_inject_expected_answer(client_and_container):
     """Verify that an attacker attempting to pass expected_answer in client payload cannot hack BKT."""
     client, container = client_and_container
     kc = "aritmetica_punteros"
+    session_id = _prepare_synthetic_evaluation(container, kc, "ex_fase0_ptr_01")
 
     # Prior state
     prior_state = container.bkt_tracker.get_state(kc)
@@ -67,6 +92,8 @@ def test_client_cannot_inject_expected_answer(client_and_container):
         "student_response": "HACKED_ANSWER",
         "expected_answer": "HACKED_ANSWER",  # ← Attacker injection attempt
         "exercise_id": "ex_fase0_ptr_01",
+        "session_id": session_id,
+        "attempt_id": "attempt-injection-1",
         "kc_id": kc,
     }
     resp = client.post(
@@ -93,6 +120,8 @@ def test_uncertified_kc_returns_ungraded_without_bkt_mutation(client_and_contain
     payload = {
         "student_response": "Some freeform reasoning without certified answer in catalog",
         "kc_id": unknown_kc,
+        "session_id": "unknown-session",
+        "attempt_id": "unknown-attempt-1",
     }
     resp = client.post(
         "/api/pedagogy/episode/ep_test_session/dialogue/evaluate-socratic",
@@ -116,11 +145,14 @@ def test_live_socratic_evaluation_incorrect_handles_decay(client_and_container):
     # Reset or record initial
     container.bkt_tracker.reset(kc)
     prior_p_L = container.bkt_tracker.get_state(kc).p_L
+    session_id = _prepare_synthetic_evaluation(container, kc, "ex_fase0_contig_01")
 
     # ex_fase0_contig_01 has correct answer "B"
     payload = {
         "student_response": "C",  # Incorrect
         "exercise_id": "ex_fase0_contig_01",
+        "session_id": session_id,
+        "attempt_id": "attempt-incorrect-1",
         "kc_id": kc,
         "is_mc": True,
         "options_count": 4,

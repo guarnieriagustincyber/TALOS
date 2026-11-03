@@ -118,6 +118,10 @@ class TurnIdConflictError(SessionError):
     """Raised when input_id reused with differing request digest."""
 
 
+class TurnOperationInProgressError(SessionError):
+    """Raised when a prior operation identity is durable but not completed."""
+
+
 class SessionTerminalError(InvalidSessionTransitionError):
     """Raised when turn attempted on a terminal session."""
 

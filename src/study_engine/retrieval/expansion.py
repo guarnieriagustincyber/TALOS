@@ -48,6 +48,7 @@ class SectionExpander:
         self,
         seed_results: List[SearchResult],
         source_meta_cache: Optional[Dict[str, Dict[str, str]]] = None,
+        allowed_source_ids: Optional[Set[str] | List[str]] = None,
     ) -> Tuple[List[ExpandedChunk], str]:
         """Expand seed results to contiguous sections and build formatted context.
 
@@ -56,6 +57,14 @@ class SectionExpander:
         """
         if not seed_results:
             return [], ""
+        if allowed_source_ids is not None and len(allowed_source_ids) == 0:
+            return [], ""
+
+        allowed_set: Optional[Set[str]] = set(allowed_source_ids) if allowed_source_ids is not None else None
+        if allowed_set is not None:
+            seed_results = [res for res in seed_results if getattr(res, "source_id", None) in allowed_set]
+            if not seed_results:
+                return [], ""
 
         meta_cache = source_meta_cache or {}
 
@@ -108,22 +117,38 @@ class SectionExpander:
 
                 # Fetch all chunks in the merged intervals for this document
                 for start_idx, end_idx in merged_intervals:
-                    cursor.execute(
-                        """
-                        SELECT id, document_id, source_id, content, page_start,
-                               pos_index, section, token_count
-                        FROM chunks
-                        WHERE document_id = ? AND pos_index BETWEEN ? AND ?
-                        ORDER BY pos_index ASC;
-                        """,
-                        (doc_id, start_idx, end_idx),
-                    )
+                    if allowed_set is not None:
+                        placeholders = ",".join("?" for _ in allowed_set)
+                        cursor.execute(
+                            f"""
+                            SELECT id, document_id, source_id, content, page_start,
+                                   pos_index, section, token_count
+                            FROM chunks
+                            WHERE document_id = ? AND pos_index BETWEEN ? AND ?
+                              AND source_id IN ({placeholders})
+                            ORDER BY pos_index ASC;
+                            """,
+                            [doc_id, start_idx, end_idx] + list(allowed_set),
+                        )
+                    else:
+                        cursor.execute(
+                            """
+                            SELECT id, document_id, source_id, content, page_start,
+                                   pos_index, section, token_count
+                            FROM chunks
+                            WHERE document_id = ? AND pos_index BETWEEN ? AND ?
+                            ORDER BY pos_index ASC;
+                            """,
+                            (doc_id, start_idx, end_idx),
+                        )
                     rows = cursor.fetchall()
 
                     for r in rows:
                         c_id = r[0]
                         d_id = r[1]
                         s_id = r[2]
+                        if allowed_set is not None and s_id not in allowed_set:
+                            continue
                         content = r[3]
                         p_start = r[4] or 1
                         p_idx = r[5]

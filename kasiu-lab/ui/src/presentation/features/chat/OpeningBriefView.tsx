@@ -27,6 +27,7 @@ export interface OpeningBriefFactsData {
 
 export interface StudySessionSnapshotData {
   session_id: string;
+  episode_id?: string | null;
   notebook_id: string;
   student_id: string;
   session_state_hash: string;

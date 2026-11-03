@@ -22,6 +22,7 @@ class VectorRecord(BaseContract):
     model_id: str = Field(..., min_length=1)
     dimensions: int = Field(..., gt=0)
     vector: List[float] = Field(...)
+    space_id: Optional[str] = None  # absent on legacy rows: identity UNKNOWN
 
     @field_validator("vector")
     @classmethod
@@ -57,22 +58,64 @@ class VectorStore(Protocol):
         ...
 
 
+class ReadOnlyVectorStoreError(RuntimeError):
+    """Raised when a mutating operation is attempted on a read-only SQLiteVectorStore."""
+    pass
+
+
 class SQLiteVectorStore:
     """Proportional SQLite vector store using raw binary BLOBs."""
 
-    def __init__(self, db_path: Union[str, Path] = ":memory:") -> None:
+    def __init__(
+        self,
+        db_path: Union[str, Path] = ":memory:",
+        read_only: bool = True,
+    ) -> None:
         self.db_path = str(db_path)
-        self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
-        self._conn.execute("PRAGMA journal_mode = WAL;")
-        self._conn.execute("PRAGMA synchronous = NORMAL;")
-        self._initialize_schema()
+        self.read_only = bool(read_only)
 
-        # Caché LRU de matrices por (notebook_id, provider_id, model_id).
-        # Máximo 2 cuadernos en memoria simultáneamente (evita fugas multi-GB).
-        self._matrix_cache: OrderedDict[Tuple[str, Optional[str], Optional[str]], Tuple[int, List[str], Any]] = OrderedDict()
+        if self.read_only:
+            if self.db_path == ":memory:":
+                raise ValueError("Cannot open an in-memory vector store in read-only mode.")
+            path = Path(self.db_path)
+            if not path.exists():
+                raise FileNotFoundError(f"Vector store database not found: {self.db_path}")
+
+            abs_path = path.resolve()
+            uri = f"file:{abs_path.as_posix()}?mode=ro"
+            self._conn = sqlite3.connect(uri, uri=True, check_same_thread=False)
+
+            # Fail-closed check: verify schema has 'chunk_embeddings'
+            cursor = self._conn.cursor()
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='chunk_embeddings';"
+            )
+            if not cursor.fetchone():
+                self._conn.close()
+                raise RuntimeError(
+                    f"Database at {self.db_path} does not contain required table 'chunk_embeddings'"
+                )
+        else:
+            self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self._conn.execute("PRAGMA journal_mode = WAL;")
+            self._conn.execute("PRAGMA synchronous = NORMAL;")
+            self._initialize_schema()
+
+        self._has_space_id = any(
+            row[1] == "space_id"
+            for row in self._conn.execute("PRAGMA table_info(chunk_embeddings)")
+        )
+
+        # La identidad forma parte de la clave: ninguna matriz cacheada puede
+        # reutilizarse en otra comparación vectorial.
+        self._matrix_cache: OrderedDict[Tuple[str, Optional[str], Optional[str], Optional[str]], Tuple[int, List[str], Any]] = OrderedDict()
         self._matrix_lock = threading.Lock()
 
     def _initialize_schema(self) -> None:
+        if self.read_only:
+            raise ReadOnlyVectorStoreError(
+                "Cannot initialize schema on a read-only SQLiteVectorStore."
+            )
         # PK compuesta (chunk_id, notebook_id): una misma fuente puede pertenecer
         # a múltiples notebooks, y cada chunk debe ser recuperable semánticamente
         # en todos ellos sin colisiones de clave.
@@ -85,6 +128,7 @@ class SQLiteVectorStore:
             model_id TEXT NOT NULL,
             dimensions INTEGER NOT NULL,
             vector BLOB NOT NULL,
+            space_id TEXT,
             PRIMARY KEY (chunk_id, notebook_id)
         );
         CREATE INDEX IF NOT EXISTS idx_vec_notebook
@@ -105,8 +149,14 @@ class SQLiteVectorStore:
 
     def save_records(self, records: List[VectorRecord]) -> int:
         """Atomically insert or replace a batch of vector records."""
+        if self.read_only:
+            raise ReadOnlyVectorStoreError(
+                "Cannot save records to a read-only SQLiteVectorStore."
+            )
         if not records:
             return 0
+        if not self._has_space_id:
+            raise RuntimeError("Legacy vector schema has no space identity; migration required")
 
         data = [
             (
@@ -117,6 +167,7 @@ class SQLiteVectorStore:
                 r.model_id,
                 r.dimensions,
                 self._pack_vector(r.vector),
+                r.space_id,
             )
             for r in records
         ]
@@ -124,8 +175,8 @@ class SQLiteVectorStore:
         sql = """
         INSERT OR REPLACE INTO chunk_embeddings
             (chunk_id, notebook_id, source_id, provider_id,
-             model_id, dimensions, vector)
-        VALUES (?, ?, ?, ?, ?, ?, ?);
+             model_id, dimensions, vector, space_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
         """
         cursor = self._conn.cursor()
         cursor.executemany(sql, data)
@@ -147,9 +198,10 @@ class SQLiteVectorStore:
         model_id: Optional[str] = None,
     ) -> List[VectorRecord]:
         """Fetch vectors strictly partitioned by notebook."""
-        query = """
+        space_column = "space_id" if self._has_space_id else "NULL AS space_id"
+        query = f"""
         SELECT chunk_id, notebook_id, source_id, provider_id,
-               model_id, dimensions, vector
+               model_id, dimensions, vector, {space_column}
         FROM chunk_embeddings
         WHERE notebook_id = ?
         """
@@ -177,15 +229,28 @@ class SQLiteVectorStore:
                 model_id=r[4],
                 dimensions=r[5],
                 vector=self._unpack_vector(r[6], r[5]),
+                space_id=r[7],
             )
             for r in rows
         ]
+
+    def list_space_ids(self, notebook_id: str) -> set[Optional[str]]:
+        """Report persisted identities without loading vectors (legacy is UNKNOWN)."""
+        if not self._has_space_id:
+            return {None} if self.count(notebook_id) else set()
+        return {
+            row[0] for row in self._conn.execute(
+                "SELECT DISTINCT space_id FROM chunk_embeddings WHERE notebook_id = ?",
+                (notebook_id,),
+            )
+        }
 
     def get_vector_matrix(
         self,
         notebook_id: str,
         provider_id: Optional[str] = None,
         model_id: Optional[str] = None,
+        space_id: Optional[str] = None,
     ) -> Tuple[List[str], Any]:
         """Fetch chunk IDs and stacked 2D float32 NumPy matrix directly from binary BLOBs.
 
@@ -195,7 +260,10 @@ class SQLiteVectorStore:
         """
         import numpy as np
 
-        key = (notebook_id, provider_id, model_id)
+        if space_id is not None and not self._has_space_id:
+            return [], np.empty((0, 0), dtype=np.float32)
+
+        key = (notebook_id, provider_id, model_id, space_id)
         with self._matrix_lock:
             try:
                 row = self._conn.execute("PRAGMA data_version;").fetchone()
@@ -220,6 +288,9 @@ class SQLiteVectorStore:
             if model_id:
                 query += " AND model_id = ?"
                 params.append(model_id)
+            if space_id is not None:
+                query += " AND space_id = ?"
+                params.append(space_id)
 
             query += " ORDER BY chunk_id ASC;"
             cursor = self._conn.cursor()
@@ -229,8 +300,8 @@ class SQLiteVectorStore:
                 return [], np.empty((0, 0), dtype=np.float32)
 
             dim = rows[0][1]
-            chunk_ids = [r[0] for r in rows if len(r[2]) == dim * 4]
-            raw_concat = b"".join(r[2] for r in rows if len(r[2]) == dim * 4)
+            chunk_ids = [r[0] for r in rows if r[1] == dim and len(r[2]) == dim * 4]
+            raw_concat = b"".join(r[2] for r in rows if r[1] == dim and len(r[2]) == dim * 4)
             matrix = np.frombuffer(raw_concat, dtype=np.float32).reshape((len(chunk_ids), dim))
 
             # Mantener en RAM como máximo 8 cuadernos (LRU eviction)
@@ -242,9 +313,10 @@ class SQLiteVectorStore:
 
     def get_by_chunk_id(self, chunk_id: str) -> Optional[VectorRecord]:
         """Fetch a single vector record by chunk ID."""
-        sql = """
+        space_column = "space_id" if self._has_space_id else "NULL AS space_id"
+        sql = f"""
         SELECT chunk_id, notebook_id, source_id, provider_id,
-               model_id, dimensions, vector
+               model_id, dimensions, vector, {space_column}
         FROM chunk_embeddings
         WHERE chunk_id = ?;
         """
@@ -261,10 +333,15 @@ class SQLiteVectorStore:
             model_id=row[4],
             dimensions=row[5],
             vector=self._unpack_vector(row[6], row[5]),
+            space_id=row[7],
         )
 
     def delete_by_notebook(self, notebook_id: str) -> int:
         """Delete all vectors belonging to a notebook."""
+        if self.read_only:
+            raise ReadOnlyVectorStoreError(
+                "Cannot delete records from a read-only SQLiteVectorStore."
+            )
         cursor = self._conn.cursor()
         cursor.execute(
             "DELETE FROM chunk_embeddings WHERE notebook_id = ?;",
@@ -275,6 +352,10 @@ class SQLiteVectorStore:
 
     def delete_by_source(self, source_id: str) -> int:
         """Delete all vectors belonging to a source."""
+        if self.read_only:
+            raise ReadOnlyVectorStoreError(
+                "Cannot delete records from a read-only SQLiteVectorStore."
+            )
         cursor = self._conn.cursor()
         cursor.execute(
             "DELETE FROM chunk_embeddings WHERE source_id = ?;",
@@ -299,3 +380,11 @@ class SQLiteVectorStore:
     def close(self) -> None:
         """Close SQLite database connection."""
         self._conn.close()
+
+
+__all__ = [
+    "VectorRecord",
+    "VectorStore",
+    "SQLiteVectorStore",
+    "ReadOnlyVectorStoreError",
+]

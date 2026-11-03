@@ -170,6 +170,7 @@ class StudySessionSnapshot:
     # Metadata
     derived_at: datetime
     policy_version: str
+    curriculum_completed: bool = False
 
 
 # Excepciones canónicas de la sesión de estudio

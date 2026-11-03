@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from study_engine.evidence.verification_backstop import GenerationVerificationBackstop
 from study_engine.utils.cache import TTLCache
 from study_engine.web.dependencies import AppContainer, get_container
 from study_engine.web.routes.sources import OpenLocalPayload, open_in_system_viewer
@@ -61,53 +60,20 @@ class CoverageResponse(BaseModel):
 def _get_or_create_claims_for_session(
     session_id: str, container: Optional[AppContainer] = None
 ) -> ClaimsVerificationResponse:
-    """Retrieve cached claims, audit active session response, or return empty claims for unknown sessions."""
-    if session_id in _claims_cache:
+    """Read a session projection; its presence does not certify S4.4 provenance."""
+    try:
         data = _claims_cache[session_id]
-        return ClaimsVerificationResponse(**data)
-
-    # 1. Inspect real active session in StudySessionOrchestrator if container is available
-    if container is not None and hasattr(container, "study_session_orchestrator"):
-        session_state = getattr(container.study_session_orchestrator, "_sessions", {}).get(session_id)
-        if session_state and hasattr(session_state, "history") and session_state.history:
-            latest_turn = session_state.history[-1]
-            response_text = getattr(latest_turn, "tutor_response", "") or getattr(latest_turn, "response", "")
-            if response_text:
-                backstop = GenerationVerificationBackstop()
-                evidence_chunks = getattr(latest_turn, "evidence_chunks", []) or []
-                audit_res = backstop.verify_e2_claims(response_text, evidence_chunks)
-                claims_dtos = [
-                    ClaimItemDto(
-                        claim_id=f"C{idx+1}",
-                        claim_text=c.get("text", ""),
-                        claim_type=c.get("type", "FACTUAL_TEXTUAL"),
-                        criticality=c.get("criticality", "NON_CRITICAL"),
-                        status=c.get("status", "SUPPORTED"),
-                        grounding_ratio=c.get("grounding_ratio", 1.0),
-                        cited_evidence_indices=c.get("citations", []),
-                        has_redaction=c.get("has_redaction", False),
-                    )
-                    for idx, c in enumerate(audit_res.get("claims", []))
-                ]
-                resp = ClaimsVerificationResponse(
-                    session_id=session_id,
-                    verdict=audit_res.get("verdict", "APPROVED"),
-                    claims=claims_dtos,
-                    redacted_text=audit_res.get("redacted_text"),
-                    contradictions=[],
-                )
-                _claims_cache[session_id] = resp.model_dump()
-                return resp
-
-    # Default fail-closed for sessions without active verified claims (no fabricated claims)
-    resp = ClaimsVerificationResponse(
-        session_id=session_id,
-        verdict="APPROVED",
-        claims=[],
-        redacted_text=None,
-        contradictions=[],
-    )
-    _claims_cache[session_id] = resp.model_dump()
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No hay un reporte de auditoría disponible para esta consulta.",
+        ) from None
+    resp = ClaimsVerificationResponse(**data)
+    if resp.session_id != session_id:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="La información de evidencia no corresponde a la sesión consultada.",
+        )
     return resp
 
 
@@ -173,4 +139,3 @@ def open_local_pdf(
     target_hash = (hash or doc_hash or "").strip()
     clean_hash = target_hash.split(":")[-1].lower()
     return open_in_system_viewer(OpenLocalPayload(doc_hash=clean_hash, page=page))
-

@@ -75,7 +75,7 @@ def setup_isolation_env(tmp_path: Path):
         rec_prog, docs_prog, chunks_prog, notebook_id="nb-prog"
     )
 
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
     provider = MockEmbeddingProvider(dimensions=384)
 
     index_notebook_chunks(store, vec_store, provider, "nb-so")

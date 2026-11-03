@@ -9,13 +9,19 @@ INVARIANTS:
 4. Deterministic state machine: Episode transitions from EXPLAINING -> EVALUATING -> CLOSED.
 """
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from study_engine.audit.auditor import ForensicAuditor
 from study_engine.audit.contracts import AuditVerdict, ForensicAuditInput, ForensicAuditReport
-from study_engine.contracts.evidence_engine import CitationManifest, CitationRecord, PackagedContext
+from study_engine.contracts.evidence_engine import (
+    CitationManifest,
+    CitationRecord,
+    PackagedContext,
+    PackagedEvidenceUnit,
+)
 from study_engine.contracts.generation import (
     GenerationMode,
     GenerationRequest,
@@ -32,6 +38,32 @@ from study_engine.pedagogy.student_context import StudentContext, get_student_co
 from study_engine.student.bkt_tracker import BKTTracker
 
 
+def _package_citation_evidence(
+    citations: List[CitationRecord],
+    content_by_citation: Dict[str, str],
+) -> Optional[List[PackagedEvidenceUnit]]:
+    """Bind each citation to the exact retrieved chunk text or fail closed."""
+    units: List[PackagedEvidenceUnit] = []
+    for rank, citation in enumerate(citations, start=1):
+        content = content_by_citation.get(citation.citation_id)
+        if (
+            not isinstance(content, str)
+            or not content.strip()
+            or hashlib.sha256(content.encode("utf-8")).hexdigest() != citation.content_hash
+        ):
+            return None
+        units.append(
+            PackagedEvidenceUnit(
+                citation=citation,
+                content=content,
+                retrieval_score=1.0,
+                retrieval_rank=rank,
+                retrieval_method="pedagogy_slice",
+            )
+        )
+    return units or None
+
+
 class PedagogicalOrchestrator:
     """Coordinates deterministic pedagogical interactions adhering strictly to S4.4 and BKT."""
 
@@ -44,6 +76,7 @@ class PedagogicalOrchestrator:
         exercise_store: ExerciseStore,
         bkt_tracker: BKTTracker,
         catalog_path: Optional[Path] = None,
+        episode_store: Optional[Any] = None,
     ) -> None:
         self.notebook_registry = notebook_registry
         self.evidence_assembler = evidence_assembler
@@ -55,6 +88,7 @@ class PedagogicalOrchestrator:
             Path(__file__).resolve().parents[3] / "config" / "notebook_kc_catalog.json"
         )
         self._kc_catalog: Dict[str, Any] = self._load_catalog()
+        self.episode_store = episode_store
         self._active_episodes: Dict[str, Episode] = {}
 
     def _load_catalog(self) -> Dict[str, Any]:
@@ -88,14 +122,32 @@ class PedagogicalOrchestrator:
 
         return True, None, target_kc_meta
 
-    def start_episode(self, notebook_id: str, kc_id: str, episode_id: Optional[str] = None) -> Tuple[Episode, str]:
+    def start_episode(
+        self,
+        notebook_id: str,
+        kc_id: str,
+        session_id: str,
+        episode_id: Optional[str] = None,
+    ) -> Tuple[Episode, str]:
         """Start a new validated learning episode."""
+        if not isinstance(session_id, str) or not session_id.strip():
+            raise ValueError("A persisted session_id is required to start an episode.")
         is_valid, err_msg, kc_meta = self.validate_kc_eligibility(notebook_id, kc_id)
         if not is_valid:
             raise ValueError(f"Rechazo formal de episodio: {err_msg}")
 
-        ep_id = episode_id or f"ep_{notebook_id}_{kc_id}"
+        ep_id = episode_id or f"ep_{session_id}_{notebook_id}_{kc_id}"
         title = kc_meta.get("title", kc_id) if kc_meta else kc_id
+
+        existing = self.get_episode(ep_id)
+        if existing is not None:
+            if (
+                existing.notebook_id != notebook_id
+                or existing.kc_id != kc_id
+                or existing.session_id != session_id
+            ):
+                raise ValueError(f"Episode identity conflict for '{ep_id}'.")
+            return existing, title
 
         episode = Episode(
             episode_id=ep_id,
@@ -104,12 +156,25 @@ class PedagogicalOrchestrator:
             objective=title,
             phase=EpisodePhase.EXPLAINING,
             current_step_id="step_concept",
+            session_id=session_id,
         )
-        self._active_episodes[ep_id] = episode
+        self.save_episode(episode)
         return episode, title
 
     def get_episode(self, episode_id: str) -> Optional[Episode]:
-        return self._active_episodes.get(episode_id)
+        episode = self._active_episodes.get(episode_id)
+        if episode is None and self.episode_store is not None:
+            episode = self.episode_store.load_episode(episode_id)
+            if episode is not None:
+                self._active_episodes[episode_id] = episode
+        return episode
+
+    def save_episode(self, episode: Episode) -> Episode:
+        """Update the in-memory authority only after the durable write succeeds."""
+        if self.episode_store is not None:
+            self.episode_store.save_episode(episode)
+        self._active_episodes[episode.episode_id] = episode
+        return episode
 
     def explain_concept(self, episode_id: str) -> ConceptResponse:
         """Formulate proposal, execute S4.4 audit, and return ConceptResponse."""
@@ -122,11 +187,13 @@ class PedagogicalOrchestrator:
             )
 
         # Retrieve evidence partitioned by role
-        evidence_by_role, citations = self.evidence_assembler.assemble_evidence_for_kc(
+        evidence_bundle = self.evidence_assembler.assemble_evidence_bundle_for_kc(
             notebook_id=episode.notebook_id,
             kc_id=episode.kc_id,
             query=episode.objective,
         )
+        evidence_by_role = evidence_bundle.evidence_by_role
+        citations = evidence_bundle.citations
 
         # Fail-closed if no primary evidence admitted
         if not citations:
@@ -146,26 +213,39 @@ class PedagogicalOrchestrator:
             evidence_by_role=evidence_by_role,
             all_citations=citations,
             student_context=student_ctx,
+            content_by_citation=evidence_bundle.content_by_citation,
         )
 
-        # Execute authoritative S4.4 Forensic Audit
-        from study_engine.contracts.evidence_engine import EvidencePacket, GroundingDecision, PackagedEvidenceUnit
+        # M1-02 (fail-closed): sin oración verbatim admisible en las fuentes no
+        # hay propuesta que auditar — un template taggeado sería un claim sin
+        # soporte (el NLI lo rechaza; la abstención honesta es anterior).
+        if not (getattr(proposal, "core_concept", "") or "").strip():
+            return ConceptResponse(
+                status="ABSTAINED",
+                abstention_reason=(
+                    f"Sin oración verbatim admisible en las fuentes autorizadas "
+                    f"para '{episode.kc_id}'."
+                ),
+                audit_verdict=AuditVerdict.REJECTED_UNSUPPORTED,
+                admitted_evidence=tuple(citations),
+            )
+
+        # Execute authoritative S4.4 Forensic Audit with the exact retrieved text.
+        from study_engine.contracts.evidence_engine import EvidencePacket, GroundingDecision
         from study_engine.contracts.generation import ParsedCitation, ResponseValidationStatus
+
+        units = _package_citation_evidence(citations, evidence_bundle.content_by_citation)
+        if units is None:
+            return ConceptResponse(
+                status="ABSTAINED",
+                abstention_reason="El contenido exacto de una cita no está disponible o no coincide con su hash.",
+                audit_verdict=AuditVerdict.UNVERIFIED_SOURCE,
+                admitted_evidence=tuple(citations),
+            )
 
         text_to_audit = f"{proposal.core_concept}\n{proposal.mental_model}"
         citation_records_dict = {c.citation_id: c for c in citations}
         manifest = CitationManifest(records=citation_records_dict)
-
-        units = [
-            PackagedEvidenceUnit(
-                citation=c,
-                content=f"Contenido verificado para cita {c.citation_id}",
-                retrieval_score=1.0,
-                retrieval_rank=idx + 1,
-                retrieval_method="pedagogy_slice",
-            )
-            for idx, c in enumerate(citations)
-        ]
 
         packet = EvidencePacket(
             original_query=episode.objective,
@@ -222,11 +302,11 @@ class PedagogicalOrchestrator:
 
         audit_report = self.forensic_auditor.audit(audit_input)
 
-        if audit_report.verdict != AuditVerdict.APPROVED:
+        if audit_report.overall_verdict != AuditVerdict.APPROVED:
             return ConceptResponse(
                 status="ABSTAINED",
-                abstention_reason=f"S4.4 Audit Rejected: {audit_report.verdict.value}",
-                audit_verdict=audit_report.verdict,
+                abstention_reason=f"S4.4 Audit Rejected: {audit_report.overall_verdict.value}",
+                audit_verdict=audit_report.overall_verdict,
                 admitted_evidence=tuple(citations),
             )
 
@@ -243,14 +323,14 @@ class PedagogicalOrchestrator:
             pitfalls=proposal.pitfalls,
             citations=proposal.citations,
             s44_report=audit_report,
-            audit_verdict=audit_report.verdict,
+            audit_verdict=audit_report.overall_verdict,
             assembly_hash=proposal.assembly_hash,
         )
 
         return ConceptResponse(
             status="PRESENTABLE",
             packet=approved_packet,
-            audit_verdict=audit_report.verdict,
+            audit_verdict=audit_report.overall_verdict,
             admitted_evidence=tuple(citations),
         )
 
@@ -259,6 +339,29 @@ class PedagogicalOrchestrator:
         episode = self.get_episode(episode_id)
         if not episode:
             raise ValueError(f"Episodio '{episode_id}' no encontrado.")
+
+        # A restored EVALUATING episode must return the same certified exercise
+        # without replaying the phase transition or selecting a different item.
+        if (
+            episode.phase == EpisodePhase.EVALUATING
+            and episode.current_step_id.startswith("step_eval_")
+        ):
+            active_exercise_id = episode.current_step_id.removeprefix("step_eval_")
+            exercise = self.exercise_store.get_evaluable_exercise_by_id(active_exercise_id)
+            if exercise is None or exercise.kc_id != episode.kc_id:
+                return {
+                    "intervention_type": "INVALID_ACTIVE_EXERCISE",
+                    "message": "El ejercicio persistido del episodio ya no puede verificarse.",
+                }
+            return {
+                "intervention_type": "EXERCISE",
+                "step_id": episode.current_step_id,
+                "exercise": exercise.to_dict(),
+                "episode_id": episode.episode_id,
+                "session_id": episode.session_id,
+                "notebook_id": episode.notebook_id,
+                "restored": True,
+            }
 
         # Fetch certified QUALIFIABLE exercise
         exercise = self.exercise_store.get_presentable_exercise_for_kc(episode.kc_id)
@@ -273,24 +376,39 @@ class PedagogicalOrchestrator:
             next_phase=EpisodePhase.EVALUATING,
             next_step_id=f"step_eval_{exercise.exercise_id}",
         )
-        self._active_episodes[episode_id] = updated_ep
+        self.save_episode(updated_ep)
 
         return {
             "intervention_type": "EXERCISE",
             "step_id": updated_ep.current_step_id,
             "exercise": exercise.to_dict(),
+            "episode_id": updated_ep.episode_id,
+            "session_id": updated_ep.session_id,
+            "notebook_id": updated_ep.notebook_id,
+            "restored": False,
         }
 
-    def get_next_eligible_action(self, notebook_id: str, current_kc_id: str) -> Dict[str, Any]:
+    def get_next_eligible_action(self, notebook_id: str, current_kc_id: str, *, correct: Optional[bool] = None) -> Dict[str, Any]:
         """Determine next eligible action based purely on BKT mastery, roadmap and policies (cero LLM)."""
         current_state = self.bkt_tracker.get_state(current_kc_id)
         p_L = current_state.p_L
 
         nb_data = self._kc_catalog.get(notebook_id, {})
         kcs = nb_data.get("kcs", [])
+        kc_ids = [item.get("kc_id") for item in kcs if isinstance(item, dict)]
+        if (
+            not kcs or len(kc_ids) != len(kcs)
+            or any(not isinstance(kc, str) or not kc.strip() for kc in kc_ids)
+            or len(set(kc_ids)) != len(kc_ids) or current_kc_id not in kc_ids
+        ):
+            return {
+                "recommendation": "REINFORCE", "current_p_L": p_L,
+                "next_kc_id": current_kc_id, "next_kc_title": current_kc_id,
+                "reason": "Configuración curricular no verificable; no acredita avance ni finalización.",
+            }
 
         # Deterministic threshold: mastery achieved if P(L) >= 0.85
-        if p_L >= 0.85:
+        if correct is not False and p_L >= 0.85:
             # Find next sequential KC in unit
             curr_idx = next((i for i, k in enumerate(kcs) if k.get("kc_id") == current_kc_id), -1)
             next_kc = kcs[curr_idx + 1] if curr_idx != -1 and curr_idx + 1 < len(kcs) else None

@@ -1,0 +1,236 @@
+{
+  "notebook_id": "fadena-teleco",
+  "sources": {
+    "src_stallings_comunicaciones_redes_7ed": {
+      "title": "Comunicaciones y Redes de Computadores (7ma Ed)",
+      "author": "William Stallings",
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title": "Capítulo 1: Introducción a las comunicaciones de datos y redes",
+          "page_start": 35,
+          "page_end": 46,
+          "primary_kcs": [
+            "teleco_transmision_datos",
+            "teleco_intro_redes_osi"
+          ],
+          "chunk_count": 90
+        },
+        {
+          "chapter_number": 2,
+          "title": "Capítulo 2: Arquitectura de protocolos",
+          "page_start": 47,
+          "page_end": 82,
+          "primary_kcs": [
+            "teleco_intro_redes_osi"
+          ],
+          "chunk_count": 260
+        },
+        {
+          "chapter_number": 3,
+          "title": "Capítulo 3: Transmisión de datos",
+          "page_start": 83,
+          "page_end": 120,
+          "primary_kcs": [
+            "teleco_transmision_datos",
+            "teleco_parametros_senales",
+            "teleco_ancho_banda_fourier",
+            "teleco_capacidad_shannon"
+          ],
+          "chunk_count": 254
+        },
+        {
+          "chapter_number": 4,
+          "title": "Capítulo 4: Medios de transmisión",
+          "page_start": 121,
+          "page_end": 158,
+          "primary_kcs": [
+            "teleco_calculo_enlaces_db"
+          ],
+          "chunk_count": 273
+        },
+        {
+          "chapter_number": 5,
+          "title": "Capítulo 5: Técnicas para la codificación de señales",
+          "page_start": 159,
+          "page_end": 202,
+          "primary_kcs": [
+            "teleco_banda_base_codificacion",
+            "teleco_modulacion_digital"
+          ],
+          "chunk_count": 285
+        },
+        {
+          "chapter_number": 6,
+          "title": "Capítulo 6: Técnicas de comunicación de datos digitales",
+          "page_start": 203,
+          "page_end": 240,
+          "primary_kcs": [
+            "teleco_deteccion_errores"
+          ],
+          "chunk_count": 270
+        },
+        {
+          "chapter_number": 7,
+          "title": "Capítulo 7: Protocolos de control del enlace de datos",
+          "page_start": 241,
+          "page_end": 274,
+          "primary_kcs": [
+            "teleco_enlace_datos_acceso"
+          ],
+          "chunk_count": 248
+        },
+        {
+          "chapter_number": 8,
+          "title": "Capítulo 8: Multiplexación",
+          "page_start": 275,
+          "page_end": 310,
+          "primary_kcs": [
+            "teleco_transmision_datos"
+          ],
+          "chunk_count": 240
+        },
+        {
+          "chapter_number": 9,
+          "title": "Capítulo 9: Espectro expandido",
+          "page_start": 311,
+          "page_end": 334,
+          "primary_kcs": [
+            "teleco_modulacion_digital"
+          ],
+          "chunk_count": 136
+        },
+        {
+          "chapter_number": 10,
+          "title": "Capítulo 10: Conmutación de circuitos y de paquetes",
+          "page_start": 335,
+          "page_end": 374,
+          "primary_kcs": [
+            "teleco_intro_redes_osi"
+          ],
+          "chunk_count": 305
+        },
+        {
+          "chapter_number": 11,
+          "title": "Capítulo 11: Modo de transferencia asíncrono (ATM)",
+          "page_start": 375,
+          "page_end": 404,
+          "primary_kcs": [
+            "teleco_enlace_datos_acceso"
+          ],
+          "chunk_count": 219
+        },
+        {
+          "chapter_number": 12,
+          "title": "Capítulo 12: Encaminamiento en redes conmutadas",
+          "page_start": 405,
+          "page_end": 432,
+          "primary_kcs": [
+            "teleco_intro_redes_osi"
+          ],
+          "chunk_count": 202
+        },
+        {
+          "chapter_number": 13,
+          "title": "Capítulo 13: Congestión en redes de datos",
+          "page_start": 433,
+          "page_end": 470,
+          "primary_kcs": [
+            "teleco_transmision_datos"
+          ],
+          "chunk_count": 294
+        },
+        {
+          "chapter_number": 14,
+          "title": "Capítulo 14: Redes celulares inalámbricas",
+          "page_start": 471,
+          "page_end": 504,
+          "primary_kcs": [
+            "teleco_enlace_datos_acceso"
+          ],
+          "chunk_count": 239
+        },
+        {
+          "chapter_number": 15,
+          "title": "Capítulo 15: Visión general de las redes de área local (LAN)",
+          "page_start": 505,
+          "page_end": 538,
+          "primary_kcs": [
+            "teleco_enlace_datos_acceso"
+          ],
+          "chunk_count": 259
+        },
+        {
+          "chapter_number": 16,
+          "title": "Capítulo 16: Redes LAN de alta velocidad",
+          "page_start": 539,
+          "page_end": 582,
+          "primary_kcs": [
+            "teleco_enlace_datos_acceso"
+          ],
+          "chunk_count": 318
+        },
+        {
+          "chapter_number": 17,
+          "title": "Capítulo 17: Redes LAN inalámbricas",
+          "page_start": 583,
+          "page_end": 612,
+          "primary_kcs": [
+            "teleco_enlace_datos_acceso"
+          ],
+          "chunk_count": 224
+        },
+        {
+          "chapter_number": 18,
+          "title": "Capítulo 18: Protocolos de interconexión de redes (IP)",
+          "page_start": 613,
+          "page_end": 656,
+          "primary_kcs": [
+            "teleco_protocolos_ip_subredes"
+          ],
+          "chunk_count": 364
+        },
+        {
+          "chapter_number": 19,
+          "title": "Capítulo 19: Funcionamiento de la interconexión de redes",
+          "page_start": 657,
+          "page_end": 704,
+          "primary_kcs": [
+            "teleco_protocolos_ip_subredes"
+          ],
+          "chunk_count": 387
+        },
+        {
+          "chapter_number": 20,
+          "title": "Capítulo 20: Protocolos de transporte (TCP/UDP)",
+          "page_start": 705,
+          "page_end": 748,
+          "primary_kcs": [
+            "teleco_transporte_aplicacion"
+          ],
+          "chunk_count": 328
+        },
+        {
+          "chapter_number": 21,
+          "title": "Capítulo 21: Seguridad en redes",
+          "page_start": 749,
+          "page_end": 788,
+          "primary_kcs": [
+            "teleco_transporte_aplicacion"
+          ],
+          "chunk_count": 294
+        },
+        {
+          "chapter_number": 22,
+          "title": "Capítulo 22: Aplicaciones distribuidas",
+          "page_start": 789,
+          "page_end": 826,
+          "primary_kcs": [
+            "teleco_transporte_aplicacion"
+          ],
+          "chunk_count": 293
+        }
+      ]
+    }
+  }
+}

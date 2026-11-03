@@ -15,6 +15,14 @@ import {
   Database,
   Network
 } from 'lucide-react';
+import type { StudySessionSnapshotData } from './OpeningBriefView';
+import { studySessionService } from '../../../services/studySessionService';
+import { createExerciseAttemptId } from '../../../services/chatService';
+import type { EpisodeAttemptRecord } from '../../../services/episodeAttemptService';
+import {
+  readEpisodeAttemptRecord,
+  writeEpisodeAttemptRecord,
+} from '../../../services/episodeAttemptService';
 
 interface KCItem {
   kc_id: string;
@@ -43,6 +51,7 @@ interface ConceptPacketData {
 
 interface ExerciseData {
   exercise_id: string;
+  kc_id: string;
   prompt: string;
   exercise_type: 'MC' | 'EXACT_TEXT' | 'NUMERIC';
   options?: string[];
@@ -135,6 +144,18 @@ const CURRICULUM_TREE: CurricularFolder[] = [
   },
 ];
 
+const isSelectableNotebook = (notebookId?: string): notebookId is string => {
+  if (!notebookId) return false;
+  const syntheticId = typeof window !== 'undefined' ? window.__TALOS_DEFAULT_NOTEBOOK_ID__ : undefined;
+  if (typeof window !== 'undefined' && window.__TALOS_SYNTHETIC_PROFILE__) {
+    return Boolean(syntheticId && notebookId === syntheticId);
+  }
+  return [
+    'fase0-soc', 'fadena-lenguajes', 'fadena-so2', 'fadena-std', 'fadena-teleco',
+    ...(syntheticId ? [syntheticId] : []),
+  ].includes(notebookId);
+};
+
 const renderNbIcon = (icon: string) => {
   switch (icon) {
     case 'cpu':
@@ -152,12 +173,27 @@ export const StudySliceModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   initialNotebookId?: string;
+  onSessionUpdate?: (snapshot: StudySessionSnapshotData) => void;
 }> = ({
   isOpen,
   onClose,
   initialNotebookId,
+  onSessionUpdate,
 }) => {
-  const [selectedNotebook, setSelectedNotebook] = useState<string>('fase0-soc');
+  const [selectedNotebook, setSelectedNotebookState] = useState<string>(() =>
+    isSelectableNotebook(initialNotebookId) ? initialNotebookId : 'fase0-soc'
+  );
+  const manualNotebookSelectionRef = React.useRef(false);
+  const wasOpenRef = React.useRef(false);
+  const lastInitialNotebookRef = React.useRef(initialNotebookId);
+  const selectNotebook = (notebookId: string) => {
+    if (!isSelectableNotebook(notebookId)) {
+      setFlowError('Este perfil de validación solo permite cuadernos sintéticos autorizados.');
+      return;
+    }
+    manualNotebookSelectionRef.current = true;
+    setSelectedNotebookState(notebookId);
+  };
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
     new Set(['fadena', 'fadena_1ano', 'fadena_1ano_2cuat', 'roadmap', 'roadmap_fase0'])
   );
@@ -170,13 +206,124 @@ export const StudySliceModal: React.FC<{
   const [userResponse, setUserResponse] = useState('');
   const [gradingResult, setGradingResult] = useState<any | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [studySessionSnapshot, setStudySessionSnapshot] = useState<StudySessionSnapshotData | null>(null);
+  const [sessionStatus, setSessionStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [flowError, setFlowError] = useState<string | null>(null);
+  const [submissionState, setSubmissionState] = useState<'idle' | 'submitting' | 'unknown' | 'incomplete' | 'conflict' | 'graded' | 'ungraded'>('idle');
+  const [submittedResponse, setSubmittedResponse] = useState<string | null>(null);
+  const [attemptId, setAttemptId] = useState<string | null>(null);
+  const [attemptHistory, setAttemptHistory] = useState<EpisodeAttemptRecord['history']>([]);
+  const [attemptPersistenceBlocked, setAttemptPersistenceBlocked] = useState(false);
+  const submissionLockRef = React.useRef(false);
+
+  const persistEpisodeAttempt = (
+    sessionId: string,
+    episodeId: string,
+    exerciseId: string,
+    current: EpisodeAttemptRecord['current'],
+    history: EpisodeAttemptRecord['history'],
+  ): boolean => {
+    try {
+      const record: EpisodeAttemptRecord = {
+        version: 1, sessionId, episodeId, exerciseId, current, history,
+      };
+      writeEpisodeAttemptRecord(window.localStorage, record);
+      setAttemptPersistenceBlocked(false);
+      return true;
+    } catch {
+      setAttemptPersistenceBlocked(true);
+      setFlowError('No se pudo conservar la identidad del intento; la respuesta no fue enviada.');
+      return false;
+    }
+  };
+
+  const restoreEpisodeAttempt = (sessionId: string, episodeId: string, exerciseId: string) => {
+    try {
+      const record = readEpisodeAttemptRecord(window.localStorage, sessionId, episodeId, exerciseId);
+      if (!record) {
+        setAttemptId(null);
+        setAttemptHistory([]);
+        setSubmittedResponse(null);
+        setUserResponse('');
+        setGradingResult(null);
+        setSubmissionState('idle');
+        setAttemptPersistenceBlocked(false);
+        return;
+      }
+      const current = record.current;
+      setAttemptId(current?.attemptId || null);
+      setAttemptHistory(record.history);
+      setSubmittedResponse(current?.answer || null);
+      setUserResponse(current?.answer || '');
+      setSubmissionState(current?.status || 'idle');
+      setGradingResult(current?.status === 'graded' ? current.result || null : null);
+      const storedMessage = typeof current?.message === 'string'
+        ? current.message
+        : typeof current?.result?.detail === 'string'
+          ? current.result.detail
+          : typeof current?.result?.feedback === 'string'
+            ? current.result.feedback
+            : 'El intento restaurado necesita reconciliación.';
+      setFlowError(current && current.status !== 'graded'
+        ? storedMessage
+        : null);
+      setAttemptPersistenceBlocked(false);
+    } catch (error) {
+      setAttemptId(null);
+      setSubmittedResponse(null);
+      setGradingResult(null);
+      setAttemptHistory([]);
+      setAttemptPersistenceBlocked(true);
+      setSubmissionState('conflict');
+      setFlowError(error instanceof Error ? error.message : 'No se pudo verificar la identidad del intento guardado.');
+    }
+  };
+
+  const restoreEpisodeExercise = async (episodeId: string, sessionId: string) => {
+    const response = await fetch(`/api/pedagogy/episode/${episodeId}/next`);
+    if (!response.ok) throw new Error(`No se pudo recuperar el ejercicio (HTTP ${response.status}).`);
+    const payload = await response.json();
+    if (
+      payload.intervention_type !== 'EXERCISE' ||
+      payload.episode_id !== episodeId ||
+      payload.session_id !== sessionId ||
+      payload.notebook_id !== selectedNotebook ||
+      typeof payload.step_id !== 'string' ||
+      payload.exercise?.exercise_id !== payload.step_id.replace(/^step_eval_/, '')
+    ) {
+      throw new Error('El ejercicio recuperado no coincide con las identidades persistidas de sesión y episodio.');
+    }
+    const refreshed = await studySessionService.getSnapshot(sessionId);
+    if (
+      refreshed.session_id !== sessionId ||
+      refreshed.episode_id !== episodeId ||
+      refreshed.notebook_id !== selectedNotebook ||
+      refreshed.current_kc_id !== payload.exercise.kc_id ||
+      refreshed.episode_phase !== 'EVALUATING'
+    ) {
+      throw new Error('El snapshot no confirma la identidad del episodio reanudado.');
+    }
+    restoreEpisodeAttempt(sessionId, episodeId, payload.exercise.exercise_id);
+    setStudySessionSnapshot(refreshed);
+    onSessionUpdate?.(refreshed);
+    setStepId(payload.step_id);
+    setExercise(payload.exercise);
+  };
 
   // Sync initialNotebookId when modal opens
   useEffect(() => {
-    if (!isOpen) return;
-    const validIds = ['fase0-soc', 'fadena-lenguajes', 'fadena-so2', 'fadena-std', 'fadena-teleco'];
-    if (initialNotebookId && validIds.includes(initialNotebookId)) {
-      setSelectedNotebook(initialNotebookId);
+    if (!isOpen) {
+      wasOpenRef.current = false;
+      return;
+    }
+    if (
+      isSelectableNotebook(initialNotebookId) &&
+      (!wasOpenRef.current || lastInitialNotebookRef.current !== initialNotebookId)
+    ) {
+      wasOpenRef.current = true;
+      lastInitialNotebookRef.current = initialNotebookId;
+      manualNotebookSelectionRef.current = false;
+      setSelectedNotebookState(initialNotebookId);
     }
   }, [isOpen, initialNotebookId]);
 
@@ -194,6 +341,11 @@ export const StudySliceModal: React.FC<{
 
   useEffect(() => {
     if (!isOpen) return;
+    if (
+      isSelectableNotebook(initialNotebookId) &&
+      !manualNotebookSelectionRef.current &&
+      selectedNotebook !== initialNotebookId
+    ) return;
     const controller = new AbortController();
     setLoadingCatalog(true);
     setConcept(null);
@@ -219,65 +371,308 @@ export const StudySliceModal: React.FC<{
     return () => {
       controller.abort();
     };
-  }, [isOpen, selectedNotebook]);
+  }, [isOpen, selectedNotebook, initialNotebookId]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (
+      isSelectableNotebook(initialNotebookId) &&
+      !manualNotebookSelectionRef.current &&
+      selectedNotebook !== initialNotebookId
+    ) return;
+    let active = true;
+    setSessionStatus('loading');
+    setStudySessionSnapshot(null);
+    setFlowError(null);
+    studySessionService.restoreOrOpenSession(selectedNotebook, studySessionService.getClientStudentId())
+      .then(({ snapshot }) => {
+        if (!active) return;
+        setStudySessionSnapshot(snapshot);
+        setSessionStatus('ready');
+        onSessionUpdate?.(snapshot);
+        if (snapshot.episode_id && snapshot.episode_phase === 'EVALUATING') {
+          setActiveEpisodeId(snapshot.episode_id);
+          void restoreEpisodeExercise(snapshot.episode_id, snapshot.session_id).catch((error) => {
+            if (active) setFlowError(error instanceof Error ? error.message : 'No se pudo restaurar el ejercicio activo.');
+          });
+        } else if (snapshot.episode_id) {
+          setActiveEpisodeId(snapshot.episode_id);
+          setFlowError('Se restauró el episodio, pero su explicación no forma parte del snapshot. Podés reabrirla explícitamente para continuar.');
+        }
+      })
+      .catch((error) => {
+        if (!active) return;
+        setSessionStatus('error');
+        setFlowError(error instanceof Error ? error.message : 'No se pudo restaurar la sesión.');
+      });
+    return () => { active = false; };
+  }, [isOpen, selectedNotebook, initialNotebookId, onSessionUpdate]);
 
   const handleStartStudy = async (kcId: string) => {
     setConcept(null);
     setExercise(null);
     setGradingResult(null);
     setUserResponse('');
+    setSubmissionState('idle');
+    setSubmittedResponse(null);
+    setAttemptId(null);
+    setAttemptHistory([]);
+    setAttemptPersistenceBlocked(false);
+    setFlowError(null);
 
     try {
-      // 1. Start Episode
-      const startRes = await fetch('/api/pedagogy/episode/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notebook_id: selectedNotebook, kc_id: kcId }),
-      });
-      const startData = await startRes.json();
-      const epId = startData.episode_id;
+      if (!studySessionSnapshot || studySessionSnapshot.notebook_id !== selectedNotebook) {
+        throw new Error('No hay una sesión persistida del cuaderno seleccionado.');
+      }
+      let snapshot = studySessionSnapshot;
+      if (snapshot.current_kc_id !== kcId) {
+        if (!snapshot.available_actions.includes('SELECT_DIFFERENT_KC')) {
+          throw new Error('La sesión restaurada no permite cambiar de KC en su fase actual.');
+        }
+        snapshot = await studySessionService.executeAction(snapshot.session_id, 'SELECT_DIFFERENT_KC', { kc_id: kcId });
+      }
+      if (!snapshot.episode_id) {
+        if (!snapshot.available_actions.includes('START_EXPLANATION')) {
+          throw new Error('La sesión no permite iniciar un episodio desde su estado actual.');
+        }
+        snapshot = await studySessionService.executeAction(snapshot.session_id, 'START_EXPLANATION');
+      }
+      const epId = snapshot.episode_id;
+      if (!epId) throw new Error('El servidor no devolvió la identidad persistida del episodio.');
+      setStudySessionSnapshot(snapshot);
+      onSessionUpdate?.(snapshot);
       setActiveEpisodeId(epId);
 
       // 2. Fetch Concept
       const cRes = await fetch(`/api/pedagogy/episode/${epId}/concept`);
+      if (!cRes.ok) throw new Error(`No se pudo recuperar el concepto (HTTP ${cRes.status}).`);
       const cData = await cRes.json();
       if (cData.status === 'PRESENTABLE' && cData.packet) {
         setConcept(cData.packet);
+      } else if (cData.status === 'ABSTAINED') {
+        // M1-02 (contrato SSE→UI sin éxito falso, aplicado al slice): la
+        // abstención de S4.4 es un estado pedagógico legítimo y se presenta
+        // como tal; jamás se silencia ni se sustituye por contenido no
+        // aprobado.
+        setFlowError(
+          `TALOS se abstiene de presentar el concepto (S4.4: ${cData.audit_verdict ?? 'sin veredicto'}): ${cData.abstention_reason ?? 'sin detalle'}`
+        );
       }
 
       // 3. Fetch Next Intervention (Exercise)
       const nextRes = await fetch(`/api/pedagogy/episode/${epId}/next`);
+      if (!nextRes.ok) throw new Error(`No se pudo recuperar la intervención (HTTP ${nextRes.status}).`);
       const nextData = await nextRes.json();
       if (nextData.intervention_type === 'EXERCISE') {
-        setExercise(nextData.exercise);
+        if (
+          nextData.episode_id !== epId ||
+          nextData.session_id !== snapshot.session_id ||
+          nextData.notebook_id !== selectedNotebook ||
+          nextData.exercise?.kc_id !== kcId ||
+          typeof nextData.step_id !== 'string' ||
+          nextData.step_id !== `step_eval_${nextData.exercise?.exercise_id}`
+        ) {
+          throw new Error('La intervención no coincide con la identidad persistida de sesión, episodio y KC.');
+        }
+        const refreshed = await studySessionService.getSnapshot(snapshot.session_id);
+        if (
+          refreshed.session_id !== snapshot.session_id ||
+          refreshed.episode_id !== epId ||
+          refreshed.notebook_id !== selectedNotebook ||
+          refreshed.current_kc_id !== kcId ||
+          refreshed.episode_phase !== 'EVALUATING'
+        ) {
+          throw new Error('El snapshot no confirma la identidad del ejercicio presentado.');
+        }
+        restoreEpisodeAttempt(refreshed.session_id, epId, nextData.exercise.exercise_id);
+        setStudySessionSnapshot(refreshed);
+        onSessionUpdate?.(refreshed);
         setStepId(nextData.step_id);
+        setExercise(nextData.exercise);
+      } else {
+        setFlowError('El episodio no tiene una intervención de ejercicio disponible en este momento.');
       }
     } catch (err) {
       console.error('Error in study flow:', err);
+      setFlowError(err instanceof Error ? err.message : 'No se pudo iniciar el ejercicio.');
     }
   };
 
-  const handleSendResponse = async () => {
-    if (!activeEpisodeId || !stepId || !userResponse.trim()) return;
+  const submitEpisodeResponse = async (answer: string) => {
+    if (
+      !activeEpisodeId || !stepId || !exercise || stepId !== `step_eval_${exercise.exercise_id}` ||
+      !answer.trim() || submissionLockRef.current ||
+      attemptPersistenceBlocked ||
+      !studySessionSnapshot?.session_id ||
+      studySessionSnapshot.episode_id !== activeEpisodeId ||
+      studySessionSnapshot.notebook_id !== selectedNotebook
+    ) {
+      if (!studySessionSnapshot?.session_id || studySessionSnapshot.episode_id !== activeEpisodeId) {
+        setFlowError('No se puede evaluar: la sesión y el episodio activos no coinciden.');
+      }
+      return;
+    }
+    let stableAttemptId = attemptId;
+    if (!stableAttemptId) {
+      try {
+        stableAttemptId = createExerciseAttemptId();
+      } catch (error) {
+        setAttemptPersistenceBlocked(true);
+        setFlowError(error instanceof Error ? error.message : 'No se pudo crear la identidad del intento.');
+        return;
+      }
+    }
+    const attempt = {
+      attemptId: stableAttemptId,
+      answer,
+      status: 'submitting' as const,
+    };
+    if (!persistEpisodeAttempt(
+      studySessionSnapshot.session_id,
+      activeEpisodeId,
+      exercise.exercise_id,
+      attempt,
+      attemptHistory,
+    )) return;
+
+    setAttemptId(stableAttemptId);
+    submissionLockRef.current = true;
     setIsSubmitting(true);
+    setSubmissionState('submitting');
+    setSubmittedResponse(answer);
+    setFlowError(null);
+    let refreshAfterResult = false;
     try {
-      const res = await fetch(`/api/pedagogy/episode/${activeEpisodeId}/respond`, {
+      const res = await fetch(`/api/pedagogy/episode/${activeEpisodeId}/dialogue/evaluate-socratic`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ step_id: stepId, response_text: userResponse.trim() }),
+        body: JSON.stringify({
+          student_response: answer,
+          kc_id: exercise.kc_id,
+          exercise_id: exercise.exercise_id,
+          session_id: studySessionSnapshot.session_id,
+          attempt_id: stableAttemptId,
+          is_mc: exercise.exercise_type === 'MC',
+          options_count: exercise.exercise_type === 'MC' ? exercise.options?.length ?? null : null,
+        }),
       });
-      const data = await res.json();
-      setGradingResult(data);
-      setIsSubmitting(false);
-
-      // Refresh catalog BKT
-      fetch(`/api/pedagogy/notebook/${selectedNotebook}/kcs`)
-        .then((r) => r.json())
-        .then((d) => setCatalog(d))
-        .catch((err) => console.error('Error refreshing KCs catalog:', err));
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const detail = typeof data.detail === 'string' ? data.detail : `La evaluación fue rechazada (HTTP ${res.status}).`;
+        const nextStatus = res.status >= 500
+          ? 'unknown'
+          : res.status === 409 && /incomplet/i.test(detail) ? 'incomplete' : 'conflict';
+        setSubmissionState(nextStatus);
+        setFlowError(detail);
+        persistEpisodeAttempt(
+          studySessionSnapshot.session_id,
+          activeEpisodeId,
+          exercise.exercise_id,
+          { ...attempt, status: nextStatus },
+          attemptHistory,
+        );
+        return;
+      }
+      if (data.status !== 'EVALUATED' && data.status !== 'UNGRADED') {
+        throw new Error('El servidor devolvió un estado de evaluación no reconocido.');
+      }
+      if (data.status === 'EVALUATED' && typeof data.is_correct !== 'boolean') {
+        throw new Error('La respuesta del servidor no incluye un veredicto verificable.');
+      }
+      refreshAfterResult = true;
+      const nextStatus = data.status === 'EVALUATED' ? 'graded' : 'ungraded';
+      setGradingResult(data.status === 'EVALUATED' ? data : null);
+      setSubmissionState(nextStatus);
+      persistEpisodeAttempt(
+        studySessionSnapshot.session_id,
+        activeEpisodeId,
+        exercise.exercise_id,
+        { ...attempt, status: nextStatus, result: data },
+        attemptHistory,
+      );
+      if (data.status === 'UNGRADED') setFlowError(data.feedback || 'El servidor no pudo verificar el ejercicio.');
     } catch (err) {
       console.error('Error submitting response:', err);
+      setSubmissionState('unknown');
+      const detail = err instanceof Error
+        ? err.message
+        : 'No se conoce si el servidor completó esta operación.';
+      setFlowError(`${detail} Reintentá solo el mismo texto y la misma identidad.`);
+      persistEpisodeAttempt(
+        studySessionSnapshot.session_id,
+        activeEpisodeId,
+        exercise.exercise_id,
+        { ...attempt, status: 'unknown', message: detail },
+        attemptHistory,
+      );
+    } finally {
       setIsSubmitting(false);
+      submissionLockRef.current = false;
+    }
+
+    if (refreshAfterResult) {
+      try {
+        const refreshed = await studySessionService.getSnapshot(studySessionSnapshot.session_id);
+        setStudySessionSnapshot(refreshed);
+        onSessionUpdate?.(refreshed);
+      } catch (error) {
+        console.warn('No se pudo refrescar el snapshot después de evaluar:', error);
+      }
+      fetch(`/api/pedagogy/notebook/${selectedNotebook}/kcs`)
+        .then((response) => response.json())
+        .then((data) => setCatalog(data))
+        .catch((error) => console.error('Error refreshing KCs catalog:', error));
+    }
+  };
+
+  const handleSendResponse = () => {
+    if (submissionState !== 'idle') return;
+    void submitEpisodeResponse(userResponse.trim());
+  };
+
+  const handleRetrySameAttempt = () => {
+    if (submissionState !== 'unknown' || !submittedResponse || !attemptId) return;
+    void submitEpisodeResponse(submittedResponse);
+  };
+
+  const handleNewAttempt = () => {
+    if (submissionState !== 'graded' || !attemptId || !exercise || !activeEpisodeId || !studySessionSnapshot) return;
+    const completed = {
+      attemptId,
+      answer: submittedResponse || userResponse,
+      status: 'graded' as const,
+      result: gradingResult,
+    };
+    const nextHistory = [...attemptHistory, completed];
+    if (!persistEpisodeAttempt(
+      studySessionSnapshot.session_id,
+      activeEpisodeId,
+      exercise.exercise_id,
+      null,
+      nextHistory,
+    )) return;
+    setAttemptHistory(nextHistory);
+    setAttemptId(null);
+    setSubmittedResponse(null);
+    setUserResponse('');
+    setGradingResult(null);
+    setSubmissionState('idle');
+    setFlowError(null);
+  };
+
+  const handleExplicitResume = async () => {
+    const episodeId = studySessionSnapshot?.episode_id;
+    if (!episodeId || !studySessionSnapshot.session_id) return;
+    setFlowError(null);
+    try {
+      const response = await fetch(`/api/pedagogy/episode/${episodeId}/concept`);
+      if (!response.ok) throw new Error(`No se pudo reabrir la explicación (HTTP ${response.status}).`);
+      const payload = await response.json();
+      if (payload.status === 'PRESENTABLE' && payload.packet) setConcept(payload.packet);
+      else throw new Error(payload.abstention_reason || 'La explicación no está disponible para este episodio.');
+      await restoreEpisodeExercise(episodeId, studySessionSnapshot.session_id);
+    } catch (error) {
+      setFlowError(error instanceof Error ? error.message : 'No se pudo reabrir el episodio.');
     }
   };
 
@@ -396,11 +791,11 @@ export const StudySliceModal: React.FC<{
                                     key={nb.id}
                                     role="button"
                                     tabIndex={0}
-                                    onClick={() => setSelectedNotebook(nb.id)}
+                                    onClick={() => selectNotebook(nb.id)}
                                     onKeyDown={(e) => {
                                       if (e.key === 'Enter' || e.key === ' ') {
                                         e.preventDefault();
-                                        setSelectedNotebook(nb.id);
+                                        selectNotebook(nb.id);
                                       }
                                     }}
                                     className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer ml-3 transition focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
@@ -455,11 +850,11 @@ export const StudySliceModal: React.FC<{
                                             key={nb.id}
                                             role="button"
                                             tabIndex={0}
-                                            onClick={() => setSelectedNotebook(nb.id)}
+                                            onClick={() => selectNotebook(nb.id)}
                                             onKeyDown={(e) => {
                                               if (e.key === 'Enter' || e.key === ' ') {
                                                 e.preventDefault();
-                                                setSelectedNotebook(nb.id);
+                                                selectNotebook(nb.id);
                                               }
                                             }}
                                             className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer ml-3 transition focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
@@ -526,6 +921,21 @@ export const StudySliceModal: React.FC<{
 
           {/* Right Pane: Study Area */}
           <div className="flex-1 flex flex-col p-6 overflow-y-auto bg-slate-900/30">
+            {sessionStatus === 'loading' && <p role="status" className="mb-3 text-xs text-slate-400">Recuperando sesión de estudio…</p>}
+            {sessionStatus === 'error' && <p role="alert" className="mb-3 rounded border border-rose-800/50 bg-rose-950/30 p-3 text-xs text-rose-200">{flowError || 'No se pudo recuperar la sesión; no se abrió otra.'}</p>}
+            {sessionStatus === 'ready' && studySessionSnapshot && (
+              <p role="status" className="mb-3 text-[10px] font-mono text-slate-500">
+                Sesión {studySessionSnapshot.session_id} · episodio {studySessionSnapshot.episode_id || 'sin episodio activo'}
+              </p>
+            )}
+            {flowError && sessionStatus === 'ready' && !gradingResult && (
+              <p role="alert" className="mb-3 rounded border border-amber-800/50 bg-amber-950/30 p-3 text-xs text-amber-200">{flowError}</p>
+            )}
+            {studySessionSnapshot?.episode_id && studySessionSnapshot.episode_phase !== 'EVALUATING' && !concept && (
+              <button type="button" onClick={handleExplicitResume} className="mb-3 self-start rounded border border-sky-800/50 px-3 py-2 text-xs text-sky-200">
+                Reabrir explicación del episodio restaurado
+              </button>
+            )}
             {!concept && !exercise ? (
               <div className="m-auto flex flex-col items-center justify-center text-center max-w-md text-slate-500">
                 <Sparkles className="h-12 w-12 text-slate-600 mb-3" />
@@ -607,6 +1017,7 @@ export const StudySliceModal: React.FC<{
                           return (
                             <button
                               key={idx}
+                              disabled={submissionState !== 'idle'}
                               onClick={() => setUserResponse(optKey)}
                               className={`w-full text-left p-3 rounded-lg border text-xs font-medium transition ${
                                 userResponse === optKey
@@ -627,6 +1038,7 @@ export const StudySliceModal: React.FC<{
                           type="text"
                           value={userResponse}
                           onChange={(e) => setUserResponse(e.target.value)}
+                          disabled={submissionState !== 'idle'}
                           placeholder="Escribí tu respuesta exacta o valor numérico..."
                           className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500"
                         />
@@ -635,14 +1047,38 @@ export const StudySliceModal: React.FC<{
 
                     {!gradingResult && (
                       <div className="flex justify-end pt-2">
-                        <button
-                          disabled={!userResponse.trim() || isSubmitting}
-                          onClick={handleSendResponse}
-                          className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50"
-                        >
-                          {isSubmitting ? 'Evaluando...' : 'Enviar Respuesta'}
-                        </button>
+                        {submissionState === 'idle' || submissionState === 'submitting' ? (
+                          <button
+                            disabled={!userResponse.trim() || isSubmitting || sessionStatus !== 'ready'}
+                            onClick={handleSendResponse}
+                            className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50"
+                          >
+                            {isSubmitting ? 'Evaluando...' : 'Enviar Respuesta'}
+                          </button>
+                        ) : submissionState === 'unknown' ? (
+                          <button
+                            disabled={isSubmitting || !submittedResponse}
+                            onClick={handleRetrySameAttempt}
+                            className="rounded-lg bg-amber-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                          >
+                            {isSubmitting ? 'Reconciliando…' : 'Reintentar misma respuesta'}
+                          </button>
+                        ) : null}
                       </div>
+                    )}
+
+                    {(submissionState === 'unknown' || submissionState === 'incomplete' || submissionState === 'conflict') && flowError && (
+                      <p role="alert" className="rounded border border-amber-800/40 bg-amber-950/30 p-3 text-xs text-amber-200">
+                        {submissionState === 'incomplete' ? 'El intento quedó incompleto y no se repetirá automáticamente. ' : ''}
+                        {submissionState === 'conflict' ? 'Conflicto de identidad; la respuesta no se reenviará con otra clave. ' : ''}
+                        {flowError}
+                      </p>
+                    )}
+
+                    {submissionState === 'ungraded' && flowError && (
+                      <p role="alert" className="rounded border border-amber-800/40 bg-amber-950/30 p-3 text-xs text-amber-200">
+                        Evaluación bloqueada sin mutación: {flowError}
+                      </p>
                     )}
 
                     {/* Grading Result */}
@@ -668,23 +1104,46 @@ export const StudySliceModal: React.FC<{
                           )}
                         </div>
                         <p className="mt-2 text-xs leading-relaxed">{gradingResult.feedback}</p>
+                        {gradingResult.hint && <p className="mt-2 text-xs text-amber-200">Pista: {gradingResult.hint}</p>}
 
                         <div className="mt-3 flex items-center justify-between border-t border-slate-800/60 pt-3 text-[11px] text-slate-400">
                           <span>
                             BKT P(L) actualizado a:{' '}
                             <strong className="text-white font-mono">
-                              {gradingResult.bkt_update?.p_L.toFixed(2)}
+                              {(gradingResult.p_L ?? gradingResult.bkt_update?.p_L)?.toFixed(2)}
                             </strong>{' '}
-                            (Intentos: {gradingResult.bkt_update?.attempts})
+                            (Intentos: {gradingResult.attempts ?? gradingResult.bkt_update?.attempts})
                           </span>
-                          <span>
-                            Próxima acción:{' '}
-                            <strong className="text-emerald-400">
-                              {gradingResult.next_eligible_action?.recommendation}
-                            </strong>
-                          </span>
+                          {gradingResult.next_eligible_action?.recommendation && (
+                            <span>
+                              Próxima acción:{' '}
+                              <strong className="text-emerald-400">{gradingResult.next_eligible_action.recommendation}</strong>
+                            </span>
+                          )}
                         </div>
+                        {gradingResult.was_idempotent_replay && (
+                          <p role="status" className="mt-2 text-[10px] text-sky-200">Resultado recuperado del mismo intento; no se aplicó una mutación adicional.</p>
+                        )}
+                        <button type="button" onClick={handleNewAttempt} className="mt-3 rounded border border-white/15 px-3 py-2 text-xs text-white/80">
+                          Comenzar un intento nuevo
+                        </button>
                       </div>
+                    )}
+
+                    {attemptHistory.length > 0 && (
+                      <details className="rounded-lg border border-slate-800 bg-slate-900/40 p-3 text-xs text-slate-400">
+                        <summary className="cursor-pointer">Intentos previos ({attemptHistory.length})</summary>
+                        <ol className="mt-2 list-inside list-decimal space-y-1">
+                          {attemptHistory.map((attempt) => (
+                            <li key={attempt.attemptId}>
+                              {attempt.status === 'graded'
+                                ? (attempt.result?.is_correct ? 'Correcto' : 'Incorrecto')
+                                : attempt.status === 'ungraded' ? 'No evaluado' : 'Estado no concluyente'}
+                              {attempt.result?.feedback ? ` — ${attempt.result.feedback}` : ''}
+                            </li>
+                          ))}
+                        </ol>
+                      </details>
                     )}
                   </div>
                 )}

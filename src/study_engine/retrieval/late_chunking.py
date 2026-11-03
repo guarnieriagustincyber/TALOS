@@ -17,6 +17,9 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_LATE_CHUNKING_MODEL = "jinaai/jina-embeddings-v3"
+DEFAULT_LATE_CHUNKING_REVISION = "ab036b023d30b4d1138c4c3bfa9f0c445ab455d6"
+
 
 class HiddenStateTensor:
     """Wrapper compatible con PyTorch y NumPy para tensores de estados ocultos."""
@@ -217,28 +220,60 @@ class LateChunker:
 
     def __init__(
         self,
-        model_name: str = "jinaai/jina-embeddings-v3",
+        model_name: str = DEFAULT_LATE_CHUNKING_MODEL,
         max_document_tokens: int = 8192,
     ) -> None:
         self.model_name = model_name
+        self.model_revision = (
+            DEFAULT_LATE_CHUNKING_REVISION
+            if model_name == DEFAULT_LATE_CHUNKING_MODEL
+            else None
+        )
         self.max_document_tokens = max_document_tokens
         self._init_backend()
 
     def _init_backend(self) -> None:
         """Inicializa el backend de tokenizer y modelo según disponibilidad."""
         # 1. Intentar Transformers / PyTorch si está instalado
+        transformers_load_error: Optional[Exception] = None
         try:
             from transformers import AutoModel, AutoTokenizer
             import torch
-
+        except ImportError as ex_tf:
+            logger.debug("Transformers backend unavailable (%s). Checking ONNX fallback.", ex_tf)
+        else:
             logger.info("Initializing LateChunker with HuggingFace Transformers backend: %s", self.model_name)
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModel.from_pretrained(self.model_name, trust_remote_code=True)
-            self._backend_type = "transformers"
-            self._torch = torch
-            return
-        except Exception as ex_tf:
-            logger.debug("Transformers backend not available or failed (%s). Checking ONNX fallback.", ex_tf)
+            tokenizer_options = (
+                {"revision": self.model_revision}
+                if self.model_revision is not None
+                else {}
+            )
+            model_options: Dict[str, Any] = {"trust_remote_code": False}
+            if self.model_revision is not None:
+                model_options.update(
+                    {
+                        "revision": self.model_revision,
+                        "trust_remote_code": True,
+                    }
+                )
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(
+                    self.model_name, **tokenizer_options
+                )
+                self.model = AutoModel.from_pretrained(
+                    self.model_name, **model_options
+                )
+            except Exception as ex_tf:
+                transformers_load_error = ex_tf
+                logger.warning(
+                    "Transformers model load failed for %s at revision %s; checking local ONNX fallback.",
+                    self.model_name,
+                    self.model_revision or "default",
+                )
+            else:
+                self._backend_type = "transformers"
+                self._torch = torch
+                return
 
         # 2. Intentar backend ONNX local
         try:
@@ -269,6 +304,12 @@ class LateChunker:
                     return
         except Exception as ex_onnx:
             logger.debug("Local ONNX backend failed (%s). Falling back to simulated.", ex_onnx)
+
+        if transformers_load_error is not None:
+            raise RuntimeError(
+                f"Could not load model {self.model_name!r} at its configured revision; "
+                "late chunking is unavailable."
+            ) from transformers_load_error
 
         # 3. Fallback determinista simulado
         self.tokenizer = _SimulatedTokenizer()

@@ -10,6 +10,7 @@ No usa LLM para calificar ni para seleccionar: selección determinista.
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 import threading
@@ -145,6 +146,9 @@ class StruggleTracker:
     - record(kc_id, correct=False) incrementa; correct=True resetea ese KC.
     - Un intento sobre OTRO KC resetea el foco (el estudiante cambió de tema).
     - is_struggling(kc_id) es True solo si el KC activo acumuló >=3 fallos.
+
+    Certified evaluations use scoped receipt snapshots instead of this legacy
+    in-memory counter, so SQLite rollback and process restart cannot diverge.
     """
 
     def __init__(self, threshold: int = STRUGGLE_THRESHOLD) -> None:
@@ -168,12 +172,54 @@ class StruggleTracker:
                 self._consecutive_failures += 1
             return self._consecutive_failures
 
-    def is_struggling(self, kc_id: Optional[str]) -> bool:
+    def confirmed_state(
+        self, storage: Any, *, student_id: str, session_id: str, notebook_id: str,
+    ) -> Dict[str, Any]:
+        """Read certified difficulty only from completed, scoped attempt receipts."""
+        if not all((student_id, session_id, notebook_id)):
+            raise ValueError("Student, session and notebook identities are required.")
+        row = storage._get_connection().execute(
+            """SELECT result_json FROM student_operation_receipts
+               WHERE session_id=? AND status='COMPLETED'
+                 AND json_extract(result_json, '$._struggle_state.student_id')=?
+                 AND json_extract(result_json, '$._struggle_state.notebook_id')=?
+               ORDER BY json_extract(result_json, '$._struggle_state.revision') DESC LIMIT 1""",
+            (session_id, student_id, notebook_id),
+        ).fetchone()
+        if row is not None:
+            return json.loads(row[0])["_struggle_state"]
+        # Legacy receipts and unscoped memory are not evidence for this session.
+        return {
+            "student_id": student_id, "notebook_id": notebook_id,
+            "kc_id": None, "consecutive_failures": 0, "revision": 0,
+        }
+
+    def preview_certified(
+        self, storage: Any, *, kc_id: str, correct: bool,
+        student_id: str, session_id: str, notebook_id: str,
+    ) -> Dict[str, Any]:
+        """Compute the next state; the caller commits it in the existing receipt."""
+        if not getattr(storage._thread_local, "transaction_depth", 0):
+            raise RuntimeError("Certified difficulty requires the evaluation transaction.")
+        prior = self.confirmed_state(
+            storage, student_id=student_id, session_id=session_id, notebook_id=notebook_id,
+        )
+        count = prior["consecutive_failures"] if prior["kc_id"] == kc_id else 0
+        return {
+            **prior, "kc_id": kc_id,
+            "consecutive_failures": 0 if correct else count + 1,
+            # Reservation order is not commit order; BEGIN IMMEDIATE serializes revisions.
+            "revision": prior["revision"] + 1,
+        }
+
+    def is_struggling(self, kc_id: Optional[str], *, state: Optional[Dict[str, Any]] = None) -> bool:
         if not kc_id:
             return False
+        if state is not None:
+            return state["kc_id"] == kc_id and state["consecutive_failures"] >= self.threshold
         with self._lock:
             return self._focus_kc == kc_id and self._consecutive_failures >= self.threshold
 
-    def directive(self, kc_id: Optional[str]) -> str:
+    def directive(self, kc_id: Optional[str], *, state: Optional[Dict[str, Any]] = None) -> str:
         """Directiva de prompt (vacía si no hay lucha activa)."""
-        return STRUGGLE_DIRECTIVE if self.is_struggling(kc_id) else ""
+        return STRUGGLE_DIRECTIVE if self.is_struggling(kc_id, state=state) else ""

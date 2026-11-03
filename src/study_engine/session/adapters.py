@@ -41,7 +41,10 @@ class ForensicAuditAdapter(AuditPort):
         auditor: Optional[ForensicAuditor] = None,
         active_budget_limit: Optional[int] = None,
     ) -> None:
-        self._auditor = auditor or ForensicAuditor()
+        if auditor is None:
+            from study_engine.audit.nli import UnavailableNLIJudge
+            auditor = ForensicAuditor(nli_judge=UnavailableNLIJudge())
+        self._auditor = auditor
         self.active_budget_limit = active_budget_limit
 
     def audit_response(
@@ -249,7 +252,12 @@ from study_engine.state.state_engine import derive_student_state
 
 
 class PracticalExecutionAdapter(ExecutionPort):
-    """Adapter executing student artifacts inside Tier 0 sandbox via PythonExecutionAdapter."""
+    """Adapter executing student artifacts on the host via PythonExecutionAdapter.
+
+    shortcut: TIER_0 provides sanitized environment, timeout and bounded I/O
+    but NO OS-level sandbox (no bwrap/prlimit); upgrade to bwrap when this
+    adapter becomes an active product route for untrusted code.
+    """
 
     def __init__(
         self,
@@ -440,10 +448,13 @@ class EvidenceIngestionAdapter(EvidenceIngestionPort):
             trace=admission.admission_trace,
         )
 
-        eval_attempt_id = (
+        raw_attempt_id = (
             getattr(assessment, "evaluation_attempt_id", None)
             or assessment.assessment_id
         )
+        # Attempt identity is scoped to the authoritative session; the
+        # assessment digest remains a content-binding attribute, not the key.
+        eval_attempt_id = f"{context.session_id}::{raw_attempt_id}"
         record = record.model_copy(
             update={
                 "tool_backend": "python.adapter",
@@ -537,4 +548,3 @@ class CurriculumStateAdapter(StateReadPort):
     def get_node_state(self, node_id: str) -> Optional[Any]:
         state = self.get_student_state(self._student_id)
         return state.get_node_state(node_id)
-

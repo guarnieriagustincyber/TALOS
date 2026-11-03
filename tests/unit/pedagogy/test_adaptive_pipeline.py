@@ -7,6 +7,7 @@ from study_engine.pedagogy.structured_pipeline import (
     RESPONSE_MODES,
     classify_pedagogical_intent,
     resolve_response_intent,
+    build_pedagogical_strategy_instruction,
     build_mode_specific_instruction,
     StructuredResponsePipeline,
 )
@@ -342,7 +343,11 @@ def test_generation_sends_adaptive_task_policy_to_mocked_backend():
                     recent_turns=recent_turns,
                 )
             ]
-            assert any(event.event_type == "phase_complete" for event in events)
+            assert any(event.event_type == "phase_start" for event in events)
+            # This prompt-routing unit test deliberately has no auditor; the
+            # provider output must remain blocked rather than being released.
+            assert any(event.event_type == "abstention" for event in events)
+            assert not any(event.event_type == "phase_token" for event in events)
 
             user_prompt = backend.prompt_bundles[-1].messages[0].content
             assert expected_prompt_text in user_prompt
@@ -497,6 +502,23 @@ def test_response_intent_preserves_explicit_table_format():
     assert intent.mode == "compare"
     assert intent.output_format == "table"
     assert "Formato solicitado: table" in intent.to_prompt_instruction()
+
+
+def test_comparison_default_is_citation_safe_prose_but_explicit_table_is_preserved():
+    ordinary = resolve_response_intent(
+        "Compará independencia física de datos con diseño lógico y físico."
+    )
+    assert ordinary.task == "comparar"
+    assert ordinary.output_format is None
+    assert RESPONSE_MODES["compare"]["format"] == "plain_text"
+    guidance = build_pedagogical_strategy_instruction(ordinary)
+    assert "cada frase factual" in guidance.lower()
+    assert "no inventes ventajas" in guidance
+
+    explicit = resolve_response_intent(
+        "Compará independencia física y diseño lógico en una tabla."
+    )
+    assert explicit.output_format == "table"
 
 
 def test_response_contract_is_appended_after_conflicting_phase_instructions():
@@ -669,15 +691,25 @@ def test_build_phase_prompt_adapts_to_response_modes():
     pipeline = StructuredResponsePipeline(contract=contract, llm_backend=MagicMock())
     phase = contract.get_phase("conceptual")
 
-    # Mode: Compare -> Table format, 300 words, socratic
+    # Default compare mode is citation-safe prose; explicit tables are still honored.
     prompt_compare = pipeline.build_phase_prompt(
         phase=phase,
         user_query="Compara memoria contigua vs listas",
         pedagogical_mode="compare",
     )
-    assert "COMPARACIÓN ESTRUCTURADA (FORMATO TABLA)" in prompt_compare
+    assert "Tarea resuelta: comparar" in prompt_compare
+    assert "plain_text" in prompt_compare
+    assert "cada celda" in prompt_compare.lower()
     assert "Extensión pedagógica objetivo: hasta 300 palabras" in prompt_compare
     assert "pregunta socrática" in prompt_compare
+
+    explicit_table = pipeline.build_phase_prompt(
+        phase=phase,
+        user_query="Compará memoria contigua vs listas en una tabla.",
+        pedagogical_mode="compare",
+    )
+    assert "Formato solicitado: table" in explicit_table
+    assert "en formato 'table'" in explicit_table
 
     # Mode: Give example -> Code format, 500 words, no forced socratic
     prompt_example = pipeline.build_phase_prompt(
@@ -886,6 +918,17 @@ def test_prerequisite_reinforcement_triggers_when_unmet():
 def test_offline_knowledge_backend_pure_retrieval():
     """Verify that OfflineKnowledgeBackend retrieves real corpus chunks and formats by role (Fix S4.3)."""
     mock_store = MagicMock()
+    authorized_source_ids = {
+        "src_tanenbaum_os_modernos",
+        "src_silberschatz_so",
+        "src_stallings_os_internals",
+    }
+    mock_conn = MagicMock()
+    mock_conn.cursor.return_value.fetchall.return_value = [
+        (source_id,) for source_id in sorted(authorized_source_ids)
+    ]
+    mock_store.engine.db_path = ":memory:"
+    mock_store.engine.transaction.return_value.__enter__.return_value = mock_conn
 
     # Create mock search results representing pedagogical, formal, and technical sources
     mock_chunks = [
@@ -924,11 +967,26 @@ def test_offline_knowledge_backend_pure_retrieval():
         ),
     ]
 
-    mock_store.search_hybrid.return_value = mock_chunks
+    def search_authorized_chunks(
+        query,
+        *,
+        notebook_id,
+        limit,
+        source_ids,
+    ):
+        assert notebook_id == "fadena-so2"
+        assert limit == 5
+        assert set(source_ids) == authorized_source_ids
+        return [
+            chunk for chunk in mock_chunks if chunk.source_id in source_ids
+        ][:limit]
+
+    mock_store.search_hybrid.side_effect = search_authorized_chunks
 
     backend = OfflineKnowledgeBackend(knowledge_store=mock_store)
     response_text = backend.generate_response(query="planificación de procesos", notebook_id="fadena-so2")
 
+    mock_store.search_hybrid.assert_called_once()
     # Verificaciones
     assert "### 1. Intuición Conceptual y Analogía" in response_text
     assert "src_tanenbaum_os_modernos" in response_text

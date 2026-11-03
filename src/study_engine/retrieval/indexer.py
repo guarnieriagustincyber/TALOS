@@ -12,6 +12,7 @@ from study_engine.retrieval.vector_store import (
     SQLiteVectorStore,
     VectorRecord,
 )
+from study_engine.retrieval.vector_identity import vector_space_id
 from study_engine.storage.knowledge_store import KnowledgeStore
 
 
@@ -38,6 +39,10 @@ def index_notebook_chunks(
     if not chunks_to_index:
         return 0
 
+    space_id = vector_space_id(embedding_provider)
+    if space_id is None:
+        raise ValueError("Embedding provider identity is UNKNOWN; refusing to index vectors")
+
     # 2. Generate embeddings in passage mode
     texts = [c.content for c in chunks_to_index]
     vectors = embedding_provider.embed_passages(texts)
@@ -53,7 +58,6 @@ def index_notebook_chunks(
     dim = embedding_provider.dimensions
     prov_id = embedding_provider.provider_id
     mod_id = embedding_provider.model_id
-
     for chunk, vec in zip(chunks_to_index, vectors):
         if len(vec) != dim:
             raise EmbeddingDimensionMismatchError(
@@ -68,6 +72,7 @@ def index_notebook_chunks(
                 model_id=mod_id,
                 dimensions=dim,
                 vector=vec,
+                space_id=space_id,
             )
         )
 

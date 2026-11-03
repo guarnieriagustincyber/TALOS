@@ -2,6 +2,8 @@
 
 import math
 from pathlib import Path
+import sys
+from types import ModuleType
 import pytest
 
 from study_engine.retrieval.embedding import (
@@ -9,6 +11,9 @@ from study_engine.retrieval.embedding import (
     EmbeddingProvider,
     LocalONNXEmbeddingProvider,
     MockEmbeddingProvider,
+    QWEN_EMBEDDING_REVISION,
+    QWEN_EMBEDDING_MODEL,
+    SentenceTransformerEmbeddingProvider,
 )
 
 
@@ -140,3 +145,51 @@ def test_local_onnx_empty_infer_and_import_error(
             model_path=model_path, tokenizer_path=tok_path
         )
     assert "LocalONNXEmbeddingProvider requires" in str(exc.value)
+
+
+def test_qwen_sentence_transformer_disables_remote_code(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = {}
+    sentinel_model = object()
+
+    class FakeSentenceTransformer:
+        def __new__(cls, *args, **kwargs):
+            calls["args"] = args
+            calls["kwargs"] = kwargs
+            return sentinel_model
+
+    fake_module = ModuleType("sentence_transformers")
+    fake_module.SentenceTransformer = FakeSentenceTransformer
+    monkeypatch.setitem(sys.modules, "sentence_transformers", fake_module)
+
+    provider = SentenceTransformerEmbeddingProvider()
+
+    assert provider.model_id == "Qwen/Qwen3-Embedding-0.6B"
+    assert provider._ensure_model() is sentinel_model
+    assert calls["args"] == (QWEN_EMBEDDING_MODEL,)
+    assert calls["kwargs"]["trust_remote_code"] is False
+    assert calls["kwargs"]["revision"] == QWEN_EMBEDDING_REVISION
+
+
+def test_custom_sentence_transformer_model_cannot_enable_remote_code(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = {}
+
+    class FakeSentenceTransformer:
+        def __new__(cls, *args, **kwargs):
+            calls["args"] = args
+            calls["kwargs"] = kwargs
+            return object()
+
+    fake_module = ModuleType("sentence_transformers")
+    fake_module.SentenceTransformer = FakeSentenceTransformer
+    monkeypatch.setitem(sys.modules, "sentence_transformers", fake_module)
+
+    provider = SentenceTransformerEmbeddingProvider("custom/model")
+    provider._ensure_model()
+
+    assert calls["args"] == ("custom/model",)
+    assert calls["kwargs"]["trust_remote_code"] is False
+    assert calls["kwargs"]["revision"] is None

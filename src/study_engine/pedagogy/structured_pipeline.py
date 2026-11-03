@@ -7,10 +7,17 @@ and robust cancellation (abort) handling.
 
 import asyncio
 from datetime import datetime, timezone
+import hashlib
 import logging
 import os
 import re
+import time
+
+from study_engine.pedagogy.attribution_normalizer import (
+    normalize_attribution_frames,
+)
 from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Sequence
+from uuid import uuid4
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 
 from study_engine.generation.prompts import PromptBundle, PromptMessage, PromptRole
@@ -23,9 +30,137 @@ from study_engine.pedagogy.prompts import build_pedagogical_tone_directive
 logger = logging.getLogger(__name__)
 
 
+# Heartbeat cadence for the S4.4 audit progress events.  Progress payloads
+# never contain generated academic content: they only report stage/elapsed
+# bookkeeping so the client can distinguish "still working" from "hung".
+_AUDIT_PROGRESS_INTERVAL_S = float(
+    os.getenv("TALOS_AUDIT_PROGRESS_INTERVAL_S", "1.5")
+)
+
+# HG-S4.4 alineación de contratos: la instrucción obligatoria de citas que
+# acompaña a la evidencia en el prompt de generación. Se mantiene como
+# constante para que la calibración C3 (presupuesto de contexto) pueda
+# contabilizar sus tokens como overhead del prompt final.
+CITATION_PROTOCOL_BLOCK = (
+    "=== PROTOCOLO DE CITAS OBLIGATORIO (VERIFICACIÓN S4.4) ===\n"
+    "- La evidencia numerada arriba lleva tags [E1], [E2]: usá EXACTAMENTE esos tags.\n"
+    "- El audit lee cada [E#] como prefijo: poné el tag AL INICIO de cada oración factual (ej.: '[E1] malloc devuelve un puntero al chunk del heap.'); cada oración factual necesita su propio tag y no hereda el de la anterior.\n"
+    "- Afirmá solo lo que la oración del fragmento citado establece, conservando sus calificadores. NO infieras: ni contrastes (qué usa la otra estructura), ni cantidades nuevas, ni comportamientos de escenarios que el fragmento no mencione, ni negaciones sobre lo que las fuentes contienen o no contienen. Si un detalle no está en la evidencia, escribiló como oración SEPARADA y SIN tags (ej.: 'No hay evidencia autorizada sobre ese punto.'); no la mezcles dentro de una oración citada con 'pero' ni 'aunque'.\n"
+    "- ANTES de declarar que no hay evidencia, revisá TODO el bloque: si los fragmentos autorizados tratan el tema de la consulta (aunque no cubran cada sub-detalle), explicá lo que la evidencia SÍ respalda con sus tags y dejá sin tags solo lo que falta.\n"
+    "- Cada oración CON tag es el hecho técnico directo de esa pieza: no la atribuyas a las fuentes (_agrega una afirmación sobre las fuentes que el fragmento no contiene_). Mal: '[E1] Las fuentes autorizadas definen que malloc...' Bien: '[E1] malloc devuelve...'\n"
+    "- La prosa sin hechos nuevos (transiciones, analogías señaladas como tales, estructura, preguntas) no requiere cita."
+)
+
+
+def _direct_assertion_lines(ev_block_text: str, user_query: str) -> str:
+    """M1-04: enunciado directo preformulado desde la evidencia efectiva.
+
+    Representación determinista de la información disponible ("código
+    determinista primero"): sobre el bloque de evidencia REALMENTE presente
+    en el prompt, selecciona por chunk ([E#] Fuente:...) la oración verbatim
+    admisible más afín a la consulta (mismo mecanismo determinista del
+    builder de conceptos M1-02) y la expone con su tag como MODELO de
+    enunciado directo. Sin candidato admisible devuelve "" (el prompt queda
+    igual que antes). La oración es substring del fragmento: no altera tags
+    ni manifest, y el S4.4 sigue verificando el texto final emitido.
+    """
+    ev = (ev_block_text or "").strip()
+    if not ev:
+        return ""
+    try:
+        from study_engine.pedagogy.concept_builder import (
+            _is_acceptable_candidate,
+            _normalize_chunk_text,
+            _objective_terms,
+        )
+    except Exception:
+        return ""
+
+    terms = set(_objective_terms(user_query or ""))
+    best_line, best_score = "", -1
+    marks = list(re.finditer(r"\[E\d+\]\s*Fuente:", ev))
+    if not marks:
+        return ""
+    for i, m in enumerate(marks):
+        tag = m.group(0).split("]")[0] + "]"  # "[E1]"
+        start = m.end()
+        end = marks[i + 1].start() if i + 1 < len(marks) else len(ev)
+        section = ev[start:end]
+        # saltar la línea de encabezado "Fuente:..." y las comillas envolventes
+        nl = section.find("\n")
+        if nl == -1:
+            continue
+        section = section[nl + 1 :].strip()
+        if section.startswith('"'):
+            section = section[1:]
+        if section.endswith('"'):
+            section = section[:-1]
+        norm = _normalize_chunk_text(section)
+        if not norm:
+            continue
+        sec_best, sec_cov = "", -1
+        for piece in re.split(r"(?<=[.!?])\s+", norm):
+            piece = piece.strip()
+            if piece and _is_acceptable_candidate(piece):
+                cov = sum(1 for t in terms if t in piece.lower())
+                if cov > sec_cov:
+                    sec_cov, sec_best = cov, piece
+        # el primer chunk con máxima cobertura gana: los tags tempranos son
+        # los de mayor relevancia del retrieval
+        if sec_best and sec_cov > best_score:
+            best_score, best_line = sec_cov, f"{tag} {sec_best}"
+    if not best_line:
+        return ""
+    return (
+        "=== MODELO DE ENUNCIADO DIRECTO CON CITA (usá este formato textualmente; "
+        "también pueden recortarse las mismas piezas) ===\n"
+        f"{best_line}\n"
+    )
+
+
+
+
+
+# Verdicts that describe an operational/infrastructure failure rather than an
+# academic conclusion about the evidence.  They must never be presented to the
+# student as an academic abstention (HTTP 429/503/timeout are not "no evidence").
+_TECHNICAL_AUDIT_FAILURE_CODES = frozenset({
+    "DEFERRED_RETRY",
+    "REJECTED_AUDIT_ERROR",
+    "AUDITOR_UNAVAILABLE",
+    "AUDIT_RESULT_MISSING",
+    "REJECTED_INPUT_MISMATCH",
+})
+
+_TECHNICAL_FAILURE_REASON = (
+    "TALOS no pudo completar la verificación técnica de la respuesta (S4.4). "
+    "Es un fallo operativo, no una conclusión sobre la evidencia académica. "
+    "Reintentá la consulta."
+)
+
+
+def _abstention_payload(
+    phase_id: str, code: str, *, reason: Optional[str] = None
+) -> Dict[str, Any]:
+    """Build a terminal abstention payload with an explicit failure class."""
+    technical = code in _TECHNICAL_AUDIT_FAILURE_CODES
+    return {
+        "phase": phase_id,
+        "abstained": True,
+        "reason": reason or (
+            _TECHNICAL_FAILURE_REASON
+            if technical
+            else "La respuesta no obtuvo un veredicto S4.4 válido y aprobatorio."
+        ),
+        "abstention_code": code,
+        "failure_class": "TECHNICAL" if technical else "ACADEMIC_OR_UNVERIFIED",
+    }
+
+
 class StreamEventType(str):
     PHASE_START = "phase_start"
     PHASE_TOKEN = "phase_token"
+    PROGRESS = "progress"
     GUARD_BLOCKED = "guard_blocked"
     AUDIT_VERDICT = "audit_verdict"
     EVIDENCE_MANIFEST = "evidence_manifest"
@@ -44,6 +179,7 @@ class StreamEvent(BaseModel):
     event_type: Literal[
         "phase_start",
         "phase_token",
+        "progress",
         "guard_blocked",
         "audit_verdict",
         "evidence_manifest",
@@ -54,6 +190,71 @@ class StreamEvent(BaseModel):
         "truncated",
     ]
     payload: Dict[str, Any]
+
+
+def _content_binding_hash(text: str) -> str:
+    """Return the canonical binding digest for text released to the client."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _pending_content_text(events: Sequence[StreamEvent]) -> str:
+    """Reconstruct only substantive token content retained for release."""
+    return "".join(
+        event.payload.get("token", "")
+        for event in events
+        if event.event_type == "phase_token"
+    )
+
+
+def _content_binding_matches(
+    expected_text: str,
+    pending_events: Sequence[StreamEvent],
+    expected_hash: str,
+) -> bool:
+    """Check that retained SSE fragments are exactly the audited content."""
+    released_text = _pending_content_text(pending_events)
+    return (
+        released_text == expected_text
+        and _content_binding_hash(released_text) == expected_hash
+    )
+
+
+def _citation_page_metadata(chunk: Any, unit: Any = None) -> Dict[str, Any]:
+    """Preserve only page locations actually carried by retrieved evidence."""
+    def first_present(*values: Any) -> Any:
+        return next((value for value in values if value is not None), None)
+
+    page = first_present(
+        chunk.get("page") if isinstance(chunk, dict) else getattr(chunk, "page", None),
+        chunk.get("page_start") if isinstance(chunk, dict) else getattr(chunk, "page_start", None),
+        getattr(unit, "page_start", None) if unit is not None else None,
+    )
+    page_start = first_present(
+        chunk.get("page_start") if isinstance(chunk, dict) else getattr(chunk, "page_start", None),
+        getattr(unit, "page_start", None) if unit is not None else None,
+    )
+    page_end = first_present(
+        chunk.get("page_end") if isinstance(chunk, dict) else getattr(chunk, "page_end", None),
+        getattr(unit, "page_end", None) if unit is not None else None,
+    )
+    return {"page": page, "page_start": page_start, "page_end": page_end}
+
+
+def _citation_document_id(chunk: Any, unit: Any = None) -> Optional[str]:
+    """Return a document identity carried by evidence, without inventing one."""
+    if isinstance(chunk, dict):
+        value = chunk.get("document_id")
+    else:
+        value = getattr(chunk, "document_id", None)
+        citation = getattr(chunk, "citation", None)
+        if value is None and citation is not None:
+            value = getattr(citation, "document_id", None)
+        if value is None and unit is not None:
+            value = getattr(unit, "document_id", None)
+            unit_citation = getattr(unit, "citation", None)
+            if value is None and unit_citation is not None:
+                value = getattr(unit_citation, "document_id", None)
+    return value if isinstance(value, str) and value.strip() else None
 
 
 class PhaseOutput(BaseModel):
@@ -421,7 +622,7 @@ RESPONSE_MODES: Dict[str, Dict[str, Any]] = {
     "explain_concept": {"layers": 3, "socratic": True, "max_words": 400, "format": "tri_layer"},
     "debug_crash": {"layers": 0, "socratic": True, "max_words": 900, "format": "debug_analysis"},
     "resolve_misconception": {"layers": 3, "socratic": True, "max_words": 1500, "format": "epistemic_scaffolding"},
-    "compare": {"layers": 0, "socratic": True, "max_words": 300, "format": "table"},
+    "compare": {"layers": 0, "socratic": True, "max_words": 300, "format": "plain_text"},
     "give_example": {"layers": 0, "socratic": False, "max_words": 500, "format": "code"},
     "simplify": {"layers": 1, "socratic": False, "max_words": 200, "format": "feynman_simple"},
     "evaluate_code": {"layers": 3, "socratic": True, "max_words": 2500, "format": "forensic_audit"},
@@ -779,6 +980,16 @@ def resolve_response_intent(
 def build_pedagogical_strategy_instruction(intent: ResponseIntent) -> str:
     """Build an adaptable task policy that takes precedence over legacy style defaults."""
     task_instructions = {
+        "comparar": (
+            "- Compará en prosa breve por defecto y únicamente dimensiones presentes en las evidencias recuperadas; "
+            "no inventes ventajas, desventajas, escenarios, efectos ni trade-offs para completar la tabla.\n"
+            "- Si el estudiante pidió una tabla, cada celda que afirme un hecho debe incluir su propia cita [E#] válida; "
+            "no traslades una cita de una celda a otra. Cada frase factual fuera de la tabla también "
+            "requiere cita en esa misma frase.\n"
+            "- No agregues análisis posterior que repita o amplíe la tabla sin respaldo; si una dimensión "
+            "no está documentada, omitila en vez de inferirla. No conviertas una propiedad de resistencia "
+            "o independencia en garantía de equivalencia exacta."
+        ),
         "responder la consulta": (
             "- Contestá primero la pregunta de forma directa; definí solo los términos necesarios.\n"
             "- Explicá el mecanismo o agregá un ejemplo cuando ayude a entender, no por rutina.\n"
@@ -1252,8 +1463,22 @@ class StructuredResponsePipeline:
             )
 
         parts: List[str] = []
+        ev_block_text = ""
         if context_pack is not None and hasattr(context_pack, "formatted_context"):
-            parts.append(f"=== EVIDENCIAS DOCUMENTADAS AUTORIZADAS ===\n{context_pack.formatted_context}")
+            ev_block_text = (getattr(context_pack, "formatted_context", "") or "").strip()
+        if ev_block_text:
+            # M1-04: representación determinista — el generador recibe además
+            # un enunciado directo preformulado de la evidencia efectiva
+            # (evita que formule el marco de atribución que S4.4 rechaza).
+            direct_line = _direct_assertion_lines(ev_block_text, user_query)
+            ev_final = ev_block_text + (f"\n\n{direct_line}" if direct_line else "")
+            parts.append(f"=== EVIDENCIAS DOCUMENTADAS AUTORIZADAS ===\n{ev_final}")
+            # HG-S4.4 alineación de contratos: el audit determinista
+            # (CHECK_FACTUAL_GROUNDING) rechaza toda claim FACTUAL sin tag [E#].
+            # Si el prompt porta la evidencia, debe exigir explícitamente el
+            # protocolo de citas; sin esta instrucción el generador queda bajo
+            # una obligación que no conoce (contrato sólo del lado del audit).
+            parts.append(CITATION_PROTOCOL_BLOCK)
 
         if predecessor_context:
             parts.append(f"=== CONTEXTO DE FASES PREVIAS (COHERENCIA PEDAGÓGICA) ===\n{predecessor_context}")
@@ -1288,9 +1513,12 @@ class StructuredResponsePipeline:
             parts.append(f"=== DIRECTIVA DE ESTILO Y CONVERSACIÓN (OLA 5, E24) ===\n{style_directive}")
 
         # 1. Determinación de modo pedagógico y directiva correspondiente (Fix S4.1)
-        mode_config = RESPONSE_MODES.get(active_mode, RESPONSE_MODES["explain_concept"])
+        mode_config = dict(RESPONSE_MODES.get(active_mode, RESPONSE_MODES["explain_concept"]))
+        if response_intent.output_format is not None:
+            mode_config["format"] = response_intent.output_format
 
         strategy_tasks = {
+            "comparar",
             "responder la consulta",
             "explicar en profundidad",
             "proponer o continuar un ejercicio guiado",
@@ -1440,6 +1668,7 @@ class StructuredResponsePipeline:
             rules_block = (
                 "FORMATO INTRODUCTORIO DE RESPUESTA:\n"
                 "- Explicación breve y directa; añadí analogía o pregunta de verificación solo si ayudan y no fueron excluidas.\n"
+                "- En una oración con [E#] afirmá el hecho técnico directamente: prohibido el marco de atribución ('Las fuentes definen que...' / 'la evidencia establece que...').\n"
                 "- Máximo 300 palabras. No incluyas diagramas ni código salvo que el estudiante los solicite explícitamente.\n"
                 "- Evitá tecnicismos y detalles de bajo nivel; definí cualquier término técnico necesario.\n"
                 "- Cerrá con una pregunta de comprensión básica."
@@ -1476,6 +1705,25 @@ class StructuredResponsePipeline:
                     f.write(f"=== SYSTEM PROMPT ===\n{system_prompt}\n\n=== USER PROMPT ===\n{user_prompt}\n\n=== MAX TOKENS ===\n{max_tokens}\n")
             except Exception:
                 pass
+
+        # Chokepoint 2: Terminal stream guard
+        from study_engine.context.c3_budget import (
+            EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            ContextBudgetExceededError,
+            estimate_payload_tokens,
+        )
+
+        tokens_before_stream = estimate_payload_tokens(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            context=context,
+        )
+        if tokens_before_stream > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+            raise ContextBudgetExceededError(
+                f"C3 hard ceiling violated at _stream_tokens chokepoint: {tokens_before_stream} > {EFFECTIVE_CONTEXT_CEILING_TOKENS}",
+                estimated_tokens=tokens_before_stream,
+                effective_ceiling=EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            )
 
         # 1. Native async streaming support if present
         if hasattr(self.llm, "stream") and callable(getattr(self.llm, "stream")):
@@ -1522,7 +1770,16 @@ class StructuredResponsePipeline:
             prompt_hash=p_hash,
         )
 
+        bundle_tokens = estimate_payload_tokens(prompt_bundle=prompt_bundle)
+        if bundle_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+            raise ContextBudgetExceededError(
+                f"C3 hard ceiling violated at prompt_bundle chokepoint: {bundle_tokens} > {EFFECTIVE_CONTEXT_CEILING_TOKENS}",
+                estimated_tokens=bundle_tokens,
+                effective_ceiling=EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            )
+
         if hasattr(self.llm, "complete"):
+
             try:
                 completion = await asyncio.wait_for(
                     asyncio.to_thread(self.llm.complete, prompt_bundle),
@@ -1576,6 +1833,7 @@ class StructuredResponsePipeline:
         cognitive_profile_block: Optional[str] = None,
         context_mode: Optional[str] = None,
         protected_assessment: bool = False,
+        content_binding_id: Optional[str] = None,
     ) -> AsyncGenerator[StreamEvent, None]:
         """Generate response for a specific phase with streaming, guards, intent routing, and BKT adaptation.
 
@@ -1584,25 +1842,39 @@ class StructuredResponsePipeline:
         """
         target_phase_id = requested_phase or "conceptual"
         phase = self.get_phase(target_phase_id)
+        active_content_binding_id = content_binding_id or uuid4().hex
         self.guard.reset()
 
-        # Enmienda E5 & E25: Si el context_pack indica abstención por falta de fuentes canónicas,
-        # emitir evento 'abstention' inmediatamente como PRIMER y ÚNICO evento sin phase_start ni invocar al LLM.
-        # Nota: Si el backend es OfflinePedagogicalBackend, permitimos que proceda para emitir su respuesta offline.
-        from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
-        is_offline_oracle = isinstance(self.llm, OfflinePedagogicalBackend)
-        if context_pack is not None and getattr(context_pack, "abstained", False) and not is_offline_oracle:
-            yield StreamEvent(
-                event_type="abstention",
-                payload={
-                    "phase": phase.phase_id,
-                    "abstained": True,
-                    "reason": "TALOS se abstiene de responder: No hay evidencia verificada en las fuentes canónicas del cuaderno para fundamentar esta consulta.",
-                    "suggested_action": "Consultá el catálogo de fuentes del cuaderno o reformulá la pregunta con términos del programa.",
-                    "abstention_code": getattr(context_pack, "abstention_reason", "QUERY_OUT_OF_SCOPE"),
-                },
-            )
-            return
+        # C5 Universal Trust Gate (Fail-Closed Absoluto - D_C5_4 & D_C5_5 & Addendum 2)
+        # Si context_pack está presente y contiene abstención, insuficiencia o fallo de retrieval:
+        # NUNCA invocar a ningún backend (cloud, local, fallback u offline). Cero bypass.
+        if context_pack is not None:
+            is_sufficient = getattr(context_pack, "is_sufficient", False)
+            is_abstained = getattr(context_pack, "abstained", True)
+            if is_abstained or not is_sufficient:
+                trust_status = getattr(context_pack, "trust_status", None)
+                reason_code = getattr(context_pack, "abstention_reason", "NO_EVIDENCE")
+                is_retrieval_fail = (
+                    trust_status == "RETRIEVAL_FAILURE"
+                    or (hasattr(trust_status, "value") and trust_status.value == "RETRIEVAL_FAILURE")
+                    or reason_code == "RETRIEVAL_FAILURE"
+                )
+                yield StreamEvent(
+                    event_type="error" if is_retrieval_fail else "abstention",
+                    payload={
+                        "phase": phase.phase_id,
+                        "abstained": True,
+                        "reason": (
+                            "TALOS falló de forma segura (fail-closed): Ocurrió un error técnico al recuperar evidencias canónicas."
+                            if is_retrieval_fail
+                            else "TALOS se abstiene de responder: No hay evidencia suficiente en las fuentes canónicas del cuaderno para fundamentar esta consulta."
+                        ),
+                        "suggested_action": "Reintentá la consulta o consultá el catálogo de fuentes del cuaderno.",
+                        "abstention_code": reason_code,
+                        "error_code": "RETRIEVAL_FAILURE" if is_retrieval_fail else None,
+                    },
+                )
+                return
 
         response_intent = resolve_response_intent(user_query, pedagogical_mode)
         active_mode = response_intent.mode
@@ -1677,6 +1949,156 @@ class StructuredResponsePipeline:
             context_mode=context_mode,
         )
 
+        # Chokepoint 1: C3 Context Budget Enforcement (Gate B Assurance Criterion C3)
+        from study_engine.context.c3_budget import (
+            EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            enforce_c3_budget,
+            estimate_payload_tokens,
+        )
+
+        initial_payload_tokens = estimate_payload_tokens(
+            system_prompt=system_prompt,
+            user_prompt=phase_user_prompt,
+        )
+
+        if initial_payload_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+            ev_text = getattr(context_pack, "formatted_context", None)
+            if ev_text is None:
+                ev_text = getattr(context_pack, "formatted_text", "")
+
+            retained, report = enforce_c3_budget(
+                system_prompt=system_prompt,
+                user_query=user_query,
+                evidence_text=ev_text,
+                history_turns=recent_turns,
+                bkt_directive=bkt_directive,
+                style_directive=style_directive,
+                memory_directive=cognitive_profile_block,
+            )
+
+            if report.fail_closed:
+                logger.error(
+                    "[Pipeline] C3 Hard Context Ceiling Violated (FAIL-CLOSED): %s",
+                    report.error_message,
+                )
+                yield StreamEvent(
+                    event_type="error",
+                    payload={
+                        "error_code": "CONTEXT_BUDGET_EXCEEDED",
+                        "phase": phase.phase_id,
+                        "message": report.error_message,
+                        "estimated_tokens": report.final_estimated_tokens,
+                        "effective_ceiling": report.effective_ceiling_tokens,
+                        "pruning_actions": report.pruning_actions,
+                    },
+                )
+                return
+
+            # Re-assemble using retained components
+            system_prompt = retained.get("system_prompt", system_prompt)
+            pruned_pack = context_pack
+            if context_pack is not None:
+                import copy
+                pruned_pack = copy.copy(context_pack)
+                if hasattr(pruned_pack, "formatted_context"):
+                    pruned_pack.formatted_context = retained.get("evidence_text", "")
+                if hasattr(pruned_pack, "formatted_text"):
+                    pruned_pack.formatted_text = retained.get("evidence_text", "")
+
+            phase_user_prompt = self.build_phase_prompt(
+                phase=phase,
+                user_query=user_query,
+                context_pack=pruned_pack,
+                pedagogical_mode=active_mode,
+                bkt_directive=retained.get("bkt_directive"),
+                style_directive=retained.get("style_directive"),
+                recent_turns=retained.get("history_turns"),
+                metacognitive_profile=metacognitive_profile,
+                cognitive_profile_block=retained.get("memory_directive"),
+                context_mode=context_mode,
+            )
+
+            recheck_tokens = estimate_payload_tokens(system_prompt, phase_user_prompt)
+            if recheck_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS and pruned_pack is not None:
+                # Calibrate evidence to the exact available budget given the real prompt template overhead
+                from study_engine.context.c3_budget import prune_evidence_text_deterministically
+                import copy
+
+                empty_pack = copy.copy(pruned_pack)
+                if hasattr(empty_pack, "formatted_context"):
+                    empty_pack.formatted_context = ""
+                if hasattr(empty_pack, "formatted_text"):
+                    empty_pack.formatted_text = ""
+
+                prompt_without_ev = self.build_phase_prompt(
+                    phase=phase,
+                    user_query=user_query,
+                    context_pack=empty_pack,
+                    pedagogical_mode=active_mode,
+                    bkt_directive=retained.get("bkt_directive"),
+                    style_directive=retained.get("style_directive"),
+                    recent_turns=retained.get("history_turns"),
+                    metacognitive_profile=metacognitive_profile,
+                    cognitive_profile_block=retained.get("memory_directive"),
+                    context_mode=context_mode,
+                )
+                overhead_tokens = estimate_payload_tokens(system_prompt, prompt_without_ev)
+                # El protocolo de citas S4.4 acompaña a la evidencia en el
+                # prompt final (sólo cuando la evidencia no quedó vacía).
+                # Contabilizarlo como overhead evita que el recheck posterior
+                # exceda el techo C3 y aborte fail-closed sin necesidad.
+                raw_ev_probe = getattr(pruned_pack, "formatted_context", None) or getattr(pruned_pack, "formatted_text", "")
+                if (raw_ev_probe or "").strip():
+                    overhead_tokens += estimate_payload_tokens("", CITATION_PROTOCOL_BLOCK)
+                    # M1-04: el enunciado directo preformulado viaja DENTRO del
+                    # bloque de evidencia (se reconstruye deterministamente a
+                    # partir del mismo probe); contarlo como overhead permite
+                    # que la calibración recorte evidencia en su lugar.
+                    m104_direct = _direct_assertion_lines(raw_ev_probe, user_query)
+                    if m104_direct:
+                        overhead_tokens += estimate_payload_tokens("", m104_direct)
+                target_ev_tokens = max(100, EFFECTIVE_CONTEXT_CEILING_TOKENS - overhead_tokens - 10)
+                raw_ev = getattr(pruned_pack, "formatted_context", None) or getattr(pruned_pack, "formatted_text", "")
+                calibrated_ev, _ = prune_evidence_text_deterministically(raw_ev, max_tokens=target_ev_tokens)
+
+                if hasattr(pruned_pack, "formatted_context"):
+                    pruned_pack.formatted_context = calibrated_ev
+                if hasattr(pruned_pack, "formatted_text"):
+                    pruned_pack.formatted_text = calibrated_ev
+
+                phase_user_prompt = self.build_phase_prompt(
+                    phase=phase,
+                    user_query=user_query,
+                    context_pack=pruned_pack,
+                    pedagogical_mode=active_mode,
+                    bkt_directive=retained.get("bkt_directive"),
+                    style_directive=retained.get("style_directive"),
+                    recent_turns=retained.get("history_turns"),
+                    metacognitive_profile=metacognitive_profile,
+                    cognitive_profile_block=retained.get("memory_directive"),
+                    context_mode=context_mode,
+                )
+                recheck_tokens = estimate_payload_tokens(system_prompt, phase_user_prompt)
+
+            if recheck_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+                logger.error(
+                    "[Pipeline] C3 Post-pruning recheck failed (%d > %d tokens). Aborting fail-closed.",
+                    recheck_tokens,
+                    EFFECTIVE_CONTEXT_CEILING_TOKENS,
+                )
+                yield StreamEvent(
+                    event_type="error",
+                    payload={
+                        "error_code": "CONTEXT_BUDGET_EXCEEDED",
+                        "phase": phase.phase_id,
+                        "message": f"Post-pruning prompt ({recheck_tokens} tokens) exceeds C3 effective ceiling ({EFFECTIVE_CONTEXT_CEILING_TOKENS}).",
+                        "estimated_tokens": recheck_tokens,
+                        "effective_ceiling": EFFECTIVE_CONTEXT_CEILING_TOKENS,
+                    },
+                )
+                return
+
+
         yield StreamEvent(
             event_type="phase_start",
             payload={
@@ -1687,9 +2109,12 @@ class StructuredResponsePipeline:
             },
         )
 
+
         accumulated_text = ""
         token_count = 0
         guard_triggered = False
+        pending_content_events: list[StreamEvent] = []
+        generation_started = time.perf_counter()
 
         try:
             async for token in self._stream_tokens(
@@ -1697,7 +2122,15 @@ class StructuredResponsePipeline:
                 user_prompt=phase_user_prompt,
                 max_tokens=effective_max_tokens,
                 phase_id=phase.phase_id,
-                context=str(context_pack) if context_pack is not None else None,
+                # M1-03 (invariante C3, conteo fiel del payload): la evidencia
+                # ya está embebida en phase_user_prompt dentro de su
+                # sub-presupuesto (BUDGET_PRIMARY+SECONDARY). Pasar
+                # str(context_pack) (repr del objeto, ~20 tokens fantasma)
+                # duplicaba el conteo del chokepoint y abortaba técnicamente
+                # packs grandes y válidos (4769 > 4761 observado en live).
+                # Los providers ignoran `context`; el router solo lo usa para
+                # screening de sensibilidad, que ya cubre system+user.
+                context=None,
             ):
                 token_count += 1
                 guard_res = self.guard.validate_token(
@@ -1711,39 +2144,39 @@ class StructuredResponsePipeline:
                 if guard_res.allowed:
                     if guard_res.emitted_token:
                         accumulated_text += guard_res.emitted_token
-                        yield StreamEvent(
+                        pending_content_events.append(StreamEvent(
                             event_type="phase_token",
                             payload={"phase": phase.phase_id, "token": guard_res.emitted_token},
-                        )
+                        ))
                 else:
                     guard_triggered = True
                     if guard_res.emitted_token:
                         accumulated_text += guard_res.emitted_token
-                        yield StreamEvent(
+                        pending_content_events.append(StreamEvent(
                             event_type="phase_token",
                             payload={"phase": phase.phase_id, "token": guard_res.emitted_token},
-                        )
+                        ))
                     # Truncate and replace with pedagogical intervention
                     replacement = guard_res.replacement_message or SocraticGuard.DEFAULT_REPLACEMENT_MESSAGE
                     accumulated_text += replacement
-                    yield StreamEvent(
+                    pending_content_events.append(StreamEvent(
                         event_type="guard_blocked",
                         payload={
                             "phase": phase.phase_id,
                             "reason": guard_res.blocked_reason,
                             "message": replacement,
                         },
-                    )
+                    ))
                     break
 
             if not guard_triggered:
                 pending_token = self.guard.flush_pending()
                 if pending_token:
                     accumulated_text += pending_token
-                    yield StreamEvent(
+                    pending_content_events.append(StreamEvent(
                         event_type="phase_token",
                         payload={"phase": phase.phase_id, "token": pending_token},
-                    )
+                    ))
 
             # COMMIT 5 (feat/stream): finish_reason observable al cierre.
             # finish_reason="length" => el proveedor cortó por max_tokens:
@@ -1752,7 +2185,7 @@ class StructuredResponsePipeline:
             logger.info("[STREAM] fase=%s finish_reason=%s tokens=%s",
                         phase.phase_id, finish_reason, token_count)
             if finish_reason == "length":
-                yield StreamEvent(
+                pending_content_events.append(StreamEvent(
                     event_type="truncated",
                     payload={
                         "phase": phase.phase_id,
@@ -1760,10 +2193,71 @@ class StructuredResponsePipeline:
                         "tokens_generated": token_count,
                         "message": "La respuesta quedó truncada por límite de tokens del proveedor.",
                     },
+                ))
+
+            # M1-04b (autorización propietaria): normalización determinista
+            # de atribuciones genéricas sobre la respuesta candidata, ANTES
+            # del ClaimExtractor y de S4.4. El texto normalizado es el que se
+            # audita y el que se presenta (los pending events se reconstruyen
+            # desde el texto normalizado => binding auditado==presentado).
+            # El texto ORIGINAL se preserva para trazabilidad (log INFO con
+            # SHAs + dump env-gated Talos); nunca se publica en su lugar.
+            _norm_original = accumulated_text
+            _norm_text, _norm_records = normalize_attribution_frames(accumulated_text)
+            if _norm_records:
+                accumulated_text = _norm_text
+                _kept = [
+                    ev for ev in pending_content_events
+                    if ev.event_type != "phase_token"
+                ]
+                _chunks = [
+                    _norm_text[i:i + 120]
+                    for i in range(0, len(_norm_text), 120)
+                ]
+                _new_tokens = [
+                    StreamEvent(
+                        event_type="phase_token",
+                        payload={"phase": phase.phase_id, "token": ch},
+                    )
+                    for ch in _chunks
+                ]
+                pending_content_events = _new_tokens + _kept
+                _sha = lambda s: hashlib.sha256(s.encode("utf-8")).hexdigest()[:16]
+                _norm_metrics_count = len(_norm_records)
+                logger.info(
+                    "[M1-04B] atribucion normalizada: %d transformacion(es); "
+                    "original_sha256=%s; normalized_sha256=%s",
+                    len(_norm_records),
+                    _sha(_norm_original),
+                    _sha(accumulated_text),
                 )
+                if os.getenv("TALOS_DEBUG_PROMPTS", "false").lower() == "true":
+                    try:
+                        with open("debug_normalization.txt", "w", encoding="utf-8") as _dn:
+                            _dn.write(
+                                "=== ORIGINAL TEXT (pre-normalizacion) ===\n"
+                                f"{_norm_original}\n\n"
+                                "=== TRANSFORMS ===\n"
+                            )
+                            for _t in _norm_records:
+                                _dn.write(
+                                    f"- removed: {_t.removed}\n"
+                                    f"  before: {_t.before}\n"
+                                    f"  after : {_t.after}\n"
+                                )
+                            _dn.write(
+                                "\n=== NORMALIZED TEXT (auditado+presentado) ===\n"
+                                f"{accumulated_text}\n"
+                            )
+                    except Exception:
+                        pass
+            else:
+                _norm_metrics_count = 0
 
             # Perform S4.4 Forensic Audit if auditor is injected and phase is conceptual
             audit_verdict = "NOT_AUDITED"
+            audit_metrics: Dict[str, Any] = {}
+            validated_audit_report = None
             if guard_triggered:
                 audit_verdict = "FLAGGED_BY_GUARD"
             elif self.auditor is None:
@@ -1775,29 +2269,121 @@ class StructuredResponsePipeline:
                     or getattr(context_pack, "citations", None)
                     or []
                 )
+                generation_elapsed_ms = (
+                    time.perf_counter() - generation_started
+                ) * 1000.0
+                # Progress carries no generated academic content; it is safe to
+                # release while the audit is still running and keeps the SSE
+                # connection alive for long NLI evaluations.
+                yield StreamEvent(
+                    event_type="progress",
+                    payload={
+                        "phase": phase.phase_id,
+                        "stage": "audit_started",
+                        "message": "Verificando fundamentación y procedencia (S4.4)...",
+                        "generation_ms": round(generation_elapsed_ms, 1),
+                    },
+                )
+                audit_started = time.perf_counter()
                 try:
-                    import hashlib
+                    from study_engine.audit.contracts import ForensicAuditReport
                     from study_engine.audit.generation_adapter import audit_generation_payload
                     p_hash = hashlib.sha256(phase_user_prompt.encode("utf-8")).hexdigest()
-                    audit_res = await asyncio.to_thread(
-                        audit_generation_payload,
-                        self.auditor,
-                        generated_text=accumulated_text,
-                        context_chunks=raw_ctx_chunks,
-                        query=user_query,
-                        notebook_id=getattr(self.contract, "notebook_id", "fase0-soc"),
-                        provider_id=getattr(self.llm, "name", "talos-llm"),
-                        prompt_hash=p_hash,
+                    audit_request_id = f"req_{uuid4().hex}"
+                    audit_notebook_id = self.contract.notebook_id
+                    audit_task = asyncio.ensure_future(
+                        asyncio.to_thread(
+                            audit_generation_payload,
+                            self.auditor,
+                            generated_text=accumulated_text,
+                            context_chunks=raw_ctx_chunks,
+                            query=user_query,
+                            notebook_id=audit_notebook_id,
+                            provider_id=getattr(self.llm, "name", "talos-llm"),
+                            prompt_hash=p_hash,
+                            request_id=audit_request_id,
+                        )
                     )
-                    res_v = getattr(
-                        audit_res,
-                        "overall_verdict",
-                        getattr(audit_res, "verdict", None),
-                    )
-                    if res_v is None:
+                    while not audit_task.done():
+                        done, _ = await asyncio.wait(
+                            {audit_task}, timeout=_AUDIT_PROGRESS_INTERVAL_S
+                        )
+                        if not done:
+                            yield StreamEvent(
+                                event_type="progress",
+                                payload={
+                                    "phase": phase.phase_id,
+                                    "stage": "auditing",
+                                    "elapsed_ms": round(
+                                        (time.perf_counter() - audit_started) * 1000.0, 1
+                                    ),
+                                    "message": "La verificación S4.4 sigue en curso.",
+                                },
+                            )
+                    audit_res = audit_task.result()
+                    # M1-03 §2 (diagnóstico env-gated): el texto generado y los
+                    # registros de verificación quedan en un archivo local de
+                    # backend para análisis de compliance de citas. Nunca se
+                    # publica en SSE (fail-closed del contenido no aprobado).
+                    if os.getenv("TALOS_DEBUG_PROMPTS", "false").lower() == "true":
+                        try:
+                            with open("debug_audit_report.txt", "w", encoding="utf-8") as _dbg:
+                                _dbg.write(
+                                    f"=== PHASE ===\n{phase.phase_id}\n\n"
+                                    f"=== QUERY ===\n{user_query}\n\n"
+                                    f"=== GENERATED TEXT ===\n{accumulated_text}\n\n"
+                                    f"=== VERDICT ===\n{audit_res.overall_verdict.value}\n\n"
+                                    "=== CLAIM VERIFICATIONS ===\n"
+                                )
+                                for _cv in audit_res.claim_verifications:
+                                    _dbg.write(
+                                        f"[{_cv.claim_index}] type={_cv.claim_type.value} "
+                                        f"cited_tags={_cv.cited_tags} verdict={_cv.nli_verdict.value}\n"
+                                        f"  claim: {_cv.claim_text}\n"
+                                        f"  rationale: {_cv.nli_rationale}\n\n"
+                                    )
+                        except Exception:
+                            pass
+                    # The binding ID belongs to the SSE response; the audit request
+                    # ID belongs to S4.4. A matching text digest cannot replace this
+                    # independent, per-invocation report identity check.
+                    if not isinstance(audit_res, ForensicAuditReport):
                         audit_verdict = "AUDIT_RESULT_MISSING"
+                    elif (
+                        not isinstance(audit_res.audit_id, str)
+                        or not audit_res.audit_id.strip()
+                        or audit_res.request_id != audit_request_id
+                        or audit_res.notebook_id != audit_notebook_id
+                        or audit_res.prompt_hash != p_hash
+                    ):
+                        audit_verdict = "REJECTED_INPUT_MISMATCH"
                     else:
-                        audit_verdict = getattr(res_v, "value", str(res_v))
+                        audit_verdict = audit_res.overall_verdict.value
+                        # A semantic-judge provider failure (429/503/timeout)
+                        # must be reported as an operational failure, never as
+                        # an academic "evidence missing" conclusion.  Academic
+                        # NOT_ENTAILED/CONTRADICTED verdicts keep priority.
+                        if (
+                            audit_verdict == "FLAGGED_UNASSESSED"
+                            and audit_res.nli_technical_failures > 0
+                        ):
+                            audit_verdict = "DEFERRED_RETRY"
+                        audit_metrics = {
+                            "generation_ms": round(generation_elapsed_ms, 1),
+                            "audit_ms": audit_res.audit_latency_ms,
+                            "claims_assessed": len(audit_res.claim_verifications),
+                            "claims_semantically_checked": sum(
+                                1
+                                for verification in audit_res.claim_verifications
+                                if verification.cited_tags
+                            ),
+                            "nli_executed": audit_res.nli_executed,
+                            "nli_calls": audit_res.nli_calls,
+                            "nli_cache_hits": audit_res.nli_cache_hits,
+                            "nli_technical_failures": audit_res.nli_technical_failures,
+                            "nli_budget_exhausted": audit_res.nli_budget_exhausted,
+                        }
+                        validated_audit_report = audit_res
                 except (TimeoutError, ConnectionError, asyncio.TimeoutError):
                     # Enmienda E4: Errores transitorios de red/timeout
                     logger.warning("Timeout o error de conexión transitorio en auditoría forense.")
@@ -1807,10 +2393,79 @@ class StructuredResponsePipeline:
                     logger.error("Fallo crítico o infracción en auditoría forense: %s", exc, exc_info=True)
                     audit_verdict = "REJECTED_AUDIT_ERROR"
 
-            yield StreamEvent(
+            # M1-04b: conteo de transformaciones de normalización (sin texto)
+            audit_metrics["text_normalization_transforms"] = _norm_metrics_count
+
+            content_hash = _content_binding_hash(accumulated_text)
+            if audit_metrics:
+                logger.info(
+                    "[LATENCY] phase=%s verdict=%s generation_ms=%.1f audit_ms=%s "
+                    "claims_assessed=%s nli_calls=%s",
+                    phase.phase_id,
+                    audit_verdict,
+                    audit_metrics.get("generation_ms", 0.0),
+                    audit_metrics.get("audit_ms"),
+                    audit_metrics.get("claims_assessed"),
+                    audit_metrics.get("nli_calls"),
+                )
+            audit_event = StreamEvent(
                 event_type="audit_verdict",
-                payload={"phase": phase.phase_id, "verdict": audit_verdict},
+                payload={
+                    "phase": phase.phase_id,
+                    "verdict": audit_verdict,
+                    "content_sha256": content_hash,
+                    "content_binding_id": active_content_binding_id,
+                    "metrics": audit_metrics,
+                },
             )
+            if validated_audit_report is not None:
+                from study_engine.pedagogy.audit_projection import project_validated_audit
+                audit_event.payload["audit_projection"] = project_validated_audit(
+                    validated_audit_report, phase=phase.phase_id,
+                    content_sha256=content_hash,
+                    content_binding_id=active_content_binding_id,
+                )
+
+            approved_verdicts = {"APPROVED", "AuditVerdict.APPROVED"}
+            if audit_verdict not in approved_verdicts:
+                yield audit_event
+                yield StreamEvent(
+                    event_type="abstention",
+                    payload=_abstention_payload(phase.phase_id, audit_verdict),
+                )
+                return
+
+            if not _content_binding_matches(
+                accumulated_text,
+                pending_content_events,
+                content_hash,
+            ):
+                yield StreamEvent(
+                    event_type="audit_verdict",
+                    payload={
+                        "phase": phase.phase_id,
+                        "verdict": "REJECTED_INPUT_MISMATCH",
+                        "content_sha256": content_hash,
+                        "content_binding_id": active_content_binding_id,
+                    },
+                )
+                yield StreamEvent(
+                    event_type="abstention",
+                    payload=_abstention_payload(
+                        phase.phase_id,
+                        "REJECTED_INPUT_MISMATCH",
+                        reason=(
+                            "El contenido preparado para emisión no coincide con "
+                            "el contenido auditado."
+                        ),
+                    ),
+                )
+                return
+
+            # S4.4 must precede every event that contains generated pedagogical content.
+            yield audit_event
+            for pending_event in pending_content_events:
+                yield pending_event
 
             # Record phase in history for downstream continuity (Refinamiento 1)
             output = PhaseOutput(
@@ -1857,14 +2512,14 @@ class StructuredResponsePipeline:
             )
             for i, chunk in enumerate(raw_chunks):
                 if isinstance(chunk, dict):
+                    page_metadata = _citation_page_metadata(chunk)
                     citations.append({
                         "id": chunk.get("id", f"E{i+1}"),
                         "citation_id": chunk.get("citation_id", f"E{i+1}"),
                         "source_id": chunk.get("source_id"),
-                        "source_title": chunk.get("source_title") or chunk.get("source_id", "Documento Canónico"),
-                        "page": chunk.get("page") or chunk.get("page_start", 1),
-                        "page_start": chunk.get("page_start"),
-                        "page_end": chunk.get("page_end"),
+                        "source_title": chunk.get("source_title") or chunk.get("source_id"),
+                        "document_id": _citation_document_id(chunk),
+                        **page_metadata,
                         "chunk_text": chunk.get("chunk_text") or chunk.get("content", ""),
                         "chunk_id": chunk.get("chunk_id"),
                         "relevance_score": chunk.get("relevance_score", 0.85),
@@ -1883,14 +2538,14 @@ class StructuredResponsePipeline:
                     or (getattr(unit, "doc_hash", None) if unit else None)
                     or None
                 )
+                page_metadata = _citation_page_metadata(chunk, unit)
                 citations.append({
                     "id": getattr(chunk, "id", f"E{i+1}"),
                     "citation_id": getattr(chunk, "citation_id", f"E{i+1}"),
                     "source_id": source_id,
-                    "source_title": getattr(chunk, "source_title", source_id or "Documento Canónico"),
-                    "page": getattr(chunk, "page", None) or getattr(chunk, "page_start", None) or (getattr(unit, "page_start", None) if unit else 1),
-                    "page_start": getattr(chunk, "page_start", None) or (getattr(unit, "page_start", None) if unit else None),
-                    "page_end": getattr(chunk, "page_end", None) or (getattr(unit, "page_end", None) if unit else None),
+                    "source_title": getattr(chunk, "source_title", None) or source_id,
+                    "document_id": _citation_document_id(chunk, unit),
+                    **page_metadata,
                     "chunk_text": getattr(chunk, "chunk_text", None) or getattr(chunk, "content", ""),
                     "chunk_id": getattr(chunk, "chunk_id", None) or (getattr(unit, "unit_id", None) if unit else None),
                     "relevance_score": getattr(chunk, "relevance_score", 0.85),

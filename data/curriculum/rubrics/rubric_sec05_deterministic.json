@@ -1,0 +1,35 @@
+{
+  "rubric_id": "RUBRIC-SEC05-DETERMINISTIC",
+  "title": "Rúbrica de Evaluación Práctica Determinista para Hasher Binario (Opción B)",
+  "dimensions": [
+    {
+      "dimension_id": "live_demo",
+      "title": "Ejecución y Generación Válida de Artefacto",
+      "weight": 0.6,
+      "minimum_level": 3,
+      "is_critical": true,
+      "level_descriptors": {
+        "1": "El proceso falló o el artefacto output_hash.txt está ausente/corrupto.",
+        "2": "El proceso finalizó con código 0 pero el artefacto no cumple los límites de tamaño.",
+        "3": "El proceso finalizó limpiamente y output_hash.txt cumple con todas las especificaciones deterministas.",
+        "4": "Ejecución determinista óptima dentro del SLA con artefacto íntegro."
+      }
+    },
+    {
+      "dimension_id": "foundations",
+      "title": "Conformidad de Integridad y SLA de Ejecución",
+      "weight": 0.4,
+      "minimum_level": 3,
+      "is_critical": true,
+      "level_descriptors": {
+        "1": "Violación de SLA temporal o falla de terminación limpia.",
+        "2": "Ejecución lenta pero sin exceder límites duros.",
+        "3": "Conformidad total con el SLA temporal y código de salida 0.",
+        "4": "Rendimiento sobresaliente con margen superior al 50% del SLA."
+      }
+    }
+  ],
+  "default_pass_level": 3,
+  "allow_compensation": false,
+  "compensation_rules": []
+}

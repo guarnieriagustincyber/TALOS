@@ -10,6 +10,11 @@ reconstruir la comparación ya realizada.**
 
 Fecha de elaboración: 2026-09-28.
 
+Para el estado integrado vigente y el orden común con estabilización,
+auditoría, BENCH-G2 y E5/Qwen, consultar el
+[Plan maestro de estabilización y cierre de TALOS](./PLAN_MAESTRO_CIERRE_TALOS.md).
+Este documento conserva los criterios detallados de PED-F0…PED-F7.
+
 ### Convención de fases
 
 Las Fases 0–7 de este documento son las **fases del programa de mejora

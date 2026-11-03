@@ -137,7 +137,9 @@ def test_process_turn_and_persist_preference(extractor, mem_storage):
     assert "código en c" in prefs[0]["insight"].lower()
 
 
-def test_chat_query_background_pedagogical_memory_does_not_store_single_misconception(tmp_path):
+def test_chat_query_background_pedagogical_memory_does_not_store_single_misconception(
+    tmp_path, knowledge_store_test_copy
+):
     """The background chat extractors must not persist an isolated misconception."""
     import time
     from fastapi.testclient import TestClient
@@ -150,9 +152,8 @@ def test_chat_query_background_pedagogical_memory_does_not_store_single_misconce
     import shutil
     from pathlib import Path
 
-    existing_db = Path("data/web_state/knowledge_store.db")
-    if existing_db.exists():
-        shutil.copy2(existing_db, tmp_path / "knowledge_store.db")
+    if knowledge_store_test_copy is not None:
+        shutil.copy2(knowledge_store_test_copy, tmp_path / "knowledge_store.db")
 
     app = create_app()
     container = AppContainer(working_dir=tmp_path, use_mock=True)

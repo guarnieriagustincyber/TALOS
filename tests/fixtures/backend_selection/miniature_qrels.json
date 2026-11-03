@@ -1,0 +1,107 @@
+{
+  "schema": "talos-backend-selection-qrels-fixture-v1",
+  "synthetic_only": true,
+  "benchmark_id": "backend-selection-format-fixture",
+  "grades": {
+    "0": "explicitly_non_relevant",
+    "1": "marginal_or_partial",
+    "2": "relevant",
+    "3": "highly_relevant"
+  },
+  "unjudged_semantics": "unknown_not_zero",
+  "judgment_states": [
+    "UNJUDGED",
+    "PARTIALLY_JUDGED",
+    "EXHAUSTIVELY_JUDGED",
+    "INCONSISTENT"
+  ],
+  "pool_rule": {
+    "top_n_backend_a": 2,
+    "top_n_backend_b": 2,
+    "top_m_lexical": 2,
+    "deduplication_key": ["notebook_id", "chunk_id"],
+    "serialization_order": ["notebook_id", "chunk_id"],
+    "preserve_candidate_sources": true
+  },
+  "qrels": {
+    "SYN-CONCEPT-001": {
+      "status": "EXHAUSTIVELY_JUDGED",
+      "pool_size": 2,
+      "judgments": [
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-001", "grade": 3, "facets": ["address_translation"]},
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-002", "grade": 2, "facets": ["secondary_storage"]}
+      ]
+    },
+    "SYN-SYMBOL-001": {
+      "status": "EXHAUSTIVELY_JUDGED",
+      "pool_size": 2,
+      "judgments": [
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-003", "grade": 3, "facets": ["mmap"]},
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-001", "grade": 0, "facets": []}
+      ]
+    },
+    "SYN-MULTIFACET-001": {
+      "status": "EXHAUSTIVELY_JUDGED",
+      "pool_size": 3,
+      "judgments": [
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-004", "grade": 2, "facets": ["priority_scheduling"]},
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-005", "grade": 3, "facets": ["starvation"]},
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-001", "grade": 0, "facets": []}
+      ]
+    },
+    "SYN-OOD-001": {
+      "status": "EXHAUSTIVELY_JUDGED",
+      "pool_size": 5,
+      "judgments": [
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-001", "grade": 0, "facets": []},
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-002", "grade": 0, "facets": []},
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-003", "grade": 0, "facets": []},
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-004", "grade": 0, "facets": []},
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-005", "grade": 0, "facets": []}
+      ],
+      "ood_policy": {
+        "positive_qrels_allowed": false,
+        "evaluate_abstention_separately": true
+      }
+    },
+    "SYN-UNKNOWN-001": {
+      "status": "UNJUDGED",
+      "pool_size": 0,
+      "judgments": [],
+      "excluded_from_ranking_metrics": true,
+      "reason": "No relevance judgments exist; absence of qrels is not grade zero."
+    },
+    "SYN-SCOPE-001": {
+      "status": "EXHAUSTIVELY_JUDGED",
+      "pool_size": 1,
+      "judgments": [
+        {"notebook_id": "synthetic-code", "chunk_id": "SYN-CHUNK-006", "grade": 3, "facets": ["kappa_q"]}
+      ]
+    },
+    "SYN-MULTISCOPE-001": {
+      "status": "EXHAUSTIVELY_JUDGED",
+      "pool_size": 2,
+      "judgments": [
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-007", "grade": 2, "facets": ["mechanism_os"]},
+        {"notebook_id": "synthetic-code", "chunk_id": "SYN-CHUNK-008", "grade": 3, "facets": ["mechanism_code"]}
+      ]
+    },
+    "SYN-PARTIAL-001": {
+      "status": "PARTIALLY_JUDGED",
+      "pool_size": 2,
+      "judgments": [
+        {"notebook_id": "synthetic-os", "chunk_id": "SYN-CHUNK-007", "grade": 2, "facets": ["partial"]}
+      ],
+      "excluded_from_ranking_metrics": true
+    },
+    "SYN-INCONSISTENT-001": {
+      "status": "INCONSISTENT",
+      "pool_size": 1,
+      "judgments": [
+        {"notebook_id": "synthetic-code", "chunk_id": "SYN-CHUNK-008", "grade": 3, "facets": []}
+      ],
+      "excluded_from_ranking_metrics": true,
+      "reason": "Judged chunk is outside the query scope."
+    }
+  }
+}

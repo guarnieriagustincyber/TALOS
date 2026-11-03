@@ -59,3 +59,43 @@ def test_exact_text_grader_preserves_operators() -> None:
 
     res_diff = grader.grade("3 2", "3 - 2", ExerciseType.EXACT_TEXT)
     assert res_diff.is_correct is False
+
+
+@pytest.mark.parametrize(
+    "expected,answer,correct",
+    [
+        ("la pila crece hacia abajo", "  LA PILA  crece hacia abajo  ", True),
+        ("array", "arreglo", True),
+        ("arreglo", "array", True),
+        ("la pila crece hacia abajo", "la pila no crece hacia abajo", False),
+        (
+            "la memoria virtual permite aislar procesos",
+            "la memoria virtual no permite aislar procesos",
+            False,
+        ),
+        ("el paso alfa precede al paso beta", "el paso beta precede al paso alfa", False),
+        (
+            "la operacion es valida si x es mayor que cero",
+            "la operacion es valida si x es menor que cero",
+            False,
+        ),
+        ("la memoria virtual permite aislar procesos", "los limones son amarillos", False),
+        (
+            "la pila crece hacia abajo",
+            "el crecimiento de la pila se dirige hacia direcciones menores",
+            False,
+        ),
+        ("punteros", "punteross", False),
+    ],
+)
+def test_exact_text_requires_normalized_equality_or_canonical_synonym(
+    expected: str, answer: str, correct: bool,
+) -> None:
+    result = ExactMatchGrader().grade(answer, expected, ExerciseType.EXACT_TEXT)
+
+    assert result.is_correct is correct
+    assert result.raw_answer == answer
+    assert result.normalized_answer == " ".join(answer.strip().lower().split())
+    assert result.expected_answer == expected
+    assert result.normalization_policy != "fuzzy_match"
+    assert result.comparison_result.startswith("DIFF(" if not correct else ("EQUIV(", "SYNONYM("))

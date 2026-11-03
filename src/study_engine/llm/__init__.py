@@ -9,6 +9,7 @@ from study_engine.llm.backends import (
 )
 from study_engine.llm.client import LLMClient
 from study_engine.llm.exceptions import (
+    ContextBudgetExceededError,
     LLMBackendError,
     LLMConnectionError,
     LLMError,
@@ -24,6 +25,7 @@ from study_engine.llm.router import (
 from study_engine.llm.sanitizer import DataSanitizer, SensitiveDataLeakError
 
 __all__ = [
+    "ContextBudgetExceededError",
     "HttpOpenAIBackend",
     "LLMBackendError",
     "LLMClient",
@@ -42,3 +44,4 @@ __all__ = [
     "SensitiveDataLeakError",
     "QuotaManager",
 ]
+

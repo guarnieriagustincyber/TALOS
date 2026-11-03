@@ -1,6 +1,7 @@
 """Folder retrieval scopes must follow explicit notebook-source associations."""
 
 from contextlib import contextmanager
+import json
 import sqlite3
 from typing import Iterator
 
@@ -57,8 +58,13 @@ class _Store:
         self.engine = _Engine()
 
 
-def test_folder_retrieval_stays_within_explicit_descendant_notebooks() -> None:
+def test_folder_retrieval_stays_within_explicit_descendant_notebooks(tmp_path) -> None:
     store = _Store()
+    store.l3_manifest_path = tmp_path / "l3.json"
+    store.l3_manifest_path.write_text(json.dumps({"grants": [
+        {"notebook_id": "fase0-soc", "source_id": "source-roadmap", "status": "AUTHORIZED"},
+        {"notebook_id": "fadena-lenguajes", "source_id": "source-lenguajes", "status": "AUTHORIZED"},
+    ]}))
 
     assert _notebook_ids_for_folder(store, "roadmap") == ["fase0-soc"]
     assert _notebook_ids_for_folder(store, "fadena") == ["fadena-lenguajes"]

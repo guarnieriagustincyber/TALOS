@@ -1,13 +1,13 @@
 """Student Cognitive State, Spaced Repetition, and Remediation Endpoints."""
 
 from datetime import datetime, timezone
-import os
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from study_engine.config import CANONICAL_STUDENT_ID
 from study_engine.student.contracts import classify_readiness
+from study_engine.web.admin_auth import require_admin_token
 from study_engine.web.dependencies import AppContainer, get_container
 
 router = APIRouter(prefix="/api/student", tags=["Student"])
@@ -172,12 +172,10 @@ def get_metacognitive_profile(
     container: AppContainer = Depends(get_container),
 ) -> Dict[str, Any]:
     """Consulta el perfil metacognitivo del estudiante y métricas de dependencia/autonomía (M4)."""
-    admin_token = os.getenv("TALOS_ADMIN_TOKEN", "talos-admin-secret-dev")
-    if not x_admin_token or x_admin_token != admin_token:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Forbidden: se requiere header X-Admin-Token válido para consultar el perfil metacognitivo.",
-        )
+    require_admin_token(
+        x_admin_token,
+        forbidden_detail="Forbidden: se requiere header X-Admin-Token válido para consultar el perfil metacognitivo.",
+    )
 
     storage = getattr(container, "student_storage", None)
     if storage is None:
@@ -192,4 +190,3 @@ def get_metacognitive_profile(
     res = dict(profile)
     res["scaffolding_directive_preview"] = preview
     return res
-

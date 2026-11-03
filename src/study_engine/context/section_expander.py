@@ -32,6 +32,7 @@ class SectionExpander:
         self,
         seed_results: List[SearchResult],
         source_meta_cache: Optional[Dict[str, Dict[str, str]]] = None,
+        allowed_source_ids: Optional[Set[str] | List[str]] = None,
     ) -> Tuple[List[ChunkWithProvenance], str]:
         """Expand seed results to contiguous sections and build formatted context.
 
@@ -40,6 +41,14 @@ class SectionExpander:
         """
         if not seed_results:
             return [], ""
+        if allowed_source_ids is not None and len(allowed_source_ids) == 0:
+            return [], ""
+
+        allowed_set: Optional[Set[str]] = set(allowed_source_ids) if allowed_source_ids is not None else None
+        if allowed_set is not None:
+            seed_results = [res for res in seed_results if getattr(res, "source_id", None) in allowed_set]
+            if not seed_results:
+                return [], ""
 
         meta_cache = source_meta_cache or {}
 
@@ -79,19 +88,34 @@ class SectionExpander:
                 src_meta = meta_cache.get(src_id, {})
                 src_title = src_meta.get("title") or src_id
 
-                cur.execute(
-                    """
-                    SELECT id, document_id, source_id, content, page_start, pos_index, section, token_count
-                    FROM chunks
-                    WHERE document_id = ? AND pos_index >= ? AND pos_index <= ?
-                    ORDER BY pos_index ASC
-                    """,
-                    (doc_id, min_p, max_p),
-                )
+                if allowed_set is not None:
+                    placeholders = ",".join("?" for _ in allowed_set)
+                    cur.execute(
+                        f"""
+                        SELECT id, document_id, source_id, content, page_start, pos_index, section, token_count
+                        FROM chunks
+                        WHERE document_id = ? AND pos_index >= ? AND pos_index <= ?
+                          AND source_id IN ({placeholders})
+                        ORDER BY pos_index ASC
+                        """,
+                        [doc_id, min_p, max_p] + list(allowed_set),
+                    )
+                else:
+                    cur.execute(
+                        """
+                        SELECT id, document_id, source_id, content, page_start, pos_index, section, token_count
+                        FROM chunks
+                        WHERE document_id = ? AND pos_index >= ? AND pos_index <= ?
+                        ORDER BY pos_index ASC
+                        """,
+                        (doc_id, min_p, max_p),
+                    )
                 rows = cur.fetchall()
 
                 for row in rows:
                     c_id, d_id, s_id, content, p_start, p_idx, sec, tok_cnt = row
+                    if allowed_set is not None and s_id not in allowed_set:
+                        continue
                     is_seed = (c_id in seed_chunk_ids) or (p_idx in r_info["seed_positions"])
                     score = seed_scores.get(c_id, 0.70 if is_seed else 0.50)
 

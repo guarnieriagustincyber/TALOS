@@ -481,3 +481,38 @@ def test_p8_time_09_concurrent_timeout_race_heterogeneous(phase8_env: Dict[str, 
         rep = ledger.verify_integrity()
         assert rep.status == LedgerIntegrityStatus.VALID
         ledger.close()
+
+
+def test_p8_time_10_stdin_eof_without_timeout(tmp_path) -> None:
+    """P8-TIME-10: Child receives EOF on stdin immediately when no payload provided.
+
+    This validates the process manager fix for the DEVNULL issue: when no
+    stdin_payload is provided, the child should receive EOF immediately and
+    exit normally without waiting for a timeout.
+    """
+    from study_engine.contracts.execution import TerminationReason
+    from study_engine.execution.process_manager import run_managed_process_group
+
+    # Script that reads stdin and exits immediately on EOF
+    script = tmp_path / "read_stdin.py"
+    script.write_text(
+        "import sys; data = sys.stdin.read(); print(f'read={len(data)}'); sys.exit(0)"
+    )
+
+    scratch = tmp_path / "scratch"
+    scratch.mkdir()
+
+    outcome = run_managed_process_group(
+        cmd=[sys.executable, str(script)],
+        cwd=str(scratch),
+        env={**os.environ, "PYTHONPATH": ""},
+        timeout_seconds=5,
+        max_output_bytes=1024,
+        stdin_payload=None,  # No payload -> should receive immediate EOF
+    )
+
+    assert outcome.exit_code == 0
+    assert outcome.termination_reason == TerminationReason.NORMAL_EXIT
+    assert not outcome.timed_out
+    # Child reads stdin, gets EOF immediately, prints "read=0" and exits
+    assert b"read=0" in outcome.streams.stdout.encode() if isinstance(outcome.streams.stdout, str) else b"read=0" in outcome.streams.stdout

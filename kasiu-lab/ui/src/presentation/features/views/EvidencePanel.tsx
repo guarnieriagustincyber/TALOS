@@ -24,8 +24,8 @@ import {
   ShieldAlert,
   Trash2,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { ClaimsVerificationResponse, Citation, EvidenceTab, NoteItem } from "./types";
+import { Citation, EvidenceTab, NoteItem, Message } from "./types";
+import { verifyMessageAudit } from "../../../services/auditProjection";
 import { chatService } from "../../../services/chatService";
 import { useSandboxFsm } from "../../hooks/useSandboxFsm";
 import { ContradictionView } from "./ContradictionView";
@@ -38,6 +38,12 @@ export interface EvidenceProps {
   tab: EvidenceTab;
   notes: NoteItem[];
   activeScope?: string;
+  sessionId?: string | null;
+  responseKey?: string;
+  scopeId?: string;
+  auditMessage?: Message;
+  auditMessages?: Message[];
+  responsePending?: boolean;
   docHash?: string;
   initialPage?: number;
   activeCitation?: Citation | null;
@@ -308,6 +314,12 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
   tab,
   notes,
   activeScope = "General",
+  sessionId,
+  responseKey,
+  scopeId,
+  auditMessage,
+  auditMessages = [],
+  responsePending = false,
   docHash,
   initialPage,
   activeCitation,
@@ -330,14 +342,28 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
     { id: "mermaid" as EvidenceTab, label: "Grafo", icon: Activity },
   ];
 
-  const { data: claimsData } = useQuery<ClaimsVerificationResponse>({
-    queryKey: ["sessionClaims", activeScope],
-    queryFn: async () => {
-      const res = await fetch("/api/evidence/claims/sess_default");
-      if (!res.ok) throw new Error("Error al consultar claims verificados");
-      return res.json();
-    },
-  });
+  const claimsSessionId = sessionId?.trim() || null;
+  const [auditSelection, setAuditSelection] = useState<{ sessionId: string | null; scopeId?: string; responseKey?: string; messageId: string } | null>(null);
+  const selectedAuditMessage = auditSelection?.sessionId === claimsSessionId && auditSelection?.scopeId === scopeId
+    && auditSelection?.responseKey === responseKey
+    ? auditMessages.find((message) => message.id === auditSelection.messageId) ?? auditMessage : auditMessage;
+  const [checkedAudit, setCheckedAudit] = useState<{ message: Message; sessionId: string; scopeId: string; valid: boolean } | null>(null);
+  useEffect(() => {
+    let active = true;
+    if (claimsSessionId && scopeId && selectedAuditMessage?.audit) {
+      const message = selectedAuditMessage;
+      verifyMessageAudit(message, claimsSessionId, scopeId).then(
+        (valid) => { if (active) setCheckedAudit({ message, sessionId: claimsSessionId, scopeId, valid }); },
+        () => { if (active) setCheckedAudit({ message, sessionId: claimsSessionId, scopeId, valid: false }); },
+      );
+    }
+    return () => { active = false; };
+  }, [selectedAuditMessage, claimsSessionId, scopeId]);
+  const auditChecked = checkedAudit?.message === selectedAuditMessage
+    && checkedAudit?.sessionId === claimsSessionId && checkedAudit?.scopeId === scopeId;
+  const auditStatus = !claimsSessionId ? "no-session" : responsePending ? "loading"
+    : selectedAuditMessage?.audit && scopeId ? !auditChecked ? "loading" : checkedAudit?.valid ? "available" : "error"
+    : selectedAuditMessage?.errorState ? "error" : "unavailable";
 
   // Integración Sandbox FSM
   const { fsmState, assessment, requestEvaluation, resetFsm } = useSandboxFsm();
@@ -2162,13 +2188,20 @@ export const EvidencePanel: React.FC<EvidenceProps> = ({
           {/* SECCIÓN 6: DISPUTAS / CONTRADICCIONES EPISTÉMICAS */}
           {/* ========================================================= */}
           {tab === "contradicciones" && (
+            <>
+            {auditMessages.length > 0 && <label className="block text-white/60">
+              Respuesta consultada
+              <select aria-label="Respuesta consultada" className="block w-full bg-black p-2" value={selectedAuditMessage?.id ?? ""}
+                onChange={(event) => setAuditSelection({ sessionId: claimsSessionId, scopeId, responseKey, messageId: event.target.value })}>
+                {!selectedAuditMessage && <option value="">Respuesta actual no disponible</option>}
+                {auditMessages.map((message, index) => <option key={message.id} value={message.id}>Respuesta {index + 1} · {message.timestamp}</option>)}
+              </select>
+            </label>}
             <ContradictionView
-              contradictions={claimsData?.contradictions}
-              sessionId={activeScope || "sess_default"}
-              onSelectDoc={() => {
-                onTab("pagina");
-              }}
+              status={auditStatus}
+              audit={auditStatus === "available" ? selectedAuditMessage?.audit : undefined}
             />
+            </>
           )}
         </div>
       </aside>

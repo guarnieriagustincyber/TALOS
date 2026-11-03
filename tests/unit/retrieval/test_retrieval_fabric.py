@@ -22,6 +22,11 @@ from study_engine.web.dependencies import AppContainer, set_container
 from study_engine.web.routes.retrieval import limiter
 
 
+@pytest.fixture(autouse=True)
+def synthetic_admin_token(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("TALOS_ADMIN_TOKEN", "synthetic-admin-token-for-focused-tests-012345")
+
+
 @pytest.fixture
 def populated_knowledge_store(tmp_path: Path) -> KnowledgeStore:
     """Populates a temporary KnowledgeStore for fabric testing."""
@@ -199,7 +204,9 @@ def test_fabric_inspect_endpoint_rate_limiting_and_auth_f4(tmp_path: Path):
 
     # 3. Con token válido: 10 llamadas exitosas (200 OK)
     limiter.reset()
-    admin_headers = {"X-Admin-Token": "talos-admin-secret-dev"}
+    admin_headers = {
+        "X-Admin-Token": "synthetic-admin-token-for-focused-tests-012345"
+    }
     for i in range(10):
         r_ok = client.post(url, json=payload, headers=admin_headers)
         assert r_ok.status_code == 200, f"Fallo en llamada {i+1}: {r_ok.text}"
@@ -212,3 +219,21 @@ def test_fabric_inspect_endpoint_rate_limiting_and_auth_f4(tmp_path: Path):
     r_limited = client.post(url, json=payload, headers=admin_headers)
     assert r_limited.status_code == 429
     assert "Too Many Requests" in r_limited.json()["detail"]
+
+
+def test_fabric_inspect_fails_closed_without_secure_admin_configuration(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    limiter.reset()
+    app = create_app()
+    container = AppContainer(working_dir=tmp_path, use_mock=True)
+    set_container(container)
+    monkeypatch.delenv("TALOS_ADMIN_TOKEN", raising=False)
+
+    response = TestClient(app).post(
+        "/api/retrieval/fabric/inspect",
+        json={"query": "isolated admin authorization check"},
+    )
+
+    assert response.status_code == 503

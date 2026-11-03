@@ -49,6 +49,7 @@ class Settings(BaseSettings):
 
     # Flags
     live_tests_enabled: bool = Field(default=False, validation_alias="KASIU_LIVE_TESTS")
+    enable_retrieval_warmup: bool = Field(default=True, validation_alias="TALOS_ENABLE_WARMUP")
 
     # Single-user identity (proyecto personal — un único estudiante canónico)
     student_id: str = Field(default="agustin", validation_alias="KASIU_STUDENT_ID")

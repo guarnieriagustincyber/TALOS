@@ -72,7 +72,11 @@ class LexicalGuard:
         numeric_matches = tuple(sorted(claim_nums.intersection(evidence_nums)))
 
         # 5. Determine diagnostic status (telemetry, not semantic truth)
-        if claim_type in (ClaimType.CONVERSATIONAL, ClaimType.QUESTION):
+        if claim_type in (
+            ClaimType.CONVERSATIONAL,
+            ClaimType.QUESTION,
+            ClaimType.STRUCTURAL,
+        ):
             status = LexicalAnomalyStatus.NO_ANOMALY
         elif missing:
             # Missing code identifiers, hex addresses, or syscalls

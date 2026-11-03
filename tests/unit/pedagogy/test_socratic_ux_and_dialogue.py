@@ -9,6 +9,7 @@ Verifies:
 
 import pytest
 from unittest.mock import MagicMock
+from types import SimpleNamespace
 
 from study_engine.pedagogy.graders import MultiChoiceGrader, ExactMatchGrader
 from study_engine.pedagogy.exercise_contracts import (
@@ -17,16 +18,25 @@ from study_engine.pedagogy.exercise_contracts import (
     ExerciseVerificationStatus,
 )
 from study_engine.pedagogy.exercise_store import ExerciseStore
+from study_engine.pedagogy.episode_contracts import Episode, EpisodePhase
 from study_engine.pedagogy.structured_pipeline import resolve_epistemic_role
 from study_engine.student.bkt_tracker import BKTTracker
+from study_engine.student.spaced_repetition import SpacedRepetitionScheduler
+from study_engine.student.storage import StudentStorage
 from study_engine.web.dependencies import AppContainer
-from study_engine.web.routes.dialogue import evaluate_socratic_response, SocraticEvaluationRequest
+from study_engine.web.routes.dialogue import (
+    accept_exercise,
+    evaluate_socratic_response,
+    SocraticEvaluationRequest,
+)
 
 
 @pytest.fixture
 def mock_container(tmp_path):
     container = MagicMock(spec=AppContainer)
-    container.bkt_tracker = BKTTracker()
+    container.student_storage = StudentStorage(tmp_path / "student-state.db")
+    container.bkt_tracker = BKTTracker(storage=container.student_storage)
+    container.spaced_scheduler = SpacedRepetitionScheduler(container.student_storage)
     container.exact_grader = ExactMatchGrader()
     container.mc_grader = MultiChoiceGrader()
 
@@ -72,9 +82,28 @@ def mock_container(tmp_path):
     ex_store.add_exercise(cand2, persist=False)
     container.exercise_store = ex_store
     container.pedagogical_orchestrator = MagicMock()
-    container.pedagogical_orchestrator.get_episode.return_value = None
+    container.pedagogical_orchestrator._kc_catalog = {
+        "fase0-soc": {"kcs": [
+            {"kc_id": "fase0-soc-kc-01"}, {"kc_id": "fase0-soc-kc-02"}
+        ]}
+    }
+    container.pedagogical_orchestrator.get_episode.return_value = Episode(
+        episode_id="ep_mock",
+        session_id="session-mock",
+        notebook_id="fase0-soc",
+        kc_id="fase0-soc-kc-01",
+        objective="Ejercicio sintético",
+        phase=EpisodePhase.EVALUATING,
+        current_step_id="step_eval_ex_test_so_01",
+    )
+    container.study_session_orchestrator = MagicMock()
+    container.study_session_orchestrator.get_snapshot.return_value = SimpleNamespace(
+        session_id="session-mock",
+        notebook_id="fase0-soc",
+    )
 
-    return container
+    yield container
+    container.student_storage.close()
 
 
 def test_evaluate_socratic_correct_increases_bkt(mock_container):
@@ -82,6 +111,8 @@ def test_evaluate_socratic_correct_increases_bkt(mock_container):
     req = SocraticEvaluationRequest(
         student_response="RBP",
         exercise_id="ex_test_so_01",
+        session_id="session-mock",
+        attempt_id="attempt-correct-1",
         kc_id="fase0-soc-kc-01",
     )
     init_state = mock_container.bkt_tracker.get_state("fase0-soc-kc-01")
@@ -94,7 +125,25 @@ def test_evaluate_socratic_correct_increases_bkt(mock_container):
     assert res["p_L"] > init_p_l
     assert res["attempts"] == 1
     assert "¡Correcto!" in res["feedback"]
+    assert "coincide con la opción esperada" in res["feedback"]
+    assert "verificado con éxito contra el corpus" not in res["feedback"]
     assert res["hint"] is None
+
+
+def test_accept_exercise_returns_server_identity_without_answer_key(mock_container):
+    candidate = mock_container.exercise_store.get_exercise_by_id("ex_test_so_01")
+    mock_container.pedagogical_orchestrator.get_next_intervention.return_value = {
+        "intervention_type": "EXERCISE",
+        "step_id": "step_eval_ex_test_so_01",
+        "exercise": candidate.to_dict(),
+    }
+
+    result = accept_exercise("ep_mock", mock_container)
+
+    assert result["exercise_id"] == "ex_test_so_01"
+    assert result["step_id"] == "step_eval_ex_test_so_01"
+    assert "expected_answer" not in result
+    assert "solution_explanation" not in result
 
 
 def test_evaluate_socratic_incorrect_provides_hint_without_revealing_answer(mock_container):
@@ -102,6 +151,8 @@ def test_evaluate_socratic_incorrect_provides_hint_without_revealing_answer(mock
     req = SocraticEvaluationRequest(
         student_response="RSP",  # Wrong answer (RSP instead of RBP)
         exercise_id="ex_test_so_01",
+        session_id="session-mock",
+        attempt_id="attempt-incorrect-1",
         kc_id="fase0-soc-kc-01",
     )
     res = evaluate_socratic_response("ep_mock", req, mock_container)
@@ -117,19 +168,166 @@ def test_evaluate_socratic_incorrect_provides_hint_without_revealing_answer(mock
     assert "No es del todo exacto" in res["feedback"]
 
 
-def test_evaluate_socratic_resolves_notebook_scope_prefix(mock_container):
-    """Passing a notebook scope ID resolves a certified exercise whose KC belongs to that notebook."""
+def test_evaluate_socratic_does_not_infer_exercise_from_notebook_scope(mock_container):
+    """A notebook name alone cannot identify the exercise presented in the episode."""
     req = SocraticEvaluationRequest(
         student_response="B",
-        kc_id="fase0-soc",  # Notebook scope ID instead of exact KC
+        kc_id="fase0-soc",
         is_mc=True,
     )
+    before = mock_container.bkt_tracker.get_state("fase0-soc-kc-01").attempts
+    res = evaluate_socratic_response("ep_mock", req, mock_container)
+
+    assert res["status"] == "UNGRADED"
+    assert mock_container.bkt_tracker.get_state("fase0-soc-kc-01").attempts == before
+
+
+def test_evaluate_socratic_mc_uses_certified_type_and_options(mock_container):
+    from dataclasses import replace
+
+    episode = mock_container.pedagogical_orchestrator.get_episode.return_value
+    mock_container.pedagogical_orchestrator.get_episode.return_value = replace(
+        episode, kc_id="fase0-soc-kc-02", current_step_id="step_eval_ex_test_mc_01"
+    )
+    req = SocraticEvaluationRequest(
+        student_response="B", exercise_id="ex_test_mc_01", kc_id="fase0-soc-kc-02",
+        session_id="session-mock", attempt_id="attempt-mc-1",
+        options_count=4,
+    )
+
     res = evaluate_socratic_response("ep_mock", req, mock_container)
 
     assert res["status"] == "EVALUATED"
     assert res["is_correct"] is True
-    assert res["exercise_id"] in ("ex_test_so_01", "ex_test_mc_01")
-    assert res["attempts"] >= 1
+    assert mock_container.bkt_tracker.get_state("fase0-soc-kc-02").attempts == 1
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"kc_id": "fase0-soc-kc-02"},
+        {"exercise_id": "missing-exercise"},
+        {"exercise_id": "ex_test_mc_01"},
+        {"is_mc": True},
+        {"options_count": 4},
+    ],
+)
+def test_evaluate_socratic_rejects_client_identity_or_type_changes_without_mutation(
+    mock_container, changes
+):
+    payload = {
+        "student_response": "RBP", "exercise_id": "ex_test_so_01",
+        "kc_id": "fase0-soc-kc-01", "session_id": "session-mock",
+        "attempt_id": "attempt-tamper-1",
+    }
+    payload.update(changes)
+    result = evaluate_socratic_response(
+        "ep_mock", SocraticEvaluationRequest(**payload), mock_container
+    )
+    assert result["status"] == "UNGRADED"
+    assert mock_container.bkt_tracker.get_state("fase0-soc-kc-01").attempts == 0
+
+
+def test_evaluate_socratic_rejects_incompatible_or_unpresented_episode(mock_container):
+    from dataclasses import replace
+
+    episode = mock_container.pedagogical_orchestrator.get_episode.return_value
+    for changed in (
+        replace(episode, phase=EpisodePhase.DIALOGUE),
+        replace(episode, current_step_id="step_eval_other"),
+        replace(episode, kc_id="fase0-soc-kc-02"),
+        None,
+    ):
+        mock_container.pedagogical_orchestrator.get_episode.return_value = changed
+        result = evaluate_socratic_response(
+            "ep_mock",
+            SocraticEvaluationRequest(
+                student_response="RBP", exercise_id="ex_test_so_01",
+                session_id="session-mock", attempt_id="attempt-incompatible-1",
+            ),
+            mock_container,
+        )
+        assert result["status"] == "UNGRADED"
+    assert mock_container.bkt_tracker.get_state("fase0-soc-kc-01").attempts == 0
+
+
+def test_evaluate_socratic_rejects_wrong_notebook_scope(mock_container):
+    from dataclasses import replace
+
+    episode = mock_container.pedagogical_orchestrator.get_episode.return_value
+    mock_container.pedagogical_orchestrator.get_episode.return_value = replace(
+        episode, notebook_id="other-notebook"
+    )
+    result = evaluate_socratic_response(
+        "ep_mock",
+        SocraticEvaluationRequest(
+            student_response="RBP", exercise_id="ex_test_so_01",
+            session_id="session-mock", attempt_id="attempt-wrong-notebook-1",
+        ),
+        mock_container,
+    )
+    assert result["status"] == "UNGRADED"
+    assert mock_container.bkt_tracker.get_state("fase0-soc-kc-01").attempts == 0
+
+
+def test_evaluate_socratic_rejects_tampered_mc_options(mock_container):
+    from dataclasses import replace
+
+    episode = mock_container.pedagogical_orchestrator.get_episode.return_value
+    mock_container.pedagogical_orchestrator.get_episode.return_value = replace(
+        episode, kc_id="fase0-soc-kc-02", current_step_id="step_eval_ex_test_mc_01"
+    )
+    result = evaluate_socratic_response(
+        "ep_mock",
+        SocraticEvaluationRequest(
+            student_response="B", exercise_id="ex_test_mc_01",
+            session_id="session-mock", attempt_id="attempt-mc-tampered-1",
+            kc_id="fase0-soc-kc-02", is_mc=True, options_count=2,
+        ),
+        mock_container,
+    )
+    assert result["status"] == "UNGRADED"
+    assert mock_container.bkt_tracker.get_state("fase0-soc-kc-02").attempts == 0
+
+
+def test_evaluate_socratic_rejects_mc_labeled_as_open(mock_container):
+    from dataclasses import replace
+
+    episode = mock_container.pedagogical_orchestrator.get_episode.return_value
+    mock_container.pedagogical_orchestrator.get_episode.return_value = replace(
+        episode, kc_id="fase0-soc-kc-02", current_step_id="step_eval_ex_test_mc_01"
+    )
+    result = evaluate_socratic_response(
+        "ep_mock",
+        SocraticEvaluationRequest(
+            student_response="B", exercise_id="ex_test_mc_01",
+            session_id="session-mock", attempt_id="attempt-mc-type-1",
+            kc_id="fase0-soc-kc-02", is_mc=False,
+        ),
+        mock_container,
+    )
+    assert result["status"] == "UNGRADED"
+    assert mock_container.bkt_tracker.get_state("fase0-soc-kc-02").attempts == 0
+
+
+def test_evaluate_socratic_rejects_nonpresentable_exercise(mock_container):
+    from dataclasses import replace
+
+    exercise = mock_container.exercise_store.get_exercise_by_id("ex_test_so_01")
+    mock_container.exercise_store.add_exercise(
+        replace(exercise, verification_status=ExerciseVerificationStatus.UNVERIFIED),
+        persist=False,
+    )
+    result = evaluate_socratic_response(
+        "ep_mock",
+        SocraticEvaluationRequest(
+            student_response="RBP", exercise_id="ex_test_so_01",
+            session_id="session-mock", attempt_id="attempt-unverified-1",
+        ),
+        mock_container,
+    )
+    assert result["status"] == "UNGRADED"
+    assert mock_container.bkt_tracker.get_state("fase0-soc-kc-01").attempts == 0
 
 
 def test_resolve_epistemic_role():

@@ -120,7 +120,7 @@ def retrieval_env(tmp_path_factory: pytest.TempPathFactory) -> Tuple[RetrievalSe
 
     # Index into vector store
     embedder = DeterministicHashEmbedder(dimensions=128)
-    vstore = SQLiteVectorStore(db_path=vec_path)
+    vstore = SQLiteVectorStore(db_path=vec_path, read_only=False)
     records: List[VectorRecord] = []
     for doc in store.documents.list_all():
         for c in store.chunks.list_by_document(doc.id):

@@ -329,7 +329,7 @@ def test_evaluate_exercise_returns_spiral_opportunities(
     set_container(container)
     client = TestClient(app)
 
-    r = client.post("/api/chat/evaluate", json={"exercise_id": "ex_spiral_1", "user_answer": "42"})
+    r = client.post("/api/chat/evaluate", json={"exercise_id": "ex_spiral_1", "user_answer": "42", "session_id": "session-spiral", "attempt_id": "spiral-attempt-1"})
     assert r.status_code == 200
     data = r.json()
     assert data["is_correct"] is True

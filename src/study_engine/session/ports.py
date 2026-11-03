@@ -22,6 +22,7 @@ from study_engine.contracts.retrieval import ScoredCandidate
 from study_engine.curriculum.rubric_contracts import AssessmentRubric
 from study_engine.curriculum.task_contracts import PracticalTaskSpecification
 from study_engine.session.contracts import TurnReceipt
+from study_engine.session.session_store import SessionStore
 from study_engine.state.state_contracts import StudentState
 
 
@@ -105,8 +106,20 @@ class RubricSpecificationProvider(Protocol):
 class TurnReceiptStore(Protocol):
     """Durable operational idempotency receipt store."""
 
-    def get_receipt(self, input_id: str) -> Optional[TurnReceipt]:
+    def get_receipt(
+        self, input_id: str, *, session_id: Optional[str] = None
+    ) -> Optional[TurnReceipt]:
         """Retrieve stored turn receipt by input_id."""
+        ...
+
+    def begin_operation(
+        self, session_id: str, input_id: str, request_digest: str
+    ) -> tuple[str, Optional[TurnReceipt]]:
+        """Atomically reserve or classify an operation identity."""
+        ...
+
+    def latest_turn_index(self, session_id: str) -> int:
+        """Return the latest durably completed turn index for a session."""
         ...
 
     def store_receipt(self, receipt: TurnReceipt) -> None:
@@ -122,22 +135,102 @@ class InMemoryTurnReceiptStore:
     """Standard in-memory store for unit tests and ephemeral sessions."""
 
     def __init__(self) -> None:
-        self._receipts_by_input: Dict[str, TurnReceipt] = {}
-        self._receipts_by_assessment: Dict[str, TurnReceipt] = {}
+        import threading
 
-    def get_receipt(self, input_id: str) -> Optional[TurnReceipt]:
+        self._lock = threading.RLock()
+        self._receipts_by_input: Dict[tuple[str, str], TurnReceipt] = {}
+        self._receipts_by_assessment: Dict[str, TurnReceipt] = {}
+        self._in_progress: Dict[tuple[str, str], str] = {}
+
+    def get_receipt(
+        self, input_id: str, *, session_id: Optional[str] = None
+    ) -> Optional[TurnReceipt]:
         """Retrieve stored turn receipt by input_id."""
-        return self._receipts_by_input.get(input_id)
+        with self._lock:
+            if session_id is not None:
+                return self._receipts_by_input.get((session_id, input_id))
+            return next(
+                (receipt for (_, candidate), receipt in self._receipts_by_input.items()
+                 if candidate == input_id),
+                None,
+            )
+
+    def begin_operation(
+        self, session_id: str, input_id: str, request_digest: str
+    ) -> tuple[str, Optional[TurnReceipt]]:
+        key = (session_id, input_id)
+        with self._lock:
+            receipt = self._receipts_by_input.get(key)
+            if receipt is not None:
+                if receipt.request_digest != request_digest:
+                    return "CONFLICT", None
+                return "REPLAY", receipt
+            pending_digest = self._in_progress.get(key)
+            if pending_digest is not None:
+                if pending_digest != request_digest:
+                    return "CONFLICT", None
+                return "IN_PROGRESS", None
+            self._in_progress[key] = request_digest
+            return "STARTED", None
 
     def store_receipt(self, receipt: TurnReceipt) -> None:
         """Persist turn receipt in-memory."""
-        self._receipts_by_input[receipt.input_id] = receipt
-        if receipt.assessment_digest:
-            self._receipts_by_assessment[receipt.assessment_digest] = receipt
+        key = (receipt.session_id, receipt.input_id)
+        with self._lock:
+            pending_digest = self._in_progress.get(key)
+            if pending_digest is not None and pending_digest != receipt.request_digest:
+                raise ValueError("Turn receipt request digest differs from its reservation.")
+            self._receipts_by_input[key] = receipt
+            self._in_progress.pop(key, None)
+            if receipt.assessment_digest:
+                self._receipts_by_assessment[receipt.assessment_digest] = receipt
 
     def find_by_assessment_digest(self, digest: str) -> Optional[TurnReceipt]:
         """Find turn receipt by canonical assessment digest."""
         return self._receipts_by_assessment.get(digest)
+
+    def latest_turn_index(self, session_id: str) -> int:
+        with self._lock:
+            return max(
+                (receipt.turn_index for (sid, _), receipt in self._receipts_by_input.items() if sid == session_id),
+                default=-1,
+            )
+
+
+class SQLiteTurnReceiptStore:
+    """Durable TurnReceipt adapter backed by the T13a SessionStore database."""
+
+    def __init__(self, session_store: SessionStore) -> None:
+        self.session_store = session_store
+
+    def get_receipt(
+        self, input_id: str, *, session_id: Optional[str] = None
+    ) -> Optional[TurnReceipt]:
+        if session_id is None:
+            return None
+        payload = self.session_store.get_turn_receipt(session_id, input_id)
+        return TurnReceipt.model_validate(payload) if payload is not None else None
+
+    def begin_operation(
+        self, session_id: str, input_id: str, request_digest: str
+    ) -> tuple[str, Optional[TurnReceipt]]:
+        state, payload = self.session_store.begin_turn_operation(
+            session_id,
+            input_id,
+            request_digest,
+        )
+        receipt = TurnReceipt.model_validate(payload) if payload is not None else None
+        return state, receipt
+
+    def store_receipt(self, receipt: TurnReceipt) -> None:
+        self.session_store.complete_turn_operation(receipt.model_dump(mode="json"))
+
+    def find_by_assessment_digest(self, digest: str) -> Optional[TurnReceipt]:
+        payload = self.session_store.find_turn_receipt_by_assessment_digest(digest)
+        return TurnReceipt.model_validate(payload) if payload is not None else None
+
+    def latest_turn_index(self, session_id: str) -> int:
+        return self.session_store.latest_turn_index(session_id)
 
 
 @runtime_checkable
@@ -195,4 +288,3 @@ class StateReadPort(Protocol):
     def get_node_state(self, node_id: str) -> Optional[Any]:
         """Read node state for a specific curricular node."""
         ...
-

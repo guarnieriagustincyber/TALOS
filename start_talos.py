@@ -100,7 +100,8 @@ def spawn_backend() -> subprocess.Popen:
         "uvicorn",
         "src.study_engine.web.app:app",
         "--host",
-        "0.0.0.0",
+        "127.0.0.1",
+        "--no-proxy-headers",
         "--port",
         str(BACKEND_PORT),
         "--workers",
@@ -140,7 +141,7 @@ def spawn_frontend() -> subprocess.Popen:
             stderr=subprocess.DEVNULL,
         )
 
-    frontend_cmd = ["npx", "vite", "--port", str(FRONTEND_PORT), "--host", "0.0.0.0"]
+    frontend_cmd = ["npx", "vite", "--port", str(FRONTEND_PORT), "--host", "127.0.0.1", "--strictPort"]
     frontend_log = open(ROOT_DIR / "frontend.log", "w", encoding="utf-8")
 
     return subprocess.Popen(

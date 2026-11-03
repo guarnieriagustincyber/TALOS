@@ -55,7 +55,7 @@ def benchmark_env(tmp_path_factory: pytest.TempPathFactory) -> Dict[str, Any]:
     )
 
     provider = LocalONNXEmbeddingProvider()
-    vstore = SQLiteVectorStore(db_path=vec_path)
+    vstore = SQLiteVectorStore(db_path=vec_path, read_only=False)
     all_chunks = []
     for doc in store.list_documents():
         all_chunks.extend(store.list_chunks_by_document(doc.id))

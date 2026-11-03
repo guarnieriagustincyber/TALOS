@@ -24,6 +24,7 @@ import { MessageBody, MemoizedMessageBody } from "../MessageBody";
 import { ClaimStatusBadge } from "../../views/ClaimStatusBadge";
 import { OpeningBriefView, StudySessionSnapshotData } from "../OpeningBriefView";
 import { DialogueView } from "../DialogueView";
+import { ExerciseProposalCard } from "../ExerciseProposalCard";
 import { SYSTEM_NAME } from "./shared";
 
 export const AbstentionBanner: React.FC<{ reason?: string | null }> = ({ reason }) => (
@@ -39,6 +40,17 @@ export const AbstentionBanner: React.FC<{ reason?: string | null }> = ({ reason 
         {reason || "La evidencia recuperada no alcanza el umbral de suficiencia epistémica para una respuesta concluyente."}
       </p>
     </div>
+  </div>
+);
+
+const ClarificationBanner: React.FC = () => (
+  <div className="mt-4 p-3.5 rounded-xl bg-sky-950/20 border border-sky-400/20 text-sky-100/90 font-mono text-xs">
+    <span className="font-semibold uppercase tracking-wider text-[10px] text-sky-300 block">
+      Aclaración necesaria
+    </span>
+    <p className="mt-1 text-white/75 text-xs leading-relaxed">
+      El tutor necesita un dato adicional antes de responder; precisá tu consulta para continuar.
+    </p>
   </div>
 );
 
@@ -117,6 +129,11 @@ export interface ChatMessagesProps {
   onLoadMore?: () => void;
   onPromptChange?: never;
   onSend: (text: string) => void;
+  onSubmitExercise?: (messageId: string, answer: string) => void;
+  onRetryExercise?: (messageId: string) => void;
+  onNewExerciseAttempt?: (messageId: string) => void;
+  sessionRestoreStatus?: "loading" | "restored" | "new" | "previous-missing" | "error" | "not-applicable";
+  sessionRestoreMessage?: string;
 }
 
 interface SocraticChallengeData {
@@ -286,6 +303,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   isLoadingMore,
   onLoadMore,
   onSend,
+  onSubmitExercise,
+  onRetryExercise,
+  onNewExerciseAttempt,
+  sessionRestoreStatus,
+  sessionRestoreMessage,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollBottomAnchorRef = useRef<HTMLDivElement>(null);
@@ -524,6 +546,21 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto k-scroll px-4 sm:px-8 md:px-14 lg:px-20 py-4 md:py-8 space-y-6">
         <div className="w-full max-w-[980px] mx-auto space-y-6">
+          {sessionRestoreStatus && sessionRestoreStatus !== "not-applicable" && (
+            <p
+              role={sessionRestoreStatus === "error" ? "alert" : "status"}
+              className={`rounded-lg border px-3 py-2 text-xs ${sessionRestoreStatus === "error" || sessionRestoreStatus === "previous-missing" ? "border-amber-500/30 bg-amber-500/10 text-amber-200" : "border-white/10 bg-white/[0.03] text-white/60"}`}
+            >
+              {sessionRestoreMessage || {
+                loading: "Recuperando sesión de estudio…",
+                restored: "Sesión anterior restaurada.",
+                new: "Nueva sesión de estudio creada.",
+                "previous-missing": "La sesión anterior ya no existe; se abrió una nueva y se conservó el historial local del cuaderno.",
+                error: "No se pudo recuperar la sesión; no se creó otra automáticamente.",
+                "not-applicable": "",
+              }[sessionRestoreStatus]}
+            </p>
+          )}
           {/* BOTÓN DE LAZY LOAD AL TOPE DE LA CONVERSACIÓN */}
           {hasMore && (
             <div className="flex justify-center pb-2">
@@ -845,6 +882,19 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                             onOpenEvidence={onOpenEvidence}
                             onOpenCitation={onOpenCitation}
                           />
+                          {msg.exerciseProposal && (
+                            <ExerciseProposalCard
+                              key={`${msg.exerciseProposal.exercise_id}:${msg.exerciseAttempt?.attemptId || "new"}`}
+                              proposal={msg.exerciseProposal}
+                              context={msg.exerciseEvaluationContext}
+                              attempt={msg.exerciseAttempt}
+                              attemptHistory={msg.exerciseAttemptHistory}
+                              evaluationError={msg.exerciseEvaluationError}
+                              onSubmit={(answer) => onSubmitExercise?.(msg.id, answer)}
+                              onRetry={() => onRetryExercise?.(msg.id)}
+                              onNewAttempt={() => onNewExerciseAttempt?.(msg.id)}
+                            />
+                          )}
 
                           {msg.bktContext && (
                             <div
@@ -862,7 +912,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                               {msg.bktContext.fallback && <span className="text-zinc-400">↩ fallback</span>}
                             </div>
                           )}
-                          {msg.abstained && <AbstentionBanner reason={msg.abstentionReason} />}
+                          {msg.clarificationRequested ? (
+                            <ClarificationBanner />
+                          ) : msg.abstained ? (
+                            <AbstentionBanner reason={msg.abstentionReason} />
+                          ) : null}
                           {msg.facetCoverage && <FacetCoverageBar coverage={msg.facetCoverage} />}
                           {msg.claims && msg.claims.length > 0 && (
                             <div className="mt-3.5 p-3 rounded-[14px] bg-black/40 border border-white/[0.08] space-y-2 font-mono">

@@ -1,0 +1,8 @@
+{
+  "policy_version": "1.1",
+  "policy_name": "E1_CATEGORY_REGRESSION_GUARD",
+  "delta_threshold": -0.02,
+  "disabled_categories": [
+    "cross_curricular"
+  ]
+}

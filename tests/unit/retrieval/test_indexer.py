@@ -15,6 +15,7 @@ from study_engine.retrieval.embedding import (
 )
 from study_engine.retrieval.indexer import index_notebook_chunks
 from study_engine.retrieval.vector_store import SQLiteVectorStore
+from study_engine.retrieval.vector_identity import vector_space_id
 from study_engine.storage.knowledge_store import KnowledgeStore
 
 
@@ -38,7 +39,7 @@ def populated_store(tmp_path: Path) -> KnowledgeStore:
 
 
 def test_index_notebook_chunks_success(populated_store: KnowledgeStore, tmp_path: Path):
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
     prov = MockEmbeddingProvider(dimensions=384)
 
     indexed = index_notebook_chunks(populated_store, vec_store, prov, "nb-so")
@@ -51,10 +52,11 @@ def test_index_notebook_chunks_success(populated_store: KnowledgeStore, tmp_path
     assert recs[0].dimensions == 384
     assert recs[0].provider_id == "mock"
     assert recs[0].model_id == "mock-sha256-v1"
+    assert recs[0].space_id == vector_space_id(prov)
 
 
 def test_index_notebook_chunks_non_existent_notebook(populated_store: KnowledgeStore, tmp_path: Path):
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
     prov = MockEmbeddingProvider(dimensions=384)
 
     with pytest.raises(NotebookNotFoundError):
@@ -63,7 +65,7 @@ def test_index_notebook_chunks_non_existent_notebook(populated_store: KnowledgeS
 
 def test_index_notebook_chunks_empty_notebook(populated_store: KnowledgeStore, tmp_path: Path):
     populated_store.create_notebook(Notebook(id="nb-empty", name="Empty"))
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
     prov = MockEmbeddingProvider(dimensions=384)
 
     indexed = index_notebook_chunks(populated_store, vec_store, prov, "nb-empty")
@@ -71,24 +73,18 @@ def test_index_notebook_chunks_empty_notebook(populated_store: KnowledgeStore, t
 
 
 def test_index_notebook_chunks_dimension_mismatch(populated_store: KnowledgeStore, tmp_path: Path):
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
 
-    class BadDimProvider(MockEmbeddingProvider):
-        def embed_passages(self, texts):
-            return [[0.1] * 128 for _ in texts]  # Returns 128 instead of declared 384
-
-    bad_prov = BadDimProvider(dimensions=384)
+    bad_prov = MockEmbeddingProvider(dimensions=384)
+    bad_prov.embed_passages = lambda texts: [[0.1] * 128 for _ in texts]
     with pytest.raises(EmbeddingDimensionMismatchError):
         index_notebook_chunks(populated_store, vec_store, bad_prov, "nb-so")
 
 def test_index_notebook_chunks_vector_count_mismatch(populated_store: KnowledgeStore, tmp_path: Path):
-    vec_store = SQLiteVectorStore(tmp_path / "vecs.db")
+    vec_store = SQLiteVectorStore(tmp_path / "vecs.db", read_only=False)
 
-    class BadCountProvider(MockEmbeddingProvider):
-        def embed_passages(self, texts):
-            return [[0.1] * 384]  # Returns 1 vector instead of 2
-
-    bad_prov = BadCountProvider(dimensions=384)
+    bad_prov = MockEmbeddingProvider(dimensions=384)
+    bad_prov.embed_passages = lambda texts: [[0.1] * 384]
     with pytest.raises(ValueError) as exc:
         index_notebook_chunks(populated_store, vec_store, bad_prov, "nb-so")
     assert "Provider returned 1 vectors for 2 chunks" in str(exc.value)

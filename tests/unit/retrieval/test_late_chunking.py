@@ -9,10 +9,14 @@ Covers:
 - Conversion helper to canonical TALOS Chunk contracts.
 """
 
+import sys
+from types import ModuleType
+
 import numpy as np
 import pytest
 
 from study_engine.config import get_settings
+from study_engine.retrieval import late_chunking
 from study_engine.retrieval.late_chunking import LateChunker, to_talos_chunks
 from study_engine.storage.knowledge_store import KnowledgeStore
 
@@ -158,6 +162,113 @@ def test_late_chunking_empty_and_whitespace_document() -> None:
     chunker = LateChunker()
     assert chunker.late_chunk("") == []
     assert chunker.late_chunk("   \n\t  ") == []
+
+
+def test_default_remote_model_uses_immutable_revision(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = []
+
+    class FakeAutoTokenizer:
+        @classmethod
+        def from_pretrained(cls, model_name, **kwargs):
+            calls.append(("tokenizer", model_name, kwargs))
+            return object()
+
+    class FakeAutoModel:
+        @classmethod
+        def from_pretrained(cls, model_name, **kwargs):
+            calls.append(("model", model_name, kwargs))
+            return object()
+
+    transformers_module = ModuleType("transformers")
+    transformers_module.AutoTokenizer = FakeAutoTokenizer
+    transformers_module.AutoModel = FakeAutoModel
+    monkeypatch.setitem(sys.modules, "transformers", transformers_module)
+    monkeypatch.setitem(sys.modules, "torch", ModuleType("torch"))
+
+    chunker = LateChunker()
+
+    assert get_settings().late_chunking_model == late_chunking.DEFAULT_LATE_CHUNKING_MODEL
+    assert get_settings().enable_late_chunking is False
+    assert chunker.model_revision == late_chunking.DEFAULT_LATE_CHUNKING_REVISION
+    assert calls == [
+        (
+            "tokenizer",
+            late_chunking.DEFAULT_LATE_CHUNKING_MODEL,
+            {"revision": late_chunking.DEFAULT_LATE_CHUNKING_REVISION},
+        ),
+        (
+            "model",
+            late_chunking.DEFAULT_LATE_CHUNKING_MODEL,
+            {
+                "trust_remote_code": True,
+                "revision": late_chunking.DEFAULT_LATE_CHUNKING_REVISION,
+            },
+        ),
+    ]
+
+
+def test_custom_model_never_enables_remote_code(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = []
+
+    class FakeAutoTokenizer:
+        @classmethod
+        def from_pretrained(cls, model_name, **kwargs):
+            calls.append(("tokenizer", kwargs))
+            return object()
+
+    class FakeAutoModel:
+        @classmethod
+        def from_pretrained(cls, model_name, **kwargs):
+            calls.append(("model", kwargs))
+            return object()
+
+    transformers_module = ModuleType("transformers")
+    transformers_module.AutoTokenizer = FakeAutoTokenizer
+    transformers_module.AutoModel = FakeAutoModel
+    monkeypatch.setitem(sys.modules, "transformers", transformers_module)
+    monkeypatch.setitem(sys.modules, "torch", ModuleType("torch"))
+
+    chunker = LateChunker(model_name="synthetic/custom-model")
+
+    assert chunker.model_revision is None
+    assert calls == [
+        ("tokenizer", {}),
+        ("model", {"trust_remote_code": False}),
+    ]
+
+
+def test_unavailable_remote_revision_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class UnavailableAutoTokenizer:
+        @classmethod
+        def from_pretrained(cls, model_name, **kwargs):
+            assert kwargs["revision"] == late_chunking.DEFAULT_LATE_CHUNKING_REVISION
+            raise OSError("synthetic revision unavailable")
+
+    transformers_module = ModuleType("transformers")
+    transformers_module.AutoTokenizer = UnavailableAutoTokenizer
+    transformers_module.AutoModel = object
+    monkeypatch.setitem(sys.modules, "transformers", transformers_module)
+    monkeypatch.setitem(sys.modules, "torch", ModuleType("torch"))
+    monkeypatch.setitem(sys.modules, "onnxruntime", None)
+    monkeypatch.setitem(sys.modules, "tokenizers", None)
+
+    original_exists = late_chunking.Path.exists
+
+    def no_local_model(path):
+        if path.name in {"model.onnx", "tokenizer.json"}:
+            return False
+        return original_exists(path)
+
+    monkeypatch.setattr(late_chunking.Path, "exists", no_local_model)
+
+    with pytest.raises(RuntimeError, match="late chunking is unavailable"):
+        LateChunker()
 
 
 def test_to_talos_chunks_conversion() -> None:

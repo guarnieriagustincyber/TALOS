@@ -51,7 +51,14 @@ import ThreatIntelView from "../views/ThreatIntelView";
 import TelemetryView from "../views/TelemetryView";
 import GatesView from "../views/GatesView";
 import ConfigView from "../views/ConfigView";
-import { chatService, QueryAbortedError } from "../../../services/chatService";
+import {
+  chatService,
+  createExerciseAttemptId,
+  ExerciseEvaluationError,
+  QueryAbortedError,
+  AuditedResponseError,
+} from "../../../services/chatService";
+import type { ExerciseAttemptState, ExerciseEvaluationContext } from "../views/types";
 import type { StudySessionSnapshotData } from "./OpeningBriefView";
 import { studySessionService } from "../../../services/studySessionService";
 import { CognitiveProfileDrawer } from "./components/CognitiveProfileDrawer";
@@ -144,6 +151,11 @@ interface ChatProps {
   isStreaming: boolean;
   streamedText: string;
   onSend: (text: string) => void;
+  onSubmitExercise?: (messageId: string, answer: string) => void;
+  onRetryExercise?: (messageId: string) => void;
+  onNewExerciseAttempt?: (messageId: string) => void;
+  sessionRestoreStatus?: "loading" | "restored" | "new" | "previous-missing" | "error" | "not-applicable";
+  sessionRestoreMessage?: string;
   onStop?: () => void;
   onEditMessage?: (messageId: string, newContent: string) => void;
   onDeleteMessage?: (messageId: string) => void;
@@ -167,6 +179,11 @@ const ChatView: React.FC<ChatProps> = ({
   isStreaming,
   streamedText,
   onSend,
+  onSubmitExercise,
+  onRetryExercise,
+  onNewExerciseAttempt,
+  sessionRestoreStatus,
+  sessionRestoreMessage,
   onStop,
   onEditMessage,
   onDeleteMessage,
@@ -201,6 +218,11 @@ const ChatView: React.FC<ChatProps> = ({
       isLoadingMore={isLoadingMore}
       onLoadMore={onLoadMore}
       onSend={onSend}
+      onSubmitExercise={onSubmitExercise}
+      onRetryExercise={onRetryExercise}
+      onNewExerciseAttempt={onNewExerciseAttempt}
+      sessionRestoreStatus={sessionRestoreStatus}
+      sessionRestoreMessage={sessionRestoreMessage}
     />
   ), [
     messages,
@@ -221,6 +243,11 @@ const ChatView: React.FC<ChatProps> = ({
     isLoadingMore,
     onLoadMore,
     onSend,
+    onSubmitExercise,
+    onRetryExercise,
+    onNewExerciseAttempt,
+    sessionRestoreStatus,
+    sessionRestoreMessage,
   ]);
 
   return (
@@ -461,15 +488,28 @@ export const ChatWorkspace: React.FC = () => {
     };
   }, []);
 
-  const [activeEntity, setActiveEntity] = useState<ActiveEntity>({
-    id: "fase0-soc",
-    name: "Programación y Pensamiento Algorítmico",
-    type: "notebook",
+  const [activeEntity, setActiveEntity] = useState<ActiveEntity>(() => {
+    const syntheticNotebookId = typeof window !== "undefined"
+      ? window.__TALOS_DEFAULT_NOTEBOOK_ID__
+      : undefined;
+    if (syntheticNotebookId) {
+      return {
+        id: syntheticNotebookId,
+        name: window.__TALOS_DEFAULT_NOTEBOOK_NAME__ || "Synthetic Functional Test Notebook",
+        type: "notebook",
+      };
+    }
+    return {
+      id: "fase0-soc",
+      name: "Programación y Pensamiento Algorítmico",
+      type: "notebook",
+    };
   });
 
   const [studySessionSnapshot, setStudySessionSnapshot] = useState<StudySessionSnapshotData | null>(null);
+  const [sessionRestoreStatus, setSessionRestoreStatus] = useState<"loading" | "restored" | "new" | "previous-missing" | "error" | "not-applicable">("loading");
+  const [sessionRestoreMessage, setSessionRestoreMessage] = useState<string | undefined>();
   const [isStudyActionLoading, setIsStudyActionLoading] = useState(false);
-  const lastOpenedNotebookRef = React.useRef<string | null>(null);
   const chatSessionIdRef = React.useRef<string>(
     (() => {
       try {
@@ -484,24 +524,41 @@ export const ChatWorkspace: React.FC = () => {
     })()
   );
 
+  const effectiveChatSessionId = activeEntity.type === "notebook"
+    ? studySessionSnapshot?.notebook_id === activeEntity.id ? studySessionSnapshot.session_id : null
+    : chatSessionIdRef.current;
+  const chatContextRef = useRef({ sessionId: effectiveChatSessionId, scopeId: activeEntity.id });
+  if (chatContextRef.current.sessionId !== effectiveChatSessionId || chatContextRef.current.scopeId !== activeEntity.id) {
+    chatContextRef.current = { sessionId: effectiveChatSessionId, scopeId: activeEntity.id };
+  }
+
   // Carga o sincroniza la sesión de estudio al seleccionar un cuaderno (Directiva Final v2)
   useEffect(() => {
     let active = true;
     if (activeEntity.type === "notebook" && activeEntity.id && activeEntity.id !== "root_global") {
-      // Deduplicar: no re-abrir si el notebook no cambió
-      if (lastOpenedNotebookRef.current === activeEntity.id) return;
-      lastOpenedNotebookRef.current = activeEntity.id;
-      studySessionService.openSession(activeEntity.id, "agustin")
-        .then((snap) => {
-          if (active) setStudySessionSnapshot(snap);
+      setStudySessionSnapshot(null);
+      setSessionRestoreStatus("loading");
+      setSessionRestoreMessage(undefined);
+      studySessionService.restoreOrOpenSession(activeEntity.id, studySessionService.getClientStudentId())
+        .then(({ snapshot, disposition }) => {
+          if (!active) return;
+          setStudySessionSnapshot(snapshot);
+          setSessionRestoreStatus(disposition === "RESTORED_EXISTING"
+            ? "restored"
+            : disposition === "PREVIOUS_MISSING_CREATED_NEW" ? "previous-missing" : "new");
         })
         .catch((err) => {
-          console.warn("No se pudo iniciar sesión de estudio soberana para", activeEntity.id, err);
-          if (active) setStudySessionSnapshot(null);
+          console.warn("No se pudo restaurar la sesión de estudio para", activeEntity.id, err);
+          if (active) {
+            setStudySessionSnapshot(null);
+            setSessionRestoreStatus("error");
+            setSessionRestoreMessage(err instanceof Error ? err.message : "Falló la recuperación de la sesión.");
+          }
         });
     } else {
-      lastOpenedNotebookRef.current = null;
       setStudySessionSnapshot(null);
+      setSessionRestoreStatus("not-applicable");
+      setSessionRestoreMessage(undefined);
     }
     return () => {
       active = false;
@@ -520,6 +577,12 @@ export const ChatWorkspace: React.FC = () => {
       setIsStudyActionLoading(false);
     }
   };
+
+  const handleStudySessionUpdate = useCallback((snapshot: StudySessionSnapshotData) => {
+    if (activeEntity.type === "notebook" && snapshot.notebook_id === activeEntity.id) {
+      setStudySessionSnapshot(snapshot);
+    }
+  }, [activeEntity.id, activeEntity.type]);
 
 
   const fallbackMessages = useMemo(() => {
@@ -545,7 +608,12 @@ export const ChatWorkspace: React.FC = () => {
     editMessage,
     deleteMessage,
     clearHistory,
-  } = usePersistentChatHistory(activeEntity.id, fallbackMessages);
+  } = usePersistentChatHistory(
+    activeEntity.type === "notebook"
+      ? `${activeEntity.id}::${studySessionSnapshot?.session_id || studySessionService.getStoredSessionId(activeEntity.id, studySessionService.getClientStudentId()) || "session-pending"}`
+      : `${activeEntity.type}:${activeEntity.id}`,
+    fallbackMessages,
+  );
 
   const lastAssistantEvidences = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -557,6 +625,124 @@ export const ChatWorkspace: React.FC = () => {
   }, [messages]);
 
   const abortControllerRef = useRef<AbortController | null>(null);
+  useEffect(() => () => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setIsThinking(false);
+    setIsStreaming(false);
+    setStreamedText("");
+  }, [effectiveChatSessionId, activeEntity.id]);
+  const exerciseSubmissionLocksRef = useRef<Set<string>>(new Set());
+
+  const executeExerciseAttempt = useCallback(async (
+    messageId: string,
+    proposal: NonNullable<Message["exerciseProposal"]>,
+    context: ExerciseEvaluationContext,
+    attempt: ExerciseAttemptState,
+  ) => {
+    const lockKey = `${context.sessionId}:${messageId}`;
+    if (exerciseSubmissionLocksRef.current.has(lockKey)) return;
+    exerciseSubmissionLocksRef.current.add(lockKey);
+    try {
+      const result = await chatService.evaluateExercise({
+        exercise_id: proposal.exercise_id,
+        user_answer: attempt.answer,
+        notebook_id: context.notebookId,
+        session_id: context.sessionId!,
+        ...(context.episodeId ? { episode_id: context.episodeId } : {}),
+        attempt_id: attempt.attemptId,
+      });
+      setMessages((previous) => previous.map((message) => (
+        message.id === messageId && message.exerciseAttempt?.attemptId === attempt.attemptId
+          ? {
+              ...message,
+              exerciseAttempt: {
+                ...attempt,
+                status: result.status,
+                result,
+                message: result.detail ?? undefined,
+              },
+            }
+          : message
+      )));
+    } catch (error) {
+      const isApiError = error instanceof ExerciseEvaluationError;
+      const detail = isApiError ? error.detail : (error instanceof Error ? error.message : "Error de transporte desconocido.");
+      const status: ExerciseAttemptState["status"] = !isApiError || error.statusCode >= 500
+        ? "UNKNOWN"
+        : error.statusCode === 409 && /incomplet|quedó incompleto/i.test(detail)
+          ? "INCOMPLETE"
+          : "CONFLICT";
+      setMessages((previous) => previous.map((message) => (
+        message.id === messageId && message.exerciseAttempt?.attemptId === attempt.attemptId
+          ? { ...message, exerciseAttempt: { ...attempt, status, message: detail } }
+          : message
+      )));
+    } finally {
+      exerciseSubmissionLocksRef.current.delete(lockKey);
+    }
+  }, [setMessages]);
+
+  const handleSubmitExercise = useCallback((messageId: string, answer: string) => {
+    const message = messages.find((item) => item.id === messageId);
+    const proposal = message?.exerciseProposal;
+    const context = message?.exerciseEvaluationContext;
+    const lockKey = context?.sessionId ? `${context.sessionId}:${messageId}` : "";
+    if (
+      !message || !proposal || !context?.sessionId || !answer.trim() ||
+      message.exerciseAttempt || exerciseSubmissionLocksRef.current.has(lockKey)
+    ) return;
+    let attemptId: string;
+    try {
+      attemptId = createExerciseAttemptId();
+    } catch (error) {
+      setMessages((previous) => previous.map((item) => item.id === messageId
+        ? { ...item, exerciseEvaluationError: error instanceof Error ? error.message : "No se pudo crear la identidad del intento." }
+        : item));
+      return;
+    }
+    const attempt: ExerciseAttemptState = { attemptId, answer: answer.trim(), status: "SUBMITTING" };
+    setMessages((previous) => previous.map((item) => item.id === messageId && !item.exerciseAttempt
+      ? { ...item, exerciseAttempt: attempt, exerciseEvaluationError: undefined }
+      : item));
+    void executeExerciseAttempt(messageId, proposal, context, attempt);
+  }, [executeExerciseAttempt, messages, setMessages]);
+
+  const handleRetryExercise = useCallback((messageId: string) => {
+    const message = messages.find((item) => item.id === messageId);
+    const { exerciseProposal: proposal, exerciseEvaluationContext: context, exerciseAttempt: attempt } = message || {};
+    if (!proposal || !context?.sessionId || !attempt || attempt.status !== "UNKNOWN") return;
+    if (exerciseSubmissionLocksRef.current.has(`${context.sessionId}:${messageId}`)) return;
+    const retry = { ...attempt, status: "SUBMITTING" as const };
+    setMessages((previous) => previous.map((item) => item.id === messageId && item.exerciseAttempt?.attemptId === attempt.attemptId
+      ? { ...item, exerciseAttempt: retry }
+      : item));
+    void executeExerciseAttempt(messageId, proposal, context, retry);
+  }, [executeExerciseAttempt, messages, setMessages]);
+
+  const handleNewExerciseAttempt = useCallback((messageId: string) => {
+    setMessages((previous) => previous.map((item) => item.id === messageId && item.exerciseAttempt?.status === "GRADED"
+      ? {
+          ...item,
+          exerciseAttemptHistory: [...(item.exerciseAttemptHistory || []), item.exerciseAttempt],
+          exerciseAttempt: undefined,
+        }
+      : item));
+  }, [setMessages]);
+
+  useEffect(() => {
+    const unresolved = messages.filter((message) =>
+      message.exerciseAttempt?.status === "SUBMITTING" &&
+      !exerciseSubmissionLocksRef.current.has(`${message.exerciseEvaluationContext?.sessionId}:${message.id}`)
+    );
+    if (!unresolved.length) return;
+    const unresolvedIds = new Set(unresolved.map((message) => message.id));
+    setMessages((previous) => previous.map((message) => (
+      unresolvedIds.has(message.id) && message.exerciseAttempt?.status === "SUBMITTING"
+        ? { ...message, exerciseAttempt: { ...message.exerciseAttempt, status: "UNKNOWN", message: "La interfaz se restauró mientras el intento estaba pendiente; el resultado necesita reconciliación." } }
+        : message
+    )));
+  }, [messages, setMessages]);
 
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingStep, setThinkingStep] = useState(
@@ -910,6 +1096,10 @@ export const ChatWorkspace: React.FC = () => {
   const handleSend = useCallback(async (rawText: string) => {
     const userText = rawText.trim();
     if (!userText || isThinking || isStreaming) return;
+    if (!effectiveChatSessionId) return;
+    const invocationContext = chatContextRef.current;
+    const stillCurrent = () => chatContextRef.current === invocationContext;
+    if (activeEntity.type === "notebook" && sessionRestoreStatus !== "restored" && sessionRestoreStatus !== "new" && sessionRestoreStatus !== "previous-missing") return;
 
     setMessages((prev) => [
       ...prev,
@@ -943,17 +1133,27 @@ export const ChatWorkspace: React.FC = () => {
           scope_id: activeEntity.id === "root_global" ? "folder_root" : activeEntity.id,
           scope_type: isFolderOrRoot ? "folder" : "notebook",
           requested_scope_id: activeEntity.name,
-          session_id: studySessionSnapshot?.session_id || chatSessionIdRef.current,
+          session_id: effectiveChatSessionId,
           recent_turns: priorTurns,
         },
         (partialText) => {
+          if (!stillCurrent()) return;
           setIsThinking(false);
           setIsStreaming(true);
           setStreamedText(partialText);
         },
-        controller.signal
+        controller.signal,
+        (activity) => {
+          if (!stillCurrent()) return;
+          // Progress events are emitted while S4.4 is still auditing.  They
+          // carry no academic content, only stage bookkeeping.
+          if (activity?.message) {
+            setThinkingStep(activity.message);
+          }
+        }
       );
 
+      if (!stillCurrent()) return;
       const responseText = apiResponse.reply_text;
 
       setIsThinking(false);
@@ -964,7 +1164,8 @@ export const ChatWorkspace: React.FC = () => {
       setMessages((prev) => [
         ...prev,
         {
-          id: `a-${Date.now()}`,
+          id: apiResponse.audit?.message_id || `a-${Date.now()}`,
+          audit: apiResponse.audit,
           sender: "assistant",
           text: responseText,
           timestamp: "Ahora",
@@ -973,10 +1174,20 @@ export const ChatWorkspace: React.FC = () => {
           facetCoverage: apiResponse.facet_coverage,
           abstained: apiResponse.abstained,
           abstentionReason: apiResponse.abstention_reason,
+          clarificationRequested: apiResponse.clarification_requested,
           bktContext: apiResponse.bkt_context,
+          exerciseProposal: apiResponse.exercise_proposal,
+          exerciseEvaluationContext: apiResponse.exercise_proposal
+            ? {
+                sessionId: studySessionSnapshot?.session_id || null,
+                notebookId: activeEntity.id,
+                episodeId: studySessionSnapshot?.episode_id || null,
+              }
+            : undefined,
         },
       ]);
     } catch (error: any) {
+      if (!stillCurrent()) return;
       setIsThinking(false);
       setIsStreaming(false);
       setStreamedText("");
@@ -1000,7 +1211,8 @@ export const ChatWorkspace: React.FC = () => {
       setMessages((prev) => [
         ...prev,
         {
-          id: `err-${Date.now()}`,
+          id: error instanceof AuditedResponseError && error.audit ? error.audit.message_id : `err-${Date.now()}`,
+          audit: error instanceof AuditedResponseError ? error.audit : undefined,
           sender: "assistant",
           text: `⚠️ Error de Comunicación: ${errMsg}`,
           timestamp: "Ahora",
@@ -1008,7 +1220,7 @@ export const ChatWorkspace: React.FC = () => {
         },
       ]);
     }
-  }, [isThinking, isStreaming, activeEntity, setMessages]);
+  }, [isThinking, isStreaming, activeEntity, sessionRestoreStatus, studySessionSnapshot, effectiveChatSessionId, setMessages]);
 
   const handleSaveNote = (messageId: string, text: string) => {
     setMessages((prev) =>
@@ -1058,6 +1270,11 @@ export const ChatWorkspace: React.FC = () => {
   };
 
   const handleSelectEntity = (entity: ActiveEntity) => {
+    if (
+      typeof window !== "undefined" &&
+      window.__TALOS_SYNTHETIC_PROFILE__ &&
+      entity.id !== window.__TALOS_DEFAULT_NOTEBOOK_ID__
+    ) return;
     setActiveEntity(entity);
   };
 
@@ -1145,6 +1362,11 @@ export const ChatWorkspace: React.FC = () => {
                 isStreaming={isStreaming}
                 streamedText={streamedText}
                 onSend={handleSend}
+                onSubmitExercise={handleSubmitExercise}
+                onRetryExercise={handleRetryExercise}
+                onNewExerciseAttempt={handleNewExerciseAttempt}
+                sessionRestoreStatus={sessionRestoreStatus}
+                sessionRestoreMessage={sessionRestoreMessage}
                 onStop={handleStop}
                 onEditMessage={editMessage}
                 onDeleteMessage={deleteMessage}
@@ -1167,6 +1389,12 @@ export const ChatWorkspace: React.FC = () => {
                 tab={p3Tab}
                 notes={savedNotes}
                 activeScope={activeEntity.name}
+                sessionId={effectiveChatSessionId}
+                responseKey={messages[messages.length - 1]?.id}
+                auditMessage={messages[messages.length - 1]?.sender === 'assistant' ? messages[messages.length - 1] : undefined}
+                auditMessages={messages.filter((message) => message.sender === 'assistant')}
+                scopeId={activeEntity.id === 'root_global' ? 'folder_root' : activeEntity.id}
+                responsePending={isThinking || isStreaming}
                 docHash={evidenceDocHash}
                 initialPage={evidencePage}
                 activeCitation={activeCitation}
@@ -2060,6 +2288,7 @@ export const ChatWorkspace: React.FC = () => {
           isOpen={isStudySliceOpen}
           onClose={() => setIsStudySliceOpen(false)}
           initialNotebookId={activeEntity.id}
+          onSessionUpdate={handleStudySessionUpdate}
         />
 
         {/* DRAWER PERFIL COGNITIVO */}

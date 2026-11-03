@@ -3,6 +3,7 @@
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import pytest
 from fastapi.testclient import TestClient
 
@@ -150,13 +151,121 @@ class TestFastPathDetector:
             assert route is None
 
 
+class TestFastPathStudentContext:
+    def test_chat_route_passes_configured_identity_to_fastpath(self, monkeypatch):
+        from study_engine.hierarchy.scope_resolver import ResolvedScope, ScopeType
+        from study_engine.web.routes import chat as chat_route
+
+        captured = {}
+        configured_student_id = "configured-session-student"
+
+        class Resolver:
+            def resolve(self, *, scope_type, scope_id):
+                assert scope_type == ScopeType.NOTEBOOK
+                assert scope_id == "notebook-test"
+                return ResolvedScope(
+                    scope_type=ScopeType.NOTEBOOK,
+                    scope_id=scope_id,
+                    notebook_id=scope_id,
+                )
+
+        def capture_identity(_self, _container, _notebook_id, *, student_id):
+            captured["student_id"] = student_id
+            return {}
+
+        monkeypatch.setattr(chat_route, "CANONICAL_STUDENT_ID", configured_student_id)
+        monkeypatch.setattr(
+            FastPathConversationalService,
+            "extract_student_context",
+            capture_identity,
+        )
+
+        chat_route._prepare_chat_context(
+            store=None,
+            resolver=Resolver(),
+            container=SimpleNamespace(),
+            prompt_text="¡Hola!",
+            request=chat_route.ChatQueryRequest(
+                prompt="¡Hola!",
+                scope_type="notebook",
+                scope_id="notebook-test",
+            ),
+            target_scope_type="notebook",
+            target_scope_id="notebook-test",
+        )
+
+        assert captured["student_id"] == configured_student_id
+
+    def test_context_retrieval_uses_supplied_student_identity(self):
+        calls = {"memories": [], "briefings": []}
+
+        class MemoryStorage:
+            def get_pedagogical_memories(self, **kwargs):
+                calls["memories"].append(kwargs)
+                return [{"insight": "Confunde dirección y contenido"}]
+
+        class MemoryTracker:
+            storage = MemoryStorage()
+
+            def format_tutor_directive(self, *, student_id, limit):
+                calls["directive"] = {"student_id": student_id, "limit": limit}
+                return "Revisar diferencias entre dirección y contenido."
+
+        class BriefingGenerator:
+            def generate_briefing(self, **kwargs):
+                calls["briefings"].append(kwargs)
+                return "Continuar con el tema."
+
+        container = SimpleNamespace(
+            pedagogical_memory_tracker=MemoryTracker(),
+            session_briefing_generator=BriefingGenerator(),
+        )
+        context = FastPathConversationalService().extract_student_context(
+            container,
+            "notebook-test",
+            student_id="student-from-session",
+        )
+
+        assert calls["directive"] == {
+            "student_id": "student-from-session",
+            "limit": 3,
+        }
+        assert calls["memories"] == [
+            {
+                "student_id": "student-from-session",
+                "category": "misconception",
+                "limit": 2,
+            }
+        ]
+        assert calls["briefings"] == [
+            {
+                "student_id": "student-from-session",
+                "notebook_id": "notebook-test",
+                "student_name": "Agustín",
+            }
+        ]
+        assert context["pedagogical_directive"] == "Revisar diferencias entre dirección y contenido."
+        assert context["misconceptions"] == "Confunde dirección y contenido"
+        assert context["session_briefing"] == "Continuar con el tema."
+
+    def test_context_without_memory_or_briefing_services_does_not_query_student_data(self):
+        context = FastPathConversationalService().extract_student_context(
+            SimpleNamespace(),
+            "notebook-test",
+            student_id="student-from-session",
+        )
+
+        assert context["pedagogical_directive"] == ""
+        assert context["misconceptions"] == ""
+        assert context["session_briefing"] == ""
+
+
 @pytest.fixture(scope="module")
-def client_with_fastpath(tmp_path_factory):
+def client_with_fastpath(tmp_path_factory, knowledge_store_test_copy):
     tmp_dir = tmp_path_factory.mktemp("chat_fastpath_test")
-    existing_db = Path("data/web_state/knowledge_store.db")
-    if existing_db.exists():
+    if knowledge_store_test_copy is not None:
         import shutil
-        shutil.copy2(existing_db, tmp_dir / "knowledge_store.db")
+        shutil.copy2(knowledge_store_test_copy, tmp_dir / "knowledge_store.db")
 
     app = create_app()
     container = AppContainer(working_dir=tmp_dir, use_mock=True)

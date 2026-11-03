@@ -2,23 +2,31 @@
 
 import asyncio
 from datetime import datetime, timezone
+import hashlib
 import json
 import logging
 import re
 import sqlite3
 from types import SimpleNamespace
-from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Tuple
+from typing import Any, AsyncGenerator, Collection, Dict, List, Literal, Optional, Sequence, Tuple
 from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from study_engine.config import CANONICAL_STUDENT_ID
+from study_engine.contracts.notebook import GLOBAL_SCOPE_ID
 from study_engine.hierarchy.scope_resolver import ScopeNotFoundError, ScopeResolver, ScopeType
 from study_engine.pedagogy.structured_pipeline import (
     PhaseHistory,
     StructuredResponsePipeline,
     resolve_epistemic_role,
+)
+from study_engine.pedagogy.dialogue_referent import (
+    ReferentDecision,
+    classify_dialogue_referent,
+    referent_clarification_message,
+    resolve_recent_referent,
 )
 from study_engine.utils.cache import TTLCache
 from study_engine.web.dependencies import AppContainer, get_container
@@ -40,6 +48,75 @@ FALLBACK_DISCLAIMER = (
 _MAX_RECENT_MESSAGES = 20
 _MAX_RECENT_TURN_CHARS = 4000
 _MAX_RECENT_HISTORY_CHARS = 12000
+
+
+def _route_content_binding_matches(
+    audited_content_hash: object,
+    emitted_text: str,
+    audited_binding_id: object,
+    expected_binding_id: str,
+) -> bool:
+    """Return whether route output is exactly the text audited upstream."""
+    if (
+        not isinstance(audited_content_hash, str)
+        or not isinstance(audited_binding_id, str)
+        or not isinstance(expected_binding_id, str)
+    ):
+        return False
+    return (
+        audited_binding_id == expected_binding_id
+        and hashlib.sha256(emitted_text.encode("utf-8")).hexdigest() == audited_content_hash
+    )
+
+
+def _bind_audit_event(event: dict, *, session_id: str, scope_type: str, scope_id: str, emission: str) -> dict:
+    """Attach invocation identity only at the route's final emission boundary."""
+    payload = dict(event["payload"])
+    projection = payload.get("audit_projection")
+    if projection is not None:
+        payload["audit_projection"] = {
+            **projection, "session_id": session_id,
+            "scope_type": scope_type, "scope_id": scope_id,
+            "decision": payload["verdict"], "emission": emission,
+        }
+    return {**event, "payload": payload}
+
+
+def _style_directive_for_task(style_result: Any, task: str) -> Optional[str]:
+    """Keep direct and comparative answers bounded by evidence and citations."""
+    if style_result is None:
+        return None
+    style = getattr(style_result, "style", None)
+    if (
+        task == "comparar"
+        and getattr(style, "value", style) == "FORMAL_EXPLANATION"
+    ):
+        return (
+            "COMPARACIÓN ACADÉMICA CON EVIDENCIA:\n"
+            "- Compará solo dimensiones presentes en las fuentes recuperadas; no agregues pros, "
+            "contras, escenarios ni trade-offs inferidos.\n"
+            "- Cada celda factual de la tabla debe incluir su cita [E#] válida en esa misma celda; "
+            "cada frase factual fuera de la tabla requiere cita propia.\n"
+            "- Si una dimensión no está documentada, omitila. No conviertas resistencia a cambios "
+            "en garantía de equivalencia exacta."
+        )
+    if (
+        task == "responder la consulta"
+        and getattr(style, "value", style) == "FORMAL_EXPLANATION"
+    ):
+        return (
+            "RESPUESTA BÁSICA ANCLADA EN EVIDENCIA:\n"
+            "- Contestá directamente en pocas oraciones, sin secciones ni nivel de máquina obligatorio.\n"
+            "- Cada oración declarativa que afirme un hecho técnico, incluidos los ejemplos, "
+            "debe llevar su propio [E#] válido al final. Una cita de la oración anterior no se hereda.\n"
+            "- Usá solo hechos y ejemplos respaldados por el fragmento citado; "
+            "si un detalle no está respaldado, omitilo o declará que falta evidencia.\n"
+            "- Si se pide una definición, limitate a las equivalencias y calificadores expresos de la fuente; "
+            "no amplíes una definición con propiedades, sinónimos o consecuencias que el fragmento no establezca. "
+            "Cuando el fragmento proporcione una equivalencia breve, conservá ese alcance y no la expandas.\n"
+            "- No agregues ejemplos inventados para completar una plantilla."
+        )
+    return getattr(style_result, "instruction_directive", None)
 
 
 def _sanitize_recent_turns(
@@ -372,6 +449,13 @@ _LAST_EPISTEMIC_PACK: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 # cerrar el loop de evaluación.
 _KC_TURN_STREAKS: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
 
+from study_engine.context.c5_trust import (
+    EpistemicTrustStatus,
+    evaluate_epistemic_trust,
+    evaluate_conversational_rescue_compatibility,
+    extract_critical_query_terms,
+)
+
 # Session Digest (Fase 5.4): la directiva de la sesión anterior se inyecta
 # UNA sola vez por history_key (primer turno de la sesión).
 _DIGEST_SHOWN: TTLCache = TTLCache(maxsize=1000, ttl=3600.0)
@@ -390,6 +474,13 @@ class EpistemicContextPack:
         reference_disclaimer: Optional[str] = None,
         resolved_item: Optional[Any] = None,
         clarification_message: Optional[str] = None,
+        trust_status: Optional[EpistemicTrustStatus] = None,
+        is_sufficient: Optional[bool] = None,
+        is_conflicting: bool = False,
+        conflict_details: Optional[str] = None,
+        missing_critical_terms: Optional[List[str]] = None,
+        coverage_ratio: float = 0.0,
+        max_relevance: float = 0.0,
     ):
         self.formatted_context = formatted_context
         self.citations = citations
@@ -399,6 +490,32 @@ class EpistemicContextPack:
         self.reference_disclaimer = reference_disclaimer
         self.resolved_item = resolved_item
         self.clarification_message = clarification_message
+        self.is_conflicting = is_conflicting
+        self.conflict_details = conflict_details
+        self.missing_critical_terms = missing_critical_terms or []
+        self.coverage_ratio = coverage_ratio
+        self.max_relevance = max_relevance
+
+        if abstained:
+            self.is_sufficient = False
+            self.trust_status = trust_status or (
+                EpistemicTrustStatus.RETRIEVAL_FAILURE
+                if abstention_reason == "RETRIEVAL_FAILURE"
+                else EpistemicTrustStatus.NO_EVIDENCE
+            )
+        else:
+            if is_sufficient is not None:
+                self.is_sufficient = is_sufficient
+            else:
+                self.is_sufficient = bool(chunks)
+            if trust_status is not None:
+                self.trust_status = trust_status
+            else:
+                self.trust_status = (
+                    EpistemicTrustStatus.SUFFICIENT_EVIDENCE
+                    if self.is_sufficient
+                    else EpistemicTrustStatus.NO_EVIDENCE
+                )
 
 
 class OfflineKnowledgeBackend:
@@ -426,10 +543,16 @@ class OfflineKnowledgeBackend:
         results: List[Any] = []
         if self.store is not None:
             try:
+                allowed_srcs = sorted(_source_ids_for_notebook(self.store, notebook_id))
+                if not allowed_srcs:
+                    return (
+                        f"TALOS se abstiene de responder: No se encontraron fuentes autorizadas en el cuaderno '{notebook_id}' "
+                        f"para fundamentar una respuesta sobre '{query}'."
+                    )
                 if hasattr(self.store, "search_hybrid"):
-                    results = self.store.search_hybrid(query, notebook_id=notebook_id, limit=5)
+                    results = self.store.search_hybrid(query, notebook_id=notebook_id, limit=5, source_ids=allowed_srcs)
                 elif hasattr(self.store, "search"):
-                    results = self.store.search(query, notebook_id=notebook_id, limit=5)
+                    results = self.store.search(query, notebook_id=notebook_id, limit=5, source_ids=allowed_srcs)
             except Exception as e:
                 logger.warning("Error en búsqueda de OfflineKnowledgeBackend: %s", e)
                 results = []
@@ -586,14 +709,14 @@ class OfflineKnowledgeBackend:
                     all_qual = [ex for ex in exercise_store.list_all() if ex.is_presentable()]
                     if target_topic:
                         norm_t = target_topic.lower().strip()
-                        # Buscar por coincidencia con kc_id o prompt
                         matches = [
                             ex for ex in all_qual
-                            if norm_t in ex.kc_id.lower() or norm_t in ex.prompt.lower()
+                            if (ex.kc_id and norm_t in ex.kc_id.lower())
+                            or (ex.prompt and norm_t in ex.prompt.lower())
                         ]
                         if matches:
                             exercise = matches[0]
-                    if not exercise and all_qual:
+                    elif all_qual:
                         exercise = all_qual[0]
 
                 if exercise:
@@ -725,6 +848,113 @@ def _resolve_retrieval_depth(prompt_text: str) -> Tuple[int, int]:
     return 15, 3
 
 
+# M1-03 §1: parámetros del pase de recuperación dirigido por cobertura.
+# Una query multi-aspecto con conjunción FTS estricta puede resolver 0 hits
+# y que el fallback disyuntivo seleccione chunks por conteo de términos
+# incidentales (≥2), dejando fuera los pasajes tópicos que cubren el término
+# distintivo de la pregunta (hallazgo 2026-10-21: 'aritmética de punteros'
+# existía en 66 chunks vinculados de Joyanes y el top-15 NO trajo ninguno;
+# el gate C5 abstuvo por términos críticos presentes EN EL CORPUS pero
+# ausentes EN LA SELECCIÓN). La pasada añade deterministamente los chunks
+# que cubren los términos críticos aún descubiertos, con el MISMO índice
+# FTS, la MISMA allowlist de fuentes autorizadas y el filtro anti-leakage
+# obligatorio. No relaja umbrales ni fabrica evidencia: amplía recall para
+# que el gate falle cerrado con información completa, no con la seleccion
+# sesgada de una sóla pasada.
+_COVERAGE_RECOVERY_PER_TERM_LIMIT = 4
+_COVERAGE_RECOVERY_MAX_TERMS = 8
+
+_COVERAGE_RECOVERY_SKIP_TERMS = re.compile(r"^\d+%?$")
+
+
+def _recover_coverage_gaps(
+    store: Any,
+    results: List[Any],
+    coverage_query: str,
+    authorized_source_ids: Collection[str],
+    notebook_id: Optional[str],
+) -> List[Any]:
+    """Recupera chunks aún no recuperados que cubren términos críticos faltantes.
+
+    Determinista: usa extract_critical_query_terms / evaluate_term_coverage
+    del propio gate C5 (misma identidad de política, cero drift) para
+    detectar el hueco de cobertura de la selección actual y completa el
+    recall con consultas léxicas dirigidas por término sobre fuentes
+    autorizadas. Devuelve NUEVOS resultados (dedupe por chunk_id) ya
+    filtrados por presentation_filter; nunca modifica los originales.
+    """
+    try:
+        from study_engine.context.c5_trust import (
+            evaluate_term_coverage,
+            extract_critical_query_terms,
+            retrieval_variants_for_term,
+        )
+        from study_engine.retrieval.presentation_filter import filter_presentation
+    except ImportError:  # pragma: no cover
+        return []
+
+    q = (coverage_query or "").strip()
+    if not q or not authorized_source_ids:
+        return []
+
+    terms = extract_critical_query_terms(q)
+    if not terms:
+        return []
+
+    seen_ids: set[str] = set()
+    for r in results:
+        chunk_key = getattr(r, "chunk_id", None) or getattr(r, "id", None)
+        if chunk_key:
+            seen_ids.add(chunk_key)
+
+    cov, missing = evaluate_term_coverage(terms, results)
+    if not missing:
+        return []
+
+    recoverable = [t for t in missing if not _COVERAGE_RECOVERY_SKIP_TERMS.match(t)]
+    recoverable = recoverable[:_COVERAGE_RECOVERY_MAX_TERMS]
+    if not recoverable:
+        return []
+
+    source_ids_param = sorted({s for s in authorized_source_ids if s})
+    recovered: List[Any] = []
+    recovered_keys: set[str] = set()
+    registry = getattr(store, "content_registry", None)
+
+    for term in recoverable:
+        for variant in retrieval_variants_for_term(term):
+            try:
+                extra = store.search(
+                    query=variant,
+                    notebook_id=notebook_id,
+                    limit=_COVERAGE_RECOVERY_PER_TERM_LIMIT,
+                    source_ids=source_ids_param,
+                )
+            except Exception:
+                logger.debug("Cobertura: búsqueda dirigida falló para %r", variant, exc_info=True)
+                continue
+            new_items = []
+            for item in extra or []:
+                key = getattr(item, "chunk_id", None) or getattr(item, "id", None)
+                if not key or key in seen_ids or key in recovered_keys:
+                    continue
+                recovered_keys.add(key)
+                new_items.append(item)
+            if new_items and registry is not None:
+                try:
+                    new_items, _sol = filter_presentation(new_items, registry)
+                except Exception:
+                    logger.warning("Cobertura: presentation_filter falló; término %r sin aporte", variant)
+                    new_items = []
+            recovered.extend(new_items)
+            if recovered and evaluate_term_coverage(terms, list(results) + recovered)[1] == []:
+                break  # cobertura completa del término pendiente
+        # El desambiguado entre candidatos idénticos por contenido es estable
+        # por orden de llegada determinista (orden del índice).
+
+    return recovered
+
+
 def _notebook_ids_for_folder(store: Any, folder_id: str) -> List[str]:
     """Return notebooks explicitly placed in a folder or one of its descendants."""
     with store.engine.transaction() as conn:
@@ -756,7 +986,15 @@ def _source_ids_for_notebook(store: Any, notebook_id: str) -> set[str]:
             "SELECT source_id FROM notebook_sources WHERE notebook_id = ? ORDER BY source_id;",
             (notebook_id,),
         )
-        return {row[0] for row in cursor.fetchall()}
+        tech_sources = {row[0] for row in cursor.fetchall()}
+
+    manifest_path = getattr(store, "l3_manifest_path", None)
+    from pathlib import Path
+    if not isinstance(manifest_path, (str, Path)):
+        manifest_path = None
+
+    from study_engine.contracts.l3_manifest import get_l3_authorized_sources
+    return tech_sources.intersection(get_l3_authorized_sources(notebook_id, manifest_path=manifest_path))
 
 
 def _search_chapter_summaries_for_scope(
@@ -796,7 +1034,7 @@ def _authorized_sources_for_scope(
     target_notebook_id: str,
     global_folder_id: Optional[str],
 ) -> set[str]:
-    """Resolve the source allowlist only from explicit notebook-source links."""
+    """Resolve the source allowlist from explicit notebook-source links intersected with L3 authorization manifest."""
     if target_notebook_id == GLOBAL_SCOPE_ID:
         if not global_folder_id:
             raise ValueError("Global retrieval requires its resolved folder scope")
@@ -806,15 +1044,10 @@ def _authorized_sources_for_scope(
     if not notebook_ids:
         return set()
 
-    placeholders = ", ".join("?" for _ in notebook_ids)
-    with store.engine.transaction() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT DISTINCT source_id FROM notebook_sources "
-            f"WHERE notebook_id IN ({placeholders}) ORDER BY source_id;",
-            tuple(notebook_ids),
-        )
-        return {row[0] for row in cursor.fetchall()}
+    effective_sources: set[str] = set()
+    for nb_id in notebook_ids:
+        effective_sources.update(_source_ids_for_notebook(store, nb_id))
+    return effective_sources
 
 
 def _filter_requested_sources(
@@ -834,6 +1067,196 @@ def _filter_requested_sources(
     }
 
 
+def _trust_level_from_manifest(manifest_json: object) -> str:
+    """Resolve S4.4 source trust from persisted provenance; unknown values fail closed.
+
+    This mirrors EvidenceEngine's existing manifest contract: registered source
+    manifests default to canonical unless explicitly marked unverified. The
+    source must separately pass the notebook/L3 allowlist before this value is
+    attached to a retrieved citation.
+    """
+    if not isinstance(manifest_json, str) or not manifest_json.strip():
+        return "unverified"
+    try:
+        manifest = json.loads(manifest_json)
+    except (TypeError, ValueError):
+        return "unverified"
+    metadata = manifest.get("metadata") if isinstance(manifest, dict) else None
+    trust_level = metadata.get("trust_level", "canonical") if isinstance(metadata, dict) else None
+    return trust_level if trust_level in {"canonical", "unverified"} else "unverified"
+
+
+def _iter_pack_source_ids(pack: Any) -> set[str]:
+    """Extract source IDs from a cached pack without trusting the pack implicitly."""
+    if pack is None:
+        return set()
+    source_ids: set[str] = set()
+    for citation in getattr(pack, "citations", []) or []:
+        source_id = getattr(citation, "source_id", None)
+        if isinstance(source_id, str) and source_id.strip():
+            source_ids.add(source_id.strip())
+    for chunk in getattr(pack, "chunks", []) or []:
+        if isinstance(chunk, dict):
+            source_id = chunk.get("source_id")
+        else:
+            source_id = getattr(chunk, "source_id", None)
+        if isinstance(source_id, str) and source_id.strip():
+            source_ids.add(source_id.strip())
+    return source_ids
+
+
+def _is_authorized_reusable_pack(
+    pack: Any,
+    chunks: Sequence[Any],
+    *,
+    store: Any,
+    target_notebook_id: str,
+    global_folder_id: Optional[str],
+) -> bool:
+    """Only reuse a pack when all provenance is still tied to currently authorized sources."""
+    if pack is None or not getattr(pack, "formatted_context", None) and not chunks:
+        return False
+    # Bridge evidence must be replanned, even when its source also belongs to the active notebook.
+    if any(isinstance(c, dict) and c.get("bridge_id") for c in list(getattr(pack, "chunks", []) or []) + list(chunks or [])):
+        return False
+
+    try:
+        authorized_sources = _authorized_sources_for_scope(store, target_notebook_id, global_folder_id)
+    except Exception:
+        return False
+    if not authorized_sources:
+        return False
+
+    pack_source_ids = _iter_pack_source_ids(pack)
+    chunk_source_ids = set()
+    for chunk in chunks or []:
+        if isinstance(chunk, dict):
+            source_id = chunk.get("source_id")
+        else:
+            source_id = getattr(chunk, "source_id", None)
+        if isinstance(source_id, str) and source_id.strip():
+            chunk_source_ids.add(source_id.strip())
+
+    candidate_sources = pack_source_ids | chunk_source_ids
+    if not candidate_sources:
+        return False
+    return candidate_sources.issubset(authorized_sources)
+
+
+def _federated_source_ids(
+    store: Any, planner: Any, plan: Any, subquery: Any,
+    active_sources: Optional[List[str]], source_metadata: Dict[str, Dict[str, str]],
+) -> set[str]:
+    """Consume a planner target without treating a bridge as source authorization."""
+    target = subquery.target_notebook_id
+    constraint = subquery.scope_constraint
+    # The current planner emits notebook-only constraints; never silently drop a new bound.
+    if constraint.model_dump(exclude_none=True) != {
+        "notebook_id": target, "bridge_id": subquery.bridge_id,
+    }:
+        raise ValueError("Unsupported federated retrieval constraint")
+    notebook = planner.notebook_registry.get_notebook(target)
+    authorized, _, bridge = planner.bridge_registry.is_bridge_authorized(
+        plan.active_notebook_id, target, subquery.topic,
+    )
+    if (
+        notebook is None or not notebook.is_active
+        or subquery.topic not in notebook.authority_matrix_ref
+        or not authorized or bridge is None or bridge.bridge_id != subquery.bridge_id
+    ):
+        raise ValueError("Federated bridge is not currently authorized")
+    from study_engine.contracts.l3_manifest import get_l3_authorized_sources
+
+    sources = _filter_requested_sources(
+        _authorized_sources_for_scope(store, target, None).intersection(
+            get_l3_authorized_sources(target, manifest_path=getattr(store, "l3_manifest_path", None)),
+        ), active_sources, source_metadata,
+    )
+    if not sources:
+        raise ValueError("No authorized sources for federated target")
+    return sources
+
+
+def _merge_federated_results(
+    store: Any, planner: Any, plan: Any, local_results: List[Any],
+    active_sources: Optional[List[str]], source_metadata: Dict[str, Dict[str, str]],
+) -> Tuple[List[Any], Dict[str, Any]]:
+    """Retrieve scoped targets and materialize identities before the existing C5/S4.4 path."""
+    from study_engine.federation.federated_query_planner import FederatedRetrievalCandidate
+    from study_engine.retrieval.presentation_filter import filter_presentation
+
+    candidates = []
+
+    def add_results(results, notebook_id, source_ids, authority_weight, bridge_id=None):
+        for result in results:
+            chunk = store.get_chunk(result.chunk_id)
+            meta = source_metadata.get(result.source_id, {})
+            if (
+                chunk is None or result.source_id not in source_ids
+                or (chunk.source_id, chunk.document_id, chunk.content, chunk.page_start, chunk.page_end)
+                != (result.source_id, result.document_id, result.content, result.page_start, result.page_end)
+                or not re.fullmatch(r"[a-fA-F0-9]{64}", meta.get("sha256", ""))
+                or meta.get("trust_level") != "canonical"
+            ):
+                raise ValueError("Inconsistent federated evidence identity or provenance")
+            with store.engine.transaction() as conn:
+                source = conn.execute(
+                    "SELECT sha256, manifest_json FROM sources WHERE source_id = ?", (result.source_id,),
+                ).fetchone()
+            if source is None or source[0] != meta["sha256"] or _trust_level_from_manifest(source[1]) != "canonical":
+                raise ValueError("Federated source provenance changed during retrieval")
+            candidates.append(FederatedRetrievalCandidate(
+                chunk_id=result.chunk_id, doc_id=result.document_id,
+                notebook_id=notebook_id, content=result.content,
+                content_hash=hashlib.sha256(result.content.strip().encode("utf-8")).hexdigest(),
+                authority_weight=authority_weight, retrieval_score=result.score,
+                bridge_id=bridge_id, metadata={"result": result},
+            ))
+
+    local_sources = _filter_requested_sources(
+        _authorized_sources_for_scope(store, plan.active_notebook_id, None), active_sources, source_metadata,
+    )
+    local_weight = max(
+        sq.authority_weight for sq in plan.subqueries
+        if sq.target_notebook_id == plan.active_notebook_id
+    )
+    add_results(local_results, plan.active_notebook_id, local_sources, local_weight)
+    limit, min_sources = _resolve_retrieval_depth(plan.original_query)
+    for subquery in plan.subqueries:
+        if subquery.target_notebook_id == plan.active_notebook_id:
+            continue
+        source_ids = _federated_source_ids(
+            store, planner, plan, subquery, active_sources, source_metadata,
+        )
+        results = store.search_hybrid(
+            query=subquery.query_text, notebook_id=subquery.target_notebook_id,
+            limit=limit, min_sources=min_sources, source_ids=sorted(source_ids),
+        )
+        results = list(results) + _recover_coverage_gaps(
+            store=store, results=results, coverage_query=subquery.query_text,
+            authorized_source_ids=source_ids, notebook_id=subquery.target_notebook_id,
+        )
+        if not results:
+            raise ValueError("Federated target returned no evidence")
+        add_results(results, subquery.target_notebook_id, source_ids, subquery.authority_weight, subquery.bridge_id)
+
+    # Recheck TTL/revocation after all I/O, not just when the plan was constructed.
+    for subquery in plan.subqueries:
+        if subquery.target_notebook_id == plan.active_notebook_id:
+            continue
+        current_sources = _federated_source_ids(
+            store, planner, plan, subquery, active_sources, source_metadata,
+        )
+        if any(
+            c.notebook_id == subquery.target_notebook_id
+            and c.metadata["result"].source_id not in current_sources for c in candidates
+        ):
+            raise ValueError("Federated source authorization changed during retrieval")
+    deduplicated = planner.deduplicate_candidates(candidates)
+    results, _ = filter_presentation([c.metadata["result"] for c in deduplicated], store.content_registry)
+    return results, {c.chunk_id: c for c in deduplicated}
+
+
 def _assemble_epistemic_context(
     store: Any,
     container: AppContainer,
@@ -842,6 +1265,7 @@ def _assemble_epistemic_context(
     active_sources: Optional[List[str]] = None,
     granularity_decision: Optional[Any] = None,
     global_folder_id: Optional[str] = None,
+    original_user_query: Optional[str] = None,
 ) -> Tuple[Optional[EpistemicContextPack], list]:
     """Search knowledge store and build formatted citations and chunks with SectionExpander (Ola 5)."""
     try:
@@ -884,15 +1308,30 @@ def _assemble_epistemic_context(
         try:
             with store.engine.transaction() as conn:
                 cur = conn.cursor()
-                cur.execute("SELECT source_id, title, sha256, author FROM sources;")
+                cur.execute("SELECT source_id, title, sha256, author, manifest_json FROM sources;")
                 for row in cur.fetchall():
                     src_meta_cache[row[0]] = {
                         "title": row[1] or row[0],
                         "sha256": row[2] or "",
                         "author": row[3] or "",
+                        "trust_level": _trust_level_from_manifest(row[4]),
                     }
         except Exception as meta_err:
             logger.warning("Fallo al consultar metadatos de fuentes: %s", meta_err)
+
+        federated_plan = None
+        planner = vars(container).get("federated_query_planner")
+        if (
+            planner is not None and target_notebook_id != GLOBAL_SCOPE_ID and resolved_item is None
+            and planner.notebook_registry.get_notebook(target_notebook_id) is not None
+        ):
+            federated_plan = planner.plan_query(target_notebook_id, search_query)
+            if (
+                federated_plan.status != "READY"
+                or federated_plan.active_notebook_id != target_notebook_id
+                or federated_plan.original_query != search_query.strip()
+            ):
+                raise ValueError(f"Federated planning rejected: {federated_plan.guardrail_code}")
 
         try:
             scope_source_ids = _authorized_sources_for_scope(
@@ -900,6 +1339,12 @@ def _assemble_epistemic_context(
                 target_notebook_id,
                 global_folder_id,
             )
+            if federated_plan is not None and federated_plan.is_cross_curricular:
+                for subquery in federated_plan.subqueries:
+                    if subquery.target_notebook_id != target_notebook_id:
+                        scope_source_ids.update(_federated_source_ids(
+                            store, planner, federated_plan, subquery, active_sources, src_meta_cache,
+                        ))
         except Exception:
             logger.exception(
                 "Cannot resolve source allowlist for scope %s; retrieval is closed",
@@ -911,6 +1356,8 @@ def _assemble_epistemic_context(
                 chunks=[],
                 abstained=True,
                 abstention_reason="SCOPE_AUTHORIZATION_UNAVAILABLE",
+                trust_status=EpistemicTrustStatus.NO_AUTHORIZED_EVIDENCE,
+                is_sufficient=False,
             ), []
 
         retrieval_source_ids = _filter_requested_sources(
@@ -930,6 +1377,8 @@ def _assemble_epistemic_context(
                     if active_sources is not None
                     else "NO_AUTHORIZED_SOURCES_IN_SCOPE"
                 ),
+                trust_status=EpistemicTrustStatus.NO_AUTHORIZED_EVIDENCE,
+                is_sufficient=False,
             ), []
 
         search_results = []
@@ -945,6 +1394,8 @@ def _assemble_epistemic_context(
                     abstention_reason="QUERY_OUT_OF_SCOPE",
                     reference_disclaimer=reference_disclaimer,
                     resolved_item=resolved_item,
+                    trust_status=EpistemicTrustStatus.NO_EVIDENCE,
+                    is_sufficient=False,
                 ), []
             if stmt_chunks:
                 for rank, chk in enumerate(stmt_chunks):
@@ -952,12 +1403,12 @@ def _assemble_epistemic_context(
                     sr = SearchResult(
                         content=chk_content,
                         index=getattr(chk, "index", rank) or rank,
-                        chunk_id=getattr(chk, "id", f"chk_{rank}"),
-                        document_id=getattr(chk, "document_id", "doc") or "doc",
+                        chunk_id=getattr(chk, "id", None),
+                        document_id=getattr(chk, "document_id", None),
                         source_id=getattr(chk, "source_id", resolved_item.source_id),
                         snippet=chk_content[:200],
-                        page_start=getattr(chk, "page_start", 1),
-                        page_end=getattr(chk, "page_end", 1),
+                        page_start=getattr(chk, "page_start", None),
+                        page_end=getattr(chk, "page_end", None),
                         score=1.0,
                     )
                     search_results.append(sr)
@@ -1185,8 +1636,129 @@ def _assemble_epistemic_context(
                     abstention_reason="QUERY_OUT_OF_SCOPE",
                     reference_disclaimer=reference_disclaimer,
                     resolved_item=resolved_item,
+                    trust_status=EpistemicTrustStatus.NO_EVIDENCE,
+                    is_sufficient=False,
                 ), []
             search_results = filtered_results
+
+        # M1-03 §1: pase de recuperación dirigido por cobertura. Antes del
+        # gate C5, si la selección actual no cubre términos críticos que el
+        # CORPUS AUTORIZADO sí contiene (query conjuntiva estricta que
+        # resuelve 0 hits + fallback disyuntivo sesgado por conteo), se
+        # completa el recall con búsquedas léxicas dirigidas por término
+        # sobre la MISMA allowlist. El gate conserva su criterio intacto:
+        # sigue absteniendo si ni siquiera el índice completo cubre la
+        # consulta (fail-closed genuino).
+        try:
+            recovered_results = _recover_coverage_gaps(
+                store=store,
+                results=search_results,
+                coverage_query=original_user_query or search_query,
+                authorized_source_ids=retrieval_source_ids,
+                notebook_id=target_notebook_id,
+            )
+            if recovered_results:
+                search_results = list(search_results) + list(recovered_results)
+                logger.info(
+                    "C5 coverage recovery: +%d chunks por términos no cubiertos en la selección",
+                    len(recovered_results),
+                )
+                # M1-03 §1 (invariante C3, fail-closed de presupuesto): el
+                # pack enriquecido debe respetar el sub-presupuesto de
+                # evidencia (BUDGET_PRIMARY+SECONDARY). Poda determinista por
+                # CHUNK COMPLETO (sin truncar contenido) con cobertura
+                # preservada: se computan los términos que faltaban con la
+                # selección ORIGINAL (miss0); todo chunk que cubre al menos
+                # un término de miss0 es NÚCLEO y jamás se descarta; el
+                # resto se suelta primero por índice descendente (determinista)
+                # y luego por menor score. Si aún así no cabe, se conserva
+                # el pack y el chokepoint C3 decide fail-closed (nunca se
+                # trunca contenido ni se degrada la cobertura).
+                try:
+                    from study_engine.context.c3_budget import (
+                        BUDGET_PRIMARY_EVIDENCE_TOKENS,
+                        BUDGET_SECONDARY_EVIDENCE_TOKENS,
+                        estimate_tokens,
+                    )
+                    from study_engine.context.c5_trust import (
+                        evaluate_term_coverage as _etc,
+                        extract_critical_query_terms as _ecqt,
+                    )
+
+                    _ev_budget = BUDGET_PRIMARY_EVIDENCE_TOKENS + BUDGET_SECONDARY_EVIDENCE_TOKENS
+                    _crit = _ecqt(original_user_query or search_query or "")
+
+                    def _key(r: Any) -> str:
+                        return str(getattr(r, "chunk_id", None) or getattr(r, "id", None) or "")
+
+                    def _covered_by(r: Any) -> set:
+                        if not _crit:
+                            return set()
+                        _, miss = _etc(_crit, [r])
+                        return {t for t in (set(_crit) - set(miss)) if t is not None}
+
+                    def _text_of(items: List[Any]) -> str:
+                        return "\n".join((getattr(r, "content", "") or "") for r in items)
+
+                    def _drop_is_safe(i: int) -> bool:
+                        # Invariante de cobertura: el drop solo es seguro si
+                        # cada término crítico que cubre el chunk sigue cubierto
+                        # por otro chunk de la selección ACTUAL (protección
+                        # dinámica; la sola cobertura de la pasada ORIGINAL
+                        # jamás se degrada por la poda).
+                        cov_i = _covered_by(search_results[i])
+                        if not cov_i:
+                            return True
+                        others = [o for j, o in enumerate(search_results) if j != i]
+                        for t in cov_i:
+                            if not any(t in _covered_by(o) for o in others):
+                                return False
+                        return True
+
+                    _guard = 0
+                    _max_guard = 4 * (len(search_results) + len(recovered_results)) + 8
+                    while (
+                        len(search_results) > 1
+                        and _crit
+                        and estimate_tokens(_text_of(search_results)) > _ev_budget
+                        and _guard < _max_guard
+                    ):
+                        _guard += 1
+                        drop_i = None
+                        # 1) primer chunk sin cobertura de NINGÚN término
+                        # crítico (tangencial para el gate) — recorrido
+                        # descendente determinista; recovery es cola, así el
+                        # añadido superfluo se aligera primero.
+                        for i in range(len(search_results) - 1, 0, -1):
+                            if not _covered_by(search_results[i]) and _drop_is_safe(i):
+                                drop_i = i
+                                break
+                        # 2) si todos cubren algo: menor score entre los drops
+                        # seguros (excluyendo el índice 0 como ancla).
+                        if drop_i is None and len(search_results) > 1:
+                            best_low = None
+                            best_i = None
+                            for i, r in enumerate(search_results[:-1]):
+                                s = float(getattr(r, "score", 0.0) or 0.0)
+                                if (best_low is None or s < best_low) and _drop_is_safe(i):
+                                    best_low = s
+                                    best_i = i
+                            drop_i = best_i
+                        # 3) si nada es droppable sin degradar cobertura: no se
+                        # sacrifica; el chokepoint C3 decide fail-closed.
+                        if drop_i is None:
+                            break
+                        search_results.pop(drop_i)
+                except Exception:
+                    logger.exception("Poda de presupuesto de evidencia falló; el chokepoint C3 decide fail-closed.")
+        except Exception:
+            logger.exception("Fallo en coverage recovery; se conserva la selección original (fail-closed).")
+
+        federation_provenance = {}
+        if federated_plan is not None and federated_plan.is_cross_curricular:
+            search_results, federation_provenance = _merge_federated_results(
+                store, planner, federated_plan, search_results, active_sources, src_meta_cache,
+            )
 
         # Enmienda E23 & E26: Expansión de sección mediante SectionExpander
         expanded_chunks = []
@@ -1200,6 +1772,7 @@ def _assemble_epistemic_context(
                 expanded_chunks, expanded_context_text = expander.expand_results(
                     seed_results=search_results[:6] if is_debug_q else search_results,
                     source_meta_cache=src_meta_cache,
+                    allowed_source_ids=retrieval_source_ids,
                 )
                 if expanded_chunks and hasattr(store, "content_registry") and store.content_registry:
                     sol_ids = store.content_registry.get_solution_chunk_ids()
@@ -1215,17 +1788,18 @@ def _assemble_epistemic_context(
             content_clean = getattr(res, "content", "").strip()
             if not content_clean:
                 continue
-            src_id = getattr(res, "source_id", "fuente")
+            src_id = getattr(res, "source_id", None)
             meta = src_meta_cache.get(src_id, {"title": src_id, "sha256": "", "author": ""})
             src_title = f"{meta['author']} - {meta['title']}" if meta.get("author") else meta.get("title", src_id)
-            p_start = getattr(res, "page_start", 1) or 1
+            p_start = getattr(res, "page_start", None)
             doc_hash = meta.get("sha256") or ""
-            chunk_id = getattr(res, "chunk_id", f"c_{citation_idx}")
+            chunk_id = getattr(res, "chunk_id", None)
             score_val = getattr(res, "score", 0.85)
             norm_score = round(min(1.0, max(0.1, abs(float(score_val)))), 2) if score_val else 0.85
 
+            page_label = f" (Pág: {p_start})" if p_start is not None else ""
             citations_formatted.append(
-                f"[{citation_idx}] [E{citation_idx}] Fuente: {src_title} (Pág: {p_start}):\n\"{content_clean}\""
+                f"[E{citation_idx}] Fuente: {src_title}{page_label}:\n\"{content_clean}\""
             )
 
             author_str = meta.get("author", "")
@@ -1254,8 +1828,18 @@ def _assemble_epistemic_context(
                 "author": author_str,
                 "section": section_str,
                 "epistemic_role": role_str,
-                "document_id": getattr(res, "document_id", "doc"),
+                "document_id": getattr(res, "document_id", None),
+                "trust_level": meta.get("trust_level", "unverified"),
             })
+            if chunk_id in federation_provenance:
+                provenance = federation_provenance[chunk_id]
+                raw_chunks[-1].update({
+                    "notebook_id": provenance.notebook_id,
+                    "bridge_id": provenance.bridge_id,
+                    "plan_id": federated_plan.plan_id,
+                    "content_hash": provenance.content_hash,
+                    "authority_weight": provenance.authority_weight,
+                })
             citation_idx += 1
 
         kc_catalog = getattr(container.pedagogical_orchestrator, "_kc_catalog", {})
@@ -1275,10 +1859,65 @@ def _assemble_epistemic_context(
                 abstention_reason="QUERY_OUT_OF_SCOPE",
                 reference_disclaimer=reference_disclaimer,
                 resolved_item=resolved_item,
+                trust_status=EpistemicTrustStatus.NO_EVIDENCE,
+                is_sufficient=False,
+            ), []
+
+        # Evaluación pre-LLM del C5 Trust Gate (Sufficiency, Coverage, Conflict, Relevance).
+        # Cuando la consulta actual lleva anclaje deíctico/contextual, C5 debe
+        # valorar la intención resuelta por el rewrite contextual, no la cadena
+        # literal del turno anterior. Esto preserva fail-closed y evita un false
+        # negative de continuidad técnica.
+        eval_query = original_user_query or search_query
+        trust_eval = evaluate_epistemic_trust(
+            eval_query,
+            raw_chunks,
+            resolved_content_item=resolved_item,
+            has_reference_disclaimer=bool(reference_disclaimer),
+            contextual_query=search_query,
+        )
+        if trust_eval.abstained:
+            return EpistemicContextPack(
+                formatted_context="",
+                citations=[],
+                chunks=[],
+                abstained=True,
+                abstention_reason=trust_eval.abstention_reason or "QUERY_OUT_OF_SCOPE",
+                reference_disclaimer=reference_disclaimer,
+                resolved_item=resolved_item,
+                trust_status=trust_eval.status,
+                is_sufficient=False,
+                missing_critical_terms=trust_eval.missing_critical_terms,
+                coverage_ratio=trust_eval.coverage_ratio,
+                max_relevance=trust_eval.max_relevance,
             ), []
 
         if citations_formatted:
-            final_formatted = expanded_context_text if expanded_context_text else "\n\n".join(citations_formatted)
+            from study_engine.context.c3_budget import (
+                BUDGET_PRIMARY_EVIDENCE_TOKENS,
+                BUDGET_SECONDARY_EVIDENCE_TOKENS,
+                prune_evidence_text_deterministically,
+            )
+            raw_fallback = "\n\n".join(citations_formatted)
+            max_ev_tokens = BUDGET_PRIMARY_EVIDENCE_TOKENS + BUDGET_SECONDARY_EVIDENCE_TOKENS
+            bounded_fallback, _ = prune_evidence_text_deterministically(raw_fallback, max_tokens=max_ev_tokens)
+            # Only the E-tagged search results have exact identities in the
+            # citation manifest passed to S4.4. The section expansion uses
+            # [CHUNK ...] markers (and may add neighbors absent from that
+            # manifest), so it cannot authorize a cited answer on this route.
+            base_formatted = bounded_fallback
+
+            # Si se detecta divergencia entre fuentes autorizadas (D_C5_3 & Addendum 3), explicitar el conflicto
+            if trust_eval.is_conflicting:
+                conflict_banner = (
+                    "=== EVIDENCIA CONFLICTIVA ENTRE FUENTES AUTORIZADAS ===\n"
+                    f"{trust_eval.conflict_details or 'Discrepancia detectada entre fuentes autorizadas.'}\n"
+                    "El tutor debe explicitar y contrastar las posturas discrepantes sin asumir consenso falso.\n\n"
+                )
+                final_formatted = conflict_banner + base_formatted
+            else:
+                final_formatted = base_formatted
+
             pack = EpistemicContextPack(
                 formatted_context=final_formatted,
                 citations=search_results,
@@ -1286,14 +1925,29 @@ def _assemble_epistemic_context(
                 abstained=False,
                 reference_disclaimer=reference_disclaimer,
                 resolved_item=resolved_item,
+                trust_status=trust_eval.status,
+                is_sufficient=trust_eval.is_sufficient,
+                is_conflicting=trust_eval.is_conflicting,
+                conflict_details=trust_eval.conflict_details,
+                missing_critical_terms=trust_eval.missing_critical_terms,
+                coverage_ratio=trust_eval.coverage_ratio,
+                max_relevance=trust_eval.max_relevance,
             )
+
             setattr(pack, "expanded_chunks", expanded_chunks)
             setattr(pack, "expanded_context_text", expanded_context_text)
             return pack, raw_chunks
     except Exception as ctx_err:
         logger.warning("Advertencia al ensamblar evidencias epistémicas: %s", ctx_err, exc_info=True)
-
-    return None, []
+        return EpistemicContextPack(
+            formatted_context="",
+            citations=[],
+            chunks=[],
+            abstained=True,
+            abstention_reason="RETRIEVAL_FAILURE",
+            trust_status=EpistemicTrustStatus.RETRIEVAL_FAILURE,
+            is_sufficient=False,
+        ), []
 
 
 def _update_curriculum_progress(
@@ -1552,7 +2206,6 @@ def _build_cognitive_profile_block(prof_injector: Any, active_kc: Optional[str])
 # scope de carpeta (roadmap, Programación) no se desvía al usuario al cuaderno
 # "correcto"; el roadmap es acceso global por defecto y el retrieval corre
 # contra TODOS los cuadernos, fundiendo resultados por chunk_id.
-GLOBAL_SCOPE_ID = "__global__"
 
 # COMMIT 3 (fix/scope): intención no curricular — opinión personal, ficción,
 # cotidiano, actualidad. Es INDEPENDIENTE del match léxico de contenido: el
@@ -1700,7 +2353,11 @@ def _prepare_chat_context(
     is_conv, route_kind = FastPathConversationalService.detect_conversational_route(prompt_text)
     if is_conv and route_kind is not None:
         fastpath = FastPathConversationalService()
-        context = fastpath.extract_student_context(container, target_notebook_id)
+        context = fastpath.extract_student_context(
+            container,
+            target_notebook_id,
+            student_id=CANONICAL_STUDENT_ID,
+        )
         return _pack_prepare_context(
             resolved_scope,
             conv_payload=(fastpath, route_kind, context),
@@ -1747,7 +2404,7 @@ def _prepare_chat_context(
     rewriter = QueryRewriter()
     conv_state = ConversationState.COLD_START
     clean_p = (prompt_text or "").strip()
-    is_explicit_reference = bool(re.search(r"\b(?:ejercicio|gu[ií]a|problema|tp)\s+\d+\b", clean_p, re.IGNORECASE))
+    is_explicit_reference = bool(_ACTIVITY_REFERENCE_RE.search(clean_p))
     is_deictic = has_deictic_markers(clean_p)
     should_rew = should_rewrite_contextual(clean_p, conv_turns)
     reference_resolution = resolve_contextual_reference(clean_p, conv_turns)
@@ -1816,6 +2473,8 @@ def _prepare_chat_context(
             clarification_message=(
                 f"{detail} Indicame el tema o pegá el fragmento al que te referís."
             ),
+            trust_status=EpistemicTrustStatus.PARTIAL_EVIDENCE,
+            is_sufficient=False,
         )
         raw_chunks = []
     elif _is_non_curricular_intent(retrieval_query, kcs_list):
@@ -1828,6 +2487,8 @@ def _prepare_chat_context(
                 "Consulta fuera del ámbito curricular (opinión, ficción, actualidad o vida cotidiana). "
                 "TALOS está acotado a la bibliografía del roadmap; planteá la pregunta en términos del programa."
             ),
+            trust_status=EpistemicTrustStatus.NO_AUTHORIZED_EVIDENCE,
+            is_sufficient=False,
         )
         raw_chunks: List[Any] = []
     else:
@@ -1844,6 +2505,7 @@ def _prepare_chat_context(
             active_sources=request.active_sources,
             granularity_decision=granularity_decision,
             global_folder_id=target_folder_id if global_scope else None,
+            original_user_query=clean_p,
         )
 
         # Máquina de estados conversacional con inercia epistémica (CAL §3.2 Multi-Turn)
@@ -1856,26 +2518,105 @@ def _prepare_chat_context(
 
         # Rescate epistémico para consultas de seguimiento / deícticas en contexto conversacional:
         # Si la consulta es de seguimiento (o conv_state en AMBIGUOUS_FOLLOWUP / ACTIVE_TECHNICAL_THREAD)
-        # y el retrieval devolvió 0 fragmentos nuevos, reusar el pack epistémico verificado del turno previo.
+        # y el retrieval devolvió 0 fragmentos nuevos, reusar el pack epistémico verificado del turno previo
+        # ÚNICAMENTE si existe compatibilidad temática verificable (D_C5_6 & Addendum 5).
         should_abst, abst_reason = should_abstain(conv_state, raw_chunks, has_fallback_pack=has_fallback_pack)
         if (
             (getattr(context_pack, "abstained", False) or len(raw_chunks) == 0)
             and not should_abst
             and has_fallback_pack
             and not getattr(context_pack, "resolved_item", None)
+            and getattr(context_pack, "trust_status", None) not in {
+                EpistemicTrustStatus.RETRIEVAL_FAILURE, EpistemicTrustStatus.NO_AUTHORIZED_EVIDENCE,
+            }
         ):
             last_pack_tuple = _LAST_EPISTEMIC_PACK.get(epistemic_key)
             if last_pack_tuple:
-                logger.info(
-                    "Recuperando context_pack previo para continuidad conversacional (%s, estado=%s)",
-                    epistemic_key, conv_state.value
-                )
                 prev_pack, prev_chunks = last_pack_tuple
-                context_pack = prev_pack
-                raw_chunks = list(prev_chunks)
+                followup_match = re_followup.search(clean_p)
+                followup_residue = re_followup.sub(" ", clean_p) if followup_match else None
+                topic_terms = (
+                    extract_critical_query_terms(followup_residue)
+                    if followup_residue is not None
+                    else None
+                )
+                contextual_query = (
+                    retrieval_query
+                    if reference_resolution.status == "unique" and topic_terms == []
+                    else None
+                )
+                topic_query = (
+                    " ".join(followup_residue.split())
+                    if followup_residue is not None
+                    else None
+                )
+                if topic_terms == [] and contextual_query is None:
+                    topic_query = clean_p
+                # EP-01/H1-A: un mensaje meta (marcadores cerrados de diálogo)
+                # SIN match de KC propio no introduce términos temáticos: hereda
+                # el referente académico de la conversación y se evalúa como
+                # continuidad deíctica pura del evaluador D_C5_6. Sin esto, el
+                # vocabulario meta ("entiendo", "explicámelo") se toma como
+                # tema y el rescate del pack previo se rechaza con
+                # incompatibilidad temática → QUERY_OUT_OF_SCOPE (repro EP-01).
+                if _is_pure_meta_followup(clean_p, kcs_list):
+                    topic_query = ""
+                is_compat, compat_msg = evaluate_conversational_rescue_compatibility(
+                    new_query=clean_p,
+                    previous_context_pack=prev_pack,
+                    previous_chunks=prev_chunks,
+                    contextual_query=contextual_query,
+                    topic_query=topic_query,
+                )
+                if is_compat:
+                    if not _is_authorized_reusable_pack(
+                        prev_pack,
+                        prev_chunks,
+                        store=store,
+                        target_notebook_id=target_notebook_id,
+                        global_folder_id=target_folder_id if global_scope else None,
+                    ):
+                        logger.info(
+                            "Rescate conversacional rechazado por autorización o provenance no vigente (%s)",
+                            epistemic_key,
+                        )
+                        if context_pack is None or not getattr(context_pack, "abstained", False):
+                            context_pack = EpistemicContextPack(
+                                formatted_context="",
+                                citations=[],
+                                chunks=[],
+                                abstained=True,
+                                abstention_reason="EVIDENCE_NOT_CURRENTLY_AUTHORIZED",
+                                trust_status=EpistemicTrustStatus.NO_AUTHORIZED_EVIDENCE,
+                                is_sufficient=False,
+                            )
+                        raw_chunks = []
+                    else:
+                        logger.info(
+                            "Recuperando context_pack previo para continuidad conversacional (%s, estado=%s): %s",
+                            epistemic_key, conv_state.value, compat_msg
+                        )
+                        context_pack = prev_pack
+                        raw_chunks = list(prev_chunks)
+                else:
+                    logger.info(
+                        "Rescate conversacional rechazado por incompatibilidad temática (%s): %s",
+                        epistemic_key, compat_msg
+                    )
+                    if context_pack is None or not getattr(context_pack, "abstained", False):
+                        context_pack = EpistemicContextPack(
+                            formatted_context="",
+                            citations=[],
+                            chunks=[],
+                            abstained=True,
+                            abstention_reason="QUERY_OUT_OF_SCOPE",
+                            trust_status=EpistemicTrustStatus.NO_EVIDENCE,
+                            is_sufficient=False,
+                        )
+                    raw_chunks = []
 
-        # Si el context_pack es válido y tiene fragmentos, actualizar la caché del último pack epistémico
-        if context_pack and not getattr(context_pack, "abstained", False) and raw_chunks:
+        # Si el context_pack es válido, suficiente y tiene fragmentos, actualizar la caché del último pack epistémico
+        if context_pack and not getattr(context_pack, "abstained", False) and getattr(context_pack, "is_sufficient", False) and raw_chunks:
             _LAST_EPISTEMIC_PACK[epistemic_key] = (context_pack, raw_chunks)
 
     # El pipeline SIEMPRE necesita un contrato (SocraticGuard, get_phase);
@@ -1928,13 +2669,23 @@ def _prepare_chat_context(
     # Protocolo de Lucha (Fase 5.3b): si el estudiante encadena >=3 fallos en
     # este KC, se inyecta la directiva estricta al prompt del siguiente turno.
     struggle = getattr(container, "struggle_tracker", None)
-    struggle_active = bool(struggle and matched_kc_id and struggle.is_struggling(matched_kc_id))
+    struggle_storage = getattr(container, "student_storage", None)
+    struggle_state = (
+        struggle.confirmed_state(
+            struggle_storage, student_id=CANONICAL_STUDENT_ID,
+            session_id=request.session_id or "anon", notebook_id=target_notebook_id,
+        )
+        if struggle and struggle_storage else None
+    )
+    struggle_active = bool(
+        struggle and matched_kc_id and struggle.is_struggling(matched_kc_id, state=struggle_state)
+    )
     if struggle_active:
         logger.info("[STRUGGLE] KC %s con %s fallos consecutivos; inyectando protocolo.",
                     matched_kc_id, "3+")
         bkt_directive = (
-            f"{bkt_directive}\n\n{struggle.directive(matched_kc_id)}"
-            if bkt_directive else struggle.directive(matched_kc_id)
+            f"{bkt_directive}\n\n{struggle.directive(matched_kc_id, state=struggle_state)}"
+            if bkt_directive else struggle.directive(matched_kc_id, state=struggle_state)
         )
     elif hasattr(container, "student_storage") and container.student_storage is not None:
         # M8 & M3: Si el Protocolo de Lucha NO está activo, inyectar directiva metacognitiva (fading)
@@ -2022,6 +2773,526 @@ def _prepare_chat_context(
     )
 
 
+# EP-01/H1-A: referencia a una actividad identificada (ejercicio/guía/
+# problema/tp + número). El referente es la actividad, no el episodio activo;
+# el pipeline del chat es quien debe resolverla. Patrón compartido por la
+# delegación de diálogo y `_prepare_chat_context` (is_explicit_reference).
+_ACTIVITY_REFERENCE_RE = re.compile(
+    r"\b(?:ejercicio|gu[ií]a|problema|tp)\s+\d+\b", re.IGNORECASE
+)
+
+# M1-03 §5: marcadores de meta-discurso del diálogo (deterministas; misma
+# clase de heurísticas keyword que usa DialogueEngine._propose_intent para
+# CONFUSION/REFORMULATION/EXAMPLE_REQUEST). NO son detección de contenido:
+# un mensaje con afirmación técnica ante un error conceptual no matchea y
+# sigue el pipeline completo de chat (corrección fundada por retrieval+S4.4).
+_DIALOGUE_META_MARKERS: Tuple[str, ...] = (
+    "no entiendo",
+    "no entendí",
+    "no entiendo nada",
+    "otra forma",
+    "reformulá",
+    "reformula eso",
+    "explicá de nuevo",
+    "explícame de otra forma",
+    "me perdí",
+    "dame un ejemplo",
+    "otro ejemplo",
+)
+
+# Fases de sesión desde las que un turno meta del estudiante pertenece al
+# diálogo del episodio activo (SUBMIT_MESSAGE es acción permitida del
+# orquestador en DIALOGUE; el diálogo del episodio transiciona EXPLAINING
+# fail-closed con su propio paso de inicio).
+_DIALOGUE_DELEGATE_PHASES = {"EXPLAINING", "DIALOGUE"}
+
+
+def _referent_kcs_list(
+    container: Any,
+    scope_notebook: Optional[str],
+    episode_notebook: Optional[str],
+) -> List[Dict[str, Any]]:
+    """Catálogo KC aplicable a la resolución del referente del gate de diálogo.
+
+    EP-01: el matching del referente se hace sobre el catálogo del cuaderno del
+    episodio (donde vive el KC del packet) unido al del scope del chat cuando
+    difiere; en scope folder/global se usa la unión de todos los catálogos
+    (mismo criterio que `_prepare_chat_context` para scope global).
+    """
+    orch = getattr(container, "pedagogical_orchestrator", None)
+    catalog = getattr(orch, "_kc_catalog", None) if orch is not None else None
+    if not isinstance(catalog, dict):
+        return []
+
+    def _kcs(nb_id: Optional[str]) -> List[Dict[str, Any]]:
+        entry = catalog.get(nb_id) if nb_id else None
+        return list(entry.get("kcs", [])) if isinstance(entry, dict) else []
+
+    if scope_notebook and episode_notebook and scope_notebook != episode_notebook:
+        return _kcs(scope_notebook) + _kcs(episode_notebook)
+    if scope_notebook or episode_notebook:
+        return _kcs(scope_notebook or episode_notebook)
+    return [
+        kc
+        for entry in catalog.values()
+        if isinstance(entry, dict)
+        for kc in entry.get("kcs", [])
+    ]
+
+
+def _dialogue_gate_cache_key(request: Any, session_id: Optional[str]) -> Optional[str]:
+    """Clave de contexto de conversación para el gate de diálogo (EP-01).
+
+    Réplica determinista de la clave del pipeline para scope notebook/folder,
+    computable sin resolver el scope (el gate corre antes de
+    `_prepare_chat_context`). Si la clave no coincide con la del pipeline, el
+    gate degrada honestamente a los turnos del cliente.
+    """
+    if request is None:
+        return None
+    scope_type = getattr(request, "effective_scope_type", None)
+    scope_id = getattr(request, "effective_scope_id", None)
+    if not scope_type or not scope_id:
+        return None
+    notebook_id = scope_id if scope_type == "notebook" else GLOBAL_SCOPE_ID
+    return _epistemic_cache_key(
+        session_id=session_id,
+        scope_type=scope_type,
+        scope_id=scope_id,
+        notebook_id=notebook_id,
+        active_sources=getattr(request, "active_sources", None),
+        requested_scope_id=getattr(request, "requested_scope_id", None),
+    )
+
+
+def _append_dialogue_turn(
+    gate_key: Optional[str],
+    role: str,
+    content: str,
+    *,
+    episode_id: Optional[str] = None,
+    kc_id: Optional[str] = None,
+) -> None:
+    """Registra un turno delegado/clarificación en el buffer de conversación.
+
+    EP-01: sin este registro, la delegación volvería invisible para el
+    pipeline (y para futuras resoluciones de referente) el hecho de que el
+    último intercambio académico perteneció al diálogo del episodio. El
+    marcado ``episode_id``/``kc_id`` sólo lo produce el servidor; los
+    consumidores existentes usan role/content y lo ignoran sin cambio de
+    contrato.
+    """
+    if not gate_key:
+        return
+    turns = _CONV_TURN_BUFFER.get(gate_key) or []
+    entry: Dict[str, Any] = {"role": role, "content": (content or "")[:_MAX_RECENT_TURN_CHARS]}
+    if episode_id:
+        entry["episode_id"] = episode_id
+        if kc_id:
+            entry["kc_id"] = kc_id
+    if turns and turns[-1].get("role") == role:
+        turns[-1] = entry
+    else:
+        turns.append(entry)
+    _CONV_TURN_BUFFER[gate_key] = turns[-_MAX_RECENT_MESSAGES:]
+
+
+def _is_pure_meta_followup(prompt_text: str, kcs_list: List[Dict[str, Any]]) -> bool:
+    """EP-01/H1-A: mensaje meta sin tema propio (marcador + sin match de KC).
+
+    Un mensaje que matchea los marcadores cerrados de diálogo y NO matchea
+    ningún KC del catálogo aplicable es discurso conversacional puro: hereda
+    el referente académico de la conversación (no aporta vocabulario temático
+    propio). Un mensaje con tema explícito («dame un ejemplo de punteros y
+    malloc») matchea su KC y queda excluido por diseño.
+    """
+    if not kcs_list or not prompt_text:
+        return False
+    lowered = " ".join(prompt_text.lower().split())
+    if not any(mk in lowered for mk in _DIALOGUE_META_MARKERS):
+        return False
+    return _match_kc_id(kcs_list, prompt_text) is None
+
+
+def _referent_clarification_stream(
+    *,
+    requested_phase: Optional[str],
+    gate_key: Optional[str],
+    prompt_text: str,
+) -> AsyncGenerator[str, None]:
+    """C (EP-01): aclaración breve cuando el referente es ambiguo.
+
+    No delega al episodio, no genera explicación académica y no inventa el
+    referente: pide al estudiante la desambiguación explícita. La forma del
+    evento replica la clarificación del pipeline (event_type=clarification)
+    para que el cliente la presente sin cambios.
+    """
+    phase_id = requested_phase or "conceptual"
+
+    async def _clarify_gen() -> AsyncGenerator[str, None]:
+        _append_dialogue_turn(gate_key, "user", prompt_text)
+        message = referent_clarification_message()
+        yield (
+            "data: "
+            + json.dumps(
+                {
+                    "event_type": "phase_start",
+                    "payload": {
+                        "phase": phase_id,
+                        "pedagogical_mode": "clarification_request",
+                        "code_allowed": False,
+                        "max_tokens": 0,
+                    },
+                }
+            )
+            + "\n\n"
+        )
+        yield (
+            "data: "
+            + json.dumps(
+                {
+                    "event_type": "clarification",
+                    "payload": {
+                        "phase": phase_id,
+                        "abstained": True,
+                        "reason": message,
+                        "suggested_action": (
+                            "Indicame qué explicación querés retomar (el episodio "
+                            "o lo último del chat) y la continúo."
+                        ),
+                        "abstention_code": "CONTEXT_REFERENCE_REQUIRES_CLARIFICATION",
+                    },
+                }
+            )
+            + "\n\n"
+        )
+        _append_dialogue_turn(gate_key, "assistant", "Clarificación: referente ambiguo")
+
+    return _clarify_gen()
+
+
+def _maybe_dialogue_turn_stream(
+    container: AppContainer,
+    session_id: Optional[str],
+    prompt_text: str,
+    requested_phase: Optional[str],
+    request: Optional["ChatQueryRequest"] = None,
+) -> Optional[AsyncGenerator[str, None]]:
+    """M1-03 §5 + EP-01/H1-A: delegación de meta-discurso con referente resuelto.
+
+    Devuelve el stream del turno de diálogo SOLO si TODAS las condiciones
+    deterministas se cumplen:
+      1. El mensaje matchea marcadores de meta-discurso (listas cerradas).
+      2. Existe sesión de estudio con snapshot accesible bajo session_id.
+      3. El snapshot tiene episodio activo en fase EXPLAINING/DIALOGUE.
+      4. Existe ConceptResponse APROBADA reutilizable para el episodio
+         (fail-closed: sin packet aprobado no se genera contenido nuevo).
+      5. EP-01: el referente académico inmediato queda VERIFICADO como el del
+         episodio (identidad de estudiante/cuaderno/KC consistente; sin tema
+         explícito distinto en el mensaje; sin referencia a actividad; sin
+         intercambio académico más reciente del chat que compita; sin
+         ambigüedad mismo-KC sin desempate). Ante tema distinto o contexto
+         incompatible el pipeline del chat procesa la consulta (CHAT_ROUTE);
+         ante ambigüedad se emite una aclaración breve (CLARIFY).
+
+    En otro caso devuelve None (pipeline normal de chat). Una vez delegado,
+    los errores técnicos se reportan como error SSE, nunca como abstinencia.
+    """
+    if not prompt_text or not prompt_text.strip():
+        return None
+    lowered = " ".join(prompt_text.lower().split())
+    if not any(mk in lowered for mk in _DIALOGUE_META_MARKERS):
+        return None
+    if not session_id:
+        return None
+    orch = getattr(container, "study_session_orchestrator", None)
+    if orch is None:
+        return None
+    try:
+        snapshot = orch.get_snapshot(session_id)
+    except Exception:
+        return None
+    episode_id = getattr(snapshot, "episode_id", None)
+    episode_phase = getattr(snapshot, "episode_phase", None) or ""
+    if not episode_id or episode_phase not in _DIALOGUE_DELEGATE_PHASES:
+        return None
+    # packet aprobado reutilizable (el turno de diálogo jamás produce
+    # contenido fáctico nuevo; sin packet, la delegación no aporta el
+    # contrato de continuidad → pipeline normal).
+    try:
+        from study_engine.web.routes.dialogue import _load_or_reuse_concept_response
+
+        concept_resp = _load_or_reuse_concept_response(
+            container.pedagogical_orchestrator, episode_id
+        )
+    except Exception:
+        logger.exception("M1-03 §5: pre-chequeo de packet del episodio falló.")
+        return None
+    if concept_resp is None or getattr(concept_resp, "packet", None) is None:
+        return None
+
+    # EP-01/H1-A: resolver el referente académico ANTES de reutilizar el
+    # episodio. La decisión ya no se toma por marcadores + episodio activo
+    # solamente: se verifica la identidad del referente con evidencia
+    # determinista (packet del episodio, snapshot de sesión, catálogo KC,
+    # registro de conversación del servidor o historial sanitizado del
+    # cliente). Una coincidencia aproximada nunca se convierte por sí sola
+    # en autoridad sobre el referente.
+    packet = getattr(concept_resp, "packet", None)
+    episode_kc = getattr(packet, "kc_id", None)
+    episode_nb = getattr(packet, "notebook_id", None)
+    scope_notebook: Optional[str] = None
+    if request is not None and getattr(request, "effective_scope_type", None) == "notebook":
+        scope_notebook = getattr(request, "effective_scope_id", None) or None
+    kcs_list = _referent_kcs_list(container, scope_notebook, episode_nb)
+    gate_key = _dialogue_gate_cache_key(request, session_id)
+    conversation_turns: List[Dict[str, Any]] = (
+        list(_CONV_TURN_BUFFER.get(gate_key) or []) if gate_key else []
+    )
+    if not conversation_turns and request is not None:
+        conversation_turns = _sanitize_recent_turns(
+            getattr(request, "recent_turns", None),
+            current_prompt=prompt_text,
+        )
+    recent_referent = resolve_recent_referent(
+        conversation_turns,
+        lambda text: (_match_kc_id(kcs_list, text) if kcs_list else None),
+    )
+    message_kc = _match_kc_id(kcs_list, prompt_text) if kcs_list else None
+    decision = classify_dialogue_referent(
+        message_kc=message_kc,
+        recent_referent=recent_referent,
+        active_episode_id=episode_id,
+        episode_kc=episode_kc,
+        episode_notebook=episode_nb,
+        scope_notebook=scope_notebook,
+        session_student=getattr(snapshot, "student_id", None),
+        session_kc=getattr(snapshot, "current_kc_id", None),
+        expected_student=CANONICAL_STUDENT_ID,
+        activity_referenced=bool(_ACTIVITY_REFERENCE_RE.search(prompt_text)),
+    )
+    if decision is ReferentDecision.CHAT_ROUTE:
+        # B/D: no reutilizar el episodio; el pipeline del chat procesa la
+        # consulta por su ruta académica correspondiente.
+        return None
+    if decision is ReferentDecision.CLARIFY:
+        return _referent_clarification_stream(
+            requested_phase=requested_phase,
+            gate_key=gate_key,
+            prompt_text=prompt_text,
+        )
+
+    async def _dlg_gen() -> AsyncGenerator[str, None]:
+        phase_id = requested_phase or "conceptual"
+        # EP-01: registrar el turno delegado en la conversación del servidor
+        # para que futuras resoluciones de referente vean que el intercambio
+        # académico más reciente perteneció al diálogo de ESTE episodio.
+        _append_dialogue_turn(gate_key, "user", prompt_text)
+        try:
+            from study_engine.web.routes.dialogue import (
+                DialogueMessageRequest,
+                process_dialogue_turn,
+            )
+
+            resp = await process_dialogue_turn(
+                episode_id=episode_id,
+                req=DialogueMessageRequest(message=prompt_text),
+                container=container,
+            )
+        except Exception:
+            logger.exception("M1-03 §5: turno de diálogo delegado falló (fail-closed).")
+            _append_dialogue_turn(gate_key, "assistant", "Error técnico: turno no completado")
+            yield (
+                "data: "
+                + json.dumps(
+                    {
+                        "event_type": "error",
+                        "payload": {
+                            "phase": phase_id,
+                            "message": (
+                                "TALOS no pudo completar la respuesta por un "
+                                "error técnico. Reintentá la consulta."
+                            ),
+                        },
+                    }
+                )
+                + "\n\n"
+            )
+            return
+
+        status = resp.get("status") or ""
+        answer = (resp.get("answer") or "").strip()
+        abstention_reason = resp.get("abstention_reason")
+        audit_verdict = resp.get("audit_verdict")
+        sq = resp.get("socratic_question") or {}
+        question_text = (sq.get("question_text") or "").strip() if isinstance(sq, dict) else ""
+
+        yield (
+            "data: "
+            + json.dumps(
+                {
+                    "event_type": "phase_start",
+                    "payload": {
+                        "phase": phase_id,
+                        "pedagogical_mode": "socratic_dialogue",
+                        "code_allowed": False,
+                        "max_tokens": 0,
+                    },
+                }
+            )
+            + "\n\n"
+        )
+
+        composed = answer if not question_text else f"{answer}\n\n{question_text}" if answer else question_text
+        verdict = str(audit_verdict or "").upper()
+        emitted_tokens = 0
+        if status == "ABSTAINED":
+            reason = abstention_reason or (
+                "TALOS se abstiene de responder: no hay material aprobado para "
+                "sostener este turno del diálogo con evidencia."
+            )
+            _append_dialogue_turn(gate_key, "assistant", f"Abstención: {reason}")
+            yield (
+                "data: "
+                + json.dumps(
+                    {
+                        "event_type": "abstention",
+                        "payload": {
+                            "phase": phase_id,
+                            "abstained": True,
+                            "reason": reason,
+                            "abstention_code": str(verdict or "ACADEMIC_OR_UNVERIFIED"),
+                        },
+                    }
+                )
+                + "\n\n"
+            )
+            return
+
+        # Fail-closed de la via S4.4: solo texto con veredicto aprobatorio se
+        # emite al estudiante (contrato DialogueEngine.generate: valores
+        # válidos "APPROVED" / "AuditVerdict.APPROVED"; el prefijo de enum se
+        # normaliza y el resto NUNCA aprueba).
+        _verdict_raw = str(audit_verdict or "").upper()
+        verdict = _verdict_raw.split(".")[-1] if _verdict_raw else ""
+        approved = verdict == "APPROVED"
+        if not composed:
+            _append_dialogue_turn(gate_key, "assistant", "Error técnico: turno no completado")
+            yield (
+                "data: "
+                + json.dumps(
+                    {
+                        "event_type": "error",
+                        "payload": {
+                            "phase": phase_id,
+                            "message": (
+                                "TALOS no pudo completar la respuesta por un "
+                                "error técnico. Reintentá la consulta."
+                            ),
+                        },
+                    }
+                )
+                + "\n\n"
+            )
+            return
+        if not approved:
+            _append_dialogue_turn(gate_key, "assistant", f"Abstención: {verdict or 'REJECTED_UNSUPPORTED'}")
+            yield (
+                "data: "
+                + json.dumps(
+                    {
+                        "event_type": "abstention",
+                        "payload": {
+                            "phase": phase_id,
+                            "abstained": True,
+                            "reason": (
+                                "La respuesta de este turno no obtuvo un "
+                                "veredicto S4.4 válido y aprobatorio."
+                            ),
+                            "abstention_code": verdict or "REJECTED_UNSUPPORTED",
+                        },
+                    }
+                )
+                + "\n\n"
+            )
+            return
+
+        # Emisión determinista por trozos (sin latencias artificiales).
+        # Manifest de evidencia del turno para identidad de citas (los chips
+        # [E#] se resuelven por citation_id/namespace, nunca por posición).
+        citations_payload = resp.get("citations") or []
+        if isinstance(citations_payload, list) and citations_payload:
+            yield (
+                "data: "
+                + json.dumps(
+                    {
+                        "event_type": "evidence_manifest",
+                        "payload": {
+                            "citations": citations_payload,
+                            "facet_coverage": {},
+                            "abstained": False,
+                            "abstention_reason": None,
+                        },
+                    }
+                )
+                + "\n\n"
+            )
+        CHUNK = 48
+        for i in range(0, len(composed), CHUNK):
+            yield (
+                "data: "
+                + json.dumps(
+                    {
+                        "event_type": "phase_token",
+                        "payload": {"phase": phase_id, "token": composed[i : i + CHUNK]},
+                    }
+                )
+                + "\n\n"
+            )
+            emitted_tokens += 1
+        yield (
+            "data: "
+            + json.dumps(
+                {
+                    "event_type": "audit_verdict",
+                    "payload": {
+                        "phase": phase_id,
+                        "verdict": verdict or "APPROVED",
+                        "metrics": {"dialogue_episodio": episode_id},
+                    },
+                }
+            )
+            + "\n\n"
+        )
+        yield (
+            "data: "
+            + json.dumps(
+                {
+                    "event_type": "phase_complete",
+                    "payload": {
+                        "completed_phase": phase_id,
+                        "tokens_produced": emitted_tokens,
+                        "next_phases": ["pseudocode", "python_code"],
+                        "decision": {"message": composed},
+                    },
+                }
+            )
+            + "\n\n"
+        )
+        # EP-01: el turno aprobado del episodio queda registrado como el
+        # intercambio académico más reciente, con el marcado de episodio que
+        # permite verificar futuras continuaciones sin ambigüedad.
+        _append_dialogue_turn(
+            gate_key,
+            "assistant",
+            composed,
+            episode_id=episode_id,
+            kc_id=episode_kc,
+        )
+
+    return _dlg_gen()
+
+
 @router.post("/query")
 async def chat_query(
     request: ChatQueryRequest,
@@ -2036,6 +3307,53 @@ async def chat_query(
         )
     if not request.session_id:
         request.session_id = f"chat-{uuid4().hex}"
+
+    from study_engine.pedagogy.command_parser import CommandType, parse_student_command
+    command = parse_student_command(raw_prompt)
+    if command is not None and command.command_type == CommandType.DAME_UN_EJERCICIO:
+        from study_engine.pedagogy.exercise_store import ExerciseStore
+        exercise_store = getattr(container, "exercise_store", None)
+        if exercise_store is None:
+            exercise_store = ExerciseStore()
+
+        exercise = None
+        if exercise_store is not None:
+            all_qual = [ex for ex in exercise_store.list_all() if ex.is_presentable()]
+            target_topic = (command.target_arg or "").strip()
+            if target_topic:
+                norm_t = target_topic.lower().strip()
+                matches = [
+                    ex for ex in all_qual
+                    if (ex.kc_id and norm_t in ex.kc_id.lower())
+                    or (ex.prompt and norm_t in ex.prompt.lower())
+                ]
+                if matches:
+                    exercise = matches[0]
+            elif all_qual:
+                exercise = all_qual[0]
+
+        async def exercise_dispatch_stream() -> AsyncGenerator[str, None]:
+            if exercise is None:
+                yield f"data: {json.dumps({'event_type': 'evidence_manifest', 'payload': {'citations': [], 'facet_coverage': {}, 'abstained': True, 'abstention_reason': 'QUERY_OUT_OF_SCOPE', 'trust_status': 'NO_EVIDENCE'}})}\n\n"
+                yield f"data: {json.dumps({'event_type': 'abstention', 'payload': {'phase': request.requested_phase or 'conceptual', 'abstained': True, 'reason': 'TALOS se abstiene de responder: No existe una práctica certificada y autorizada para este tema.', 'suggested_action': 'Consultá el catálogo de fuentes del cuaderno o reformulá la pregunta con términos del programa.', 'abstention_code': 'QUERY_OUT_OF_SCOPE', 'trust_status': 'NO_EVIDENCE', 'notebook_id': request.scope_id or request.scope_id}})}\n\n"
+                return
+
+            proposal_payload = {
+                'exercise_id': exercise.exercise_id,
+                'kc_id': exercise.kc_id,
+                'title': (exercise.prompt or '')[:80],
+                'prompt': exercise.prompt,
+                'type': getattr(exercise.exercise_type, 'value', str(exercise.exercise_type)),
+                'options': list(exercise.options) if exercise.options else None,
+            }
+            yield f"data: {json.dumps({'event_type': 'evidence_manifest', 'payload': {'citations': [], 'facet_coverage': {'exercise': exercise.kc_id}, 'abstained': False, 'trust_status': 'SUFFICIENT_EVIDENCE'}})}\n\n"
+            yield f"data: {json.dumps({'event_type': 'exercise_proposal', 'payload': proposal_payload})}\n\n"
+            yield f"data: {json.dumps({'event_type': 'phase_complete', 'payload': {'completed_phase': request.requested_phase or 'conceptual', 'status': 'EXERCISE_PROPOSED', 'exercise_id': exercise.exercise_id}})}\n\n"
+
+        return StreamingResponse(
+            exercise_dispatch_stream(),
+            media_type="text/event-stream",
+        )
 
     # Pre-flight DataSanitizer check for Accidental PII / Credentials (Ola 5, Fase 5.1)
     from study_engine.security.data_sanitizer import DataSanitizer
@@ -2087,6 +3405,31 @@ async def chat_query(
         prompt_text = container.sanitizer.sanitize(raw_prompt)
     else:
         prompt_text = raw_prompt.strip()
+
+    # M1-03 §5 (delegación de meta-discurso al diálogo del episodio activo):
+    # en el cliente REAL los turnos del diálogo socrático (reformulaciones,
+    # pedidos de ejemplo, señales de confusión) llegan por /api/chat/query
+    # con el session_id de la sesión de estudio activa. Sin delegación, el
+    # gate C5 los trata como consultas de contenido y abstenidos
+    # QUERY_OUT_OF_SCOPE (hallazgo del escenario de 8 pasos en navegador:
+    # "no entiendo, explícame de otra forma" → abstinencia, rompiendo la
+    # continuidad pedagógica). La delegación es acotada y fail-closed:
+    # solo mensajes meta (marcadores deterministas), solo si existe sesión
+    # con episodio activo en fase de diálogo Y un ConceptPacket ya APROBADO
+    # por S4.4 (no se genera contenido nuevo ni se re-audita lo aprobado).
+    # Los mensajes de contenido (ej. afirmaciones erróneas sobre el tema)
+    # conservan el pipeline completo de chat (retrieval + S4.4) que maneja
+    # la corrección fundada. Un fallo técnico una vez comprometida la
+    # delegación se reporta como error técnico, nunca como abstinencia.
+    dialogue_stream = _maybe_dialogue_turn_stream(
+        container=container,
+        session_id=request.session_id,
+        prompt_text=prompt_text,
+        requested_phase=request.requested_phase,
+        request=request,
+    )
+    if dialogue_stream is not None:
+        return StreamingResponse(dialogue_stream, media_type="text/event-stream")
 
     store = container.knowledge_store
     resolver = getattr(container, "scope_resolver", None) or ScopeResolver(store)
@@ -2206,18 +3549,12 @@ async def chat_query(
 
     async def sse_generator() -> AsyncGenerator[str, None]:
         try:
-            # Enmienda E5: Si context_pack indica abstención por falta de fuentes canónicas,
-            # emitir evidence_manifest indicando abstención y luego evento 'abstention' sin invocar al LLM.
-            # Nota: Si el backend es OfflinePedagogicalBackend (típico en pruebas offline del oráculo socrático),
-            # permitimos que complete para emitir sus respuestas curriculares autorizadas u honestas.
-            from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
-            is_offline_oracle = isinstance(llm_backend, OfflinePedagogicalBackend)
-            if context_pack is not None and getattr(context_pack, "abstained", False) and not is_offline_oracle:
-                # COMMIT 1 (fix/memory): las declaraciones meta del estudiante
-                # ("prefiero analogías de...") no pueden morir en el gate de
-                # abstención: persistimos memoria aunque el contenido abstenga.
-                # process_turn_memories solo lee la query del usuario para
-                # preferencias/patrones; no depende de chunks recuperados.
+            # C5 Universal Trust Gate (Fail-Closed Absoluto - D_C5_4 & D_C5_5 & Addendum 2)
+            is_sufficient = getattr(context_pack, "is_sufficient", False) if context_pack is not None else False
+            is_abstained = getattr(context_pack, "abstained", True) if context_pack is not None else True
+            trust_status = getattr(context_pack, "trust_status", EpistemicTrustStatus.NO_EVIDENCE) if context_pack is not None else EpistemicTrustStatus.RETRIEVAL_FAILURE
+
+            if context_pack is None or is_abstained or not is_sufficient:
                 _trigger_background_memory_extraction(
                     container=container,
                     student_id=CANONICAL_STUDENT_ID,
@@ -2229,8 +3566,10 @@ async def chat_query(
                     notebook_id=target_notebook_id,
                 )
 
-                reason = getattr(context_pack, "abstention_reason", "QUERY_OUT_OF_SCOPE")
-                clarification_message = getattr(context_pack, "clarification_message", None)
+                reason = getattr(context_pack, "abstention_reason", None) or (
+                    "RETRIEVAL_FAILURE" if (context_pack is None or trust_status == EpistemicTrustStatus.RETRIEVAL_FAILURE) else "QUERY_OUT_OF_SCOPE"
+                )
+                clarification_message = getattr(context_pack, "clarification_message", None) if context_pack is not None else None
                 abstention_decision = getattr(pipeline, "_last_abstention_decision", None)
                 if abstention_decision and getattr(abstention_decision, "abstention_reason", None):
                     reason = getattr(abstention_decision, "abstention_reason")
@@ -2242,22 +3581,30 @@ async def chat_query(
                         "facet_coverage": {},
                         "abstained": True,
                         "abstention_reason": reason,
+                        "trust_status": trust_status.value if hasattr(trust_status, "value") else str(trust_status),
                     },
                 }
                 yield f"data: {json.dumps(manifest_payload)}\n\n"
 
+                is_retrieval_err = (context_pack is None or trust_status == EpistemicTrustStatus.RETRIEVAL_FAILURE or reason == "RETRIEVAL_FAILURE")
+                event_name = "error" if is_retrieval_err else ("clarification" if clarification_message else "abstention")
                 abstention_payload = {
-                    "event_type": "clarification" if clarification_message else "abstention",
+                    "event_type": event_name,
                     "payload": {
                         "phase": request.requested_phase or "conceptual",
                         "abstained": True,
-                        "reason": clarification_message or (
-                            reason if reason and reason != "QUERY_OUT_OF_SCOPE" else
-                            "TALOS se abstiene de responder: No se hallaron evidencias curriculares "
-                            "verificables en las fuentes canónicas del cuaderno para fundamentar esta consulta."
+                        "reason": (
+                            "TALOS falló de forma segura (fail-closed): Ocurrió un error técnico al recuperar evidencias canónicas."
+                            if is_retrieval_err
+                            else (clarification_message or (
+                                reason if reason and reason != "QUERY_OUT_OF_SCOPE" else
+                                "TALOS se abstiene de responder: No se hallaron evidencias curriculares "
+                                "verificables en las fuentes canónicas del cuaderno para fundamentar esta consulta."
+                            ))
                         ),
-                        "suggested_action": "Consultá el catálogo de fuentes del cuaderno o reformulá la pregunta con términos del programa.",
+                        "suggested_action": "Reintentá la consulta en unos instantes o consultá el catálogo del cuaderno." if is_retrieval_err else "Consultá el catálogo de fuentes del cuaderno o reformulá la pregunta con términos del programa.",
                         "abstention_code": reason,
+                        "trust_status": trust_status.value if hasattr(trust_status, "value") else str(trust_status),
                         "notebook_id": target_notebook_id,
                     },
                 }
@@ -2266,13 +3613,13 @@ async def chat_query(
                 yield f"data: {json.dumps(abstention_payload)}\n\n"
                 return
 
-            style_dir = style_result.instruction_directive if style_result else None
             from study_engine.pedagogy.structured_pipeline import (
                 classify_pedagogical_intent,
                 resolve_response_intent,
             )
             conv_intent = classify_pedagogical_intent(prompt_text)
             response_intent = resolve_response_intent(prompt_text, conv_intent)
+            style_dir = _style_directive_for_task(style_result, response_intent.task)
 
             if protected_assessment and (
                 protected_solutions is None
@@ -2326,6 +3673,11 @@ async def chat_query(
             else:
                 live_max_tokens = None
             accumulated_response_text = ""
+            pending_ui_tokens: List[Dict[str, Any]] = []
+            audited_verdict_payload: Optional[Dict[str, Any]] = None
+            audited_content_hash: Optional[str] = None
+            audited_binding_id: Optional[str] = None
+            expected_binding_id = uuid4().hex
 
             # Validador de citas y buffer de streaming (Fase 2 + Commit 1 + Enmienda E-UX1)
             from study_engine.pedagogy.citation_validator import CitationValidator, StreamCitationBuffer
@@ -2338,8 +3690,6 @@ async def chat_query(
             )
 
             ref_disclaimer = getattr(context_pack, "reference_disclaimer", None) if context_pack else None
-            ref_prefix = f"{ref_disclaimer}\n\n" if ref_disclaimer else ""
-            ref_emitted = False
 
             # Slice 3: Construir bloque de perfil cognitivo dinámico (<120 tokens)
             prof_injector = getattr(container, "profile_injector", None)
@@ -2351,12 +3701,22 @@ async def chat_query(
                 context_pack=context_pack,
                 requested_phase=request.requested_phase or "conceptual",
                 pedagogical_mode=conv_intent,
+                # EP-02/H1-B: transporte de la directiva adaptativa compuesta
+                # (BKT/dificultad/andamiaje/espiral/digest) al consumidor real
+                # de generación. Calculada en `_prepare_chat_context` para el
+                # KC matcheado de ESTE turno y esta sesión (identidad y scope
+                # por construcción); el presupuesto C3 la contabiliza
+                # (`enforce_c3_budget(bkt_directive=...)`) y S4.4 sigue
+                # auditando el texto resultante (la directiva adapta, no
+                # sustituye evidencia).
+                bkt_directive=bkt_directive,
                 style_directive=style_dir,
                 override_max_tokens=live_max_tokens,
                 recent_turns=conv_turns,
                 cognitive_profile_block=cognitive_block,
                 context_mode=context_mode,
                 protected_assessment=protected_assessment,
+                content_binding_id=expected_binding_id,
             ):
                 payload = {
                     "event_type": event.event_type,
@@ -2365,47 +3725,43 @@ async def chat_query(
 
                 if event.event_type == "phase_token":
                     token_str = event.payload.get("token", "")
-                    if ref_prefix and not ref_emitted:
-                        ref_emitted = True
-                        accumulated_response_text += ref_prefix
-                        tok_payload = {
-                            "event_type": "phase_token",
-                            "payload": {**event.payload, "token": ref_prefix},
-                        }
-                        if not protected_assessment:
-                            yield f"data: {json.dumps(tok_payload)}\n\n"
-
                     emitted_tokens = stream_citation_buf.process_token(token_str)
                     for em_tok in emitted_tokens:
                         accumulated_response_text += em_tok
-                        tok_payload = {
+                        pending_ui_tokens.append({
                             "event_type": "phase_token",
                             "payload": {**event.payload, "token": em_tok},
-                        }
-                        if not protected_assessment:
-                            yield f"data: {json.dumps(tok_payload)}\n\n"
+                        })
+                    continue
+
+                if event.event_type == "audit_verdict":
+                    # The route must not release or transform content until it
+                    # has retained the binding produced by the pipeline.
+                    audited_verdict_payload = payload
+                    event_payload = event.payload
+                    if isinstance(event_payload, dict):
+                        audited_content_hash = event_payload.get("content_sha256")
+                        audited_binding_id = event_payload.get("content_binding_id")
+                    continue
+
+                if event.event_type == "abstention":
+                    if audited_verdict_payload is not None:
+                        bound_audit = _bind_audit_event(
+                            audited_verdict_payload, session_id=request.session_id,
+                            scope_type=target_scope_type, scope_id=target_scope_id, emission="blocked",
+                        )
+                        yield f"data: {json.dumps(bound_audit)}\n\n"
+                    yield f"data: {json.dumps(payload)}\n\n"
                     continue
 
                 if event.event_type == "phase_complete":
-                    if ref_prefix and not ref_emitted:
-                        ref_emitted = True
-                        accumulated_response_text = ref_prefix + accumulated_response_text
-                        tok_payload = {
-                            "event_type": "phase_token",
-                            "payload": {"phase": request.requested_phase or "conceptual", "token": ref_prefix},
-                        }
-                        if not protected_assessment:
-                            yield f"data: {json.dumps(tok_payload)}\n\n"
-
                     # 1. Flushear cualquier fragmento retenido en el lookahead buffer
                     for fl_tok in stream_citation_buf.flush():
                         accumulated_response_text += fl_tok
-                        tok_payload = {
+                        pending_ui_tokens.append({
                             "event_type": "phase_token",
                             "payload": {"phase": request.requested_phase or "conceptual", "token": fl_tok},
-                        }
-                        if not protected_assessment:
-                            yield f"data: {json.dumps(tok_payload)}\n\n"
+                        })
 
                     # 2. Reescritura canónica determinista de citas (Commit 1)
                     accumulated_response_text, invalid_citations = citation_validator.validate_and_rewrite(
@@ -2430,14 +3786,62 @@ async def chat_query(
                             if protected_solution_blocked:
                                 payload["payload"]["status"] = "PROTECTED_ASSESSMENT_BLOCKED"
                         if accumulated_response_text:
-                            protected_token = {
+                            pending_ui_tokens = [{
                                 "event_type": "phase_token",
                                 "payload": {
                                     "phase": request.requested_phase or "conceptual",
                                     "token": accumulated_response_text,
                                 },
-                            }
-                            yield f"data: {json.dumps(protected_token)}\n\n"
+                            }]
+
+                    # The pipeline's hash covers the exact text it audited.
+                    # Any route-level rewrite, prefix, or substitution is a
+                    # fail-closed mismatch and must not release buffered text.
+                    approved_verdicts = {"APPROVED", "AuditVerdict.APPROVED"}
+                    route_verdict = None
+                    if audited_verdict_payload is not None:
+                        route_payload = audited_verdict_payload.get("payload", {})
+                        if isinstance(route_payload, dict):
+                            route_verdict = route_payload.get("verdict")
+                    final_content_hash = hashlib.sha256(
+                        accumulated_response_text.encode("utf-8")
+                    ).hexdigest()
+                    if (
+                        route_verdict not in approved_verdicts
+                        or not _route_content_binding_matches(
+                            audited_content_hash,
+                            accumulated_response_text,
+                            audited_binding_id,
+                            expected_binding_id,
+                        )
+                    ):
+                        rejection_payload = {
+                            "event_type": "audit_verdict",
+                            "payload": {
+                                "phase": request.requested_phase or "conceptual",
+                                "verdict": (
+                                    "AUDIT_RESULT_MISSING"
+                                    if audited_verdict_payload is None
+                                    else "REJECTED_INPUT_MISMATCH"
+                                ),
+                                "content_sha256": final_content_hash,
+                                "content_binding_id": expected_binding_id,
+                            },
+                        }
+                        yield f"data: {json.dumps(rejection_payload)}\n\n"
+                        abstention_payload = {
+                            "event_type": "abstention",
+                            "payload": {
+                                "phase": request.requested_phase or "conceptual",
+                                "abstained": True,
+                                "reason": (
+                                    "La respuesta no tiene un binding válido entre el contenido auditado y el emitido."
+                                ),
+                                "abstention_code": rejection_payload["payload"]["verdict"],
+                            },
+                        }
+                        yield f"data: {json.dumps(abstention_payload)}\n\n"
+                        return
 
                     valid_citations, _ = citation_validator.audit_only(
                         text=accumulated_response_text,
@@ -2503,6 +3907,9 @@ async def chat_query(
                                 "chunk_id": chunk.get("chunk_id"),
                                 "doc_hash": chunk.get("doc_hash"),
                                 "epistemic_role": chunk.get("epistemic_role"),
+                                **({key: chunk.get(key) for key in (
+                                    "notebook_id", "bridge_id", "plan_id", "content_hash",
+                                )} if chunk.get("plan_id") else {}),
                             }
                             for chunk in raw_chunks
                         ]
@@ -2526,6 +3933,19 @@ async def chat_query(
                         llm_backend=llm_backend,
                         notebook_id=target_notebook_id,
                     )
+
+                    # Release only after every route-level transformation has
+                    # been checked against the pipeline's audited digest.
+                    # Keep the audit verdict before all released phase content.
+                    if audited_verdict_payload is not None:
+                        bound_audit = _bind_audit_event(
+                            audited_verdict_payload, session_id=request.session_id,
+                            scope_type=target_scope_type, scope_id=target_scope_id, emission="authorized",
+                        )
+                        yield f"data: {json.dumps(bound_audit)}\n\n"
+                    if not protected_assessment:
+                        for token_payload in pending_ui_tokens:
+                            yield f"data: {json.dumps(token_payload)}\n\n"
 
                     # Fase 5.3: loop de evaluación — tras N turnos seguidos sobre
                     # el mismo KC, proponer ejercicio certificado (fail-closed).
@@ -2564,7 +3984,12 @@ async def chat_query(
             logger.warning("Fallo en generación streaming de chat: %s", e, exc_info=True)
             err_payload = {
                 "event_type": "error",
-                "payload": {"message": f"Error interno en respuesta pedagógica: {str(e)}"},
+                "payload": {
+                    "reason": (
+                        "TALOS no pudo completar la respuesta por un error técnico. "
+                        "Reintentá la consulta."
+                    )
+                },
             }
             yield f"data: {json.dumps(err_payload)}\n\n"
 
@@ -2591,7 +4016,9 @@ class ExerciseEvaluateRequest(BaseModel):
     exercise_id: str = Field(..., min_length=1, max_length=128)
     user_answer: str = Field(..., min_length=1, max_length=2000)
     notebook_id: Optional[str] = Field(default=None, description="Contexto opcional del cuaderno")
-    session_id: Optional[str] = Field(default=None, description="ID de sesión para el digest (opcional)")
+    session_id: Optional[str] = Field(default=None, min_length=1, description="ID de sesión para delimitar el intento")
+    episode_id: Optional[str] = Field(default=None, min_length=1, description="Episodio activo asociado a la propuesta, si existe")
+    attempt_id: Optional[str] = Field(default=None, min_length=1, description="Identidad estable del intento")
 
 
 def _remediation_message(kc_id: str, exercise: Any, p_l: float) -> str:
@@ -2609,6 +4036,64 @@ async def evaluate_exercise_answer(
     req: ExerciseEvaluateRequest,
     container: AppContainer = Depends(get_container),
 ) -> Dict[str, Any]:
+    """Evaluate with a durable session/attempt key and fail closed if identity is missing."""
+    storage = getattr(container, "student_storage", None)
+    if not req.session_id or not req.attempt_id or storage is None:
+        return {
+            "status": "UNGRADED",
+            "exercise_id": req.exercise_id,
+            "is_correct": None,
+            "p_L": None,
+            "delta_p_L": 0.0,
+            "remediation": None,
+            "detail": "Se requieren session_id, attempt_id y persistencia para evaluar de forma idempotente.",
+        }
+
+    operation_scope = req.episode_id or "chat-exercise-evaluation"
+    request_digest = hashlib.sha256(
+        json.dumps(req.model_dump(mode="json"), sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    reservation, payload = storage.begin_operation_receipt(
+        session_id=req.session_id,
+        episode_id=operation_scope,
+        exercise_id=req.exercise_id,
+        attempt_id=req.attempt_id,
+        request_digest=request_digest,
+    )
+    if reservation == "CONFLICT":
+        raise HTTPException(status_code=409, detail="attempt_id ya fue usado con otro contenido.")
+    if reservation == "REPLAY" and payload is not None:
+        replay = json.loads(payload)
+        replay.pop("_struggle_state", None)
+        replay["was_idempotent_replay"] = True
+        return replay
+    if reservation == "IN_PROGRESS":
+        raise HTTPException(status_code=409, detail="El intento anterior quedó incompleto; no se reejecutará automáticamente.")
+    if reservation != "STARTED":
+        raise HTTPException(status_code=409, detail="No se pudo reservar la identidad del intento.")
+
+    # The durable IN_PROGRESS marker is committed first. All subsequent SQLite
+    # learning-state writes and receipt completion then share one outer transaction.
+    with storage.transaction():
+        container.study_session_orchestrator.require_open_session(req.session_id)
+        result = await _evaluate_exercise_answer_once(req, container)
+        result["was_idempotent_replay"] = False
+        storage.complete_operation_receipt(
+            session_id=req.session_id,
+            episode_id=operation_scope,
+            exercise_id=req.exercise_id,
+            attempt_id=req.attempt_id,
+            request_digest=request_digest,
+            result_json=json.dumps(result, sort_keys=True),
+        )
+        result.pop("_struggle_state", None)
+        return result
+
+
+async def _evaluate_exercise_answer_once(
+    req: ExerciseEvaluateRequest,
+    container: AppContainer,
+) -> Dict[str, Any]:
     """Califica una respuesta de ejercicio con grader determinista y muta BKT.
 
     Fail-closed (espeja dialogue.py): sin ejercicio certificado o sin clave,
@@ -2617,24 +4102,151 @@ async def evaluate_exercise_answer(
     from study_engine.student.contracts import ExerciseFormat, ObservationSource
 
     exercise_store = getattr(container, "exercise_store", None)
-    exercise = exercise_store.get_exercise_by_id(req.exercise_id) if exercise_store else None
+    stored_exercise = exercise_store.get_exercise_by_id(req.exercise_id) if exercise_store else None
+    exercise = exercise_store.get_evaluable_exercise_by_id(req.exercise_id) if exercise_store else None
+
+    def ungraded(reason: str) -> Dict[str, Any]:
+        return {
+            "status": "UNGRADED",
+            "exercise_id": req.exercise_id,
+            "is_correct": None,
+            "p_L": None,
+            "delta_p_L": 0.0,
+            "remediation": None,
+            "detail": reason,
+        }
+
+    session_orchestrator = getattr(container, "study_session_orchestrator", None)
+    if session_orchestrator is None:
+        return ungraded("Sesión persistida no disponible; evaluación omitida.")
+    try:
+        session_snapshot = session_orchestrator.get_snapshot(req.session_id)
+    except Exception:
+        return ungraded("session_id no corresponde a una sesión persistida activa.")
+    if req.notebook_id is not None and req.notebook_id != session_snapshot.notebook_id:
+        return ungraded("notebook_id no coincide con el scope de la sesión persistida.")
+    effective_notebook_id = session_snapshot.notebook_id
+
+    bound_episode = None
+    if req.episode_id is not None:
+        if session_snapshot.episode_id != req.episode_id:
+            return ungraded("episode_id no coincide con el episodio activo de la sesión.")
+        pedagogical_orchestrator = getattr(container, "pedagogical_orchestrator", None)
+        bound_episode = (
+            pedagogical_orchestrator.get_episode(req.episode_id)
+            if pedagogical_orchestrator is not None
+            else None
+        )
+        if (
+            bound_episode is None
+            or bound_episode.episode_id != req.episode_id
+            or bound_episode.session_id != req.session_id
+            or bound_episode.notebook_id != effective_notebook_id
+        ):
+            return ungraded("El episodio no pertenece a la sesión y al cuaderno persistidos.")
+
+    def episode_allows(exercise_id: str, kc_id: str) -> bool:
+        if bound_episode is None:
+            return True
+        current_step = getattr(bound_episode, "current_step_id", None)
+        episode_phase = getattr(bound_episode, "phase", None)
+        episode_phase = getattr(episode_phase, "value", episode_phase)
+        return (
+            episode_phase == "EVALUATING"
+            and bound_episode.kc_id == kc_id
+            and (not current_step or current_step == f"step_eval_{exercise_id}")
+        )
+
+    def scope_contains(kc_ids: Sequence[str]) -> bool:
+        catalog = getattr(getattr(container, "pedagogical_orchestrator", None), "_kc_catalog", None)
+        if not isinstance(catalog, dict):
+            return False
+        notebook = catalog.get(effective_notebook_id)
+        if not isinstance(notebook, dict):
+            return False
+        allowed = {
+            item.get("kc_id") for item in notebook.get("kcs", [])
+            if isinstance(item, dict) and isinstance(item.get("kc_id"), str)
+        }
+        return bool(allowed) and all(kc in allowed for kc in kc_ids)
 
     # Fase 6: ejercicios generados (oráculo propio) — path separado y explícito
     generated = None
     registry = getattr(container, "generated_registry", None)
-    if exercise is None and registry is not None:
+    if stored_exercise is None and registry is not None:
         generated = registry.get(req.exercise_id)
 
     if generated is not None:
         from study_engine.pedagogy.generated_registry import GeneratedOracleGrader
+        from study_engine.pedagogy.observation_admissibility import (
+            admit_generated_observation,
+        )
         from study_engine.student.contracts import ExerciseFormat as _Fmt
 
-        grade = GeneratedOracleGrader().grade(req.user_answer, generated["oracle"])
-        is_correct = bool(grade["is_correct"])
-        kc_ids = generated.get("kc_ids") or []
-        primary_kc = kc_ids[0] if kc_ids else "unknown"
+        kc_ids = generated.get("kc_ids")
+        oracle = generated.get("oracle")
+        oracle_types = {"multi_kc": "keyword_coverage", "debugging": "bug_class", "trace": "state_match"}
+        oracle_shape_valid = isinstance(oracle, dict) and (
+            (
+                oracle.get("type") == "keyword_coverage"
+                and isinstance(oracle.get("required"), list)
+                and bool(oracle["required"])
+                and all(
+                    isinstance(item, dict)
+                    and isinstance(item.get("name"), str)
+                    and isinstance(item.get("accept"), list)
+                    and bool(item["accept"])
+                    and all(isinstance(alias, str) and alias.strip() for alias in item["accept"])
+                    for item in oracle["required"]
+                )
+            )
+            or (
+                oracle.get("type") == "bug_class"
+                and isinstance(oracle.get("accept"), list)
+                and bool(oracle["accept"])
+                and all(isinstance(alias, str) and alias.strip() for alias in oracle["accept"])
+            )
+            or (
+                oracle.get("type") == "state_match"
+                and isinstance(oracle.get("final_state"), dict)
+                and bool(oracle["final_state"])
+            )
+        )
+        if (
+            generated.get("exercise_id") != req.exercise_id
+            or generated.get("source") != "generated"
+            or not isinstance(generated.get("prompt"), str)
+            or not generated["prompt"].strip()
+            or not isinstance(kc_ids, list)
+            or not kc_ids
+            or any(not isinstance(k, str) or not k.strip() for k in kc_ids)
+            or len(set(kc_ids)) != len(kc_ids)
+            or not isinstance(oracle, dict)
+            or oracle_types.get(generated.get("kind")) != oracle.get("type")
+            or not oracle_shape_valid
+            or not scope_contains(kc_ids)
+            or not episode_allows(req.exercise_id, kc_ids[0] if kc_ids else "")
+        ):
+            return ungraded("Identidad, tipo, KC o scope del ejercicio generado no verificable.")
 
-        # A5: Registro forense de intento en student_exercise_attempts
+        grade = GeneratedOracleGrader().grade(req.user_answer, oracle)
+        is_correct = bool(grade["is_correct"])
+        primary_kc = kc_ids[0]
+
+        # H2-A (autorización propietaria 2026-10-21): admisibilidad de la
+        # observación. El oráculo generado define el FEEDBACK del ejercicio;
+        # los efectos académicos (BKT, dificultades, digest académico,
+        # espiral) requieren una observación admisible — instrumento
+        # autorizado que haya evaluado efectivamente el conocimiento
+        # atribuido (regla H2-A). Los tres oráculos generados quedan
+        # contenidos por contrato real (ver observation_admissibility.py);
+        # feedback, registro forense del intento y remediación se conservan.
+        admission = admit_generated_observation(
+            kind=generated.get("kind"), kc_ids=kc_ids
+        )
+
+        # Registro forense de intento en student_exercise_attempts
+        # (registro NEUTRO de interacción; se conserva íntegro — H2-A §7)
         if hasattr(container, "student_storage") and container.student_storage is not None:
             try:
                 container.student_storage.record_exercise_attempt(
@@ -2643,54 +4255,57 @@ async def evaluate_exercise_answer(
                     success=is_correct,
                     metadata={"source": "generated", "kc_ids": kc_ids, "kind": generated.get("kind")},
                 )
-            except Exception as att_err:
-                logger.debug("Error registrando student_exercise_attempt: %s", att_err)
+            except Exception:
+                raise
 
-        # A5: Actualización de maestría BKT a través de TODOS los KCs involucrados
+        # H2-A: la actualización de maestría BKT (históricamente "A5: a
+        # través de TODOS los KCs") queda condicionada a la admisibilidad de
+        # la observación; sin admisión no hay mutación de estado académico.
         struggle = getattr(container, "struggle_tracker", None)
         bkt_updates: Dict[str, Any] = {}
         primary_bkt_res = None
         primary_delta = 0.0
 
-        for k in (kc_ids if kc_ids else [primary_kc]):
-            s_consecutive = struggle.record(k, is_correct) if struggle else 0
-            prior = container.bkt_tracker.get_state(k)
-            bkt_res = container.bkt_tracker.update(
-                kc_id=k,
-                correct=is_correct,
-                source=ObservationSource.EXACT_CORRECTOR,
-                format_type=_Fmt.SYMBOLIC_OPEN,
-                n_options=None,
-            )
-            d = round(bkt_res.p_L - prior.p_L, 4)
-            bkt_updates[k] = {
-                "p_L": round(bkt_res.p_L, 4),
-                "delta_p_L": d,
-                "attempts": bkt_res.attempts,
-                "struggle_consecutive_failures": s_consecutive,
-            }
-            if k == primary_kc or primary_bkt_res is None:
-                primary_bkt_res = bkt_res
-                primary_delta = d
-
-            if prior.attempts == 0:
-                logger.info(
-                    "[COLD_START_FIRST_ATTEMPT] Primer intento graded sobre KC cold-start: kc_id=%s is_correct=%s prior_p_L=%.4f new_p_L=%.4f delta_p_L=%.4f exercise_id=%s source=generated",
-                    k, is_correct, prior.p_L, bkt_res.p_L, d, req.exercise_id,
-                )
-
-            try:
-                from study_engine.pedagogy.session_digest import record_kc_attempt
-                record_kc_attempt(
-                    storage=container.student_storage,
-                    student_id=CANONICAL_STUDENT_ID,
-                    session_id=req.session_id or "sess_default",
+        if admission.academic_effects:
+            for k in (kc_ids if kc_ids else [primary_kc]):
+                s_consecutive = struggle.record(k, is_correct) if struggle else 0
+                prior = container.bkt_tracker.get_state(k)
+                bkt_res = container.bkt_tracker.update(
                     kc_id=k,
                     correct=is_correct,
-                    struggled=bool(struggle and struggle.is_struggling(k)),
+                    source=ObservationSource.EXACT_CORRECTOR,
+                    format_type=_Fmt.SYMBOLIC_OPEN,
+                    n_options=None,
                 )
-            except Exception as dig_err:
-                logger.debug("Session digest update falló para kc %s: %s", k, dig_err)
+                d = round(bkt_res.p_L - prior.p_L, 4)
+                bkt_updates[k] = {
+                    "p_L": round(bkt_res.p_L, 4),
+                    "delta_p_L": d,
+                    "attempts": bkt_res.attempts,
+                    "struggle_consecutive_failures": s_consecutive,
+                }
+                if k == primary_kc or primary_bkt_res is None:
+                    primary_bkt_res = bkt_res
+                    primary_delta = d
+
+                if prior.attempts == 0:
+                    logger.info(
+                        "[COLD_START_FIRST_ATTEMPT] Primer intento graded sobre KC cold-start: kc_id=%s is_correct=%s prior_p_L=%.4f new_p_L=%.4f delta_p_L=%.4f exercise_id=%s source=generated",
+                        k, is_correct, prior.p_L, bkt_res.p_L, d, req.exercise_id,
+                    )
+
+                try:
+                    from study_engine.pedagogy.session_digest import record_kc_attempt
+                    record_kc_attempt(
+                        storage=container.student_storage,
+                        student_id=CANONICAL_STUDENT_ID,
+                        session_id=req.session_id or "sess_default",
+                        kc_id=k,
+                        correct=is_correct,
+                        struggled=bool(struggle and struggle.is_struggling(k)),
+                    )
+                except Exception:
+                    raise
 
         if primary_bkt_res is None:
             primary_bkt_res = container.bkt_tracker.get_state(primary_kc)
@@ -2699,8 +4314,15 @@ async def evaluate_exercise_answer(
         if not is_correct or primary_bkt_res.p_L < 0.5:
             remediation = _remediation_message(primary_kc, SimpleNamespace(prompt=generated["prompt"]), primary_bkt_res.p_L)
 
+        # H2-A: las recomendaciones de avance (espiral) también son efectos
+        # derivados de la observación; quedan condicionadas a la admisibilidad.
         spiral_opps = []
-        if is_correct and primary_bkt_res.p_L >= 0.6 and getattr(container, "bkt_tracker", None):
+        if (
+            admission.academic_effects
+            and is_correct
+            and primary_bkt_res.p_L >= 0.6
+            and getattr(container, "bkt_tracker", None)
+        ):
             try:
                 from study_engine.pedagogy.spiral_curriculum import SpiralCurriculumEngine
                 spiral_engine = SpiralCurriculumEngine(container.bkt_tracker)
@@ -2727,31 +4349,45 @@ async def evaluate_exercise_answer(
             "struggle_mode": bool(struggle and struggle.is_struggling(primary_kc)),
             "struggle_consecutive_failures": bkt_updates.get(primary_kc, {}).get("struggle_consecutive_failures", 0),
             "spiral_opportunities": spiral_opps,
+            # H2-A: estado de admisibilidad de la observación (sin texto de
+            # política; sólo el hecho y su motivo para trazabilidad honesta).
+            "academic_admission": {
+                "admissible": admission.academic_effects,
+                "reason": admission.reason,
+            },
         }
 
-    if exercise is None or not exercise.is_presentable() or not getattr(exercise, "expected_answer", ""):
+    if exercise is None:
         # Misión Fail-closed: sin clave certificada no hay evaluación
-        return {
-            "status": "UNGRADED",
-            "exercise_id": req.exercise_id,
-            "is_correct": None,
-            "p_L": None,
-            "delta_p_L": 0.0,
-            "remediation": None,
-            "detail": "Ejercicio inexistente o sin clave certificada: evaluación omitida (fail-closed).",
-        }
+        return ungraded("Ejercicio inexistente o sin clave certificada: evaluación omitida (fail-closed).")
+
+    if getattr(session_snapshot, "student_id", CANONICAL_STUDENT_ID) != CANONICAL_STUDENT_ID:
+        return ungraded("La sesión no pertenece al estudiante actual; evaluación omitida.")
 
     kc_id = exercise.kc_id
+    if not episode_allows(exercise.exercise_id, kc_id):
+        return ungraded("El ejercicio no corresponde al KC o paso activo del episodio.")
+    if not scope_contains([kc_id]):
+        return ungraded("KC ajeno al scope del cuaderno indicado; evaluación omitida.")
     is_mc = getattr(exercise.exercise_type, "value", str(exercise.exercise_type)) == "MC"
     if is_mc:
         grade_res = container.mc_grader.grade(req.user_answer, exercise.expected_answer)
     else:
-        grade_res = container.exact_grader.grade(req.user_answer, exercise.expected_answer)
+        grade_res = container.exact_grader.grade(req.user_answer, exercise.expected_answer, exercise.exercise_type)
     is_correct = bool(getattr(grade_res, "is_correct", False))
 
-    # Fase 5.3b: rastrear fallos consecutivos para el Protocolo de Lucha
+    # EP-04A: persist difficulty with the receipt, never in mutable process memory.
     struggle = getattr(container, "struggle_tracker", None)
-    struggle_consecutive = struggle.record(kc_id, is_correct) if struggle else 0
+    struggle_state = (
+        struggle.preview_certified(
+            container.student_storage, kc_id=kc_id, correct=is_correct,
+            student_id=CANONICAL_STUDENT_ID, session_id=req.session_id,
+            notebook_id=effective_notebook_id,
+        )
+        if struggle else None
+    )
+    struggle_consecutive = struggle_state["consecutive_failures"] if struggle_state else 0
+    struggle_active = bool(struggle and struggle.is_struggling(kc_id, state=struggle_state))
 
     prior = container.bkt_tracker.get_state(kc_id)
     fmt = ExerciseFormat.CLOSED_CHOICE if is_mc else ExerciseFormat.SYMBOLIC_OPEN
@@ -2780,10 +4416,10 @@ async def evaluate_exercise_answer(
             session_id=req.session_id or "sess_default",
             kc_id=kc_id,
             correct=is_correct,
-            struggled=bool(struggle and struggle.is_struggling(kc_id)),
+            struggled=struggle_active,
         )
-    except Exception as dig_err:
-        logger.debug("Session digest update falló: %s", dig_err)
+    except Exception:
+        raise
 
     remediation = None
     if not is_correct or bkt_res.p_L < 0.5:
@@ -2810,7 +4446,8 @@ async def evaluate_exercise_answer(
         "delta_p_L": delta,
         "attempts": bkt_res.attempts,
         "remediation": remediation,
-        "struggle_mode": bool(struggle and struggle.is_struggling(kc_id)),
+        "struggle_mode": struggle_active,
         "struggle_consecutive_failures": struggle_consecutive,
         "spiral_opportunities": spiral_opps,
+        **({"_struggle_state": struggle_state} if struggle_state else {}),
     }

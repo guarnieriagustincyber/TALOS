@@ -9,6 +9,7 @@ Endpoints:
 from typing import Any, Dict, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
+from study_engine.config import CANONICAL_STUDENT_ID
 
 from study_engine.session.study_session_contracts import (
     ActionNotAllowedForPhaseError,
@@ -25,7 +26,7 @@ router = APIRouter(prefix="/api/study/session", tags=["study_session"])
 
 class OpenSessionRequest(BaseModel):
     notebook_id: str = Field(..., min_length=1, description="ID del notebook a abrir")
-    student_id: Optional[str] = Field(default="agustin", description="ID del estudiante")
+    student_id: Optional[str] = Field(default=CANONICAL_STUDENT_ID, description="ID del estudiante")
 
 
 class ExecuteActionRequest(BaseModel):
@@ -91,6 +92,7 @@ def _snapshot_to_dict(snap: StudySessionSnapshot) -> Dict[str, Any]:
         "opening_brief_narrative": snap.opening_brief_narrative,
         "derived_at": snap.derived_at.isoformat(),
         "policy_version": snap.policy_version,
+        "curriculum_completed": snap.curriculum_completed,
     }
 
 
@@ -101,9 +103,10 @@ async def open_study_session(
 ) -> Dict[str, Any]:
     """Abre una sesión de estudio y retorna el StudySessionSnapshot inicial."""
     orch = container.study_session_orchestrator
+    if req.student_id not in (None, CANONICAL_STUDENT_ID):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Esta instalación solo admite al estudiante configurado.")
     try:
         import asyncio as _asyncio
-        from study_engine.config import CANONICAL_STUDENT_ID
         snapshot = await _asyncio.to_thread(
             orch.open_session,
             req.notebook_id,
@@ -121,14 +124,31 @@ async def get_session_snapshot(
 ) -> Dict[str, Any]:
     """Retorna el StudySessionSnapshot derivado del estado autoritativo."""
     orch = container.study_session_orchestrator
-    state = orch._sessions.get(session_id)
-    if state is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Sesión '{session_id}' no encontrada.",
-        )
     import asyncio as _asyncio
-    snapshot = await _asyncio.to_thread(orch.derive_snapshot, state)
+    try:
+        snapshot = await _asyncio.to_thread(orch.get_snapshot, session_id, include_closed=True)
+    except SessionNotFoundError as err:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
+    except PolicyDeniedError as err:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"El estado persistido de la sesión es irreconciliable: {err}",
+        )
+    return _snapshot_to_dict(snapshot)
+
+
+@router.post("/{session_id}/close")
+async def close_study_session(
+    session_id: str,
+    container: AppContainer = Depends(get_container),
+) -> Dict[str, Any]:
+    import asyncio
+    try:
+        snapshot = await asyncio.to_thread(container.study_session_orchestrator.close_session, session_id)
+    except SessionNotFoundError as err:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
+    except PolicyDeniedError as err:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(err))
     return _snapshot_to_dict(snapshot)
 
 
@@ -148,6 +168,25 @@ async def execute_session_action(
             req.action,
             req.payload,
         )
+        if req.action == "SUBMIT_ANSWER":
+            from study_engine.web.routes.pedagogy import RespondEpisodeRequest, respond_intervention
+
+            episode = container.pedagogical_orchestrator.get_episode(snapshot.episode_id)
+            if episode is None:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No hay episodio activo verificable.")
+            evaluation = await _asyncio.to_thread(
+                respond_intervention,
+                episode.episode_id,
+                RespondEpisodeRequest(
+                    step_id=episode.current_step_id,
+                    response_text=req.payload["answer"],
+                    session_id=session_id,
+                ),
+                container,
+            )
+            result = _snapshot_to_dict(await _asyncio.to_thread(orch.get_snapshot, session_id))
+            result["evaluation"] = evaluation
+            return result
         return _snapshot_to_dict(snapshot)
     except SessionNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))

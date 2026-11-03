@@ -51,6 +51,7 @@ from study_engine.session.contracts import (
     TerminalAction,
     TurnActionType,
     TurnIdConflictError,
+    TurnOperationInProgressError,
     TurnReceipt,
     UnauthorizedTargetDeviationError,
 )
@@ -336,7 +337,10 @@ class SessionOrchestrator:
         )
 
         self.turn_history.append(turn_output)
-        self.current_turn_index = 1
+        self.current_turn_index = max(
+            1,
+            self.receipt_store.latest_turn_index(self.session_id) + 1,
+        )
         self.fsm.transition_to(
             SessionStatus.WAITING_FOR_STUDENT, "Initial challenge presented"
         )
@@ -417,6 +421,22 @@ class SessionOrchestrator:
 
     def process_turn(self, student_input: StudentInput) -> SessionTurnOutput:
         """Process a turn through FSM, decision, ports, audit, and receipts."""
+        if student_input.session_id != self.session_id:
+            raise UnauthorizedTargetDeviationError(
+                "StudentInput session_id does not match the authoritative orchestrator session."
+            )
+        req_digest = compute_canonical_sha256(student_input)
+        existing_receipt = self.receipt_store.get_receipt(
+            student_input.input_id,
+            session_id=self.session_id,
+        )
+        if existing_receipt is not None:
+            if existing_receipt.request_digest != req_digest:
+                raise TurnIdConflictError(
+                    f"Turn input_id '{student_input.input_id}' submitted with conflicting request digest."
+                )
+            return SessionTurnOutput.model_validate(existing_receipt.output_payload)
+
         # 1. Terminal State Invariant
         if self.fsm.is_terminal:
             raise SessionTerminalError(
@@ -438,24 +458,24 @@ class SessionOrchestrator:
                 f"{self.session_expires_at.isoformat()}."
             )
 
-        # 3. Durable Idempotency Check via TurnReceiptStore
-        req_digest = compute_canonical_sha256(student_input)
-        existing_receipt = self.receipt_store.get_receipt(
-            student_input.input_id
+        # 3. Durable reservation prevents concurrent and crash-window re-execution.
+        reservation, reserved_receipt = self.receipt_store.begin_operation(
+            self.session_id,
+            student_input.input_id,
+            req_digest,
         )
-        if existing_receipt is not None:
-            if existing_receipt.request_digest != req_digest:
-                raise TurnIdConflictError(
-                    f"Turn input_id '{student_input.input_id}' submitted "
-                    f"with conflicting request digest."
-                )
-            if student_input.input_id in self.replay_cache:
-                return self.replay_cache[student_input.input_id]
-            replayed = SessionTurnOutput.model_validate(
-                existing_receipt.output_payload
+        if reservation == "CONFLICT":
+            raise TurnIdConflictError(
+                f"Turn input_id '{student_input.input_id}' submitted with conflicting request digest."
             )
-            self.replay_cache[student_input.input_id] = replayed
-            return replayed
+        if reservation == "REPLAY" and reserved_receipt is not None:
+            return SessionTurnOutput.model_validate(reserved_receipt.output_payload)
+        if reservation == "IN_PROGRESS":
+            raise TurnOperationInProgressError(
+                f"Turn input_id '{student_input.input_id}' has an incomplete prior operation; automatic replay is blocked."
+            )
+        if reservation != "STARTED":
+            raise RuntimeError(f"Unexpected turn reservation state: {reservation}")
 
         # 4. Project State & Formulate Decision
         current_state = self._derive_state(student_input.timestamp)
@@ -965,7 +985,7 @@ class SessionOrchestrator:
         req_digest = compute_canonical_sha256(request)
         receipt = TurnReceipt(
             receipt_id=f"rec-{result.turn_id}",
-            input_id=f"req-{req_digest[:16]}",
+            input_id=f"session-request:{request.turn_index}",
             session_id=self.session_id,
             turn_index=request.turn_index,
             request_digest=req_digest,
@@ -998,6 +1018,22 @@ class SessionOrchestrator:
            - Validates citations and grounding; if not APPROVED -> ABSTAINED (Fail-Closed).
         """
         turn_id = f"turn-{self.session_id}-{request.turn_index}"
+        if request.session_id != self.session_id or request.student_id != self.student_id:
+            raise UnauthorizedTargetDeviationError(
+                "SessionRequest identity does not match the authoritative session and student."
+            )
+        req_digest = compute_canonical_sha256(request)
+        input_key = f"session-request:{request.turn_index}"
+        existing_receipt = self.receipt_store.get_receipt(
+            input_key,
+            session_id=self.session_id,
+        )
+        if existing_receipt is not None:
+            if existing_receipt.request_digest != req_digest:
+                raise TurnIdConflictError(
+                    f"Session request turn_index '{request.turn_index}' reused with different content."
+                )
+            return SessionResult.model_validate(existing_receipt.output_payload)
 
         # 1. Precondition Check: Node existence and status
         if request.node_id not in self.roadmap.nodes:
@@ -1026,13 +1062,24 @@ class SessionOrchestrator:
                 abstention_reason="LOCKED_NODE",
             )
 
-        # 2. Idempotency Check via TurnReceiptStore
-        req_digest = compute_canonical_sha256(request)
-        input_key = f"req-{req_digest[:16]}"
-        existing_receipt = self.receipt_store.get_receipt(input_key)
-        if existing_receipt is not None:
-            if existing_receipt.output_payload:
-                return SessionResult.model_validate(existing_receipt.output_payload)
+        # 2. Reserve the stable session/turn identity before retrieval or generation.
+        reservation, reserved_receipt = self.receipt_store.begin_operation(
+            self.session_id,
+            input_key,
+            req_digest,
+        )
+        if reservation == "CONFLICT":
+            raise TurnIdConflictError(
+                f"Session request turn_index '{request.turn_index}' reused with different content."
+            )
+        if reservation == "REPLAY" and reserved_receipt is not None:
+            return SessionResult.model_validate(reserved_receipt.output_payload)
+        if reservation == "IN_PROGRESS":
+            raise TurnOperationInProgressError(
+                f"Session request turn_index '{request.turn_index}' has an incomplete prior operation."
+            )
+        if reservation != "STARTED":
+            raise RuntimeError(f"Unexpected session request reservation state: {reservation}")
 
         # 3. Retrieval via RetrievalPort
         if self.retrieval_port is None:
@@ -1473,5 +1520,3 @@ class SessionOrchestrator:
                 )
 
         return status, evidence_record, rejection_reason, updated_node_status
-
-

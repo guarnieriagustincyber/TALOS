@@ -104,7 +104,21 @@ class MultiFallbackBackend:
 
     def complete(self, prompt_bundle: Any) -> Any:
         """Try each provider in order; return first successful completion."""
+        from study_engine.context.c3_budget import (
+            EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            ContextBudgetExceededError,
+            estimate_payload_tokens,
+        )
         from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
+
+        # Chokepoint 3: Terminal provider guard
+        total_tokens = estimate_payload_tokens(prompt_bundle=prompt_bundle)
+        if total_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+            raise ContextBudgetExceededError(
+                f"C3 hard ceiling violated at provider complete() chokepoint: {total_tokens} > {EFFECTIVE_CONTEXT_CEILING_TOKENS}",
+                estimated_tokens=total_tokens,
+                effective_ceiling=EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            )
 
         last_exc: Optional[Exception] = None
         for name, backend in self.providers:
@@ -147,9 +161,28 @@ class MultiFallbackBackend:
         For backends without a native ``stream()`` method, falls back to calling
         ``complete()`` in a thread and replaying the result word-by-word.
         """
+        from study_engine.context.c3_budget import (
+            EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            ContextBudgetExceededError,
+            estimate_payload_tokens,
+        )
         from study_engine.llm.offline_oracle import OfflinePedagogicalBackend
 
+        # Chokepoint 3: Terminal provider guard
+        total_tokens = estimate_payload_tokens(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            context=context,
+        )
+        if total_tokens > EFFECTIVE_CONTEXT_CEILING_TOKENS:
+            raise ContextBudgetExceededError(
+                f"C3 hard ceiling violated at provider stream() chokepoint: {total_tokens} > {EFFECTIVE_CONTEXT_CEILING_TOKENS}",
+                estimated_tokens=total_tokens,
+                effective_ceiling=EFFECTIVE_CONTEXT_CEILING_TOKENS,
+            )
+
         last_exc: Optional[Exception] = None
+
 
         for name, backend in self.providers:
             try:

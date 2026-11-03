@@ -10,7 +10,6 @@ INVARIANTS:
 """
 
 from dataclasses import dataclass
-import difflib
 import json
 from pathlib import Path
 import re
@@ -194,19 +193,6 @@ class ExactMatchGrader:
                 expected_answer=norm_expected,
                 comparison_result=f"SYNONYM('{norm_student}', '{norm_expected}')",
                 feedback="¡Respuesta correcta! Tu formulación es conceptualmente equivalente según la terminología técnica canónica.",
-            )
-
-        # Capa 3: Coincidencia difusa de Levenshtein / SequenceMatcher >= 0.85 (E12)
-        similarity = difflib.SequenceMatcher(None, norm_student, norm_expected).ratio()
-        if similarity >= 0.85:
-            return GradeResult(
-                is_correct=True,
-                raw_answer=raw,
-                normalized_answer=norm_student,
-                normalization_policy="fuzzy_match",
-                expected_answer=norm_expected,
-                comparison_result=f"FUZZY({similarity:.2f})",
-                feedback=f"¡Respuesta correcta! (Aceptada con tolerancia ortográfica/variante de {int(similarity * 100)}%).",
             )
 
         # No coincidente

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Importador de Ejercicios del Estudiante a TALOS / KASIU.
 
-Escanea carpetas locales (por ejemplo /media/agustin/Laboratorio/Ciberseguridad/Fase 0),
+Escanea carpetas locales (por ejemplo /media/agustin/Almacenamiento/Facultad/Estudios/Ciberseguridad/Fase 0),
 identifica archivos de código (.py, .c, .md) resueltos por el estudiante en los Tramos 1 a 4,
 y los estructura en la taxonomía canónica de TALOS:
     data/student_submissions/fase0-soc/tramo{1..4}/ej_{XX}.md
@@ -615,7 +615,7 @@ def main():
     parser.add_argument(
         "--source-dir",
         type=Path,
-        default=Path("/media/agustin/Laboratorio/Ciberseguridad/Fase 0"),
+        default=Path("/media/agustin/Almacenamiento/Facultad/Estudios/Ciberseguridad/Fase 0"),
         help="Ruta a los ejercicios resueltos del estudiante (host)",
     )
     parser.add_argument(
@@ -642,7 +642,7 @@ def main():
         print(f"[OK] Total ejercicios importados: {imported}")
     else:
         # Check alternative spelling
-        alt_source = Path("/media/agustin/Laboratorio/Ciberseguiradad/Fase 0")
+        alt_source = Path("/media/agustin/Almacenamiento/Facultad/Estudios/Ciberseguridad/Ciberseguiradad/Fase 0")
         if alt_source.exists():
             imported = scan_and_import(alt_source, args.target_dir, dry_run=args.dry_run)
             print(f"[OK] Total ejercicios importados: {imported}")

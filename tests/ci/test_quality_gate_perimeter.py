@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 import scripts.quality_gate as quality_gate
-from scripts.quality_gate import PerimeterError, validate_perimeter
+from scripts.quality_gate import Perimeter, PerimeterError, Suite, validate_perimeter
 
 
 def test_repository_test_perimeter_matches_discovered_suites() -> None:
@@ -15,7 +16,7 @@ def test_repository_test_perimeter_matches_discovered_suites() -> None:
         repo_root / "config" / "test_perimeter.json",
     )
 
-    assert len(perimeter.suites) == 24
+    assert len(perimeter.suites) == 27
     discovered_modules = {
         path.relative_to(repo_root).as_posix()
         for path in (repo_root / "tests").rglob("test_*.py")
@@ -44,6 +45,16 @@ def test_repository_test_perimeter_matches_discovered_suites() -> None:
         perimeter.module_classifications["tests/utils/test_registry.py"]
         == "support-only"
     )
+    assert (
+        perimeter.module_classifications["tests/e2e/test_study_loop_e2e.py"]
+        == "qualification-required"
+    )
+    assert (
+        perimeter.module_classifications[
+            "tests/isolation/test_vector_store_isolation.py"
+        ]
+        == "qualification-required"
+    )
     assert perimeter.optional_modules == {
         "tests/integration/test_llm_latency.py": (
             "Requires live network access; run separately with a recorded "
@@ -55,6 +66,295 @@ def test_repository_test_perimeter_matches_discovered_suites() -> None:
             "live-model evaluation."
         ),
     }
+    assert set(perimeter.informative_tests) == {
+        (
+            "tests/performance/test_latency_disaggregated.py::"
+            "test_sqlite_query_latency_p95_under_50ms"
+        )
+    }
+
+
+@pytest.mark.parametrize(
+    "classification",
+    ["required", "qualification-required"],
+)
+def test_gate_fails_when_an_active_suite_skips(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    classification: str,
+) -> None:
+    suite = Suite(
+        path="tests/sample",
+        classification=classification,
+        reason="Synthetic gate status test.",
+        modules=("tests/sample/test_skipped.py",),
+    )
+    perimeter = Perimeter(
+        suites=(suite,),
+        optional_modules={},
+        module_classifications={
+            "tests/sample/test_skipped.py": classification,
+        },
+    )
+    reports = []
+
+    def fake_pytest_main(args: list[str], plugins: list[object]) -> pytest.ExitCode:
+        del args
+        results = next(
+            plugin
+            for plugin in plugins
+            if isinstance(plugin, quality_gate.SuiteResults)
+        )
+        reports.append(results)
+        results.pytest_collection_finish(
+            SimpleNamespace(
+                items=[
+                    SimpleNamespace(
+                        nodeid="tests/sample/test_skipped.py::test_skipped"
+                    )
+                ]
+            )
+        )
+        results.pytest_runtest_logreport(
+            SimpleNamespace(
+                nodeid="tests/sample/test_skipped.py::test_skipped",
+                when="call",
+                duration=0.01,
+                outcome="skipped",
+                failed=False,
+                skipped=True,
+                longrepr="intentionally skipped",
+            )
+        )
+        return pytest.ExitCode.OK
+
+    monkeypatch.setattr(quality_gate, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr(pytest, "main", fake_pytest_main)
+
+    assert quality_gate.run_gate("release", perimeter) == 1
+    assert reports[0].collector_payload(perimeter, "release", 0)["suites"][0][
+        "status"
+    ] == "FAIL"
+    output = capsys.readouterr().out
+    assert "tests=1 passed=0 skipped=1 failed=0" in output
+    assert "RESULT: TEST GATE FAIL" in output
+
+
+def _synthetic_gate_perimeter(*, informative: bool) -> Perimeter:
+    classification = "qualification-required" if informative else "required"
+    nodeid = (
+        "tests/performance/test_latency_disaggregated.py::"
+        "test_sqlite_query_latency_p95_under_50ms"
+        if informative
+        else "tests/sample/test_required.py::test_required"
+    )
+    return Perimeter(
+        suites=(
+            Suite(
+                path="tests/performance" if informative else "tests/sample",
+                classification=classification,
+                reason="Synthetic informative-result gate test.",
+                modules=(nodeid.split("::", 1)[0],),
+            ),
+        ),
+        optional_modules={},
+        module_classifications={
+            nodeid.split("::", 1)[0]: classification,
+        },
+        informative_tests=(
+            {nodeid: "Synthetic non-blocking measurement."}
+            if informative
+            else {}
+        ),
+    )
+
+
+def test_informative_test_failure_is_reported_but_does_not_block(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    perimeter = _synthetic_gate_perimeter(informative=True)
+    nodeid = next(iter(perimeter.informative_tests))
+    results_seen = []
+
+    def fake_pytest_main(args: list[str], plugins: list[object]) -> pytest.ExitCode:
+        del args
+        results = next(
+            plugin
+            for plugin in plugins
+            if isinstance(plugin, quality_gate.SuiteResults)
+        )
+        results_seen.append(results)
+        results.pytest_collection_finish(
+            SimpleNamespace(items=[SimpleNamespace(nodeid=nodeid)])
+        )
+        results.pytest_runtest_logreport(
+            SimpleNamespace(
+                nodeid=nodeid,
+                when="call",
+                duration=0.01,
+                outcome="failed",
+                failed=True,
+                skipped=False,
+                longrepr=SimpleNamespace(
+                    reprcrash=SimpleNamespace(
+                        message="AssertionError: synthetic latency assertion failure"
+                    )
+                ),
+            )
+        )
+        return pytest.ExitCode.TESTS_FAILED
+
+    monkeypatch.setattr(quality_gate, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr(pytest, "main", fake_pytest_main)
+
+    assert quality_gate.run_gate("release", perimeter) == 0
+    payload = results_seen[0].collector_payload(
+        perimeter, "release", int(pytest.ExitCode.TESTS_FAILED)
+    )
+    assert payload["pytest_exit_code"] == int(pytest.ExitCode.TESTS_FAILED)
+    assert payload["gate_exit_code"] == 0
+    assert payload["gate_status"] == "PASS_WITH_INFORMATIVE_FAILURES"
+    assert payload["suites"][0]["status"] == "INFORMATIVE_FAIL"
+    assert payload["informative_tests"][0]["status"] == "INFORMATIVE_FAIL"
+    assert payload["informative_tests"][0]["outcome"] == "failed"
+    output = capsys.readouterr().out
+    assert "INFORMATIVE FAILURE:" in output
+    assert "TEST GATE PASS WITH INFORMATIVE FAILURES" in output
+
+
+def test_required_test_failure_still_blocks(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    perimeter = _synthetic_gate_perimeter(informative=False)
+    nodeid = "tests/sample/test_required.py::test_required"
+
+    def fake_pytest_main(args: list[str], plugins: list[object]) -> pytest.ExitCode:
+        del args
+        results = next(
+            plugin
+            for plugin in plugins
+            if isinstance(plugin, quality_gate.SuiteResults)
+        )
+        results.pytest_collection_finish(
+            SimpleNamespace(items=[SimpleNamespace(nodeid=nodeid)])
+        )
+        results.pytest_runtest_logreport(
+            SimpleNamespace(
+                nodeid=nodeid,
+                when="call",
+                duration=0.01,
+                outcome="failed",
+                failed=True,
+                skipped=False,
+                longrepr="synthetic required assertion failure",
+            )
+        )
+        return pytest.ExitCode.TESTS_FAILED
+
+    monkeypatch.setattr(quality_gate, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr(pytest, "main", fake_pytest_main)
+
+    assert quality_gate.run_gate("release", perimeter) == 1
+    assert "TEST GATE FAIL" in capsys.readouterr().out
+
+
+def test_informative_setup_failure_remains_blocking(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    perimeter = _synthetic_gate_perimeter(informative=True)
+    nodeid = next(iter(perimeter.informative_tests))
+    results_seen = []
+
+    def fake_pytest_main(args: list[str], plugins: list[object]) -> pytest.ExitCode:
+        del args
+        results = next(
+            plugin
+            for plugin in plugins
+            if isinstance(plugin, quality_gate.SuiteResults)
+        )
+        results_seen.append(results)
+        results.pytest_collection_finish(
+            SimpleNamespace(items=[SimpleNamespace(nodeid=nodeid)])
+        )
+        results.pytest_runtest_logreport(
+            SimpleNamespace(
+                nodeid=nodeid,
+                when="setup",
+                duration=0.01,
+                outcome="failed",
+                failed=True,
+                skipped=False,
+                longrepr="synthetic fixture setup failure",
+            )
+        )
+        results.pytest_runtest_logreport(
+            SimpleNamespace(
+                nodeid=nodeid,
+                when="call",
+                duration=0.0,
+                outcome="skipped",
+                failed=False,
+                skipped=True,
+                longrepr="setup failed",
+            )
+        )
+        return pytest.ExitCode.TESTS_FAILED
+
+    monkeypatch.setattr(quality_gate, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr(pytest, "main", fake_pytest_main)
+
+    assert quality_gate.run_gate("release", perimeter) == 1
+    payload = results_seen[0].collector_payload(
+        perimeter, "release", int(pytest.ExitCode.TESTS_FAILED)
+    )
+    assert payload["gate_exit_code"] == 1
+    assert payload["gate_status"] == "FAIL"
+
+
+def test_informative_runtime_exception_remains_blocking(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    perimeter = _synthetic_gate_perimeter(informative=True)
+    nodeid = next(iter(perimeter.informative_tests))
+
+    def fake_pytest_main(args: list[str], plugins: list[object]) -> pytest.ExitCode:
+        del args
+        results = next(
+            plugin
+            for plugin in plugins
+            if isinstance(plugin, quality_gate.SuiteResults)
+        )
+        results.pytest_collection_finish(
+            SimpleNamespace(items=[SimpleNamespace(nodeid=nodeid)])
+        )
+        results.pytest_runtest_logreport(
+            SimpleNamespace(
+                nodeid=nodeid,
+                when="call",
+                duration=0.01,
+                outcome="failed",
+                failed=True,
+                skipped=False,
+                longrepr=SimpleNamespace(
+                    reprcrash=SimpleNamespace(
+                        message="sqlite3.OperationalError: database is locked"
+                    )
+                ),
+            )
+        )
+        return pytest.ExitCode.TESTS_FAILED
+
+    monkeypatch.setattr(quality_gate, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr(pytest, "main", fake_pytest_main)
+
+    assert quality_gate.run_gate("release", perimeter) == 1
 
 
 def test_unclassified_test_suite_is_rejected(tmp_path: Path) -> None:
@@ -126,6 +426,37 @@ def test_gate_fails_closed_before_pytest_for_new_suite(
         "unclassified test suites: tests/security_new"
         in capsys.readouterr().err
     )
+
+
+def test_release_runner_blocks_without_sealed_snapshot_provenance(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    for name in (
+        "TALOS_TEST_SNAPSHOT_ROOT",
+        "TALOS_TEST_SNAPSHOT_MANIFEST_SHA256",
+        "TALOS_TEST_SNAPSHOT_SCOPE",
+        "TALOS_TEST_RUN_ID",
+        "TALOS_TEST_GATE_ID",
+        "TALOS_TEST_POLICY_ID",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+    assert quality_gate.run_isolated_gate("release") == 2
+    assert (
+        "sealed snapshot provenance is incomplete"
+        in capsys.readouterr().err
+    )
+
+
+def test_worker_mode_cannot_run_without_isolated_workspace(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.delenv("TALOS_TEST_ISOLATED", raising=False)
+    monkeypatch.delenv("TALOS_TEST_WORKSPACE_ROOT", raising=False)
+    monkeypatch.delenv("TALOS_TEST_WORKSPACE_IDENTITY", raising=False)
+
+    assert quality_gate.main(["--_sandbox-worker"]) == 2
+    assert "sandbox worker requires" in capsys.readouterr().err
 
 
 def test_optional_module_requires_a_reason(tmp_path: Path) -> None:

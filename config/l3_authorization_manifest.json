@@ -1,0 +1,1463 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TALOS L3 Authorization Manifest",
+  "manifest_version": "1.0.0",
+  "gate": "GATE_B",
+  "issued_date": "2026-10-02",
+  "decision_maker": "Propietario del Proyecto / Autoridad de Producto TALOS",
+  "decision_maker_role": "Product Owner / Autoridad Curricular",
+  "authorization_act_id": "ACT-TALOS-GATE-B-L3-20261002-81",
+  "purpose_statement": "Inclusión formal como material bibliográfico autorizado en el release pedagógico de TALOS Gate B.",
+  "normative_authority_statement": "Este manifiesto es la autoridad normativa formal (de jure) de autorización de fuentes para el release de TALOS Gate B. La presencia técnica en notebook_sources u otros registros representa capacidad técnica instalada (de facto), pero no confiere autorización sin grant formal en este documento.",
+  "accounting_summary": {
+    "total_evaluated_relations": 99,
+    "authorized_count": 81,
+    "pending_count": 1,
+    "excluded_count": 17
+  },
+  "grants": [
+    {
+      "grant_id": "L3-GRANT-001",
+      "notebook_id": "fase0-soc",
+      "source_id": "src-guia-2025-c04f44ef",
+      "sha256": "c04f44efcccf2c7304cc0860fe6039d210a922a596988380c7285d658e66f0c2",
+      "document_filename": "GUIA_2025-en procesov2.pdf",
+      "membership": "REUSED",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "ALLOWED_BY_CP092_FADENA_TO_SOC",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-002",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_0bc5d20dcc91895f",
+      "sha256": "0bc5d20dcc91895f9ce10f47bcbfef19d6a2ed40d43cff9f16c6daaeba0c9d0b",
+      "document_filename": "Stallings.William.-.Sistemas.Operativos.5ed.pdf",
+      "membership": "REUSED",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "ALLOWED_BY_CP092_FADENA_TO_SOC",
+      "physical_support": "FOLDER_ABSENT (fuentes/fadena-so2/Stallings.William.-.Sistemas.Operativos.5ed.pdf)",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-003",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_0fc90b2695369475",
+      "sha256": "0fc90b26953694758e052e1f1bdebed4ef337809a6ab621c59cb9582a370d183",
+      "document_filename": "FADENA - SO2 - Unidad 3 - Semana 6 - 2026.pdf",
+      "membership": "REUSED",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "ALLOWED_BY_CP092_FADENA_TO_SOC",
+      "physical_support": "FOLDER_ABSENT (fuentes/fadena-so2/FADENA - SO2 - Unidad 3 - Semana 6 - 2026.pdf)",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-004",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_a9a056742dcf69ae",
+      "sha256": "a9a056742dcf69aeb4774425b3b65e3a608c920656a34bd18f0d8670d4507c11",
+      "document_filename": "FADENA - SO2 Unidad 2 - Semana 4 - 2026.pdf",
+      "membership": "REUSED",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "ALLOWED_BY_CP092_FADENA_TO_SOC",
+      "physical_support": "FOLDER_ABSENT (fuentes/fadena-so2/FADENA - SO2 Unidad 2 - Semana 4 - 2026.pdf)",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-005",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_bel_algoritmos_estructuras_python",
+      "sha256": "e98da4f1f5374047524fead05bb92ee51e44e1743de0082966b5bef0cd8cfa86",
+      "document_filename": "algoritmos-y-estructuras-de-datos-en-python-digital.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-006",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_d253687930308e41",
+      "sha256": "d253687930308e418cde029d475f6f3755aab6a576f3dbe26ed1d4e4784de685",
+      "document_filename": "FADENA - SO2 Unidad 2 - Semana 5 - 2026.pdf",
+      "membership": "REUSED",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "ALLOWED_BY_CP092_FADENA_TO_SOC",
+      "physical_support": "FOLDER_ABSENT (fuentes/fadena-so2/FADENA - SO2 Unidad 2 - Semana 5 - 2026.pdf)",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-007",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_e9682dece40b58ab",
+      "sha256": "e9682dece40b58ab7817e1d7877b032a5df2cc70f6a52d476f751737b4911f74",
+      "document_filename": "FADENA SO II -  S5-A1 - 2026.pdf",
+      "membership": "REUSED",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "ALLOWED_BY_CP092_FADENA_TO_SOC",
+      "physical_support": "FOLDER_ABSENT (fuentes/fadena-so2/FADENA SO II -  S5-A1 - 2026.pdf)",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-008",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_f009c4e75f5ca3f2",
+      "sha256": "f009c4e75f5ca3f2cabb07eaeb5ce577dfaed8a67b0f4facc51d0fa6cb0bbdd7",
+      "document_filename": "FADENA SO II - S6-A1 - 2026 (OBLIGATORIA).pdf",
+      "membership": "REUSED",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "ALLOWED_BY_CP092_FADENA_TO_SOC",
+      "physical_support": "FOLDER_ABSENT (fuentes/fadena-so2/FADENA SO II - S6-A1 - 2026 (OBLIGATORIA).pdf)",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-009",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_fadena_prog_arboles",
+      "sha256": "241af51b9e0b65944911513384563aca9d2623d7b30e6fa2eb04cc4946d65f4f",
+      "document_filename": "prog_arboles.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-010",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_fadena_prog_archivos",
+      "sha256": "ead0e969f47d966b7d39ac2c3c814bfd78b0134589b386f427898259eff1b56e",
+      "document_filename": "prog_archivos.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-011",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_fadena_prog_lineales",
+      "sha256": "d03d7669e19abaccdd331067ddf61d38f3113fe684458cf828a14f4553051145",
+      "document_filename": "prog_lineales.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-012",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_fadena_prog_punteros",
+      "sha256": "4ece5c39d64e25953bac8df1f096f43df90662970f5e6225a2e7d6daa8dcaf9d",
+      "document_filename": "prog_punteros.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION",
+        "REFERENCE"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "PENDING"
+    },
+    {
+      "grant_id": "L3-GRANT-013",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_fadena_so_concurrencia",
+      "sha256": "4c38c87d686dcc7d03fcd81f0d75d3b2ed5541e7ca9c95635a786ebdef686d85",
+      "document_filename": "so_concurrencia.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-014",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_fadena_so_memoria",
+      "sha256": "869c24589732b4392c8ae70be552d0e139cbb408e78400a75e186bb2dff574b2",
+      "document_filename": "so_memoria.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-015",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_fadena_so_planificacion",
+      "sha256": "26cfba6fe46943b6bc0a054a8e82537a90a0aba2dcab302c27bc09b7b9341744",
+      "document_filename": "so_planificacion.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-016",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_fadena_so_procesos",
+      "sha256": "4f9413043a5e562d43f59db634d9cae5de231c2c1fdd08d3242c5f76cc4eae20",
+      "document_filename": "so_procesos.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-017",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_goodrich_dsa_python",
+      "sha256": "c96e808d96bf01d6550f8bbb80db81b737e3caf76fafee2c3ff3da38e60967bd",
+      "document_filename": "Data Structures and Algorithms in Python.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-018",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_joyanes_fundamentos",
+      "sha256": "1217dd5e6038f150f454198b9645b7f4b89929ff88ba3744ca2c446082f4fb47",
+      "document_filename": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-019",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_kurose_computer_networking",
+      "sha256": "7599e188b2645104576b5502400565aff7892ef02abb866ed6899ef9b5865a9a",
+      "document_filename": "Computer Networking A Top-Down Approach (James W. Kurose, Keith W. Ross).pdf",
+      "membership": "REUSED",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "ALLOWED_BY_CP092_FADENA_TO_SOC",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-020",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_martin_clean_code",
+      "sha256": "92876e0f2bc22b150756f0845f9945fd3291df3067791627d0392bc34603e67d",
+      "document_filename": "Codigo limpio - Robert Cecil Martin.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-021",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_ramalho_fluent_python",
+      "sha256": "db97c77518c68ce3db19da8f65e9f8dd8f9494fcbba59dddb0ed1796973f7e35",
+      "document_filename": "luciano-ramalho-fluent-python_-clear-concise-and-effective-programming-oreilly-media-2022.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-022",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_rosen_matematicas_discretas",
+      "sha256": "c8146cecbc5e18f7634f13032b5ddb981566a7bcc5152740e13ec67ecabc5b18",
+      "document_filename": "Matematicas_Discretas_Rosen_IA_16MB.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "FORMAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-023",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_spraul_think_like_a_programmer",
+      "sha256": "07e0f6d0fb2497b637565ed52d57a5b9cb3701e29e4e792a130e3b351c1d7306",
+      "document_filename": "Think_Like_a_Programmer.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "METHODOLOGICAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-024",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_stallings_computer_security",
+      "sha256": "0aa9aa4cc0b23293bf20cb1c6968030220427145008143d39b5963d3724c36b1",
+      "document_filename": "Computer_Security_Stallings_3rd_Ed.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-025",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_stallings_os_internals_7ed",
+      "sha256": "76e248a62974196882b2d33db346a8efd5b8585e45ad89bb81d4859431858ced",
+      "document_filename": "Operating Systems - Internals and Design Principles 7th.pdf",
+      "membership": "REUSED",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [],
+      "policy_coverage": "ALLOWED_BY_CP092_FADENA_TO_SOC",
+      "physical_support": "FOLDER_ABSENT (fuentes/fadena-so2/Operating Systems - Internals and Design Principles 7th.pdf)",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-026",
+      "notebook_id": "fase0-soc",
+      "source_id": "src_sweigart_automate_boring_stuff",
+      "sha256": "a5d156fbb37870989baa8ed25d31925565e25d1d06b38d4e1887e1b9d48f5560",
+      "document_filename": "Automate the Boring Stuff with Python.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-027",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_1149ca3399b6dd85",
+      "sha256": "1149ca3399b6dd85649a12534f13ba26d67e7f46776050dd18f01d7f87da1e14",
+      "document_filename": "Semana06 - Clase 01 - Parte 1.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-028",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_115f0bc876b44be8",
+      "sha256": "115f0bc876b44be8e9deabdd9694b7c40ca4c89f11f6c7241bde42b1cba51777",
+      "document_filename": "Clase3LP.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-029",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_7ba98d836c32fe4b",
+      "sha256": "7ba98d836c32fe4bb127a799d643009a46e988329c382e5659cae8fcec219910",
+      "document_filename": "Manual de referencia de C v1.1.docx.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "REFERENCE"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-030",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_8ac0eed0a6121c6a",
+      "sha256": "8ac0eed0a6121c6aee735e17a74216b4eac35d23e46fc1799d08693ef3740edf",
+      "document_filename": "Clase4LP.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-031",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_fadena_leng_clase1",
+      "sha256": "349766430b88fc9a81a8ef7a287027248dad670eb93ed5b941960f0775d957d3",
+      "document_filename": "Clase1.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-032",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_fadena_leng_clase2",
+      "sha256": "ed5eab08cd5282356f35d5aded3a01775eb8771160f6ae338efefa49c6752821",
+      "document_filename": "Clase2.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-033",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_fadena_prog_arboles",
+      "sha256": "241af51b9e0b65944911513384563aca9d2623d7b30e6fa2eb04cc4946d65f4f",
+      "document_filename": "prog_arboles.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/prog_arboles.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-034",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_fadena_prog_archivos",
+      "sha256": "ead0e969f47d966b7d39ac2c3c814bfd78b0134589b386f427898259eff1b56e",
+      "document_filename": "prog_archivos.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/prog_archivos.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-035",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_fadena_prog_lineales",
+      "sha256": "d03d7669e19abaccdd331067ddf61d38f3113fe684458cf828a14f4553051145",
+      "document_filename": "prog_lineales.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/prog_lineales.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-036",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_fadena_prog_punteros",
+      "sha256": "4ece5c39d64e25953bac8df1f096f43df90662970f5e6225a2e7d6daa8dcaf9d",
+      "document_filename": "prog_punteros.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/prog_punteros.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-037",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_fdc4df20e0f9f99e",
+      "sha256": "fdc4df20e0f9f99e14873059d77fa4631a0d54e31ac3f8122e3ff49e74145074",
+      "document_filename": "Guia Practica 6.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-038",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_joyanes_fundamentos",
+      "sha256": "1217dd5e6038f150f454198b9645b7f4b89929ff88ba3744ca2c446082f4fb47",
+      "document_filename": "Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "PRIMARY",
+        "METHODOLOGICAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/Fundamentos_de_programación_4ta_Edición_Luis_Joyanes_Aguilar_2.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-039",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_marzal_intro_programacion_c",
+      "sha256": "dc44a8665f2b23a6e8ebc148731345f79c0eaf21176d1dc58bd25be46cdd0f24",
+      "document_filename": "Introduccion-a-la-programacion-en-C.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "METHODOLOGICAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-040",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_spraul_think_like_a_programmer",
+      "sha256": "07e0f6d0fb2497b637565ed52d57a5b9cb3701e29e4e792a130e3b351c1d7306",
+      "document_filename": "Think_Like_a_Programmer.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "METHODOLOGICAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/Think_Like_a_Programmer.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-041",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_stallman_gnu_c_manual",
+      "sha256": "fa5f80f8da3cb25e9a800636e2c817ba552a902819bcfbd18522fab4ff77aed3",
+      "document_filename": "GNU-c-language-manual.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "REFERENCE"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-042",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_sweigart_automate_boring_stuff",
+      "sha256": "a5d156fbb37870989baa8ed25d31925565e25d1d06b38d4e1887e1b9d48f5560",
+      "document_filename": "Automate the Boring Stuff with Python.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/Automate the Boring Stuff with Python.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-043",
+      "notebook_id": "fadena-lenguajes",
+      "source_id": "src_urrutia_programacion_c_principiantes",
+      "sha256": "776399a65bece93855f803b5e303cda85530f964359d2a673c06a310b6ba4742",
+      "document_filename": "Programacion-c-principiantes-gorka-urrutia.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-044",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_0bc5d20dcc91895f",
+      "sha256": "0bc5d20dcc91895f9ce10f47bcbfef19d6a2ed40d43cff9f16c6daaeba0c9d0b",
+      "document_filename": "Stallings.William.-.Sistemas.Operativos.5ed.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-045",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_0fc90b2695369475",
+      "sha256": "0fc90b26953694758e052e1f1bdebed4ef337809a6ab621c59cb9582a370d183",
+      "document_filename": "FADENA - SO2 - Unidad 3 - Semana 6 - 2026.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-046",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_a9a056742dcf69ae",
+      "sha256": "a9a056742dcf69aeb4774425b3b65e3a608c920656a34bd18f0d8670d4507c11",
+      "document_filename": "FADENA - SO2 Unidad 2 - Semana 4 - 2026.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-047",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_d253687930308e41",
+      "sha256": "d253687930308e418cde029d475f6f3755aab6a576f3dbe26ed1d4e4784de685",
+      "document_filename": "FADENA - SO2 Unidad 2 - Semana 5 - 2026.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-048",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_e9682dece40b58ab",
+      "sha256": "e9682dece40b58ab7817e1d7877b032a5df2cc70f6a52d476f751737b4911f74",
+      "document_filename": "FADENA SO II -  S5-A1 - 2026.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-049",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_f009c4e75f5ca3f2",
+      "sha256": "f009c4e75f5ca3f2cabb07eaeb5ce577dfaed8a67b0f4facc51d0fa6cb0bbdd7",
+      "document_filename": "FADENA SO II - S6-A1 - 2026 (OBLIGATORIA).pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-050",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_fadena_so2_clase1",
+      "sha256": "a92d5b22837a59df053a5f691e34f95713272065cb25b896e48b765e13290e45",
+      "document_filename": "Clase1SOII.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-051",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_fadena_so2_clase2",
+      "sha256": "d3b4fecfde23705065e7f5ab5a3a181b5b44ad22c1d378bffa03d0c10b2f4052",
+      "document_filename": "clase2SOII.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-052",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_fadena_so_concurrencia",
+      "sha256": "4c38c87d686dcc7d03fcd81f0d75d3b2ed5541e7ca9c95635a786ebdef686d85",
+      "document_filename": "so_concurrencia.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "PRIMARY",
+        "METHODOLOGICAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/so_concurrencia.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-053",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_fadena_so_memoria",
+      "sha256": "869c24589732b4392c8ae70be552d0e139cbb408e78400a75e186bb2dff574b2",
+      "document_filename": "so_memoria.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/so_memoria.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-054",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_fadena_so_planificacion",
+      "sha256": "26cfba6fe46943b6bc0a054a8e82537a90a0aba2dcab302c27bc09b7b9341744",
+      "document_filename": "so_planificacion.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/so_planificacion.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-055",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_fadena_so_procesos",
+      "sha256": "4f9413043a5e562d43f59db634d9cae5de231c2c1fdd08d3242c5f76cc4eae20",
+      "document_filename": "so_procesos.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/so_procesos.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-056",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_stallings_computer_security",
+      "sha256": "0aa9aa4cc0b23293bf20cb1c6968030220427145008143d39b5963d3724c36b1",
+      "document_filename": "Computer_Security_Stallings_3rd_Ed.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/Computer_Security_Stallings_3rd_Ed.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-057",
+      "notebook_id": "fadena-so2",
+      "source_id": "src_stallings_os_internals_7ed",
+      "sha256": "76e248a62974196882b2d33db346a8efd5b8585e45ad89bb81d4859431858ced",
+      "document_filename": "Operating Systems - Internals and Design Principles 7th.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-058",
+      "notebook_id": "fadena-std",
+      "source_id": "src_032c52bff94a0743",
+      "sha256": "032c52bff94a074377fc397ce6fa2e341457d913cfea84f7da8e8cb1141801c9",
+      "document_filename": "6- Ejercicios recursividad.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-059",
+      "notebook_id": "fadena-std",
+      "source_id": "src_0960283d5cef8dee",
+      "sha256": "0960283d5cef8deeb06467b5aaa965fe9d15659696657c49f9ddd4fb05f0fd23",
+      "document_filename": "2 - Álgebra Relacional y Cálculo Relacional - Presentación.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-060",
+      "notebook_id": "fadena-std",
+      "source_id": "src_3102eb1e89e2229e",
+      "sha256": "3102eb1e89e2229e44371dfd0224b494fba872b1ff1972eb37778b0e9787b6b0",
+      "document_filename": "5- Ejercicios estructuras de datos.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-061",
+      "notebook_id": "fadena-std",
+      "source_id": "src_3e2e8abda5f55c17",
+      "sha256": "3e2e8abda5f55c17881627c46da8d4f3cea57cd35761cec0b89d77c6d5b537c7",
+      "document_filename": "1 - Fundamentos del Modelo Relacional.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-062",
+      "notebook_id": "fadena-std",
+      "source_id": "src_52ff5ff3e07c1da5",
+      "sha256": "52ff5ff3e07c1da5f3f2103fc4d812a71d68a358452e056a89ea8095ee81a84e",
+      "document_filename": "2 - Álgebra Relacional y Cálculo Relacional - Ejercicios.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-063",
+      "notebook_id": "fadena-std",
+      "source_id": "src_53ef2a7243ae3f63",
+      "sha256": "53ef2a7243ae3f63202148b79663fc8f99b52e52baeb175977e8cc7cc406e454",
+      "document_filename": "2 - Álgebra Relacional y Cálculo Relacional.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-064",
+      "notebook_id": "fadena-std",
+      "source_id": "src_56cfdbe35123c49e",
+      "sha256": "56cfdbe35123c49e33500f963498468078d8de075db61860f9d96f5fc4b1ae38",
+      "document_filename": "7 - SQL Básico - Alternativas Entorno Interactivo.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-065",
+      "notebook_id": "fadena-std",
+      "source_id": "src_6dbdc8e943261fa7",
+      "sha256": "6dbdc8e943261fa72af4cbc33997637ea05cd4d1dc9c17cce1c24ea30a2ce4da",
+      "document_filename": "2 - Normalización de Bases de Datos - Ejercicios.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-066",
+      "notebook_id": "fadena-std",
+      "source_id": "src_755be6c147ddc5dd",
+      "sha256": "755be6c147ddc5ddffafed5f570b62552b72e90eddfe54c95a6e875f546e2362",
+      "document_filename": "1 - SQL Básico - Presentación.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-067",
+      "notebook_id": "fadena-std",
+      "source_id": "src_7822bc3cef85c783",
+      "sha256": "7822bc3cef85c7831bd50f5749240e27c81cf23dd2b65876bc1d2c7581288132",
+      "document_filename": "1 - Diseño de Bases de Datos Relacionales.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-068",
+      "notebook_id": "fadena-std",
+      "source_id": "src_7ec00a3365f208e6",
+      "sha256": "7ec00a3365f208e68ea1b55a2b4807525432e2e1d18f37212c574c929285f4e9",
+      "document_filename": "4 - SQL Básico - Ejercicios.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-069",
+      "notebook_id": "fadena-std",
+      "source_id": "src_9946be0e7d11161a",
+      "sha256": "9946be0e7d11161a39271d223801dbf766c345b605e754d45236452cb062d387",
+      "document_filename": "2 - Normalización de Bases de Datos.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-070",
+      "notebook_id": "fadena-std",
+      "source_id": "src_9e866bf082e52dd7",
+      "sha256": "9e866bf082e52dd7bd618196b8a9bc53b01b9c697939824e6d31dbdf7921c4ac",
+      "document_filename": "1 - Fundamentos del Modelo Relacional - Ejercicios.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-071",
+      "notebook_id": "fadena-std",
+      "source_id": "src_a01b9809f37fb47b",
+      "sha256": "a01b9809f37fb47b785b234938790347b3013f7a43c64350d36b33d73bd868e5",
+      "document_filename": "1 - Diseño de Bases de Datos Relacionales - Ejercicios.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-072",
+      "notebook_id": "fadena-std",
+      "source_id": "src_cf46d8f0e018b09e",
+      "sha256": "cf46d8f0e018b09eb755a2d985cec3d2e0aa3be0cce435db701176b5219ad94a",
+      "document_filename": "1 - Diseño de Bases de Datos Relacionales - Presentación.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-073",
+      "notebook_id": "fadena-std",
+      "source_id": "src_coronel_database_systems_11ed",
+      "sha256": "4990c35d1608dee403d88c0cfdddc58656201b9540729c84db860ad73b637828",
+      "document_filename": "database-systems-design-implementation-and-management.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-074",
+      "notebook_id": "fadena-std",
+      "source_id": "src_d7ff8399759d387a",
+      "sha256": "d7ff8399759d387a5cdd6170d7ff6f12e14fe51ab7c4936b99d96c4f5eab7962",
+      "document_filename": "1 - Estructuras de Datos.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-075",
+      "notebook_id": "fadena-std",
+      "source_id": "src_d946d1a5a3c32144",
+      "sha256": "d946d1a5a3c321444c17347bd8fd3cb3077ca3d4d7c20125d149f2703b766b61",
+      "document_filename": "1 - Fundamentos del Modelo Relacional - Presentación.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-076",
+      "notebook_id": "fadena-std",
+      "source_id": "src_date_intro_sistemas_bd_7ed",
+      "sha256": "da02ac37e324cd4bb3742866f19acdd38d585d1bfa9a7a3937c9523054fd3f92",
+      "document_filename": "Introducción a los Sistemas de Bases de Datos, 7ma Edición, C. J. Date.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "FORMAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-077",
+      "notebook_id": "fadena-std",
+      "source_id": "src_de275591245abbd3",
+      "sha256": "de275591245abbd3c57b80bb9f09a2574a38816a4bc231acc67ca952474428e3",
+      "document_filename": "2 - Normalización de Bases de Datos - Presentación.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-078",
+      "notebook_id": "fadena-std",
+      "source_id": "src_elmasri_navathe_sistemas_bd",
+      "sha256": "bed831d843c06e759665d125cea5087d5a6f57bfc8b5d8c649047f9b2393dc57",
+      "document_filename": "Fundamentos-de-Sistemas-de-Bases-de-Datos.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-079",
+      "notebook_id": "fadena-std",
+      "source_id": "src_f3352475bc0cd360",
+      "sha256": "f3352475bc0cd360ff25e05d6b8b2e5b4ebce8991f0ea9880bf5064e4e41ba58",
+      "document_filename": "6 - SQL Básico - Soluciones Ejercicios.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-080",
+      "notebook_id": "fadena-std",
+      "source_id": "src_f93b8a264e20359c",
+      "sha256": "f93b8a264e20359c6d1a06c0239f43c7665f8fd5d3624d20e386d74da97b2664",
+      "document_filename": "3 - SQL Básico.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-081",
+      "notebook_id": "fadena-std",
+      "source_id": "src_fadena_prog_archivos",
+      "sha256": "ead0e969f47d966b7d39ac2c3c814bfd78b0134589b386f427898259eff1b56e",
+      "document_filename": "prog_archivos.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/prog_archivos.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-082",
+      "notebook_id": "fadena-std",
+      "source_id": "src_fadena_std_unidad1",
+      "sha256": "d22e633943c623d208564821444f80af1694d61680ec17e9f7ca7ce3e29da305",
+      "document_filename": "UNIDAD1STD.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-083",
+      "notebook_id": "fadena-std",
+      "source_id": "src_marques_bases_de_datos",
+      "sha256": "6a44b761bfdc367814820dd1ab4391909a01bbd95dd1ac89ce99b78beb06e3e9",
+      "document_filename": "MercedesMarqués (2011) Bases de datos,1era Edición.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-084",
+      "notebook_id": "fadena-std",
+      "source_id": "src_ramakrishnan_gehrke_dbms",
+      "sha256": "808ae432589d4ea34c8d4be2bf0944f9150d003fcef169e0a55e4a628b21c462",
+      "document_filename": "Raghu-Ramakrishnan-Johannes-Gehrke-Database-Management-Systems-McGraw-Hill-Education-2018.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-085",
+      "notebook_id": "fadena-std",
+      "source_id": "src_ramalho_fluent_python",
+      "sha256": "db97c77518c68ce3db19da8f65e9f8dd8f9494fcbba59dddb0ed1796973f7e35",
+      "document_filename": "luciano-ramalho-fluent-python_-clear-concise-and-effective-programming-oreilly-media-2022.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "IMPLEMENTATION"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/luciano-ramalho-fluent-python_-clear-concise-and-effective-programming-oreilly-media-2022.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-086",
+      "notebook_id": "fadena-std",
+      "source_id": "src_rosen_matematicas_discretas",
+      "sha256": "c8146cecbc5e18f7634f13032b5ddb981566a7bcc5152740e13ec67ecabc5b18",
+      "document_filename": "Matematicas_Discretas_Rosen_IA_16MB.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/Matematicas_Discretas_Rosen_IA_16MB.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-087",
+      "notebook_id": "fadena-std",
+      "source_id": "src_silberschatz_fundamentos_bd",
+      "sha256": "5e567f9df7f3ddfbc2fe37c8e8aa8dc30932a6d810283b3347908c3761686af1",
+      "document_filename": "Fundamentos de bases de datos .pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-088",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src-guia-2025-c04f44ef",
+      "sha256": "c04f44efcccf2c7304cc0860fe6039d210a922a596988380c7285d658e66f0c2",
+      "document_filename": "GUIA_2025-en procesov2.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "METHODOLOGICAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/GUIA_2025-en procesov2.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-089",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_001b27137cf6680c",
+      "sha256": "001b27137cf6680c4eb4a9e4716ea208cf9bf362d384785f3ced1cfcd71f775c",
+      "document_filename": "Unidad 4 2026.pptx.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-090",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_11195af8e0f2ef40",
+      "sha256": "11195af8e0f2ef4081371e0a5c7c24435dc9b88e3cd0a7adde4c91293cdc35e1",
+      "document_filename": "Unidad 5 2026.pptx.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-091",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_2f1a5843cd1693ba",
+      "sha256": "2f1a5843cd1693bac1c96f8b73cc8e92b75ff32eef48b690ceefc237edaddf7b",
+      "document_filename": "Unidad 2 2026.pptx.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-092",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_castro_fusario_comunicaciones_redes",
+      "sha256": "1a4caaa17e620e603b8094e2117ead597cd25ca392f1c419e455a82350e5bdbd",
+      "document_filename": "Comunicaciones_y_redes.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-093",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_comer_internetworking_tcpip_v1",
+      "sha256": "f04fee214066e3238a7c2e1db8d71dd10dac6e11b93c0823786506c7971cc51c",
+      "document_filename": "Douglas E. Comer - Internetworking with TCP_IP Volume One. 1-Addison-Wesley (2013).pdf",
+      "membership": "NATIVE",
+      "curricular_function": "NOT_ESTABLISHED",
+      "declared_roles": [
+        "FORMAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-094",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_corletti_seguridad_redes",
+      "sha256": "3caa27ac33ca3ddae9c05094f4e40b0a2f9a1b424c9f63caba3d402f20396abb",
+      "document_filename": "seguridad-en-redes.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "COMPLEMENTARY",
+      "declared_roles": [
+        "COMPLEMENTARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-095",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_da10b53f20f2a647",
+      "sha256": "da10b53f20f2a6477be12356e40a4f824cf266330855365fdf45af867004695f",
+      "document_filename": "Unidad 3 2026.pptx.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-096",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_fadena_teleco_unidad1",
+      "sha256": "f7d3f8520381e15648cc3c00f35f00cb8b5570bae32d60f463a7af8a105e47bf",
+      "document_filename": "Unidad 1 - Infraestructura.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-097",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_kurose_computer_networking",
+      "sha256": "7599e188b2645104576b5502400565aff7892ef02abb866ed6899ef9b5865a9a",
+      "document_filename": "Computer Networking A Top-Down Approach (James W. Kurose, Keith W. Ross).pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY",
+        "METHODOLOGICAL"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    },
+    {
+      "grant_id": "L3-GRANT-098",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_stallings_computer_security",
+      "sha256": "0aa9aa4cc0b23293bf20cb1c6968030220427145008143d39b5963d3724c36b1",
+      "document_filename": "Computer_Security_Stallings_3rd_Ed.pdf",
+      "membership": "REUSED",
+      "curricular_function": "UNRESOLVED",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_ABSENT (fuentes/fase0-soc/Computer_Security_Stallings_3rd_Ed.pdf)",
+      "status": "EXCLUDED"
+    },
+    {
+      "grant_id": "L3-GRANT-099",
+      "notebook_id": "fadena-teleco",
+      "source_id": "src_stallings_comunicaciones_redes_7ed",
+      "sha256": "b6b9613417b60571a903378310c0b213ee10f18b6252cfbb2bfcdefa905e8a38",
+      "document_filename": "Stallings - Comunicaciones y Redes de Computadores - 7ma edición.pdf",
+      "membership": "NATIVE",
+      "curricular_function": "PRIMARY",
+      "declared_roles": [
+        "PRIMARY"
+      ],
+      "policy_coverage": "POLICY_NOT_GRANTED",
+      "physical_support": "FOLDER_CONFIRMED",
+      "status": "AUTHORIZED"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 """Importador Real de Ejercicios de Fase 0 del Estudiante a TALOS.
 
 Lee las carpetas reales de Fase 0:
-/media/agustin/Laboratorio/Ciberseguiradad/Fase 0/FundamentosAlgoritmosYEstrucutrasDeDatos/Ciberdefensa/Fase0
+/media/agustin/Almacenamiento/Facultad/Estudios/Ciberseguridad/Ciberseguiradad/Fase 0/FundamentosAlgoritmosYEstrucutrasDeDatos/Ciberdefensa/Fase0
 y ensambla los ejercicios canónicos de Tramos 1 al 4 con:
 - Código Python con Type Hints
 - Contratos Formales PRE/POST
@@ -26,7 +26,7 @@ from study_engine.pedagogy.auditors.programming_auditor import ProgrammingExerci
 from study_engine.student.storage import StudentStorage
 from study_engine.student.bkt_tracker import BKTTracker
 
-SRC_BASE = Path("/media/agustin/Laboratorio/Ciberseguiradad/Fase 0/FundamentosAlgoritmosYEstrucutrasDeDatos/Ciberdefensa/Fase0")
+SRC_BASE = Path("/media/agustin/Almacenamiento/Facultad/Estudios/Ciberseguridad/Ciberseguiradad/Fase 0/FundamentosAlgoritmosYEstrucutrasDeDatos/Ciberdefensa/Fase0")
 DEST_BASE = REPO_ROOT / "data" / "student_submissions" / "fase0-soc"
 DB_PATH = REPO_ROOT / "data" / "web_state" / "student_state.db"
 REPORTS_DIR = REPO_ROOT / "data" / "student_submissions" / ".reports"

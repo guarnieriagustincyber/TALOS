@@ -480,8 +480,24 @@ async def upload_colab_vectors(
             vector_db=v_db,
             knowledge_db=k_db,
         )
+    except ValueError as e:
+        # Validation errors (contract, schema, space_id, dimensions, unknown chunk_id)
+        # 400 for client errors, 409 for identity incompatibility
+        msg = str(e)
+        if "space_id" in msg or "identity" in msg or "incompatible" in msg:
+            raise HTTPException(status_code=409, detail=f"Vector identity conflict: {msg}")
+        elif "schema" in msg or "dim" in msg or "JSON" in msg or "valores no finitos" in msg:
+            raise HTTPException(status_code=400, detail=f"Invalid vector payload: {msg}")
+        elif "no existen" in msg or "chunk_id" in msg:
+            raise HTTPException(status_code=404, detail=f"Referenced chunk not found: {msg}")
+        else:
+            raise HTTPException(status_code=400, detail=f"Validation error: {msg}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al sincronizar vectores subidos: {e}")
+
+    # Ensure no partial sync state leaked
+    if res.get("synced", 0) == 0:
+        raise HTTPException(status_code=500, detail="Sync reported zero synced vectors")
 
     return ColabSyncDto(
         status="ok",

@@ -10,6 +10,7 @@ import {
   MorphingPopoverContent,
 } from "@/components/ui/morphing-popover";
 import { Citation, EvidenceTab } from "../views/types";
+import { resolveCitationByTag } from "./citationIdentity";
 import { CodeBlock } from "./components/CodeBlock";
 import { MermaidBlock } from "./components/MermaidBlock";
 import { TableBlock } from "./components/TableBlock";
@@ -38,9 +39,9 @@ const CitationChipWithPopover: React.FC<CitationChipWithPopoverProps> = ({
 }) => {
   const [isOpeningPdf, setIsOpeningPdf] = useState(false);
 
-  const titleText = citation.source_title || citation.sourceTitle || citation.source_id || "Fuente canónica";
+  const titleText = citation.source_title || citation.sourceTitle || citation.source_id || "Fuente no identificada";
   const authorText = citation.author || "";
-  const pageNum = citation.page || citation.pageStart || 1;
+  const pageNum = citation.page ?? citation.pageStart ?? null;
   const docHash = citation.docHash || "";
   const excerpt = citation.chunk_text || citation.chunkText || "";
   const epistemicRole = (citation.epistemic_role || citation.epistemicRole || "pedagogical").toLowerCase();
@@ -54,7 +55,7 @@ const CitationChipWithPopover: React.FC<CitationChipWithPopoverProps> = ({
 
   const handleOpenPdf = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!docHash) return;
+    if (!docHash || pageNum == null) return;
     setIsOpeningPdf(true);
     try {
       await fetch(`/api/evidence/open-local-pdf?hash=${encodeURIComponent(docHash)}&page=${pageNum}`);
@@ -70,7 +71,7 @@ const CitationChipWithPopover: React.FC<CitationChipWithPopoverProps> = ({
     if (onOpenCitation) {
       onOpenCitation(citation);
     } else if (onOpenEvidence) {
-      onOpenEvidence("evidencia", docHash || undefined, pageNum, citation);
+      onOpenEvidence("evidencia", docHash || undefined, pageNum ?? undefined, citation);
     }
   };
 
@@ -79,7 +80,7 @@ const CitationChipWithPopover: React.FC<CitationChipWithPopoverProps> = ({
       <MorphingPopoverTrigger className="citation-chip cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-400">
         <BookOpen className="w-3 h-3 shrink-0 opacity-80 text-emerald-400" />
         <span className="font-mono text-emerald-300 font-semibold">[{displayTag}]</span>
-        {pageNum ? <span className="text-[9.5px] opacity-70 text-emerald-400/80">p.{pageNum}</span> : null}
+        {pageNum != null ? <span className="text-[9.5px] opacity-70 text-emerald-400/80">p.{pageNum}</span> : null}
       </MorphingPopoverTrigger>
 
       <MorphingPopoverContent className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 sm:w-80 p-3 rounded-[16px] bg-[#0c120e]/95 backdrop-blur-md border border-emerald-500/35 shadow-[0_12px_40px_rgba(0,0,0,0.85)] text-left font-mono text-xs space-y-2 pointer-events-auto">
@@ -104,9 +105,9 @@ const CitationChipWithPopover: React.FC<CitationChipWithPopoverProps> = ({
         <div className="flex items-center justify-between text-[10px] text-white/50">
           <span className="flex items-center gap-1 text-emerald-300">
             <FileText className="w-3 h-3" />
-            Página {pageNum}
+            {pageNum == null ? "Página no disponible" : `Página ${pageNum}`}
           </span>
-          {docHash ? (
+          {docHash && pageNum != null ? (
             <span className="truncate max-w-[120px]" title={docHash}>
               SHA: {docHash.slice(0, 8)}...
             </span>
@@ -185,24 +186,7 @@ function processCitations(
 
       const citationTag = match[0];
       const rawCitationId = match[1];
-      const numVal = parseInt(rawCitationId.replace(/\D/g, ""), 10);
-
-      const citation = evidences?.find((e, idx) => {
-        if (!e) return false;
-        const eId = (e.id || "").toLowerCase();
-        const cId = (e.citationId || "").toLowerCase();
-        const targetLower = rawCitationId.toLowerCase();
-        const eNum = parseInt(eId.replace(/\D/g, ""), 10);
-        const cNum = parseInt(cId.replace(/\D/g, ""), 10);
-
-        return (
-          eId === targetLower ||
-          cId === targetLower ||
-          eId === `e${targetLower}` ||
-          cId === `e${targetLower}` ||
-          (numVal > 0 && (eNum === numVal || cNum === numVal || idx === numVal - 1))
-        );
-      });
+      const citation = resolveCitationByTag(rawCitationId, evidences);
 
       if (citation && citation.namespace === "TF") {
         // Aislamiento FV-2: Namespace [TF#] -> Threat Intel externo (unverified)
@@ -229,23 +213,16 @@ function processCitations(
           />
         );
       } else {
-        // Cita presente en texto pero sin provenance vinculada aún: botón interactivo de consulta
+        // A marker without an exact manifest identity is not a navigable citation.
         parts.push(
-          <button
+          <span
             key={`raw-${match.index}`}
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onOpenEvidence) {
-                onOpenEvidence("evidencia");
-              }
-            }}
-            className="citation-chip opacity-85"
-            title={`Cita documental ${citationTag}`}
+            className="citation-chip opacity-85 text-amber-300"
+            title="Referencia sin procedencia vinculada"
           >
-            <BookOpen className="w-3 h-3 shrink-0 opacity-70" />
-            <span>{citationTag}</span>
-          </button>
+            <AlertTriangle className="w-3 h-3 shrink-0 opacity-70" />
+            <span>{citationTag} sin verificar</span>
+          </span>
         );
       }
 

@@ -30,6 +30,7 @@ def client(web_state_test_copy: Path) -> TestClient:
     app = create_app()
     container = AppContainer(working_dir=web_state_test_copy, use_mock=True)
     set_container(container)
+    app.state.talos_test_container = container
     return TestClient(app)
 
 
@@ -71,11 +72,20 @@ GOLDEN_CASES = [
 def test_golden_study_loop(client: TestClient, case: dict) -> None:
     nb_id = case["notebook_id"]
     kc_id = case["kc_id"]
+    container = client.app.state.talos_test_container
+    session = container.study_session_orchestrator.open_session(
+        notebook_id=nb_id,
+        student_id="agustin",
+    )
 
     # 1. Start episode
     start_resp = client.post(
         "/api/pedagogy/episode/start",
-        json={"notebook_id": nb_id, "kc_id": kc_id},
+        json={
+            "notebook_id": nb_id,
+            "kc_id": kc_id,
+            "session_id": session.session_id,
+        },
     )
     assert start_resp.status_code == 200, start_resp.text
     ep_data = start_resp.json()
@@ -100,7 +110,7 @@ def test_golden_study_loop(client: TestClient, case: dict) -> None:
     # 4. Respond to exercise (Deterministic grading & BKT)
     respond_resp = client.post(
         f"/api/pedagogy/episode/{ep_id}/respond",
-        json={"step_id": step_id, "response_text": case["answer"]},
+        json={"step_id": step_id, "response_text": case["answer"], "session_id": session.session_id},
     )
     assert respond_resp.status_code == 200
     r_data = respond_resp.json()
@@ -111,7 +121,7 @@ def test_golden_study_loop(client: TestClient, case: dict) -> None:
     # 5. Idempotent Retry: repeating the same step_id must NOT increment attempts
     repeat_resp = client.post(
         f"/api/pedagogy/episode/{ep_id}/respond",
-        json={"step_id": step_id, "response_text": case["answer"]},
+        json={"step_id": step_id, "response_text": case["answer"], "session_id": session.session_id},
     )
     assert repeat_resp.status_code == 200
     rep_data = repeat_resp.json()
@@ -120,9 +130,17 @@ def test_golden_study_loop(client: TestClient, case: dict) -> None:
 
 
 def test_negative_unknown_kc_rejected(client: TestClient) -> None:
+    session = client.app.state.talos_test_container.study_session_orchestrator.open_session(
+        notebook_id="fase0-soc",
+        student_id="agustin",
+    )
     resp = client.post(
         "/api/pedagogy/episode/start",
-        json={"notebook_id": "fase0-soc", "kc_id": "kc_fantasma_inexistente"},
+        json={
+            "notebook_id": "fase0-soc",
+            "kc_id": "kc_fantasma_inexistente",
+            "session_id": session.session_id,
+        },
     )
     assert resp.status_code == 400
     assert "no pertenece" in resp.json()["detail"]
@@ -130,8 +148,16 @@ def test_negative_unknown_kc_rejected(client: TestClient) -> None:
 
 def test_negative_cross_notebook_kc_rejected(client: TestClient) -> None:
     # Attempting to start SO2 KC in fase0-soc must fail-closed
+    session = client.app.state.talos_test_container.study_session_orchestrator.open_session(
+        notebook_id="fase0-soc",
+        student_id="agustin",
+    )
     resp = client.post(
         "/api/pedagogy/episode/start",
-        json={"notebook_id": "fase0-soc", "kc_id": "so2_gestion_procesos_pcb"},
+        json={
+            "notebook_id": "fase0-soc",
+            "kc_id": "so2_gestion_procesos_pcb",
+            "session_id": session.session_id,
+        },
     )
     assert resp.status_code == 400

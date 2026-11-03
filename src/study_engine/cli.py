@@ -72,28 +72,51 @@ def _pending_pairs(
     knowledge_db: Path,
     vector_db: Path,
     dimensions: int = 1024,
+    space_id: Optional[str] = None,
 ) -> List[Tuple[str, str, str]]:
-    """Chunks con notebook asignado que aún no tienen embedding (dim=1024).
+    """Chunks con notebook asignado que aún no tienen embedding en el espacio vectorial indicado.
 
-    Solo cuentan como 'cubiertos' los vectores con dimensions = 1024: los
-    vectores legacy de dimensiones anteriores NO habilitan la ruta
-    vectorial real y deben re-computarse.
+    Solo cuentan como 'cubiertos' los vectores del espacio vectorial identificado por space_id
+    y con la dimensión especificada. Los vectores legacy sin space_id NO habilitan la ruta
+    vectorial real y deben re-computarse. Un espacio no identificado (space_id=None)
+    no acredita cobertura para ningún espacio T07.
     """
     con = sqlite3.connect(f"file:{knowledge_db}?mode=ro", uri=True)
     try:
         con.execute(f"ATTACH DATABASE 'file:{vector_db}?mode=ro' AS vec")
+        # Check if the chunk_embeddings table has a space_id column
+        # Correct syntax for attached database: pragma_table_info(table, schema)
+        has_space_id = con.execute(
+            "SELECT 1 FROM pragma_table_info('chunk_embeddings', 'vec') WHERE name = 'space_id'"
+        ).fetchone() is not None
+        
+        if has_space_id:
+            if space_id is not None:
+                # Explicit space_id filter for T07-identified space
+                where_clause = "AND ve.dimensions = ? AND ve.space_id = ?"
+                params = (dimensions, space_id)
+            else:
+                # No target space_id provided: cannot verify T07 coverage for any specific space.
+                # Return all chunks as pending (no coverage verified).
+                where_clause = "AND 1=0"  # No vectors match this condition
+                params = ()
+        else:
+            # Legacy schema without space_id column: fall back to dimension-only filter
+            where_clause = "AND ve.dimensions = ?"
+            params = (dimensions,)
+        
         rows = con.execute(
-            """
+            f"""
             SELECT c.id, ns.notebook_id, c.content
             FROM chunks c
             JOIN notebook_sources ns ON ns.source_id = c.source_id
             LEFT JOIN vec.chunk_embeddings ve
                 ON ve.chunk_id = c.id AND ve.notebook_id = ns.notebook_id
-               AND ve.dimensions = ?
+               {where_clause}
             WHERE ve.chunk_id IS NULL
             ORDER BY ns.notebook_id, c.id;
             """,
-            (dimensions,),
+            params,
         ).fetchall()
     finally:
         con.close()
@@ -109,7 +132,9 @@ def export_pending(
     """Exporta los chunks pendientes a pending_<ts>.jsonl. Devuelve (path, count)."""
     contract = load_contract(contract_path)
     dims = int(contract.get("dimensions", 1024))
-    pairs = _pending_pairs(Path(knowledge_db), Path(vector_db), dimensions=dims)
+    # Extract space_id from contract if present (T07 identity)
+    space_id = contract.get("space_id")
+    pairs = _pending_pairs(Path(knowledge_db), Path(vector_db), dimensions=dims, space_id=space_id)
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -195,7 +220,7 @@ def sync_vectors(
 ) -> Dict[str, int]:
     """Inserta vectores nuevos en UNA transacción streaming (idempotente y memory-safe para archivos multi-GB)."""
     import struct
-    from study_engine.retrieval.vector_store import SQLiteVectorStore
+    from study_engine.retrieval.vector_store import SQLiteVectorStore, VectorRecord
 
     contract = load_contract(contract_path)
     dim = int(contract["dimensions"])
@@ -209,33 +234,47 @@ def sync_vectors(
     finally:
         kcon.close()
 
-    # Asegurar inicialización de schema e índices en el vector store
-    vstore = SQLiteVectorStore(vector_db)
-    vstore.close()
+    # Open vector store to check existing space identity
+    # The active index determines the expected space; reject incompatible vectors.
+    vstore = SQLiteVectorStore(vector_db, read_only=False)
+    
+    # Determine expected space_id from existing vectors
+    # If index has space_id column, get the space_id from existing vectors
+    expected_space_id = None
+    if vstore._has_space_id:
+        # Get space_ids from existing vectors (across all notebooks)
+        space_ids = {
+            row[0] for row in vstore._conn.execute(
+                "SELECT DISTINCT space_id FROM chunk_embeddings"
+            )
+        }
+        # Filter out None (legacy NULL space_id)
+        non_null_space_ids = {sid for sid in space_ids if sid is not None}
+        if len(non_null_space_ids) > 1:
+            vstore.close()
+            raise ValueError("Ambiguous index space_id: multiple vector identities")
+        if non_null_space_ids:
+            # Use the first non-NULL space_id as expected
+            expected_space_id = next(iter(non_null_space_ids))
+        else:
+            # All existing vectors have NULL space_id (legacy)
+            # Check if there are any vectors at all
+            if vstore.count() > 0:
+                # Legacy index with NULL space_id vectors
+                # Allow legacy vectors (space_id=None) but reject vectors with space_id
+                expected_space_id = "LEGACY"
+            else:
+                # Empty index - will accept first vector's space_id
+                expected_space_id = None
+    else:
+        # No space_id column (legacy schema) - reject per T07
+        expected_space_id = "NO_SPACE_ID_COLUMN"
+    
+    # First pass: parse and validate all records, collect for batch save
+    records_to_save = []
+    meta_checked = False
 
-    vcon = sqlite3.connect(str(vector_db))
-    vcon.execute("PRAGMA journal_mode = WAL;")
-    vcon.execute("PRAGMA synchronous = NORMAL;")
-    vcon.execute("PRAGMA busy_timeout = 30000;")
-
-    # Identificar existentes para clasificar inserted vs updated
-    existing_keys = {
-        (r[0], r[1])
-        for r in vcon.execute(
-            "SELECT chunk_id, notebook_id FROM chunk_embeddings WHERE dimensions = ?",
-            (dim,),
-        )
-    }
-
-    inserted = 0
-    updated = 0
-    total_synced = 0
-
-    vcon.execute("BEGIN TRANSACTION;")
     try:
-        batch = []
-        meta_checked = False
-
         with open(vectors_jsonl, "r", encoding="utf-8") as f:
             for lineno, line in enumerate(f, start=1):
                 line = line.strip()
@@ -258,8 +297,8 @@ def sync_vectors(
                                 f"{vectors_jsonl}: contract incompatible en campos {diffs} — "
                                 "los vectores vendrían de un espacio de embedding distinto."
                             )
-                    meta_checked = True
-                    continue
+                        meta_checked = True
+                        continue
 
                 chunk_id = obj.get("chunk_id")
                 notebook_id = obj.get("notebook_id")
@@ -283,55 +322,86 @@ def sync_vectors(
                 if any((not isinstance(v, (int, float))) or v != v for v in vector):
                     raise ValueError(f"{vectors_jsonl}:{lineno}: vector con valores no finitos")
 
-                blob = struct.pack(f"{dim}f", *vector)
-                source_id = src_map[chunk_id]
-                batch.append((chunk_id, notebook_id, source_id, provider_id, model_id, dim, blob))
+                # Validate space_id compatibility
+                record_space_id = obj.get("space_id")
+                
+                if expected_space_id == "LEGACY":
+                    # Legacy index: only accept vectors without space_id (legacy)
+                    if record_space_id is not None:
+                        raise ValueError(
+                            f"{vectors_jsonl}:{lineno}: vector has space_id '{record_space_id}' "
+                            f"but index is legacy (NULL space_id). Legacy index cannot accept vectors with space_id."
+                        )
+                    # Legacy index accepts legacy vectors (space_id=None)
+                    record_space_id = None
+                elif expected_space_id == "NO_SPACE_ID_COLUMN":
+                    # Legacy schema without space_id column - reject per T07
+                    raise ValueError(
+                        f"{vectors_jsonl}:{lineno}: legacy schema without space_id column — "
+                        "migration required before syncing vectors"
+                    )
+                elif expected_space_id is not None:
+                    # Index has a specific space_id: require matching space_id
+                    if record_space_id is None:
+                        raise ValueError(
+                            f"{vectors_jsonl}:{lineno}: vector missing space_id — "
+                            f"expected space_id '{expected_space_id}'"
+                        )
+                    if record_space_id != expected_space_id:
+                        raise ValueError(
+                            f"{vectors_jsonl}:{lineno}: vector space_id '{record_space_id}' "
+                            f"incompatible with index space_id '{expected_space_id}'"
+                        )
+                else:
+                    # Empty index: accept first vector's space_id (or None for legacy)
+                    # Will be set on first record
+                    pass
 
-                key = (chunk_id, notebook_id)
-                if key in existing_keys:
+                # Prepare record for batch save
+                record = VectorRecord(
+                    chunk_id=chunk_id,
+                    notebook_id=notebook_id,
+                    source_id=src_map[chunk_id],
+                    provider_id=provider_id,
+                    model_id=model_id,
+                    dimensions=dim,
+                    vector=vector,
+                    space_id=record_space_id if expected_space_id not in ("LEGACY", "NO_SPACE_ID_COLUMN", None) else None,
+                )
+                records_to_save.append((record, chunk_id, notebook_id))
+
+        if not records_to_save:
+            raise ValueError(f"{vectors_jsonl}: no contiene vectores válidos")
+
+        # Batch save all records atomically
+        records = [r for r, _, _ in records_to_save]
+        try:
+            # Check which are updates vs inserts
+            inserted = 0
+            updated = 0
+            for record, chunk_id, notebook_id in records_to_save:
+                existing = vstore.get_by_notebook(notebook_id)
+                is_update = any(r.chunk_id == chunk_id for r in existing)
+                if is_update:
                     updated += 1
                 else:
                     inserted += 1
-                    existing_keys.add(key)
-                total_synced += 1
+            vstore.save_records(records)
+            total_synced = len(records)
+        except Exception as exc:
+            raise ValueError(f"{vectors_jsonl}: error saving records: {exc}") from exc
 
-                if len(batch) >= batch_size:
-                    vcon.executemany(
-                        """
-                        INSERT OR REPLACE INTO chunk_embeddings (
-                            chunk_id, notebook_id, source_id, provider_id, model_id, dimensions, vector
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?);
-                        """,
-                        batch,
-                    )
-                    batch.clear()
-
-            if batch:
-                vcon.executemany(
-                    """
-                    INSERT OR REPLACE INTO chunk_embeddings (
-                        chunk_id, notebook_id, source_id, provider_id, model_id, dimensions, vector
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?);
-                    """,
-                    batch,
-                )
-                batch.clear()
-
-        if total_synced == 0:
-            raise ValueError(f"{vectors_jsonl}: no contiene vectores válidos")
-
-        vcon.commit()
     except Exception:
-        vcon.rollback()
         raise
     finally:
-        vcon.close()
+        vstore.close()
 
     pending_after = len(
         _pending_pairs(
             Path(knowledge_db),
             Path(vector_db),
             dimensions=dim,
+            space_id=expected_space_id if expected_space_id not in ("LEGACY", "NO_SPACE_ID_COLUMN") else None,
         )
     )
     return {
@@ -350,24 +420,40 @@ def verify_index(
     knowledge_db: Path = DEFAULT_KNOWLEDGE_DB,
     vector_db: Path = DEFAULT_VECTOR_DB,
     run_control_queries: bool = True,
+    *,
+    contract_path: Optional[Path] = None,
 ) -> Dict[str, Any]:
     """Integridad + cobertura + queries de control. Devuelve dict de reporte."""
     report: Dict[str, Any] = {"ok": True, "checks": {}}
-
-    pending = _pending_pairs(Path(knowledge_db), Path(vector_db))
-    report["checks"]["pending_chunks"] = len(pending)
-    if pending:
-        report["ok"] = False
+    contract = load_contract(contract_path) if contract_path is not None else {}
+    space_id = contract.get("space_id")
+    dimensions = contract.get("dimensions", 1024)
+    if space_id is not None and (not isinstance(space_id, str) or not space_id.strip()):
+        raise ValueError("verify-index requires an unambiguous explicit space_id")
+    if type(dimensions) is not int or dimensions <= 0 or (space_id is not None and "dimensions" not in contract):
+        raise ValueError("verify-index requires explicit positive dimensions for T07")
 
     for name, db in (("knowledge_store", knowledge_db), ("vector_store", vector_db)):
         con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
         try:
             integrity = con.execute("PRAGMA integrity_check").fetchone()[0]
+            if name == "vector_store":
+                has_space_id = any(
+                    row[1] == "space_id"
+                    for row in con.execute("PRAGMA table_info(chunk_embeddings)")
+                )
         finally:
             con.close()
         report["checks"][f"integrity_{name}"] = integrity
         if integrity != "ok":
             report["ok"] = False
+
+    pending = _pending_pairs(Path(knowledge_db), Path(vector_db), dimensions=dimensions, space_id=space_id)
+    report["checks"]["pending_chunks"] = len(pending)
+    report["checks"]["space_id"] = space_id
+    report["checks"]["coverage_scope"] = "T07" if has_space_id and space_id is not None else "LEGACY" if not has_space_id else "UNKNOWN"
+    if pending or (has_space_id and space_id is None) or (not has_space_id and space_id is not None):
+        report["ok"] = False
 
     if run_control_queries:
         control = []
@@ -632,6 +718,7 @@ def _cmd_verify_index(args: argparse.Namespace) -> int:
         knowledge_db=Path(args.knowledge_db),
         vector_db=Path(args.vector_db),
         run_control_queries=not args.no_control_queries,
+        contract_path=Path(args.contract) if args.contract else None,
     )
     for key, val in report["checks"].items():
         if key == "control_queries":
@@ -775,6 +862,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_ver = sub.add_parser("verify-index", help="Verifica cobertura, integridad y gate de abstención")
     p_ver.add_argument("--no-control-queries", action="store_true", help="Salta las 3 queries de control")
+    p_ver.add_argument("--contract", help="Contrato explícito del espacio vectorial a verificar")
     p_ver.set_defaults(func=_cmd_verify_index)
 
     # talos kc — gestión de Knowledge Components (Fase 5.2)
